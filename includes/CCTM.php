@@ -388,7 +388,7 @@ class CCTM
 		
 		$post_cnt_obj = wp_count_posts($post_type);
 		$msg .= '<p>'
-			. sprintf( __('This would affect %1$s published %2$s sposts.'
+			. sprintf( __('This would affect %1$s published %2$s posts.'
 			,CCTM::txtdomain), '<strong>'.$post_cnt_obj->publish.'</strong>'
 				 , "<em>$post_type</em>")
 				.'</p>';
@@ -748,9 +748,9 @@ class CCTM
 	
 	This whole function is necessary because the form generator definition needs
 	to know where to find values for its fields -- the $def is an empty template,
-	so we need to populate with values by splicing the $def together with the 
+	so we need to populate it with values by splicing the $def together with the 
 	$pt_data.  Some of this complication is due to the fact that we need to update
-	the field names to acommodate array, e.g. 
+	the field names to acommodate arrays, e.g. 
 		<input type="text" name="some[2][name]" />
 	
 	INPUT: $def (mixed) form definition
@@ -905,7 +905,7 @@ class CCTM
 	}
 	
 	/*------------------------------------------------------------------------------
-	SYNOPSIS: Ensure that $post_type is a valid post_type name.
+	SYNOPSIS: Check for errors: ensure that $post_type is a valid post_type name.
 	INPUT: 
 		$post_type (str) name of the post type
 	OUTPUT: null if there are no errors, otherwise return a string describing an error.
@@ -1558,6 +1558,23 @@ class CCTM
 		);
 	}
 	
+	/*------------------------------------------------------------------------------
+	Checks whether or not a given post-type is active with its custom fields standardized..
+	INPUT: $content_type (str) name of a post type.
+	OUTPUT: true|false
+	------------------------------------------------------------------------------*/
+	public static function is_active_post_type($content_type)
+	{
+		$data = get_option( self::db_key );
+		if ( isset($data[$content_type]['is_active']) && $data[$content_type]['is_active'] == 1 )
+		{
+			return true;
+		}		
+		else
+		{
+			return false;
+		}
+	}
 	
 	/*------------------------------------------------------------------------------
 	Print errors if they were thrown by the tests. Currently this is triggered as 

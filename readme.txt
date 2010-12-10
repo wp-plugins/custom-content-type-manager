@@ -3,8 +3,8 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.0.1
-Stable tag: 0.8.0
+Tested up to: 3.0.3
+Stable tag: 0.8.1
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -85,6 +85,9 @@ There are many ways to structure a site depending on what you are selling. For a
 6. Once you have defined custom fields for a content type and you have activated that content type, those custom fields will show up when you edit a new post. Here's what the custom fields look like when I create a new "Movie" post.
 
 == Changelog ==
+
+= 0.8.1 =
+* Fixes problem saving posts. The problem had to do with wp-nonces and the admin referrer was being checked, but not generated, so the check failed. Oops.
 
 = 0.8.0 =
 * Initial public release. Collaborators can check out code at http://code.google.com/p/wordpress-custom-content-type-manager/

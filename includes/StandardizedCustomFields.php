@@ -35,7 +35,8 @@ class StandardizedCustomFields
 			$active_post_types = array();
 			foreach ($known_post_types as $pt)
 			{
-				if ( isset($data[$pt]['is_active']) && $data[$pt]['is_active'] == 1 )
+				if ( CCTM::is_active_post_type($pt) )
+//				if ( isset($data[$pt]['is_active']) && $data[$pt]['is_active'] == 1 )
 				{
 					$active_post_types[] = $pt;
 				}
@@ -173,13 +174,28 @@ class StandardizedCustomFields
 	}
 	
 	/*------------------------------------------------------------------------------
-	Save the new Custom Fields values
+	Save the new Custom Fields values. If the content type is not active in the 
+	CCTM plugin or its custom fields are not being standardized, then this function 
+	effectively does nothing.
 	INPUT:
 		$post_id (int) id of the post these custom fields are associated with
 		$post (obj) the post object
 	------------------------------------------------------------------------------*/
 	public static function save_custom_fields( $post_id, $post ) 
 	{
+		// Bail if this post-type is not active in the CCTM
+		if ( !CCTM::is_active_post_type($post->post_type) )
+		{
+			return;
+		}
+	
+		// Bail if there are no custom fields defined in the CCTM
+		$data = get_option( CCTM::db_key );
+		if ( empty($data[$post->post_type]['custom_fields']) )
+		{
+			return;
+		}
+		
 		// The 2nd arg here is important because there are multiple nonces on the page
 		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') )
 		{			
