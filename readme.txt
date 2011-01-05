@@ -3,8 +3,8 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.0.3
-Stable tag: 0.8.1
+Tested up to: 3.0.4
+Stable tag: 0.8.2
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -18,6 +18,7 @@ For example, you can define a custom content type for "movie", then add a textar
 
 Custom content types get their own link in the admin menus and their own URL structure.
 
+Note that this plugin is still in development.
 
 == Installation ==
 
@@ -54,6 +55,10 @@ Deactivating a built-in post-type (a.k.a. content type) merely stops standardizi
 
 Text fields, textarea, WYSIWYG, dropdowns (with customizable options), checkboxes, and media fields (which allow the user to select an image, video, or audio clip).
 
+= How do I add images or video into a custom field? =
+
+The media-related custom fields tie into WordPress' "attachment" posts.  You must first upload media items using the WordPress manager before they will be available for selection for your custom field.  In the left-hand admin menu, select the "Media" menu, and "Add New".  Add images or videos as you would normally.  Once they have been uploaded to your site, you will be able to select them for any media-related custom field.
+
 = How do I make my custom field values show up in my templates? =
 
 Content and templates must go hand in hand. If you have defined custom fields, you have to modify your theme files to accommodate them.  There are two included theme functions intended to help you with this task:
@@ -72,8 +77,8 @@ There are many ways to structure a site depending on what you are selling. For a
 
 == Known Bugs ==
 
-* You cannot add menu items to navigation menus when this plugin is enabled. The Ajax call to wp-admin/admin-ajax.php encounters a 403 error: "Are you sure you want to do this?".  I don't know if this is a WordPress bug or a bug with this plugin.
-* Don't use the same name for a taxonomy and a content-type (post-type) -- this isn't a bug per se, but it's just good advice. Saving a content-type now checks names against registered taxonomies, but nothing prevents you from registering other taxonomies with other plugins.
+* Prior to WordPress 3.0.4 you cannot add menu items to navigation menus when this plugin is enabled (under Appearance --> Menus). The Ajax call to wp-admin/admin-ajax.php encounters a 403 error: "Are you sure you want to do this?".
+* Don't use the same name for a taxonomy and a content-type (post-type) -- this isn't a bug per se, but it's just good advice. Saving a content-type now checks names against registered taxonomies, but nothing prevents you from using another plugin to registering other taxonomies with names that conflict with existing post-types.
 
 == Screenshots ==
 
@@ -85,6 +90,14 @@ There are many ways to structure a site depending on what you are selling. For a
 6. Once you have defined custom fields for a content type and you have activated that content type, those custom fields will show up when you edit a new post. Here's what the custom fields look like when I create a new "Movie" post.
 
 == Changelog ==
+
+You can always checkout the most recent version of the code by going to your wp-content/plugins directory and executing the following command from the command-line:
+
+	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+=0.8.2=
+* WordPress 3.0.4 fixed some bugs that affected the functionality of this plugin: now you CAN add custom content posts to WordPress menus.
+* WordPress has not recognized the updates to this plugin (apparently due to a glitch), so currently the only way to get the most recent version of this is to check it out via SVN.
 
 = 0.8.1 =
 * Fixes problem saving posts. The problem had to do with wp-nonces and the admin referrer was being checked, but not generated, so the check failed. Oops.
@@ -128,11 +141,18 @@ http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info
 * Allow "list" fields (questionably architecturally) -- e.g. you define a custom field that's a media type, if you check a box specifying that it's a list, it would allow you to add multiple instances of that field to your post.  That's a lot trickier than what I'm doing now, but I think my architecture is sensible enough to support it. Those data patterns start looking a lot like taxonomies though, so it's gonna require rock-solid explanations to avoid confusing users.
 * Supply more template functions, perhaps via a static class, e.g. CCTM::image('move_poster'); It might also be possible to spin this off to function names that are more familiar to WP template authors, e.g. "CCTM::the_movie_poster()". See includes/functions.php for some functions in development.
 * Archive Support: optionally define whether a content type shows up in the normal site archive menus.
-* Pimp out the search box, INCLUDING the ability to specify a post_type when you create a relation field, e.g. for the products referencing a look, I should prime the form so that it only displays look type posts.  The architecture is there and already can do this, but I was having problems piping that stuff through javascript when fields are created dynamically.
+* Pimp out the search box, INCLUDING the ability to specify a post_type when you create a relation field, e.g. for the posts referencing a page, I should prime the form so that it only displays the relevant post-type posts.  The architecture is there and already can do this, but I was having problems piping that stuff through javascript when fields are created dynamically.
 * Show-hide options for each custom field to cut down on crowding in the custom field manager screen.
 * Permissions on editing custom content types -- lock it down! You don't want 2 people editing the same thing at the same time.
 
 == Upgrade Notice ==
+
+= 0.8.2 =
+Fixes a couple other glitches: apostrophes in media custom fields, editing content types.
+Resubmitting this to get the updates to show up in WordPress' repository.  Sorry folks... seems that the WP captain has jumped ship, so I have no working instructions on how to get my updates to percolate down to the users.  
+
+= 0.8.1 =
+Fixing glitch in saving posts and pages.
 
 = 0.8.0 =
 Initial public release.

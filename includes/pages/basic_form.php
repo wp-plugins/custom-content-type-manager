@@ -1,6 +1,6 @@
 <?php
 /*------------------------------------------------------------------------------
-Basic form template. Made for use by the CustomPostTypeManager class.
+Basic form template. Made for use by the CCTM class.
 This template expects the following variables:
 
 	$style; 		// can be used to print <style> block above the form.

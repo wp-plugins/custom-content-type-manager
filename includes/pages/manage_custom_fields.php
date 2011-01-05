@@ -11,7 +11,7 @@ We pass the following variables to this file:
 		spot in the $_POST array, e.g. <input name="fieldname[$def_cnt][something]">
 	$element_cnt		-- not an exact count of elements, it's just a number that
 		is sufficiently high enough to ensure that the dynamically JS generated
-		elements have an id that is higher than the existing PHP generating.
+		elements have an id that is higher than the existing PHP generated ones.
 	$new_field_def_js	-- JS friendly field def so we can add fields on the fly
 ------------------------------------------------------------------------------*/
 ?>

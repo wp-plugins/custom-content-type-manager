@@ -304,7 +304,7 @@ class CCTM
 		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
 		{
 			$sanitized_vals = self::_sanitize_post_type_def($_POST);
-			$error_msg = self::_post_type_name_has_errors($sanitized_vals['post_type']);
+			$error_msg = self::_post_type_name_has_errors($sanitized_vals['post_type'], true);
 
 			if ( empty($error_msg) )
 			{				
@@ -647,7 +647,7 @@ class CCTM
 	Show what a single page for this custom post-type might look like.  This is 
 	me throwing a bone to template editors and creators.
 	
-	I'm using a tpl and my parse() function because I got to print out sample PHP
+	I'm using a tpl and my parse() function because I have to print out sample PHP
 	code and it's too much of a pain in the ass to include PHP without it executing.
 	------------------------------------------------------------------------------*/
 	private static function _page_sample_template($post_type)
@@ -741,10 +741,10 @@ class CCTM
 
 	/*------------------------------------------------------------------------------
 	Populate form definition with data that defines a post-type.  This data comes 
-	either from the database, or from the $_POST array.  The $pt_data 
+	either from the database or from the $_POST array.  The $pt_data 
 	(i.e. post-type data) should contain only information about 
 	a single post_type; do not pass this function the entire contents of the 
-	get_option.
+	get_option().
 	
 	This whole function is necessary because the form generator definition needs
 	to know where to find values for its fields -- the $def is an empty template,
@@ -752,6 +752,8 @@ class CCTM
 	$pt_data.  Some of this complication is due to the fact that we need to update
 	the field names to acommodate arrays, e.g. 
 		<input type="text" name="some[2][name]" />
+	
+	See http://codex.wordpress.org/Function_Reference/register_post_type
 	
 	INPUT: $def (mixed) form definition
 		$pt_data (mixed) data describing a single post type
@@ -908,9 +910,12 @@ class CCTM
 	SYNOPSIS: Check for errors: ensure that $post_type is a valid post_type name.
 	INPUT: 
 		$post_type (str) name of the post type
+		$new (boolean) whether or not this is validating a new post_type or an updated one
+			(the only way that an update would fail would be if someone somehow POST'ed 
+			against this form)
 	OUTPUT: null if there are no errors, otherwise return a string describing an error.
 	------------------------------------------------------------------------------*/
-	private static function _post_type_name_has_errors($post_type)
+	private static function _post_type_name_has_errors($post_type, $new=false)
 	{
 		$errors = null;
 		
@@ -953,7 +958,7 @@ class CCTM
 		else
 		{
 			$data = get_option( self::db_key, array() );
-			if ( in_array( $post_type, array_keys($data) ) )
+			if ( $new && in_array($post_type, array_keys($data) ) )
 			{
 				return __('That name is already in use.');
 			}
@@ -1129,6 +1134,8 @@ class CCTM
 
 	/*------------------------------------------------------------------------------
 	Used when creating or editing Post Types	
+	I had to put this here in a function rather than in a config file so I could
+	take advantage of the WP translation functions __()
 	------------------------------------------------------------------------------*/
 	private static function _set_post_type_form_definition()
 	{
@@ -1359,14 +1366,14 @@ class CCTM
 		$def['rewrite']['name']			= 'permalink_action';
 		$def['rewrite']['label']		= __('Permalink Action', CCTM::txtdomain);
 		$def['rewrite']['value']		= 'Off';
-		$def['rewrite']['options']		= array('Off','/%postname%/'); // ,'Custom'),
+		$def['rewrite']['options']		= array('Off','/%postname%/','Custom'); // ,'Custom'),
 		$def['rewrite']['extra']		= '';
 		$def['rewrite']['description']	= sprintf(
 			'%1$s
 			<ul style="margin-left:20px;">
 				<li><strong>Off</strong> - %2$s</li>
 				<li><strong>/%postname%/</strong> - %3$s</li>
-				<!--li><strong>Custom</strong> - Evaluate the contents of slug</li-->
+				<li><strong>Custom</strong> - Evaluate the contents of slug</li>
 			<ul>'
 				, __('Use permalink rewrites for this post_type? Default: Off', CCTM::txtdomain)
 				, __('URLs for custom post_types will always look like: http://site.com/?post_type=book&p=39 even if the rest of the site is using a different permalink structure.', CCTM::txtdomain)
@@ -1538,7 +1545,7 @@ class CCTM
 		return $links;
 	}
 	
-	
+	//------------------------------------------------------------------------------
 	// Defines the diretory for this plugin.
 	public static function get_basepath(){
 		return dirname(dirname(__FILE__));
