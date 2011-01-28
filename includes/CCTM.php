@@ -118,7 +118,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _get_html_field_defs($custom_field_defs)
 	{
-//		print_r($def); exit;
+//		print_r($custom_field_defs); exit;
 		
 		$output = '';
 		foreach ($custom_field_defs as $def)
@@ -156,7 +156,7 @@ class CCTM
 			// alter the Extra part of this for the listener on the dropdown
 			if($name == 'type')
 			{
-				$field['extra'] = str_replace('[+def_i+]', 'def_i', $field['extra']);
+				$field['extra'] = str_replace('[+def_i+]', "'+def_i+'", $field['extra']);
 			}
 			$field['name'] = "custom_fields['+def_i+'][$name]";
 		}
@@ -168,7 +168,8 @@ class CCTM
 			<hr/>
 		</div>';
 		
-		$output = FormGenerator::generate($def);
+		$output = FormGenerator::generate($def, true);
+		//print $output; exit;
 		// Javascript chokes on newlines...
 		return str_replace( array("\r\n", "\r", "\n", "\t"), ' ', $output);
 	}
@@ -638,7 +639,7 @@ class CCTM
 
 		// Gets a form definition ready for use inside of a JS variable
 		$new_field_def_js = self::_get_javascript_field_defs();
-		
+//		print $new_field_def_js; exit;
 		include('pages/manage_custom_fields.php');
 	}
 	
@@ -972,9 +973,15 @@ class CCTM
 	Every form element when creating a new post type must be filtered here.
 	INPUT: unsanitized $_POST data.
 	OUTPUT: filtered data.  Only white-listed values are passed thru to output.
-	------------------------------------------------------------------------------*/	
+	
+	Problems with:
+		hierarchical
+		rewrite_with_front
+	------------------------------------------------------------------------------*/
+	//! <----- DEBUG
 	private static function _sanitize_post_type_def($raw)
 	{
+//		print_r($raw); exit;
 		$sanitized = array();
 
 		// This will be empty if none of the "supports" items are checked.
@@ -1050,7 +1057,7 @@ class CCTM
 			default:
 				$sanitized['rewrite'] = false;
 		}
-
+		// print_r($sanitized); exit;
 		return $sanitized;
 	}
 
@@ -1619,7 +1626,11 @@ class CCTM
 	/*------------------------------------------------------------------------------
 	Register custom post-types, one by one. Data is stored in the wp_options table
 	in a structure that matches exactly what the register_post_type() function
-	expectes as arguments. 
+	expectes as arguments.
+	
+	See:
+	http://codex.wordpress.org/Function_Reference/register_post_type
+	
 	See wp-includes/posts.php for examples of how WP registers the default post types
 	
 	$def = Array

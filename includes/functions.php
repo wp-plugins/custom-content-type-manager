@@ -9,6 +9,11 @@ may change with future versions of this plugin.
 The only 2 functions here that are guaranteed not to change are:
 	get_custom_field()
 	print_custom_field()
+	
+TODO:
+Tie into WP's image functions:
+http://codex.wordpress.org/Function_Reference/wp_get_attachment_image
+http://codex.wordpress.org/Function_Reference/wp_get_attachment_image_src
 ------------------------------------------------------------------------------*/
 
 

@@ -35,6 +35,7 @@ Note that this plugin is still in development.
 1. When you are finished configuring your custom fields, click the "Save Changes" button.
 1. Now try adding a new instance of your content type ("Movies" in this example). Click the link in the left-hand admin menu to add a movie.
 1. Your new "Movie" post will have the custom fields you defined.
+1. If you have added any media custom fields, be sure to upload some images using the WordPress "Media" menu in the left-hand menu.
 
 
 == Frequently Asked Questions ==
@@ -78,7 +79,7 @@ There are many ways to structure a site depending on what you are selling. For a
 == Known Bugs ==
 
 * Prior to WordPress 3.0.4 you cannot add menu items to navigation menus when this plugin is enabled (under Appearance --> Menus). The Ajax call to wp-admin/admin-ajax.php encounters a 403 error: "Are you sure you want to do this?".
-* Don't use the same name for a taxonomy and a content-type (post-type) -- this isn't a bug per se, but it's just good advice. Saving a content-type now checks names against registered taxonomies, but nothing prevents you from using another plugin to registering other taxonomies with names that conflict with existing post-types.
+* Don't use the same name for a taxonomy and a content-type (post-type) -- this isn't a bug per se, it's just good advice. Saving a content-type now checks names against registered taxonomies, but nothing prevents you from using another plugin to register other taxonomies with names that conflict with existing post-types.
 
 == Screenshots ==
 

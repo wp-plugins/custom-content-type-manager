@@ -34,6 +34,7 @@ We pass the following variables to this file:
 	------------------------------------------------------------------------------*/
 	function addFieldDefinition()
 	{
+		// console.log(def_i);	
 		// a group of fields is grouped into a single definition, tracked by def_i 
 		def_i++;
 		var new_field_def_html = '<?php print $new_field_def_js; ?>';
@@ -55,7 +56,8 @@ We pass the following variables to this file:
 		Increments the option_i variable.
 	------------------------------------------------------------------------------*/
 	function addDropdownOption(dropdownDivId, i)
-	{		
+	{	
+		//console.log('dropdownDivId:' + dropdownDivId);	
 		var newOption = '<div id="'+dropdownDivId+'_opt'+option_i+'">' +
 			'<input type="text" class="" name="custom_fields['+i+'][options][]" value=""/> ' +
 			'<span class="button" onclick="javascript:removeDiv(this.parentNode.id)"><?php _e('Remove',CCTM::txtdomain); ?></span>' +
@@ -84,7 +86,7 @@ We pass the following variables to this file:
 	function addRemoveDropdown(container_id,inputType, i)
 	{	
 		var specialDivId = container_id + '_extraspecial';
-	
+		//console.log('container_id: ' + container_id + ' inputType: ' + inputType + ' i: ' + i);
 		if ( inputType == 'dropdown' )
 		{
 			
@@ -110,6 +112,16 @@ We pass the following variables to this file:
 		{
 			jQuery('#'+ specialDivId).remove();
 		}
+	}
+	
+	/*------------------------------------------------------------------------------
+	Iterator function
+	------------------------------------------------------------------------------*/
+	function get_element_id()
+	{
+		var return_value = element_i;
+		element_i++;
+		return return_value;
 	}
 	
 	/*------------------------------------------------------------------------------

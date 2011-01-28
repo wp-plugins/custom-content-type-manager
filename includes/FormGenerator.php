@@ -38,7 +38,7 @@ class FormGenerator
 		
 	// A div wraps each element, their ids have an integer appended to the prefix, e.g. 
 	// <div id="custom_field_number_5"> 
-	public static $element_wrapper_id_prefix = 'custom_field_number_';
+	const element_wrapper_id_prefix = 'custom_field_number_';
 		
 	// You can use these to put in headings or styling
 	public static $before_elements = '';
@@ -232,7 +232,7 @@ class FormGenerator
 	------------------------------------------------------------------------------*/
 	private static function _get_special($data)
 	{
-		$special_str = '<div id="custom_field_number_'.FormGenerator::$i.'_dropdown">
+		$special_str = '<div id="'.self::element_wrapper_id_prefix.self::$i.'_dropdown">
 			<strong>Dropdown Options</strong> 
 			<span class="button" onclick="javascript:addDropdownOption(this.parentNode.id,'
 				.$data['def_i'].')">Add Option</span>';
@@ -241,11 +241,11 @@ class FormGenerator
 		{
 			
 			$special_str .= sprintf('
-				<div id="custom_field_number_%d_dropdown_opt%d">
+				<div id="'.self::element_wrapper_id_prefix.'%s_dropdown_opt%s">
 					<input class="" name="custom_fields[%d][options][]" value="%s" type="text"> 
 					<span class="button" onclick="javascript:removeDiv(this.parentNode.id)">Remove</span>
 				</div>'
-				, FormGenerator::$i	// used to correctly name this div as part of the parent dropdown 
+				, self::$i	// used to correctly name this div as part of the parent dropdown 
 				, $i 				// used only for a unique option name
 				, $data['def_i']	// identifies the correct place in the $_POST array
 				, htmlspecialchars($opt)
@@ -301,9 +301,10 @@ class FormGenerator
 	This is the workhorse function of this entire class. See top of this file for
 	a usage example.
 	INPUT: $field_defs_array (mixed) a definition array of arrays
+	$for_js boolean if true, we leave a hole in the wrapping div for js to fill with its value for i.
 	OUTPUT: HTML text.
 	------------------------------------------------------------------------------*/
-	public static function generate($field_defs_array)
+	public static function generate($field_defs_array, $for_js=false)
 	{
 		if ( empty($field_defs_array) )
 		{
@@ -321,7 +322,7 @@ class FormGenerator
 			{
 				$field_def['id'] = $field_def['name'];
 			}
-			$field_def['i'] = FormGenerator::$i;
+			$field_def['i'] = self::$i;
 			switch ( $field_def['type'] ) 
 			{
 				case 'checkbox':
@@ -358,16 +359,23 @@ class FormGenerator
 			}
 			
 			// Append this field to the main $output
+			$div_id = self::element_wrapper_id_prefix . self::$i;
+			if ( $for_js )
+			{
+				$div_id = self::element_wrapper_id_prefix . "'+ get_element_id() + '"; // let JS increment this.
+			}
+
 			$output .= sprintf('
 				<div class="%s" id="%s">
 					%s
 				</div>'
 				, self::$element_wrapper_class
-				, self::$element_wrapper_id_prefix.FormGenerator::$i
+				, $div_id
 				, $output_this_field
 			);
-			FormGenerator::$i++;
+			self::$i = self::$i + 1;
 		}
+//		print $output; print '========================';
 		// Wrap output
 		$output = self::$before_elements . $output . self::$after_elements;
 		

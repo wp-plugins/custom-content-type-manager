@@ -6,6 +6,9 @@ Author: Everett Griffiths
 Version: 0.8.2
 Author URI: http://www.fireproofsocks.com/
 Plugin URI: http://tipsfor.us/plugins/custom-content-type-manager/
+
+See also:
+http://www.marcocimmino.net/cimy-wordpress-plugins/
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
@@ -55,7 +58,7 @@ foreach ($function_names_used as $f_name )
 	if ( function_exists($f_name) )
 	{
 		/* translators: This refers to a PHP function e.g. my_function() { ... } */
-		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Function', CCTM::txtdomain), $f_name );
+		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Function', 'custom-content-type-mgr'), $f_name );
 	}
 }
 // Check for conflicting Class names
@@ -64,7 +67,7 @@ foreach ($class_names_used as $cl_name )
 	if ( class_exists($cl_name) )
 	{
 		/* translators: This refers to a PHP class e.g. class MyClass { ... } */
-		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Class', CCTM::txtdomain), $f_name );
+		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Class', 'custom-content-type-mgr'), $f_name );
 	}
 }
 // Check for conflicting Constants
@@ -73,7 +76,7 @@ foreach ($constants_used as $c_name )
 	if ( defined($c_name) )
 	{
 		/* translators: This refers to a PHP constant as defined by the define() function */
-		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Constant', CCTM::txtdomain), $f_name );
+		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Constant', 'custom-content-type-mgr'), $f_name );
 	}
 }
 
