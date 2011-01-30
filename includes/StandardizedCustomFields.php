@@ -15,7 +15,7 @@ class StandardizedCustomFields
 	If you omit a prefix entirely, your custom field names must steer clear of
 	the built-in post field names (e.g. 'content').
 	*/
-	public static $prefix = 'custom_content_'; 
+	const field_name_prefix = 'custom_content_'; 
 	
 	// Which types of content do we want to standardize?
 	public static $content_types_array = array('post');
@@ -69,6 +69,20 @@ class StandardizedCustomFields
 		}
 	}
 
+	/*------------------------------------------------------------------------------
+	
+	------------------------------------------------------------------------------*/
+	private static function _is_new_post()
+	{
+		if ( substr($_SERVER["SCRIPT_NAME"],strrpos($_SERVER["SCRIPT_NAME"],"/")+1) == 'post-new.php' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	//! Public Functions	
 	/*------------------------------------------------------------------------------
@@ -115,6 +129,13 @@ class StandardizedCustomFields
 		$callback_args will always have a copy of this object passed (I'm not sure why),
 		but in $callback_args['args'] will be the 7th parameter from the add_meta_box() function.
 		We are using this argument to pass the content_type.
+	
+	FUTURE:
+		to handle default values in forms, we can see if the post is being created.
+		Regardless of post-type, they are all created via the post-new.php page.
+		If current-page == post-new.php, then populate the $field['value']
+		with the default value.
+		Special handling for checkboxes, dropdowns, and radio buttons.
 	------------------------------------------------------------------------------*/
 	public static function print_custom_fields($post, $callback_args='') 
 	{
@@ -142,12 +163,19 @@ class StandardizedCustomFields
 
 			$output_this_field = '';			
 			$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates			
-			$field['value'] = htmlspecialchars( get_post_meta( $post->ID, $field['name'], true ) );
-			$field['name'] = self::$prefix . $field['name']; // this ensures unique keys in $_POST
-
-
+			if ( self::_is_new_post() )
+			{
+				$field['value'] = $field['default_value'];
+			}
+			else
+			{
+				$field['value'] = htmlspecialchars( get_post_meta( $post->ID, $field['name'], true ) );
+			}		
+			$field['raw_name'] = $field['name']; // preserved
+			$field['name'] = self::field_name_prefix . $field['name']; // this ensures unique keys in $_POST
 		}
-		$output = FormGenerator::generate($custom_fields);
+
+		$output = FormGenerator::generate($custom_fields,'css-friendly');
  		// Print the form
  		print '<div class="form-wrap">';
 	 	wp_nonce_field('update_custom_content_fields','custom_content_fields_nonce');
@@ -202,9 +230,9 @@ class StandardizedCustomFields
 			$custom_fields = self::_get_custom_fields($post->post_type);
 			
 			foreach ( $custom_fields as $field ) {
-				if ( isset( $_POST[ self::$prefix . $field['name'] ] ) )
+				if ( isset( $_POST[ self::field_name_prefix . $field['name'] ] ) )
 				{
-					$value = trim($_POST[ self::$prefix . $field['name'] ]);
+					$value = trim($_POST[ self::field_name_prefix . $field['name'] ]);
 					// Auto-paragraphs for any WYSIWYG
 					if ( $field['type'] == 'wysiwyg' ) 
 					{

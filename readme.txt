@@ -148,6 +148,10 @@ http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info
 
 == Upgrade Notice ==
 
+On Dev Branch (future 0.8.3)
+Fixes glitch in Javascript element counter that screwed up dropdown menu creation: due to this bug, you could only add a dropbox to the first element because the wrapper div's id was fixed statically as the same id, so adding a dropdown menu always wrote the new HTML to that same div (inside the first custom field).
+Some basic HTML cleanup.
+
 = 0.8.2 =
 Fixes a couple other glitches: apostrophes in media custom fields, editing content types.
 Resubmitting this to get the updates to show up in WordPress' repository.  Sorry folks... seems that the WP captain has jumped ship, so I have no working instructions on how to get my updates to percolate down to the users.  

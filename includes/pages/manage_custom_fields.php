@@ -74,7 +74,7 @@ We pass the following variables to this file:
 	
 	INPUT:
 		container_id (string) the id of the div containing the definition fields.
-		inputType (string) the current value of the "type" dropdown, e.g. 'textarea'.
+		inputType (string) matches up with the current value of the "type" dropdown, e.g. 'textarea'.
 		i (integer) the definition number (def_i) of this particular definition.
 		
 	OUTPUT:
@@ -97,17 +97,17 @@ We pass the following variables to this file:
 			jQuery('#'+ container_id).append(dropdownHtml);
 			addDropdownOption(specialDivId, i);
 		}
-/* // TODO: add options to the 'relation' type fields
+		// TODO: add options to the 'relation' type fields
+/*
 		else if ( inputType == 'relation' )
 		{
-			jQuery('#'+ specialDivId).remove();
-			var specialDivId = container_id + '_extraspecial';
 			var relationHtml = '<div id="'+specialDivId+'">' + 
 				'Post Type: <input type="text" name="custom_fields['+i+'][options][]" value="" /><br /><p><em>Leave blank if you want to search through all post_types</em></p>' +
 				'</div>';
 			jQuery('#'+ container_id).append(relationHtml);
 		}
 */
+
 		else
 		{
 			jQuery('#'+ specialDivId).remove();

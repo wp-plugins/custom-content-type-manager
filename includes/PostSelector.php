@@ -59,6 +59,7 @@ class PostSelector
 	//! Private Functions
 	/*------------------------------------------------------------------------------
 	Count the # of attachment posts available for this particular mime-type. 
+	The query uses a "starts with" logic, i.e. WHERE post_mime_type LIKE 'image%'
 	INPUT: $mime_type (str) simplified mime-type as they appear in the
 		 wp_posts.post_mime_type column, e.g. 'image' (not image/tiff)
 	OUTPUT: integer
@@ -317,14 +318,22 @@ class PostSelector
 		}
 	}
 
-
+	//! SQL
 	/*------------------------------------------------------------------------------	
 	This is the main SQL query constructor. Home rolled...
 	It's meant to be called by the various querying functions:
 		query_results()
 		query_count_results()
 		query_distinct_yearmonth()
+	
+	INPUT:
+		$select
+		$limit
+		$use_offset
 		
+	
+	OUTPUT: 
+	A set of results.
 	Options: 
 		$mime_type
 		$searchterm
@@ -350,12 +359,13 @@ class PostSelector
 				. $this->_sql_filter_searchterm()
 				. $this->_sql_filter_post_mime_type()
 				. $this->_sql_filter_post_status()
+				. $this->_sql_filter_order_by()
 			. $this->_sql_filter_limit($limit)  
 			. $this->_sql_filter_offset($use_offset);
 			
 		$results = $wpdb->get_results( $query, ARRAY_A );
 		
-		$this->SQL = $query;
+		$this->SQL = $query; // For debugging.
 
 		return $results;
 	}
@@ -418,6 +428,16 @@ class PostSelector
 		{
 			return '';
 		}
+	}
+
+	/*------------------------------------------------------------------------------
+	OUTPUT: string to be used in *the* main SQL query's ORDER BY clause
+	------------------------------------------------------------------------------*/
+	private function _sql_filter_order_by()
+	{
+		global $wpdb;
+		$this->_sql_filter_sort_dir();
+		return '';
 	}
 	
 	/*------------------------------------------------------------------------------
@@ -495,6 +515,15 @@ class PostSelector
 		}
 	}	
 
+	/*------------------------------------------------------------------------------
+	OUTPUT: string to be used in *the* main SQL query's SORT clause
+	------------------------------------------------------------------------------*/
+	private function _sql_filter_sort_dir()
+	{
+
+	}
+	
+	
 	/*------------------------------------------------------------------------------
 	OUTPUT: string to be used in *the* main SQL query.  This function is called 
 	in distinction to the _sql_select_columns() when the purpose of the query is

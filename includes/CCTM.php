@@ -127,6 +127,7 @@ class CCTM
 			<div id="generated_form_number_'.self::$def_i.'">';
 			
 			FormGenerator::$after_elements = '
+				<br/>
 				<span class="button custom_content_type_mgr_remove" onClick="javascript:removeDiv(this.parentNode.id);">'.__('Remove This Field').'</span>
 				<hr/>
 			</div>';
@@ -168,7 +169,7 @@ class CCTM
 			<hr/>
 		</div>';
 		
-		$output = FormGenerator::generate($def, true);
+		$output = FormGenerator::generate($def, 'javascript');
 		//print $output; exit;
 		// Javascript chokes on newlines...
 		return str_replace( array("\r\n", "\r", "\n", "\t"), ' ', $output);
@@ -331,7 +332,7 @@ class CCTM
 			}
 		}
 				
-		$fields = FormGenerator::generate($def);	
+		$fields = FormGenerator::generate($def,'css-friendly');	
 		include('pages/basic_form.php');
 	}
 	
@@ -471,9 +472,12 @@ class CCTM
 		}
 
 		// Variables for our template (TODO: register this instead of this cheap inline trick)
-		$style			= '<style>'
+		$style			= '';
+		/*
+'<style>'
 			. file_get_contents( self::get_basepath() .'/css/create_or_edit_post_type_class.css' ) 
 			. '</style>';
+*/
 		$page_header 	= __('Edit Content Type: ') . $post_type;
 		$fields			= '';
 		$action_name = 'custom_content_type_mgr_edit_content_type';
@@ -517,7 +521,7 @@ class CCTM
 		
 		// Populate the form $def with values from the database
 		$def = self::_populate_form_def_from_data($def, $data[$post_type]);
-		$fields = FormGenerator::generate($def);
+		$fields = FormGenerator::generate($def,'css-friendly');
 		include('pages/basic_form.php');
 	}
 	
@@ -559,7 +563,7 @@ class CCTM
 				$data[$post_type]['custom_fields'] = $_POST['custom_fields'];
 				foreach ( $data[$post_type]['custom_fields'] as &$cf )
 				{
-					if ( preg_match('/[^a-z_]/i', $cf['name']))
+					if ( preg_match('/[^a-z_0-9]/i', $cf['name']))
 					{
 						$error_msg[] = sprintf(
 							__('%s contains invalid characters.',CCTM::txtdomain)
@@ -597,7 +601,7 @@ class CCTM
 					</div>'
 					, __('There were errors in the names of your custom fields.', CCTM::txtdomain)
 					, __('Names must not exceed 20 characters in length.', CCTM::txtdomain)
-					, __('Names may contain the letters a-z and underscores only.', CCTM::txtdomain)
+					, __('Names may contain the letters, numbers, and underscores only.', CCTM::txtdomain)
 					, __('You cannot name your field using any reserved name.', CCTM::txtdomain)
 					, implode("\n", $error_msg)
 				);
@@ -605,7 +609,7 @@ class CCTM
 			else
 			{
 				update_option( self::db_key, $data );
-				$msg = sprintf('<div class="updated">%s</p></div>'
+				$msg = sprintf('<div class="updated">%s</div>'
 						, sprintf(__('Custom fields for %s have been updated', CCTM::txtdomain)
 							, '<em>'.$post_type.'</em>'
 						)
@@ -978,7 +982,6 @@ class CCTM
 		hierarchical
 		rewrite_with_front
 	------------------------------------------------------------------------------*/
-	//! <----- DEBUG
 	private static function _sanitize_post_type_def($raw)
 	{
 //		print_r($raw); exit;
@@ -1083,8 +1086,8 @@ class CCTM
 	}
 
 	/*------------------------------------------------------------------------------
-	This is sorta a reflexive form definition: it defines the form required to 
-	define a form. Note that names imply arrays, e.g. name="custom_fields[3][label]".
+	This defines the form required to define a custom field. Note that names imply 
+	arrays, e.g. name="custom_fields[3][label]".
 	This is intentional: since all custom field definitions are stored as a serialized
 	array in the wp_options table, we have to treat all defs as a kind of recordset
 	(i.e. an array of similar hashes).
@@ -1127,13 +1130,22 @@ class CCTM
 		$def['type']['options']		= array('checkbox','dropdown','media','relation','text','textarea','wysiwyg');
 		$def['type']['sort_param']	= 4;
 
+		$def['default_value']['name']			= 'custom_fields[[+def_i+]][default_value]';
+		$def['default_value']['label']			= __('Default Value', CCTM::txtdomain);
+		$def['default_value']['value']			= '';
+		$def['default_value']['extra']			= '';
+		$def['default_value']['description']		= __('The default value will appear in form fields when a post is first created. For checkboxes, use a default value of "1" if you want it to be checked by default.', CCTM::txtdomain);
+		$def['default_value']['type']			= 'text';
+		$def['default_value']['sort_param']		= 5;
+
+
 		$def['sort_param']['name']			= 'custom_fields[[+def_i+]][sort_param]';
 		$def['sort_param']['label']			= __('Sort Order',CCTM::txtdomain);
 		$def['sort_param']['value']			= '';
 		$def['sort_param']['extra']			= ' size="2" maxlength="4"';
 		$def['sort_param']['description']	= __('This controls where this field will appear on the page. Fields with smaller numbers will appear higher on the page.',CCTM::txtdomain);
 		$def['sort_param']['type']			= 'text';
-		$def['sort_param']['sort_param']	= 5;
+		$def['sort_param']['sort_param']	= 6;
 
 
 		self::$custom_field_def_template = $def;
@@ -1423,9 +1435,11 @@ class CCTM
 	/*------------------------------------------------------------------------------
 	"Transformation" here refers to the reflexive mapping that is required to create
 	a form definition that will generate a form that allows users to define a definition.
+	In other words, given a form definition, calculate the definition the allows you
+	to edit that definition.
 	
 	The custom_fields array consists of form element definitions that are used when
-	editing or creating a new post.  But when we want to *edit* that definition, 
+	editing or creating a new post.  When we want to edit that definition, 
 	we have to create new form elements that allow us to edit each part of the 
 	original definition, e.g. we need a text element to allow us to edit 
 	the "label", we need a textarea element to allow us to edit the "description",
@@ -1456,7 +1470,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _transform_data_structure_for_editing($field_def)
 	{
-		// Collects all 5 translated field definitions for this $field_def
+		// Used to collect all 5 translated field definitions for this $field_def
 		$translated_defs = array();
 		
 		// Copying over all elments from the self::$custom_field_def_template

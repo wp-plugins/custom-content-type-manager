@@ -32,18 +32,22 @@ $html = FormGenerator::generate($my_def);
 ------------------------------------------------------------------------------*/
 class FormGenerator
 {
-	const prefix = 'custom_content_';
 	public static $sorting_column = 'sort_param';
 	public static $element_wrapper_class = 'formgenerator_element_wrapper';
 		
 	// A div wraps each element, their ids have an integer appended to the prefix, e.g. 
-	// <div id="custom_field_number_5"> 
-	const element_wrapper_id_prefix = 'custom_field_number_';
+	// <div id="custom_field_id_5"> 
+	const element_wrapper_id_prefix = 'custom_field_id_';
 		
 	// You can use these to put in headings or styling
 	public static $before_elements = '';
 	public static $after_elements = '';
 
+	// Name of a javascript function on the Manage Custom Fields page that is used
+	// to iterate. That function must provide a unique integer as elements are added
+	// and deleted dynamically via Ajax.
+	const javascript_iterator_function = 'get_element_id';
+	
 	// simple iterator used whenever we need a serial #, e.g. form element or div count
 	public static $i = 0;  
 	
@@ -300,17 +304,39 @@ class FormGenerator
 	/*------------------------------------------------------------------------------
 	This is the workhorse function of this entire class. See top of this file for
 	a usage example.
+	
+	Each form element is wrapped in a div with unique id. How that div is identified
+	is controlled by the $id_method parameter. $id_method can have the following values:
+	
+	css-friendly
+	When the div is generated for the pages that are creating/editing posts 
+	(i.e. a normal manager user), then the id's are based off a CSS friendly field name.
+	This ensures easy styling for designers who want to customize the admin forms, and
+	any style definitions are not affected by the seq order of the fields as they would
+	be if you let either javascript or PHP (via the default option here) generate 
+	numerical based ids.
+	
+	javascript
+	When the form is being generated for inclusing in a Javascript function, it's important
+	to let Javascript iterate an integer to ensure a unique element id. When this 
+	option is used, a Javascript function (named in self::javascript_iterator_function)
+	is called which will append an integer to the element id name.
+	
+	default
+	Default behavior is to rely on the class variable Function::$i; this is used when generating
+	existing custom fields in the "Manage Custom Fields" page.
+	
 	INPUT: $field_defs_array (mixed) a definition array of arrays
-	$for_js boolean if true, we leave a hole in the wrapping div for js to fill with its value for i.
+	@param string $id_method  (optional) css-friendly|javascript or omitted. See above for description.
 	OUTPUT: HTML text.
 	------------------------------------------------------------------------------*/
-	public static function generate($field_defs_array, $for_js=false)
+	public static function generate($field_defs_array, $id_method=null)
 	{
 		if ( empty($field_defs_array) )
 		{
 			return '';
-		}		
-	
+		}
+		
 		usort($field_defs_array, 'FormGenerator::sort_recordset');
 
 		$output = '';
@@ -357,14 +383,22 @@ class FormGenerator
 				$output_this_field .= '
 					<span class="formgenerator_description">'.$field_def['description'].'</span>';
 			}
-			
-			// Append this field to the main $output
-			$div_id = self::element_wrapper_id_prefix . self::$i;
-			if ( $for_js )
-			{
-				$div_id = self::element_wrapper_id_prefix . "'+ get_element_id() + '"; // let JS increment this.
-			}
 
+			// The way we id each element is controlled by the $id_method param
+			$div_id = '';
+			switch ($id_method)
+			{
+				case 'css-friendly':
+					$div_id = self::element_wrapper_id_prefix . $field_def['raw_name'];
+					break;
+				case 'javascript':
+					$div_id = self::element_wrapper_id_prefix . "'+ ".self::javascript_iterator_function."() + '";
+					break;
+				default:
+					$div_id = self::element_wrapper_id_prefix . self::$i;
+			}
+						
+			// Div that wraps each form element.
 			$output .= sprintf('
 				<div class="%s" id="%s">
 					%s
@@ -375,7 +409,7 @@ class FormGenerator
 			);
 			self::$i = self::$i + 1;
 		}
-//		print $output; print '========================';
+
 		// Wrap output
 		$output = self::$before_elements . $output . self::$after_elements;
 		
