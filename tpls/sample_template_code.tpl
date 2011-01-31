@@ -3,7 +3,7 @@
  * Sample template for displaying all single [+post_type+]-type posts.
  * Save this file as as single-[+post_type+].php
  *
- * This sample code was based off of the Starkers theme: http://starkerstheme.com/
+ * This sample code was based off of the Starkers Baseline theme: http://starkerstheme.com/
  *
  */
 
