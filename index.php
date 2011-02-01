@@ -22,6 +22,8 @@ $function_names_used -- add any function names that this plugin declares in the
 	main namespace (e.g. utility functions or theme functions).
 
 $class_names_used -- add any class names that are declared by this plugin.
+
+Warning: the text-domain for the __() localization functions is hardcoded.
 ------------------------------------------------------------------------------*/
 $function_names_used = array('get_custom_field','get_all_fields_of_type'
 	,'get_posts_by_taxonomy_term','get_post_complete','get_posts_sharing_custom_field_value'

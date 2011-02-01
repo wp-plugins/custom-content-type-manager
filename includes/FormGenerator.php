@@ -34,10 +34,13 @@ class FormGenerator
 {
 	public static $sorting_column = 'sort_param';
 	public static $element_wrapper_class = 'formgenerator_element_wrapper';
+	
+	// Stores keys => values each time the generate() function is run.
+	public static $placeholders = array();
 		
 	// A div wraps each element, their ids have an integer appended to the prefix, e.g. 
 	// <div id="custom_field_id_5"> 
-	const element_wrapper_id_prefix = 'custom_field_id_';
+	const element_wrapper_id_prefix = 'custom_field_wrapper_';
 		
 	// You can use these to put in headings or styling
 	public static $before_elements = '';
@@ -57,16 +60,18 @@ class FormGenerator
 	(with the exception of the dropbox function, which under special circumstances
 	will generate additional inputs for each value passed to its 'special' array.
 	
-	INPUT: $data (array) contains an associative array describing how the element
+	INPUT: $data (array) reference. Contains an associative array describing how the element
 	should look with keys for name, title, description, and type (see top of this 
 	file for an example).
+	Passed by reference so that any custom manipulations to the definition can be easily
+	tracked in self::$placeholders.
 	OUTPUT: HTML text.
 	------------------------------------------------------------------------------*/
 
 	/*------------------------------------------------------------------------------
 	The checked value is hard-coded to '1' for compatibility with boolean functions
 	------------------------------------------------------------------------------*/
-	private static function _get_checkbox_element($data)
+	private static function _get_checkbox_element(&$data)
 	{ 
 //		print_r($data); 
 		if (!isset($data['checked_value']) || empty($data['checked_value']))
@@ -98,7 +103,7 @@ class FormGenerator
 	form for EDITING dropdown arguments instead of just DISPLAYING them.
 	NOTE: for each option in 'options', the value stored equals the value displayed.
 	------------------------------------------------------------------------------*/
-	private static function _get_dropdown_element($data)
+	private static function _get_dropdown_element(&$data)
 	{
 		//print_r($data); 
 		// Some error messaging.
@@ -154,7 +159,7 @@ class FormGenerator
 	content-class admin area!	It should only generate forms for creating/editing 
 	a post.
 	------------------------------------------------------------------------------*/
-	private static function _get_media_element($data)
+	private static function _get_media_element(&$data)
 	{	
 		global $post;
 		
@@ -187,7 +192,7 @@ class FormGenerator
 	}
 
 	//------------------------------------------------------------------------------
-	private static function _get_readonly_element($data)
+	private static function _get_readonly_element(&$data)
 	{
 		$tpl = '
 		<p><strong>[+name+]:</strong> [+value+]</p>
@@ -202,7 +207,7 @@ class FormGenerator
 	where post_type='attachment', this lets you query any post_type.
 	The $data['option'] value stores the post_type to use for this relation.
 	------------------------------------------------------------------------------*/
-	private static function _get_relation_element($data)
+	private static function _get_relation_element(&$data)
 	{
 		global $post;
 		global $wpdb;
@@ -263,8 +268,9 @@ class FormGenerator
 	}
 	
 	//------------------------------------------------------------------------------
-	private static function _get_text_element($data)
+	private static function _get_text_element(&$data)
 	{
+		$data['bears'] = 'yogi';
 		$tpl = '
 			<label for="[+name+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+name+]">[+label+]</label>
 			<input type="text" name="[+name+]" class="formgenerator_text" id="[+name+]" value="[+value+]"[+extra+]/>';
@@ -282,7 +288,7 @@ class FormGenerator
 
 
 	//------------------------------------------------------------------------------
-	private static function _get_wysiwyg_element($data)
+	private static function _get_wysiwyg_element(&$data)
 	{
 		$tpl = '
 			<label for="[+name+]" class="formgenerator_label formgenerator_wsyiwyg_label" id="formgenerator_label_[+name+]">[+label+]</label>
@@ -332,11 +338,13 @@ class FormGenerator
 	------------------------------------------------------------------------------*/
 	public static function generate($field_defs_array, $id_method=null)
 	{
+		// self::$placeholders = array(); // reset.
+		
 		if ( empty($field_defs_array) )
 		{
 			return '';
 		}
-		
+
 		usort($field_defs_array, 'FormGenerator::sort_recordset');
 
 		$output = '';
@@ -408,15 +416,37 @@ class FormGenerator
 				, $output_this_field
 			);
 			self::$i = self::$i + 1;
+			
+			// STORE placeholder for this field
+			$key = $field_def['raw_name'];
+			self::$placeholders[$key] = $output;
+			// STORE a 'help' placeholder as an aid to devs creating a custom tpl for a given content type in /tpls/manager/
+			$placeholders_this_field = array_keys($field_def);
+			foreach ( $placeholders_this_field as &$p )
+			{
+				$p = '&#91;+'. $key.'.'.$p.'+&#93;';
+			}
+			// Add the primary placeholder that contains the formatted field.
+			array_unshift($placeholders_this_field, '&#91;+'.$key.'+&#93;');
+			
+			// Messaging to the user
+			self::$placeholders[$key.'.help'] = sprintf( __('The %s custom field can use the following placeholders: %s',CCTM_TXTDOMAIN)
+				, $key
+				, implode(' ,', $placeholders_this_field)
+			);
+			// STORE placeholders for each value in this field 
+			foreach ( $field_def as $k => $v )
+			{
+				self::$placeholders[$key.'.'.$k] = $v;	
+			}
 		}
 
 		// Wrap output
 		$output = self::$before_elements . $output . self::$after_elements;
-		
+
 		return $output;
 	}
-
-
+	
 	/*------------------------------------------------------------------------------
 	SYNOPSIS: a simple parsing function for basic templating.
 	INPUT:

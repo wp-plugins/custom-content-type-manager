@@ -1,0 +1,38 @@
+/*------------------------------------------------------------------------------
+General settings for generated forms.
+------------------------------------------------------------------------------*/
+.formgenerator_label {
+	display:block;
+	font-weight:bold;
+}
+
+.formgenerator_description {
+	display:block;
+	font-style:italic;
+}
+
+.formgenerator_checkbox_label {
+	display: inline;
+}
+.formgenerator_checkbox
+{
+	width: auto;
+}
+
+.formgenerator_element_wrapper {
+	margin-top: 10px;
+}
+
+.cctm_subheading {
+	margin-top: 30px;
+}
+
+#description {
+	width: 600px;
+	height: 120px;
+}
+
+.sample_code_textarea {
+	border: 1px solid black; /* had to add this to includes/pages/sample_template.php WTF? */
+	background-color: lightyellow; 
+}

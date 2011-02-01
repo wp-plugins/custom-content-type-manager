@@ -1,24 +1,22 @@
 <?php
 /**
- * Sample template for displaying all single [+post_type+]-type posts.
- * Save this file as as single-[+post_type+].php
+ * Sample template for displaying single [+post_type+] posts.
+ * Save this file as as single-[+post_type+].php in your current theme.
  *
  * This sample code was based off of the Starkers Baseline theme: http://starkerstheme.com/
- *
  */
 
 get_header(); ?>
 
 <?php if ( have_posts() ) while ( have_posts() ) : the_post(); ?>
 	
-	<h1><?php the_title(); ?></h1>
-	
-		<?php the_content(); ?>
+[+built_in_fields+]
 
 		<h2>Custom Fields</h2>	
 		
 [+custom_fields+]
-		<?php comments_template( '', true ); ?>
+
+[+comments+]
 
 <?php endwhile; // end of the loop. ?>
 

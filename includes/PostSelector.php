@@ -53,7 +53,7 @@ class PostSelector
 		$offset = $this->Pagination->page_to_offset( $this->page,$this->results_per_page );
 		$this->Pagination->set_offset($offset);
 		$this->Pagination->set_results_per_page( $this->results_per_page );
-		$this->media_type_option_tpl = file_get_contents( CCTM_PATH.'/tpls/media_type_option.tpl');
+		$this->media_type_option_tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/media_type_option.tpl');
 	}
 
 	//! Private Functions
@@ -104,7 +104,7 @@ class PostSelector
 		$output = '';
 		
 		// load formatting template
-		$tpl = file_get_contents( CCTM_PATH.'/tpls/single_item.tpl');
+		$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/single_item.tpl');
 
 		foreach ( $results as $r )
 		{
@@ -744,7 +744,7 @@ class PostSelector
 		$this->cnt = $this->query_count_results();
 		$hash['pagination_links'] = $this->Pagination->paginate($this->cnt);
 
-		$tpl = file_get_contents( CCTM_PATH.'/tpls/items_wrapper.tpl');
+		$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/items_wrapper.tpl');
 		return $this->parse($tpl, $hash);
 	}
 	
@@ -759,7 +759,7 @@ class PostSelector
 		$hash['jquery_path'] 				= '../../../../../wp-includes/js/jquery/jquery.js';
 		$hash['url'] 						= CCTM_URL;
 		$hash['ajax_controller_url'] 		= CCTM_URL . '/post-selector.php';
-		$hash['media_selector_stylesheet'] 	= CCTM_URL . '/css/media_selector.css';
+		$hash['media_selector_stylesheet'] 	= CCTM_URL . '/css/media_selector.css'; //! TODO: enqueue?
 		$hash['media_selector_css'] 		= file_get_contents( CCTM_PATH . '/css/media_selector.css');
 		$hash['fieldname'] 					= $this->fieldname;
 		$hash['page']						= $this->page;
@@ -772,7 +772,7 @@ class PostSelector
 		$hash['date_options'] 				= $this->query_distinct_yearmonth();
 		$hash['post_type']					= $this->post_type;
 		
-		$tpl = file_get_contents( CCTM_PATH.'/tpls/main.tpl');
+		$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/main.tpl');
 
 		return $this->parse($tpl, $hash);
 	}

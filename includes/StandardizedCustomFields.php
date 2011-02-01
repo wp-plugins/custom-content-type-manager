@@ -92,7 +92,7 @@ class StandardizedCustomFields
 		$content_types_array = self::_get_active_content_types();
 		foreach ( $content_types_array as $content_type ) {
 			add_meta_box( 'custom-content-type-mgr-custom-fields'
-				, __('Custom Fields', CCTM::txtdomain )
+				, __('Custom Fields', CCTM_TXTDOMAIN )
 				, 'StandardizedCustomFields::print_custom_fields'
 				, $content_type
 				, 'normal'
@@ -130,12 +130,7 @@ class StandardizedCustomFields
 		but in $callback_args['args'] will be the 7th parameter from the add_meta_box() function.
 		We are using this argument to pass the content_type.
 	
-	FUTURE:
-		to handle default values in forms, we can see if the post is being created.
-		Regardless of post-type, they are all created via the post-new.php page.
-		If current-page == post-new.php, then populate the $field['value']
-		with the default value.
-		Special handling for checkboxes, dropdowns, and radio buttons.
+
 	------------------------------------------------------------------------------*/
 	public static function print_custom_fields($post, $callback_args='') 
 	{
@@ -143,24 +138,23 @@ class StandardizedCustomFields
 		$content_type = $callback_args['args']; // the 7th arg from add_meta_box()
 		$custom_fields = self::_get_custom_fields($content_type);
 		$output = '';		
-		
-		// If no custom content fields are defined...
+				
+
+		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
 		if ( empty($custom_fields) )
 		{
-			global $post;
 			$post_type = $post->post_type;
 			$url = sprintf( '<a href="options-general.php?page='
 				.CCTM::admin_menu_slug.'&'
 				.CCTM::action_param.'=4&'
-				.CCTM::post_type_param.'='.$post_type.'">%s</a>', __('Settings Page', CCTM::txtdomain ) );
+				.CCTM::post_type_param.'='.$post_type.'">%s</a>', __('Settings Page', CCTM_TXTDOMAIN ) );
 			print '<p>';
-			printf ( __('Custom fields can be added and configured using the %1$s %2$s', CCTM::txtdomain), CCTM::name, $url );
+			printf ( __('Custom fields can be added and configured using the %1$s %2$s', CCTM_TXTDOMAIN), CCTM::name, $url );
 			print '</p>';
 			return;
 		}
 		
 		foreach ( $custom_fields as $def_i => &$field ) {
-
 			$output_this_field = '';			
 			$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates			
 			if ( self::_is_new_post() )
@@ -175,7 +169,16 @@ class StandardizedCustomFields
 			$field['name'] = self::field_name_prefix . $field['name']; // this ensures unique keys in $_POST
 		}
 
+		// generate() gets the final output, but it also populates FormGenerator::$placeholders (used for custom mgr forms)
 		$output = FormGenerator::generate($custom_fields,'css-friendly');
+		
+		// See if there's a custom manager form tpl avail...
+		$mgr_tpl_file = CCTM_PATH.'/tpls/manager/'.$post->post_type.'.tpl';
+		if ( file_exists($mgr_tpl_file) ) 
+		{ 
+			$tpl = file_get_contents($mgr_tpl_file);
+			$output = self::parse($tpl, FormGenerator::$placeholders);
+		}
  		// Print the form
  		print '<div class="form-wrap">';
 	 	wp_nonce_field('update_custom_content_fields','custom_content_fields_nonce');

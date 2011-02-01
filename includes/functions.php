@@ -76,7 +76,7 @@ function get_all_fields_of_type($type)
 	$post_type = $post->post_type;
 	if ( !isset($data[$post_type]['custom_fields']) )
 	{
-		return  sprintf( __('No custom fields defined for %1$s field.', CCTM::txtdomain), $fieldname );
+		return  sprintf( __('No custom fields defined for %1$s field.', CCTM_TXTDOMAIN), $fieldname );
 	}
 	
 	foreach ( $data[$post_type]['custom_fields'] as $def )

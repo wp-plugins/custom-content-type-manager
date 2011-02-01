@@ -128,6 +128,8 @@ The architecture for this plugin was also inspired by [MODx](http://modxcms.com/
 If you are eager to see one of these features implemented in a future release, please share your feedback!
 
 * Improve UI (there are some monstrous forms in there... sorry!)
+* Link to the Media/Attachments from the image custom fields: it's not clear that the user has to upload these.
+* Secondly, actually handle the file uploads from the custom fields PostSelector popup.  The built-in WP uploader is difficult to integrate with, so this may have to be re-coded from scratch (ouch);
 * Optionally allow users to add additional custom fields beyond the standardized fields.
 * Add more custom field types, including media specific input-types: "image", "audio", "video" -- all of these are currently handled generically by the "media" custom field type.  Also on the menu: date and time fields.
 * Enable additional filters media browser (post-selector.php), including a post-type filter. 
@@ -139,7 +141,7 @@ If you are eager to see one of these features implemented in a future release, p
 		for each custom content type that mirrors the built-in permalink options.
 http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info on this.
 * Integrated taxonomy manager. So far, the "Simple Taxonomy" plugin is the only taxonomy plugin that I've found that is relatively few of bugs and is sensibly architected: http://redmine.beapi.fr/projects/show/simple-taxonomy
-* Allow "list" fields (questionably architecturally) -- e.g. you define a custom field that's a media type, if you check a box specifying that it's a list, it would allow you to add multiple instances of that field to your post.  That's a lot trickier than what I'm doing now, but I think my architecture is sensible enough to support it. Those data patterns start looking a lot like taxonomies though, so it's gonna require rock-solid explanations to avoid confusing users.
+* Allow "list" fields that accept multiple values into the same field. The exact implementation is being reviewed.
 * Supply more template functions, perhaps via a static class, e.g. CCTM::image('move_poster'); It might also be possible to spin this off to function names that are more familiar to WP template authors, e.g. "CCTM::the_movie_poster()". See includes/functions.php for some functions in development.
 * Archive Support: optionally define whether a content type shows up in the normal site archive menus.
 * Pimp out the search box, INCLUDING the ability to specify a post_type when you create a relation field, e.g. for the posts referencing a page, I should prime the form so that it only displays the relevant post-type posts.  The architecture is there and already can do this, but I was having problems piping that stuff through javascript when fields are created dynamically.
@@ -148,6 +150,22 @@ http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info
 
 == Upgrade Notice ==
 
+= In Development =
+Customized manager templates. This is useful if you need to customize the manager interface for the custom fields.
+Updated sample templates under the "View Sample Template" link for each content type.
+Fixes glitch in Javascript element counter that screwed up dropdown menu creation: due to this bug, you could only add a dropbox to the first element because the wrapper div's id was fixed statically as the same id, so adding a dropdown menu always wrote the new HTML to that same div (inside the first custom field).
+Control buttons now at top and bottom of manage custom fields.
+Some basic HTML cleanup.
+Moved some files around for better organization.
+
+= 0.8.2 =
+Fixes a couple other glitches: apostrophes in media custom fields, editing content types.
+Resubmitting this to get the updates to show up in WordPress' repository.  Sorry folks... seems that the WP captain has jumped ship, so I have no working instructions on how to get my updates to percolate down to the users.  
+
+= 0.8.1 =
+Fixing glitch in saving posts and pages.
+
+=======
 On Dev Branch (future 0.8.3)
 Fixes glitch in Javascript element counter that screwed up dropdown menu creation: due to this bug, you could only add a dropbox to the first element because the wrapper div's id was fixed statically as the same id, so adding a dropdown menu always wrote the new HTML to that same div (inside the first custom field).
 Some basic HTML cleanup.

@@ -10,8 +10,8 @@ StandardizedCustomFields.php, and the CCTMtests.php files/classes to work.
 ------------------------------------------------------------------------------*/
 class CCTM
 {	
+	// Name of this plugin
 	const name 		= 'Custom Content Type Manager';
-	const txtdomain = 'custom-content-type-mgr'; // used for localization
 	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver 	= '3.0.1';
@@ -117,9 +117,7 @@ class CCTM
 	OUTPUT: An HTML form, length depends on the # of field defs.
 	------------------------------------------------------------------------------*/
 	private static function _get_html_field_defs($custom_field_defs)
-	{
-//		print_r($custom_field_defs); exit;
-		
+	{	
 		$output = '';
 		foreach ($custom_field_defs as $def)
 		{
@@ -165,12 +163,12 @@ class CCTM
 		FormGenerator::$before_elements = '<div id="generated_form_number_\'+def_i+\'">';
 		FormGenerator::$after_elements = '
 			<a class="button" href="#" onClick="javascript:removeDiv(this.parentNode.id);">'
-			.__('Remove This Field', CCTM::txtdomain).'</a>
+			.__('Remove This Field', CCTM_TXTDOMAIN).'</a>
 			<hr/>
 		</div>';
 		
 		$output = FormGenerator::generate($def, 'javascript');
-		//print $output; exit;
+
 		// Javascript chokes on newlines...
 		return str_replace( array("\r\n", "\r", "\n", "\t"), ' ', $output);
 	}
@@ -289,15 +287,18 @@ class CCTM
 		// Variables for our template (I'm cheating here, loading in-line styles
 		// becase the enqueue stuff is too heavy). TODO: use enqueue function to 
 		// load this only on the required pages.
+		//! TODO
+/*
 		$style			= '<style>'
-			. file_get_contents( self::get_basepath() .'/css/create_or_edit_post_type.css' ) 
+			. file_get_contents( self::get_basepath() .'/css/posts.css' ) 
 			. '</style>';
+*/
 
-		$page_header 	= __('Create Custom Content Type', CCTM::txtdomain);
+		$page_header 	= __('Create Custom Content Type', CCTM_TXTDOMAIN);
 		$fields			= '';
 		$action_name 	= 'custom_content_type_mgr_create_new_content_type';
 		$nonce_name 	= 'custom_content_type_mgr_create_new_content_type_nonce';
-		$submit 		= __('Create New Content Type', CCTM::txtdomain);
+		$submit 		= __('Create New Content Type', CCTM_TXTDOMAIN);
 		$msg 			= ''; 	
 		
 		$def = self::$post_type_form_definition;
@@ -314,7 +315,7 @@ class CCTM
 				$msg = '
 				<div class="updated">
 					<p>'
-					. sprintf( __('The content type %s has been created', CCTM::txtdomain), '<em>'.$sanitized_vals['post_type'].'</em>')
+					. sprintf( __('The content type %s has been created', CCTM_TXTDOMAIN), '<em>'.$sanitized_vals['post_type'].'</em>')
 					. '</p>
 				</div>';
 				self::_page_show_all_post_types($msg);
@@ -353,11 +354,11 @@ class CCTM
 		}
 		// Variables for our template
 		$style			= '';
-		$page_header 	= sprintf( __('Deactivate Content Type %s', CCTM::txtdomain), $post_type );
+		$page_header 	= sprintf( __('Deactivate Content Type %s', CCTM_TXTDOMAIN), $post_type );
 		$fields			= '';
 		$action_name 	= 'custom_content_type_mgr_deactivate_content_type';
 		$nonce_name 	= 'custom_content_type_mgr_deactivate_content_type_nonce';
-		$submit 		= __('Deactivate', CCTM::txtdomain);
+		$submit 		= __('Deactivate', CCTM_TXTDOMAIN);
 				
 		// If properly submitted, Proceed with deleting the post type
 		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
@@ -377,24 +378,24 @@ class CCTM
 		}
 		
 		$msg = '<div class="error"><p>'
-			. sprintf( __('You are about to deactivate the %s post type. Deactivation does not delete anything.', CCTM::txtdomain ), "<em>$post_type</em>")
+			. sprintf( __('You are about to deactivate the %s post type. Deactivation does not delete anything.', CCTM_TXTDOMAIN ), "<em>$post_type</em>")
 			.'</p>';		
 		
 		// If it's a custom post type, we include some additional info.
 		if ( !in_array($post_type, self::$built_in_post_types) )
 		{
 			$msg .= '<p>'
-			. sprintf( __('After deactivation, %s posts will be unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM::txtdomain), $post_type, "<strong>$post_type</strong>" )
+			. sprintf( __('After deactivation, %s posts will be unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), $post_type, "<strong>$post_type</strong>" )
 			.'</p>';
 		}
 		
 		$post_cnt_obj = wp_count_posts($post_type);
 		$msg .= '<p>'
 			. sprintf( __('This would affect %1$s published %2$s posts.'
-			,CCTM::txtdomain), '<strong>'.$post_cnt_obj->publish.'</strong>'
+			,CCTM_TXTDOMAIN), '<strong>'.$post_cnt_obj->publish.'</strong>'
 				 , "<em>$post_type</em>")
 				.'</p>';
-		$msg .= '<p>'.__('Are you sure you want to do this?',CCTM::txtdomain).'</p>
+		$msg .= '<p>'.__('Are you sure you want to do this?',CCTM_TXTDOMAIN).'</p>
 			</div>';		
 
 		include('pages/basic_form.php');
@@ -415,11 +416,11 @@ class CCTM
 
 		// Variables for our template
 		$style			= '';
-		$page_header = sprintf( __('Delete Content Type: %s', CCTM::txtdomain), $post_type );
+		$page_header = sprintf( __('Delete Content Type: %s', CCTM_TXTDOMAIN), $post_type );
 		$fields			= '';
 		$action_name = 'custom_content_type_mgr_delete_content_type';
 		$nonce_name = 'custom_content_type_mgr_delete_content_type_nonce';
-		$submit 		= __('Delete',CCTM::txtdomain);
+		$submit 		= __('Delete',CCTM_TXTDOMAIN);
 		
 		// If properly submitted, Proceed with deleting the post type
 		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
@@ -429,16 +430,16 @@ class CCTM
 			unset($data[$post_type]); // <-- Delete this node of the data structure
 			update_option( self::db_key, $data );
 			$msg = '<div class="updated"><p>'
-				.sprintf( __('The post type %s has been deleted', CCTM::txtdomain), "<em>$post_type</em>")
+				.sprintf( __('The post type %s has been deleted', CCTM_TXTDOMAIN), "<em>$post_type</em>")
 				. '</p></div>';
 			self::_page_show_all_post_types($msg);
 			return;
 		}
 		
 		$msg = '<div class="error"><p>'
-			. sprintf( __('You are about to delete the %s post type. This will remove all of its settings from the database, but this will NOT delete any rows from the wp_posts table. However, without a custom post type defined for those rows, they will be essentially invisible to WordPress.', CCTM::txtdomain), "<em>$post_type</em>" )
+			. sprintf( __('You are about to delete the %s post type. This will remove all of its settings from the database, but this will NOT delete any rows from the wp_posts table. However, without a custom post type defined for those rows, they will be essentially invisible to WordPress.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 			.'</p>'
-			. '<p>'.__('Are you sure you want to do this?',CCTM::txtdomain).'</p>';
+			. '<p>'.__('Are you sure you want to do this?',CCTM_TXTDOMAIN).'</p>';
 
 		include('pages/basic_form.php');
 		
@@ -450,9 +451,9 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _page_display_error()
 	{	
-		$msg = '<p>'. __('Invalid post type.', CCTM::txtdomain) 
+		$msg = '<p>'. __('Invalid post type.', CCTM_TXTDOMAIN) 
 			. '</p><a class="button" href="?page='
-			.self::admin_menu_slug.'">'. __('Back', CCTM::txtdomain). '</a>';
+			.self::admin_menu_slug.'">'. __('Back', CCTM_TXTDOMAIN). '</a>';
 		wp_die( $msg );
 	}
 
@@ -473,16 +474,11 @@ class CCTM
 
 		// Variables for our template (TODO: register this instead of this cheap inline trick)
 		$style			= '';
-		/*
-'<style>'
-			. file_get_contents( self::get_basepath() .'/css/create_or_edit_post_type_class.css' ) 
-			. '</style>';
-*/
 		$page_header 	= __('Edit Content Type: ') . $post_type;
 		$fields			= '';
 		$action_name = 'custom_content_type_mgr_edit_content_type';
 		$nonce_name = 'custom_content_type_mgr_edit_content_type_nonce';
-		$submit 		= __('Save',CCTM::txtdomain);
+		$submit 		= __('Save',CCTM_TXTDOMAIN);
 		$msg 			= ''; 	// Any validation errors
 	
 		$def = self::$post_type_form_definition;
@@ -502,7 +498,7 @@ class CCTM
 						window.location.replace("?page='.self::admin_menu_slug.'");
 					</script>';
 				$msg .= '<div class="updated"><p>'
-					. sprintf( __('Settings for %s have been updated.', CCTM::txtdomain )
+					. sprintf( __('Settings for %s have been updated.', CCTM_TXTDOMAIN )
 						, '<em>'.$sanitized_vals['post_type'].'</em>')
 					.'</p></div>';
 				self::_page_show_all_post_types($msg); // TODO: make this message persist across page refreshes
@@ -566,7 +562,7 @@ class CCTM
 					if ( preg_match('/[^a-z_0-9]/i', $cf['name']))
 					{
 						$error_msg[] = sprintf(
-							__('%s contains invalid characters.',CCTM::txtdomain)
+							__('%s contains invalid characters.',CCTM_TXTDOMAIN)
 							, '<strong>'.$cf['name'].'</strong>');
 						$cf['name'] = preg_replace('/[^a-z_]/','',$cf['name']);
 					}
@@ -574,13 +570,13 @@ class CCTM
 					{
 						$cf['name'] = substr($cf['name'], 0 , 20);
 						$error_msg[] = sprintf(
-							__('%s is too long.',CCTM::txtdomain)
+							__('%s is too long.',CCTM_TXTDOMAIN)
 							, '<strong>'.$cf['name'].'</strong>');
 					}
 					if ( in_array($cf['name'], self::$reserved_field_names ) )
 					{
 						$error_msg[] = sprintf(
-							__('%s is a reserved name.',CCTM::txtdomain)
+							__('%s is a reserved name.',CCTM_TXTDOMAIN)
 							, '<strong>'.$cf['name'].'</strong>');						
 					}
 				}
@@ -599,10 +595,10 @@ class CCTM
 						%5$s
 					</ul>
 					</div>'
-					, __('There were errors in the names of your custom fields.', CCTM::txtdomain)
-					, __('Names must not exceed 20 characters in length.', CCTM::txtdomain)
-					, __('Names may contain the letters, numbers, and underscores only.', CCTM::txtdomain)
-					, __('You cannot name your field using any reserved name.', CCTM::txtdomain)
+					, __('There were errors in the names of your custom fields.', CCTM_TXTDOMAIN)
+					, __('Names must not exceed 20 characters in length.', CCTM_TXTDOMAIN)
+					, __('Names may contain the letters, numbers, and underscores only.', CCTM_TXTDOMAIN)
+					, __('You cannot name your field using any reserved name.', CCTM_TXTDOMAIN)
 					, implode("\n", $error_msg)
 				);
 			}
@@ -610,7 +606,7 @@ class CCTM
 			{
 				update_option( self::db_key, $data );
 				$msg = sprintf('<div class="updated">%s</div>'
-						, sprintf(__('Custom fields for %s have been updated', CCTM::txtdomain)
+						, sprintf(__('Custom fields for %s have been updated', CCTM_TXTDOMAIN)
 							, '<em>'.$post_type.'</em>'
 						)
 					);
@@ -633,9 +629,9 @@ class CCTM
 
 		if (!$def_cnt)
 		{
-			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM::txtdomain)
+			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
 				, "<em>$post_type</em>" );
-			$y = __('Click the button above to add a custom field.', CCTM::txtdomain );
+			$y = __('Click the button above to add a custom field.', CCTM_TXTDOMAIN );
 			$msg .= sprintf('<div class="updated">%s %s</div>', $x, $y);
 		}
 
@@ -669,13 +665,13 @@ class CCTM
 		
 		$hash = array();
 		$data = get_option( self::db_key, array() );
-		$tpl = file_get_contents( CCTM_PATH.'/tpls/sample_template_code.tpl');
+		$tpl = file_get_contents( CCTM_PATH.'/tpls/samples/single_post.tpl');
 		$tpl = htmlentities($tpl);
 
-		$msg = sprintf( __('WordPress supports a custom theme file for each registered post-type (content-type). Copy the text below into a file named <strong>%s</strong> and save it into your active theme.', CCTM::txtdomain)
+		$single_page_msg = sprintf( __('WordPress supports a custom theme file for each registered post-type (content-type). Copy the text below into a file named <strong>%s</strong> and save it into your active theme.', CCTM_TXTDOMAIN)
 			, 'single-'.$post_type.'.php'
 		);
-		$msg .= sprintf( __('You are currently using the %1$s theme. Save the file into the %2$s directory.',CCTM::txtdomain)
+		$single_page_msg .= sprintf( __('You are currently using the %1$s theme. Save the file into the %2$s directory.',CCTM_TXTDOMAIN)
 			, '<strong>'.$current_theme_name.'</strong>'
 			, '<strong>'.$current_theme_path.'</strong>'
 		);
@@ -686,17 +682,166 @@ class CCTM
 		{
 			$def = $data[$post_type]['custom_fields'];
 		}
-		//print_r($def); exit;
+		//print_r($data[$post_type]); exit;
+		//!TODO check this post-type for whether or not it is using content, excerpt, comments
+		// built-in content types don't verbosely display what they display
+		/* Array
+(
+    [product] => Array
+        (
+            [supports] => Array
+                (
+                    [0] => title
+                    [1] => editor
+                    [2] => author
+                    [3] => thumbnail
+                    [4] => excerpt
+                    [5] => trackbacks
+                    [6] => custom-fields
+                )
+*/
+//		print_r($data); exit;
+		// Check the TYPE of custom field to handle image and relation custom fields.
+		// title, author, thumbnail, excerpt
 		$custom_fields_str = '';
+		$builtin_fields_str = '';
+		$comments_str = '';
+		// Built-in Fields
+		if ( is_array($data[$post_type]['supports']) )
+		{
+			if ( in_array('title', $data[$post_type]['supports']) )
+			{
+				$builtin_fields_str .= "\n\t<h1><?php the_title(); ?></h1>\n";
+			}
+			if ( in_array('editor', $data[$post_type]['supports']) )
+			{
+				$builtin_fields_str .= "\n\t\t<?php the_content(); ?>\n";
+			}
+			if ( in_array('author', $data[$post_type]['supports']) )
+			{
+				$builtin_fields_str .= "\n\t\t<?php the_author(); ?>\n";
+			}
+			if ( in_array('thumbnail', $data[$post_type]['supports']) )
+			{
+				$builtin_fields_str .= "\n\t\t<?php the_post_thumbnail(); ?>\n";
+			}
+			if ( in_array('excerpt', $data[$post_type]['supports']) )
+			{
+				$builtin_fields_str .= "\n\t\t<?php the_excerpt(); ?>\n";
+			}
+			if ( in_array('comments', $data[$post_type]['supports']) )
+			{
+				$comments_str .= "\n\t\t<?php comments_template(); ?>\n";
+			}
+		}
+
+		// Custom fields
 		foreach ( $def as $d )
 		{
-			$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n", $d['label'], $d['name']);
+			switch ($d['type'])
+			{
+				case 'media':
+					$custom_fields_str .= "\t\t<?php /* http://codex.wordpress.org/Function_Reference/wp_get_attachment_image */ ?>\n";
+					$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print wp_get_attachment_image( get_custom_field('%s'), 'full'); ?><br />\n", $d['label'], $d['name']);
+				case 'text':
+				default:
+				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n", $d['label'], $d['name']);
+			}
 		}
 		// Populate placeholders
 		$hash['post_type'] = $post_type;
+		$hash['built_in_fields'] = $builtin_fields_str;
 		$hash['custom_fields'] = $custom_fields_str;
+		$hash['comments'] = $comments_str;
 		
-		$sample_code = StandardizedCustomFields::parse($tpl, $hash);
+		$single_page_sample_code = StandardizedCustomFields::parse($tpl, $hash);
+		
+		// Manager Page Sample CSS
+		$manager_page_css_msg = '';
+		$manager_page_sample_css = '';
+		$manager_page_css_msg .= sprintf( __('You can customize the forms in the manager by editing the CSS declarations in your in your theme\'s %s file.', CCTM_TXTDOMAIN)
+			, '<strong>editor-style.css</strong>' );
+		$manager_page_css_msg .= sprintf( __('You can override the style definitions in %s', CCTM_TXTDOMAIN)
+			, '<strong>'.CCTM_PATH.'/css/posts.css</strong>');
+
+		// or in your theme's editor-style.css file.
+		// FormGenerator::element_wrapper_id_prefix
+		foreach ( $def as $d )
+		{
+			$manager_page_sample_css .= sprintf("/* The div that wraps the %s field */\n#%s%s {\n\n}\n\n/* Style the input for the %s field */\n#%s%s {\n\n}\n\n"
+			, $d['name']
+			, FormGenerator::element_wrapper_id_prefix 
+			, $d['name']
+			, $d['name']
+			, StandardizedCustomFields::field_name_prefix
+			, $d['name']
+			);
+		}
+
+		// Manager Page HTML examples;
+		// post-new.php?post_type=%s
+		$manager_page_html_msg = '';
+		$manager_page_sample_html = '';
+		/* 
+		<div class="formgenerator_element_wrapper" id="custom_field_id_sample_img">
+			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_custom_content_sample_img">Sample Image (sample_img)</span>
+			<input type="hidden" id="custom_content_sample_img" name="custom_content_sample_img" />
+		</div>
+		
+		A <div> wraps each custom field. Its class is "formgenerator_element_wrapper" and its id is the field name prefixed by "custom_field_id_"
+		Labels for each field are wrapped with their own <span>. Each <span> uses 2 classes: a general one for all generated labels, and another specific to the field type (text, checkbox, etc).		
+		*/
+		$manager_page_html_msg .= __('You can create custom manager templates for the users who will be creating new content.', CCTM_TXTDOMAIN) . ' ';
+		$manager_page_html_msg .= sprintf( __('Create a file named %s in the %s directory.', CCTM_TXTDOMAIN)
+			, '<strong>'.$post_type.'.tpl</strong>'
+			, '<strong>'.CCTM_PATH.'/tpls/manager/</strong>'
+		);
+		foreach ( $def as $d )
+		{
+			unset($d['default_value']); // this should not be publicly available.
+			$manager_page_sample_html .= sprintf( "<!-- Sample HTML for %s field-->\n", $d['name']);
+			$manager_page_sample_html .= "<!-- [+".$d['name']."+] will generate field in its entirety -->\n";
+			$manager_page_sample_html .= "<!-- Individual placeholders follow: -->\n";
+			foreach ($d as $k => $v)
+			{
+				$manager_page_sample_html .= '[+'.$k.'+]'. "\n";	
+			}
+			$manager_page_sample_html .= "\n";
+			
+//! FUTURE: Give more complete examples.
+/*
+			switch ( $d['type'] ) 
+			{
+				case 'checkbox':
+					$output_this_field .= self::_get_checkbox_element($field_def);
+					break;
+				case 'dropdown':
+					$output_this_field .= self::_get_dropdown_element($field_def);
+					break;
+				case 'media':
+					$output_this_field .= self::_get_media_element($field_def);
+					break;
+				case 'readonly':
+					$output_this_field .= self::_get_readonly_element($field_def);
+					break;
+				case 'relation':
+					$output_this_field .= self::_get_relation_element($field_def);
+					break;
+				case 'textarea':
+					$output_this_field .= self::_get_textarea_element($field_def);
+					break;
+				case 'wysiwyg':
+					$output_this_field .= self::_get_wysiwyg_element($field_def);
+					break;
+				case 'text':
+				default: 
+					$output_this_field .= self::_get_text_element($field_def);
+					break;
+			}
+*/
+			
+		}
+		
 		include('pages/sample_template.php');
 	}
 	
@@ -928,14 +1073,14 @@ class CCTM
 
 		if ( empty($post_type) )
 		{
-			return __('Name is required.', CCTM::txtdomain);
+			return __('Name is required.', CCTM_TXTDOMAIN);
 		}
 
 		foreach ( self::$reserved_prefixes as $rp )
 		{
 			if ( preg_match('/^'.preg_quote($rp).'.*/', $post_type) )
 			{
-				return sprintf( __('The post type name cannot begin with %s because that is a reserved prefix.', CCTM::txtdomain)
+				return sprintf( __('The post type name cannot begin with %s because that is a reserved prefix.', CCTM_TXTDOMAIN)
 					, $rp);
 			}		
 		}
@@ -944,18 +1089,18 @@ class CCTM
 		// Is reserved name?
 		if ( in_array($post_type, self::$reserved_post_types) )
 		{
-			$msg = __('Please choose another name.', CCTM::txtdomain );
+			$msg = __('Please choose another name.', CCTM_TXTDOMAIN );
 			$msg .= ' ';
-			$msg .= sprintf( __('%s is a reserved name.', CCTM::txtdomain )
+			$msg .= sprintf( __('%s is a reserved name.', CCTM_TXTDOMAIN )
 				, '<strong>'.$post_type.'</strong>' );
 			return $msg;
 		}
 		// Make sure the post-type name does not conflict with any registered taxonomies
 		elseif ( in_array( $post_type, $taxonomy_names_array) )
 		{
-			$msg = __('Please choose another name.', CCTM::txtdomain );
+			$msg = __('Please choose another name.', CCTM_TXTDOMAIN );
 			$msg .= ' ';
-			$msg .= sprintf( __('%s is already in use as a registered taxonomy name.', CCTM::txtdomain)
+			$msg .= sprintf( __('%s is already in use as a registered taxonomy name.', CCTM_TXTDOMAIN)
 				, $post_type );
 		}
 		// If this is a new post_type or if the $post_type name has been changed, 
@@ -1098,7 +1243,7 @@ class CCTM
 	private static function _set_custom_field_def_template()
 	{
 		$def['label']['name']			= 'custom_fields[[+def_i+]][label]';
-		$def['label']['label']			= __('Label', CCTM::txtdomain);
+		$def['label']['label']			= __('Label', CCTM_TXTDOMAIN);
 		$def['label']['value']			= '';
 		$def['label']['extra']			= '';			
 		$def['label']['description']	= '';
@@ -1106,15 +1251,15 @@ class CCTM
 		$def['label']['sort_param']		= 1;
 
 		$def['name']['name']			= 'custom_fields[[+def_i+]][name]';
-		$def['name']['label']			= __('Name', CCTM::txtdomain);
+		$def['name']['label']			= __('Name', CCTM_TXTDOMAIN);
 		$def['name']['value']			= '';
 		$def['name']['extra']			= '';			
-		$def['name']['description']		= __('The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.', CCTM::txtdomain);
+		$def['name']['description']		= __('The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$def['name']['type']			= 'text';
 		$def['name']['sort_param']		= 2;
 
 		$def['description']['name']			= 'custom_fields[[+def_i+]][description]';
-		$def['description']['label']		= __('Description',CCTM::txtdomain);
+		$def['description']['label']		= __('Description',CCTM_TXTDOMAIN);
 		$def['description']['value']		= '';
 		$def['description']['extra']		= '';
 		$def['description']['description']	= '';
@@ -1122,7 +1267,7 @@ class CCTM
 		$def['description']['sort_param']	= 3;
 
 		$def['type']['name']		= 'custom_fields[[+def_i+]][type]';
-		$def['type']['label']		= __('Input Type', CCTM::txtdomain);
+		$def['type']['label']		= __('Input Type', CCTM_TXTDOMAIN);
 		$def['type']['value']		= 'text';
 		$def['type']['extra']		= ' onchange="javascript:addRemoveDropdown(this.parentNode.id,this.value, [+def_i+])"';
 		$def['type']['description']	= '';
@@ -1131,19 +1276,19 @@ class CCTM
 		$def['type']['sort_param']	= 4;
 
 		$def['default_value']['name']			= 'custom_fields[[+def_i+]][default_value]';
-		$def['default_value']['label']			= __('Default Value', CCTM::txtdomain);
+		$def['default_value']['label']			= __('Default Value', CCTM_TXTDOMAIN);
 		$def['default_value']['value']			= '';
 		$def['default_value']['extra']			= '';
-		$def['default_value']['description']		= __('The default value will appear in form fields when a post is first created. For checkboxes, use a default value of "1" if you want it to be checked by default.', CCTM::txtdomain);
+		$def['default_value']['description']		= __('The default value will appear in form fields when a post is first created. For checkboxes, use a default value of "1" if you want it to be checked by default.', CCTM_TXTDOMAIN);
 		$def['default_value']['type']			= 'text';
 		$def['default_value']['sort_param']		= 5;
 
 
 		$def['sort_param']['name']			= 'custom_fields[[+def_i+]][sort_param]';
-		$def['sort_param']['label']			= __('Sort Order',CCTM::txtdomain);
+		$def['sort_param']['label']			= __('Sort Order',CCTM_TXTDOMAIN);
 		$def['sort_param']['value']			= '';
 		$def['sort_param']['extra']			= ' size="2" maxlength="4"';
-		$def['sort_param']['description']	= __('This controls where this field will appear on the page. Fields with smaller numbers will appear higher on the page.',CCTM::txtdomain);
+		$def['sort_param']['description']	= __('This controls where this field will appear on the page. Fields with smaller numbers will appear higher on the page.',CCTM_TXTDOMAIN);
 		$def['sort_param']['type']			= 'text';
 		$def['sort_param']['sort_param']	= 6;
 
@@ -1161,31 +1306,31 @@ class CCTM
 		$def =	array();
 		
 		$def['post_type']['name'] 			= 'post_type';
-		$def['post_type']['label'] 			= __('Name', CCTM::txtdomain). ' *';
+		$def['post_type']['label'] 			= __('Name', CCTM_TXTDOMAIN). ' *';
 		$def['post_type']['value'] 			= '';
 		$def['post_type']['extra'] 			= '';
-		$def['post_type']['description'] 	= __('Unique singular name to identify this post type in the database, e.g. "movie","book". This may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>. The name should be lowercase with only letters and underscores. This name cannot be changed!', CCTM::txtdomain);
+		$def['post_type']['description'] 	= __('Unique singular name to identify this post type in the database, e.g. "movie","book". This may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>. The name should be lowercase with only letters and underscores. This name cannot be changed!', CCTM_TXTDOMAIN);
 		$def['post_type']['type'] 			= 'text';
 		$def['post_type']['sort_param'] 	= 1;
 			
 		$def['singular_label']['name']			= 'singular_label';
-		$def['singular_label']['label']			= __('Singular Label', CCTM::txtdomain);
+		$def['singular_label']['label']			= __('Singular Label', CCTM_TXTDOMAIN);
 		$def['singular_label']['value']			= '';
 		$def['singular_label']['extra']			= '';
-		$def['singular_label']['description']	= __('Human readable single instance of this content type, e.g. "Post"', CCTM::txtdomain);
+		$def['singular_label']['description']	= __('Human readable single instance of this content type, e.g. "Post"', CCTM_TXTDOMAIN);
 		$def['singular_label']['type']			= 'text';
 		$def['singular_label']['sort_param']	= 2;
 
 		$def['label']['name']			= 'label';
-		$def['label']['label']			= __('Menu Label (Plural)', CCTM::txtdomain);
+		$def['label']['label']			= __('Menu Label (Plural)', CCTM_TXTDOMAIN);
 		$def['label']['value']			= '';
 		$def['label']['extra']			= '';
-		$def['label']['description']	= __('Plural name used in the admin menu, e.g. "Posts"', CCTM::txtdomain);
+		$def['label']['description']	= __('Plural name used in the admin menu, e.g. "Posts"', CCTM_TXTDOMAIN);
 		$def['label']['type']			= 'text';
 		$def['label']['sort_param']		= 3;
 
 		$def['description']['name']			= 'description';
-		$def['description']['label']		= __('Description', CCTM::txtdomain);
+		$def['description']['label']		= __('Description', CCTM_TXTDOMAIN);
 		$def['description']['value']		= '';
 		$def['description']['extra']		= '';
 		$def['description']['description']	= '';	
@@ -1193,90 +1338,90 @@ class CCTM
 		$def['description']['sort_param']	= 4;
 
 		$def['show_ui']['name']			= 'show_ui';
-		$def['show_ui']['label']			= __('Show Admin User Interface', CCTM::txtdomain);
+		$def['show_ui']['label']			= __('Show Admin User Interface', CCTM_TXTDOMAIN);
 		$def['show_ui']['value']			= '1';
 		$def['show_ui']['extra']			= '';
-		$def['show_ui']['description']	= __('Should this post type be visible on the back-end?', CCTM::txtdomain);
+		$def['show_ui']['description']	= __('Should this post type be visible on the back-end?', CCTM_TXTDOMAIN);
 		$def['show_ui']['type']			= 'checkbox';
 		$def['show_ui']['sort_param']	= 5;
 
 		$def['capability_type']['name']			= 'capability_type';
-		$def['capability_type']['label']		= __('Capability Type', CCTM::txtdomain);
+		$def['capability_type']['label']		= __('Capability Type', CCTM_TXTDOMAIN);
 		$def['capability_type']['value']		= 'post';
 		$def['capability_type']['extra']		= '';
-		$def['capability_type']['description']	= __('The post type to use for checking read, edit, and delete capabilities. Default: "post"', CCTM::txtdomain);
+		$def['capability_type']['description']	= __('The post type to use for checking read, edit, and delete capabilities. Default: "post"', CCTM_TXTDOMAIN);
 		$def['capability_type']['type']			= 'text';
 		$def['capability_type']['sort_param']	= 6;
 
 		$def['public']['name']			= 'public';
-		$def['public']['label']			= __('Public', CCTM::txtdomain);
+		$def['public']['label']			= __('Public', CCTM_TXTDOMAIN);
 		$def['public']['value']			= '1';
 		$def['public']['extra']			= '';
-		$def['public']['description']	= __('Should these posts be visible on the front-end?', CCTM::txtdomain);
+		$def['public']['description']	= __('Should these posts be visible on the front-end?', CCTM_TXTDOMAIN);
 		$def['public']['type']			= 'checkbox';
 		$def['public']['sort_param']	= 7;
 	
 		$def['hierarchical']['name']		= 'hierarchical';
-		$def['hierarchical']['label']		= __('Hierarchical', CCTM::txtdomain);
+		$def['hierarchical']['label']		= __('Hierarchical', CCTM_TXTDOMAIN);
 		$def['hierarchical']['value']		= '';
 		$def['hierarchical']['extra']		= '';
-		$def['hierarchical']['description']	= __('Allows parent to be specified (Page Attributes should be checked)', CCTM::txtdomain);
+		$def['hierarchical']['description']	= __('Allows parent to be specified (Page Attributes should be checked)', CCTM_TXTDOMAIN);
 		$def['hierarchical']['type']		= 'checkbox';
 		$def['hierarchical']['sort_param']	= 8;
 		
 		$def['supports_title']['name']			= 'supports[]';
 		$def['supports_title']['id']			= 'supports_title';
-		$def['supports_title']['label']			= __('Title', CCTM::txtdomain);
+		$def['supports_title']['label']			= __('Title', CCTM_TXTDOMAIN);
 		$def['supports_title']['value']			= 'title';
 		$def['supports_title']['checked_value'] = 'title';
 		$def['supports_title']['extra']			= '';
-		$def['supports_title']['description']	= __('Post Title', CCTM::txtdomain);
+		$def['supports_title']['description']	= __('Post Title', CCTM_TXTDOMAIN);
 		$def['supports_title']['type']			= 'checkbox';
 		$def['supports_title']['sort_param']	= 20;
 
 		$def['supports_editor']['name']			= 'supports[]';
 		$def['supports_editor']['id']			= 'supports_editor';
-		$def['supports_editor']['label']		= __('Content', CCTM::txtdomain);
+		$def['supports_editor']['label']		= __('Content', CCTM_TXTDOMAIN);
 		$def['supports_editor']['value']		= 'editor';
 		$def['supports_editor']['checked_value'] = 'editor';
 		$def['supports_editor']['extra']		= '';
-		$def['supports_editor']['description']	= __('Main content block.', CCTM::txtdomain);
+		$def['supports_editor']['description']	= __('Main content block.', CCTM_TXTDOMAIN);
 		$def['supports_editor']['type']			= 'checkbox';
 		$def['supports_editor']['sort_param']	= 21;
 
 		$def['supports_author']['name']			= 'supports[]';
 		$def['supports_author']['id']			= 'supports_author';
-		$def['supports_author']['label']		= __('Author', CCTM::txtdomain);
+		$def['supports_author']['label']		= __('Author', CCTM_TXTDOMAIN);
 		$def['supports_author']['value']		= '';
 		$def['supports_author']['checked_value'] = 'author';
 		$def['supports_author']['extra']		= '';
-		$def['supports_author']['description']	= __('Track the author.', CCTM::txtdomain);
+		$def['supports_author']['description']	= __('Track the author.', CCTM_TXTDOMAIN);
 		$def['supports_author']['type']			= 'checkbox';
 		$def['supports_author']['sort_param']	= 22;
 
 		$def['supports_thumbnail']['name']		= 'supports[]';
 		$def['supports_thumbnail']['id'] 		= 'supports_thumbnail';
-		$def['supports_thumbnail']['label'] 	= __('Thumbnail', CCTM::txtdomain);
+		$def['supports_thumbnail']['label'] 	= __('Thumbnail', CCTM_TXTDOMAIN);
 		$def['supports_thumbnail']['value'] 	= '';
 		$def['supports_thumbnail']['checked_value' ] = 'thumbnail';
 		$def['supports_thumbnail']['extra'] 		= '';
-		$def['supports_thumbnail']['description'] 	= __('Featured image (the activetheme must also support post-thumbnails)', CCTM::txtdomain);
+		$def['supports_thumbnail']['description'] 	= __('Featured image (the activetheme must also support post-thumbnails)', CCTM_TXTDOMAIN);
 		$def['supports_thumbnail']['type'] 			= 'checkbox';
 		$def['supports_thumbnail']['sort_param'] 	= 23;
 
 		$def['supports_excerpt']['name']			= 'supports[]';
 		$def['supports_excerpt']['id']				= 'supports_excerpt';
-		$def['supports_excerpt']['label']			= __('Excerpt', CCTM::txtdomain);
+		$def['supports_excerpt']['label']			= __('Excerpt', CCTM_TXTDOMAIN);
 		$def['supports_excerpt']['value']			= '';
 		$def['supports_excerpt']['checked_value'] = 'excerpt';
 		$def['supports_excerpt']['extra']			= '';
-		$def['supports_excerpt']['description']		= __('Small summary field.', CCTM::txtdomain);
+		$def['supports_excerpt']['description']		= __('Small summary field.', CCTM_TXTDOMAIN);
 		$def['supports_excerpt']['type']			= 'checkbox';
 		$def['supports_excerpt']['sort_param']	= 24;
 
 		$def['supports_trackbacks']['name']				= 'supports[]';
 		$def['supports_trackbacks']['id']				= 'supports_trackbacks';
-		$def['supports_trackbacks']['label']			= __('Trackbacks', CCTM::txtdomain);
+		$def['supports_trackbacks']['label']			= __('Trackbacks', CCTM_TXTDOMAIN);
 		$def['supports_trackbacks']['value']			= '';
 		$def['supports_trackbacks']['checked_value']	= 'trackbacks';
 		$def['supports_trackbacks']['extra']			= '';
@@ -1286,7 +1431,7 @@ class CCTM
 
 		$def['supports_custom-fields']['name']			= 'supports[]';
 		$def['supports_custom-fields']['id']			= 'supports_custom-fields';
-		$def['supports_custom-fields']['label']			= __('Supports Custom Fields', CCTM::txtdomain);
+		$def['supports_custom-fields']['label']			= __('Supports Custom Fields', CCTM_TXTDOMAIN);
 		$def['supports_custom-fields']['value']			= '';
 		$def['supports_custom-fields']['checked_value'] = 'custom-fields';
 		$def['supports_custom-fields']['extra']			= '';
@@ -1296,7 +1441,7 @@ class CCTM
 
 		$def['supports_comments']['name']			= 'supports[]';
 		$def['supports_comments']['id']				= 'supports_comments';
-		$def['supports_comments']['label']			= __('Enable Comments', CCTM::txtdomain);
+		$def['supports_comments']['label']			= __('Enable Comments', CCTM_TXTDOMAIN);
 		$def['supports_comments']['value']			= '';
 		$def['supports_comments']['checked_value'] 	= 'comments';
 		$def['supports_comments']['extra']			= '';
@@ -1306,7 +1451,7 @@ class CCTM
 
 		$def['supports_revisions']['name']			= 'supports[]';
 		$def['supports_revisions']['id']			= 'supports_revisions';
-		$def['supports_revisions']['label']			= __('Store Revisions', CCTM::txtdomain);
+		$def['supports_revisions']['label']			= __('Store Revisions', CCTM_TXTDOMAIN);
 		$def['supports_revisions']['value']			= '';
 		$def['supports_revisions']['checked_value'] = 'revisions';
 		$def['supports_revisions']['extra']			= '';
@@ -1316,17 +1461,17 @@ class CCTM
 
 		$def['supports_page-attributes']['name']			= 'supports[]';
 		$def['supports_page-attributes']['id']				= 'supports_page-attributes';
-		$def['supports_page-attributes']['label']			= __('Enable Page Attributes', CCTM::txtdomain);
+		$def['supports_page-attributes']['label']			= __('Enable Page Attributes', CCTM_TXTDOMAIN);
 		$def['supports_page-attributes']['value']			= '';
 		$def['supports_page-attributes']['checked_value'] 	= 'page-attributes';
 		$def['supports_page-attributes']['extra']			= '';
-		$def['supports_page-attributes']['description']		= __('(template and menu order; hierarchical must be checked)', CCTM::txtdomain);
+		$def['supports_page-attributes']['description']		= __('(template and menu order; hierarchical must be checked)', CCTM_TXTDOMAIN);
 		$def['supports_page-attributes']['type']			= 'checkbox';
 		$def['supports_page-attributes']['sort_param']		= 29;
 
 			
 		$def['menu_position']['name']			= 'menu_position';
-		$def['menu_position']['label']			= __('Menu Position', CCTM::txtdomain);
+		$def['menu_position']['label']			= __('Menu Position', CCTM_TXTDOMAIN);
 		$def['menu_position']['value']			= '';
 		$def['menu_position']['extra']			= '';
 		$def['menu_position']['description']	= 
@@ -1338,52 +1483,52 @@ class CCTM
 					<li><strong>60</strong> - %5$s</li>
 					<li><strong>100</strong> - %6$s</li>
 				</ul>'
-				, __('This setting determines where this post type should appear in the left-hand admin menu. Default: null (below Comments)', CCTM::txtdomain)
-				, __('below Posts', CCTM::txtdomain)
-				, __('below Media', CCTM::txtdomain)
-				, __('below Posts', CCTM::txtdomain)
-				, __('below Pages', CCTM::txtdomain)
-				, __('below first separator', CCTM::txtdomain)
-				, __('below second separator', CCTM::txtdomain)
+				, __('This setting determines where this post type should appear in the left-hand admin menu. Default: null (below Comments)', CCTM_TXTDOMAIN)
+				, __('below Posts', CCTM_TXTDOMAIN)
+				, __('below Media', CCTM_TXTDOMAIN)
+				, __('below Posts', CCTM_TXTDOMAIN)
+				, __('below Pages', CCTM_TXTDOMAIN)
+				, __('below first separator', CCTM_TXTDOMAIN)
+				, __('below second separator', CCTM_TXTDOMAIN)
 			);
 		$def['menu_position']['type']			= 'text';
 		$def['menu_position']['sort_param']		= 30;
 
 			
 		$def['menu_icon']['name']			= 'menu_icon';
-		$def['menu_icon']['label']			= __('Menu Icon', CCTM::txtdomain);
+		$def['menu_icon']['label']			= __('Menu Icon', CCTM_TXTDOMAIN);
 		$def['menu_icon']['value']			= '';
 		$def['menu_icon']['extra']			= '';
-		$def['menu_icon']['description']	= __('Menu icon URL.', CCTM::txtdomain);
+		$def['menu_icon']['description']	= __('Menu icon URL.', CCTM_TXTDOMAIN);
 		$def['menu_icon']['type']			= 'text';
 		$def['menu_icon']['sort_param']		= 31;
 
 		$def['use_default_menu_icon']['name']			= 'use_default_menu_icon';
-		$def['use_default_menu_icon']['label']			= __('Use Default Menu Icon', CCTM::txtdomain);
+		$def['use_default_menu_icon']['label']			= __('Use Default Menu Icon', CCTM_TXTDOMAIN);
 		$def['use_default_menu_icon']['value']			= '1';
 		$def['use_default_menu_icon']['extra']			= '';
-		$def['use_default_menu_icon']['description']	= __('If checked, your post type will use the posts icon', CCTM::txtdomain);
+		$def['use_default_menu_icon']['description']	= __('If checked, your post type will use the posts icon', CCTM_TXTDOMAIN);
 		$def['use_default_menu_icon']['type']			= 'checkbox';
 		$def['use_default_menu_icon']['sort_param']		= 32;
 
 		$def['rewrite_slug']['name']		= 'rewrite_slug';
-		$def['rewrite_slug']['label']		= __('Rewrite Slug', CCTM::txtdomain);
+		$def['rewrite_slug']['label']		= __('Rewrite Slug', CCTM_TXTDOMAIN);
 		$def['rewrite_slug']['value']		= '';
 		$def['rewrite_slug']['extra']		= '';
-		$def['rewrite_slug']['description']	= __("Prepend posts with this slug - defaults to post type's name", CCTM::txtdomain);
+		$def['rewrite_slug']['description']	= __("Prepend posts with this slug - defaults to post type's name", CCTM_TXTDOMAIN);
 		$def['rewrite_slug']['type']		= 'text';
 		$def['rewrite_slug']['sort_param']	= 35;
 
 		$def['rewrite_with_front']['name']			= 'rewrite_with_front';
-		$def['rewrite_with_front']['label']			= __('Rewrite with Permalink Front', CCTM::txtdomain);
+		$def['rewrite_with_front']['label']			= __('Rewrite with Permalink Front', CCTM_TXTDOMAIN);
 		$def['rewrite_with_front']['value']			= '1';
 		$def['rewrite_with_front']['extra']			= '';
-		$def['rewrite_with_front']['description']	= __("Allow permalinks to be prepended with front base - defaults to checked", CCTM::txtdomain);
+		$def['rewrite_with_front']['description']	= __("Allow permalinks to be prepended with front base - defaults to checked", CCTM_TXTDOMAIN);
 		$def['rewrite_with_front']['type']			= 'checkbox';
 		$def['rewrite_with_front']['sort_param']	= 35;
 
 		$def['rewrite']['name']			= 'permalink_action';
-		$def['rewrite']['label']		= __('Permalink Action', CCTM::txtdomain);
+		$def['rewrite']['label']		= __('Permalink Action', CCTM_TXTDOMAIN);
 		$def['rewrite']['value']		= 'Off';
 		$def['rewrite']['options']		= array('Off','/%postname%/','Custom'); // ,'Custom'),
 		$def['rewrite']['extra']		= '';
@@ -1394,37 +1539,37 @@ class CCTM
 				<li><strong>/%postname%/</strong> - %3$s</li>
 				<li><strong>Custom</strong> - Evaluate the contents of slug</li>
 			<ul>'
-				, __('Use permalink rewrites for this post_type? Default: Off', CCTM::txtdomain)
-				, __('URLs for custom post_types will always look like: http://site.com/?post_type=book&p=39 even if the rest of the site is using a different permalink structure.', CCTM::txtdomain)
-				, __('You MUST use the custom permalink structure: "/%postname%/". Other formats are <strong>not</strong> supported.  Your URLs will look like http://site.com/movie/star-wars/', CCTM::txtdomain)
+				, __('Use permalink rewrites for this post_type? Default: Off', CCTM_TXTDOMAIN)
+				, __('URLs for custom post_types will always look like: http://site.com/?post_type=book&p=39 even if the rest of the site is using a different permalink structure.', CCTM_TXTDOMAIN)
+				, __('You MUST use the custom permalink structure: "/%postname%/". Other formats are <strong>not</strong> supported.  Your URLs will look like http://site.com/movie/star-wars/', CCTM_TXTDOMAIN)
 			);
 		$def['rewrite']['type']			= 'dropdown';
 		$def['rewrite']['sort_param']	= 37;
 
 
 		$def['query_var']['name']			= 'query_var';
-		$def['query_var']['label']			= __('Query Variable', CCTM::txtdomain);
+		$def['query_var']['label']			= __('Query Variable', CCTM_TXTDOMAIN);
 		$def['query_var']['value']			= '';
 		$def['query_var']['extra']			= '';
 		$def['query_var']['description']	= __('(optional) Name of the query var to use for this post type.
 			E.g. "movie" would make for URLs like http://site.com/?movie=star-wars. 
-			If blank, the default structure is http://site.com/?post_type=movie&p=18', CCTM::txtdomain);
+			If blank, the default structure is http://site.com/?post_type=movie&p=18', CCTM_TXTDOMAIN);
 		$def['query_var']['type']			= 'text';
 		$def['query_var']['sort_param']	= 38;
 
 		$def['can_export']['name']			= 'can_export';
-		$def['can_export']['label']			= __('Can Export', CCTM::txtdomain);
+		$def['can_export']['label']			= __('Can Export', CCTM_TXTDOMAIN);
 		$def['can_export']['value']			= '1';
 		$def['can_export']['extra']			= '';
-		$def['can_export']['description']	= __('Can this post_type be exported.', CCTM::txtdomain);
+		$def['can_export']['description']	= __('Can this post_type be exported.', CCTM_TXTDOMAIN);
 		$def['can_export']['type']			= 'checkbox';
 		$def['can_export']['sort_param']		= 40;
 
 		$def['show_in_nav_menus']['name']			= 'show_in_nav_menus';
-		$def['show_in_nav_menus']['label']			= __('Show in Nav Menus', CCTM::txtdomain);
+		$def['show_in_nav_menus']['label']			= __('Show in Nav Menus', CCTM_TXTDOMAIN);
 		$def['show_in_nav_menus']['value']			= '1';
 		$def['show_in_nav_menus']['extra']			= '';
-		$def['show_in_nav_menus']['description']	= __('Whether post_type is available for selection in navigation menus. Default: value of public argument', CCTM::txtdomain);
+		$def['show_in_nav_menus']['description']	= __('Whether post_type is available for selection in navigation menus. Default: value of public argument', CCTM_TXTDOMAIN);
 		$def['show_in_nav_menus']['type']			= 'checkbox';
 		$def['show_in_nav_menus']['sort_param']	= 40;
 	
@@ -1520,18 +1665,18 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	public static function admin_init()
 	{
-    	load_plugin_textdomain( CCTM::txtdomain, '', CCTM_PATH );
+    	load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
 	
 		// Set our form defs in this, our makeshift constructor.
 		self::_set_post_type_form_definition();
 		self::_set_custom_field_def_template();
 		
 		// TODO: $E = new WP_Error();
-		wp_register_style('CCTM_class'
-			, CCTM_URL . '/css/create_or_edit_post_type_class.css');
+		wp_register_style('CCTM_settings'
+			, CCTM_URL . '/css/settings.css');
 		wp_register_style('CCTM_gui'
-			, CCTM_URL . '/css/create_or_edit_post_type.css');
-		wp_enqueue_style('CCTM_class');
+			, CCTM_URL . '/css/posts.css');
+		wp_enqueue_style('CCTM_settings');
 		wp_enqueue_style('CCTM_gui');	
 		// Hand-holding: If your custom post-types omit the main content block, 
 		// then thickbox will not be queued.
@@ -1621,7 +1766,7 @@ class CCTM
 			{
 				$error_items .= "<li>$e</li>";
 			}
-			$msg = sprintf( __('The %s plugin encountered errors! It cannot load!', CCTM::txtdomain)
+			$msg = sprintf( __('The %s plugin encountered errors! It cannot load!', CCTM_TXTDOMAIN)
 				, CCTM::name);
 			printf('<div id="custom-post-type-manager-warning" class="error">
 				<p>
@@ -1720,7 +1865,7 @@ class CCTM
 				break;
 			case 2: // update existing custom post type. Override form def.
 				self::$post_type_form_definition['post_type']['type'] = 'readonly';
-				self::$post_type_form_definition['post_type']['description'] = __('The name of the post-type cannot be changed. The name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>.',CCTM::txtdomain);
+				self::$post_type_form_definition['post_type']['description'] = __('The name of the post-type cannot be changed. The name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>.',CCTM_TXTDOMAIN);
 				self::_page_edit_post_type($post_type);
 				break;
 			case 3: // delete existing custom post type
