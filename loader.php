@@ -15,6 +15,7 @@ include_once('includes/functions.php');
 include_once('tests/CCTMtests.php');
 
 // Run Tests (add new tests to the CCCTMtests class as req'd)
+// If there are errors, CCTMtests::$errors will get populated.
 CCTMtests::wp_version_gt(CCTM::wp_req_ver);
 CCTMtests::php_version_gt(CCTM::php_req_ver);
 CCTMtests::mysql_version_gt(CCTM::mysql_req_ver);

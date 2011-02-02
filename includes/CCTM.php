@@ -7,6 +7,9 @@ This is the main class for the Custom Content Type Manager plugin.
 This class handles the creation and management of custom post-types (also 
 referred to as 'content-types').  It requires the FormGenerator.php, 
 StandardizedCustomFields.php, and the CCTMtests.php files/classes to work.
+
+Post Thumbnails support is post-type specific:
+http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-images/
 ------------------------------------------------------------------------------*/
 class CCTM
 {	
@@ -517,6 +520,7 @@ class CCTM
 		
 		// Populate the form $def with values from the database
 		$def = self::_populate_form_def_from_data($def, $data[$post_type]);
+		// FormGenerator::$global_placeholders['post_type'] = $post_type; //<--- messy?
 		$fields = FormGenerator::generate($def,'css-friendly');
 		include('pages/basic_form.php');
 	}
@@ -759,7 +763,7 @@ class CCTM
 		// Manager Page Sample CSS
 		$manager_page_css_msg = '';
 		$manager_page_sample_css = '';
-		$manager_page_css_msg .= sprintf( __('You can customize the forms in the manager by editing the CSS declarations in your in your theme\'s %s file.', CCTM_TXTDOMAIN)
+		$manager_page_css_msg .= sprintf( __('You can customize the forms in the manager by adding the following CSS declarations to your in your theme\'s %s file.', CCTM_TXTDOMAIN)
 			, '<strong>editor-style.css</strong>' );
 		$manager_page_css_msg .= sprintf( __('You can override the style definitions in %s', CCTM_TXTDOMAIN)
 			, '<strong>'.CCTM_PATH.'/css/posts.css</strong>');
@@ -1272,7 +1276,7 @@ class CCTM
 		$def['type']['extra']		= ' onchange="javascript:addRemoveDropdown(this.parentNode.id,this.value, [+def_i+])"';
 		$def['type']['description']	= '';
 		$def['type']['type']		= 'dropdown';
-		$def['type']['options']		= array('checkbox','dropdown','media','relation','text','textarea','wysiwyg');
+		$def['type']['options']		= array('checkbox','dropdown','image','media','relation','text','textarea','wysiwyg');
 		$def['type']['sort_param']	= 4;
 
 		$def['default_value']['name']			= 'custom_fields[[+def_i+]][default_value]';
@@ -1405,7 +1409,7 @@ class CCTM
 		$def['supports_thumbnail']['value'] 	= '';
 		$def['supports_thumbnail']['checked_value' ] = 'thumbnail';
 		$def['supports_thumbnail']['extra'] 		= '';
-		$def['supports_thumbnail']['description'] 	= __('Featured image (the activetheme must also support post-thumbnails)', CCTM_TXTDOMAIN);
+		$def['supports_thumbnail']['description'] 	= __("Featured image. The active theme must also support post-thumbnails. Replace 'sample' with the name of this post-type then include the following line in your theme's functions.php file: add_theme_support( 'post-thumbnails', array( 'sample' ) );", CCTM_TXTDOMAIN);
 		$def['supports_thumbnail']['type'] 			= 'checkbox';
 		$def['supports_thumbnail']['sort_param'] 	= 23;
 

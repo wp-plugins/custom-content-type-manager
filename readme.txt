@@ -167,6 +167,7 @@ Fixing glitch in saving posts and pages.
 
 =======
 On Dev Branch (future 0.8.3)
+Added image/media uploading functionality directly from the custom fields.
 Fixes glitch in Javascript element counter that screwed up dropdown menu creation: due to this bug, you could only add a dropbox to the first element because the wrapper div's id was fixed statically as the same id, so adding a dropdown menu always wrote the new HTML to that same div (inside the first custom field).
 Some basic HTML cleanup.
 

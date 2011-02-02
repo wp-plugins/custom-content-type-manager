@@ -45,7 +45,10 @@ class FormGenerator
 	// You can use these to put in headings or styling
 	public static $before_elements = '';
 	public static $after_elements = '';
-
+	// used for global placeholders, e.g. if you always want [+post_type+] to parse, set this
+	// to self::$global_placeholders['post_type'] = 'Something';
+	//public static $global_placeholders = array('cctm_path' => CCTM_PATH, 'cctm_url' => CCTM_URL );
+	public static $global_placeholders = array();
 	// Name of a javascript function on the Manage Custom Fields page that is used
 	// to iterate. That function must provide a unique integer as elements are added
 	// and deleted dynamically via Ajax.
@@ -148,6 +151,48 @@ class FormGenerator
 		
 		return self::parse($tpl, $data);
 	}
+
+	/*------------------------------------------------------------------------------
+	Used to create a media upload field.
+	For "featured images", WP stores the post ID of the attachment post_type as a 
+	normal foreign-key relationship. It stores the post_type.ID in a custom field
+	(wp_postmeta) named _thumbnail_id.
+	
+	Do not use this function to generate forms in the Custom Content Types Manager 
+	content-class admin area!	It should only generate forms for creating/editing 
+	a post.
+	------------------------------------------------------------------------------*/
+	private static function _get_image_element(&$data)
+	{	
+		global $post;
+		
+		$media_html = '';
+
+		// It got a value
+		if ( !empty($data['value']) )
+		{
+			$data['preview_html'] = wp_get_attachment_image( $data['value'], 'thumbnail', true );
+			$attachment_obj = get_post($data['value']);
+			$data['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$data['value'].')</span></span><br />';
+			
+		}
+		// It's not set yet
+		else
+		{
+			$data['preview_html'] = '';
+		}
+		
+		$data['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&post_mime_type=';
+		$data['click_label'] = __('Choose Image');
+		$tpl = '
+			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span>
+			<input type="hidden" id="[+id+]" name="[+name+]" value="[+value+]" /><br />
+			<div id="[+id+]_media">[+preview_html+]</div>
+			<br class="clear" />
+			<a href="[+controller_url+]&fieldname=[+id+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+			<br class="clear" /><br />';
+		return self::parse($tpl, $data);
+	}
 	
 	/*------------------------------------------------------------------------------
 	Used to create a media upload field.
@@ -179,14 +224,14 @@ class FormGenerator
 			$data['preview_html'] = '';
 		}
 		
-		$data['controller_url'] = CCTM_URL.'/post-selector.php';
+		$data['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment';
 		$data['click_label'] = __('Choose Media');
 		$tpl = '
 			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span>
 			<input type="hidden" id="[+id+]" name="[+name+]" value="[+value+]" /><br />
 			<div id="[+id+]_media">[+preview_html+]</div>
 			<br class="clear" />
-			<a href="[+controller_url+]?fieldname=[+id+]&post_type=attachment" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+			<a href="[+controller_url+]&fieldname=[+id+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
 			<br class="clear" /><br />';
 		return self::parse($tpl, $data);
 	}
@@ -365,6 +410,9 @@ class FormGenerator
 				case 'dropdown':
 					$output_this_field .= self::_get_dropdown_element($field_def);
 					break;
+				case 'image':
+					$output_this_field .= self::_get_image_element($field_def);
+					break;
 				case 'media':
 					$output_this_field .= self::_get_media_element($field_def);
 					break;
@@ -458,7 +506,8 @@ class FormGenerator
 	------------------------------------------------------------------------------*/
 	public static function parse($tpl, $hash) 
 	{
-	
+		$hash = array_merge($hash, self::$global_placeholders);
+
 	    foreach ($hash as $key => $value) 
 	    {
 	    	if ( !is_array($value) )

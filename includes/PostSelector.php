@@ -7,11 +7,16 @@ an Ajax thickbox.
 This is the motor under the hood for the post-selector.php contoller file.  
 (See that file for usage example).
 
+This class does more than the built-in WordPress media browser (i.e. the one
+that pops up if you select "Set featured image" from within a post or if you 
+choose Media --> New from the left-hand admin menu).  The post selector here
+allows users to select *any* post, not just attachment (i.e. media) posts,
+and it offers better search features than the built-in media browser. I would have
+tied into the WP media browser if possible, but despite being very poorly documented,
+it suffered some sever limitations that made it unusable.
+
 I've constructed a custom MySQL query that does the searching because I ran into
 weird and whacky restrictions with the WP db API functions.
-
-TODO: the internationalization functions here don't have a valid text-domain
-because the name of the text domain is stored in the CCTM class.
 ------------------------------------------------------------------------------*/
 class PostSelector
 {
@@ -141,7 +146,7 @@ class PostSelector
 			$r['detail_image'] = wp_get_attachment_image( $r['post_id'], 'medium' );
 			$preview_html = wp_get_attachment_image( $r['post_id'], 'thumbnail' );
 			list($src, $full_w, $full_h) = wp_get_attachment_image_src( $r['post_id'], 'full');
-			$r['dimensions'] = '<strong>'.__('Dimensions').':</strong> <span id="media-dims-'. $r['post_id'] .'">'.$full_w.'&nbsp;&times;&nbsp;'.$full_h.'</span><br/>';
+			$r['dimensions'] = '<strong>'.__('Dimensions',CCTM_TXTDOMAIN).':</strong> <span id="media-dims-'. $r['post_id'] .'">'.$full_w.'&nbsp;&times;&nbsp;'.$full_h.'</span><br/>';
 			}
 		// It's not an image
 		else
@@ -168,15 +173,15 @@ class PostSelector
 			
 		$r['filename'] = $matches[1];
 				
-		$r['select_label'] 		= __('Select');
-		$r['show_hide_label'] 	= __('Show / Hide');			
+		$r['select_label'] 		= __('Select',CCTM_TXTDOMAIN);
+		$r['show_hide_label'] 	= __('Show / Hide',CCTM_TXTDOMAIN);			
 
-		$r['view_original_label'] = __('View Original');
+		$r['view_original_label'] = __('View Original',CCTM_TXTDOMAIN);
 
 
-		$r['details'] = '<strong>'.__('Filename').':</strong> '.$r['filename'].'<br/>
-					<strong>'.__('File Type').':</strong> '.$r['post_mime_type'].'<br/>
-					<strong>'.__('Date Uploaded').':</strong> '.$r['post_modified'].'<br/>'
+		$r['details'] = '<strong>'.__('Filename',CCTM_TXTDOMAIN).':</strong> '.$r['filename'].'<br/>
+					<strong>'.__('File Type',CCTM_TXTDOMAIN).':</strong> '.$r['post_mime_type'].'<br/>
+					<strong>'.__('Date Uploaded',CCTM_TXTDOMAIN).':</strong> '.$r['post_modified'].'<br/>'
 					. $r['dimensions'];
 
 		return $r;
@@ -202,16 +207,16 @@ class PostSelector
 		$preview_html = preg_replace("/'/", "\'", $preview_html);
 		$r['preview_html'] = $preview_html;
 				
-		$r['select_label'] 		= __('Select');
-		$r['show_hide_label'] 	= __('Show / Hide');			
+		$r['select_label'] 		= __('Select',CCTM_TXTDOMAIN);
+		$r['show_hide_label'] 	= __('Show / Hide',CCTM_TXTDOMAIN);			
 
-		$r['mime_type_label'] 	= __('File Type');
-		$r['view_original_label'] = __('View Original');
-		$r['upload_date_label']	= __('Date Uploaded');
+		$r['mime_type_label'] 	= __('File Type',CCTM_TXTDOMAIN);
+		$r['view_original_label'] = __('View Original',CCTM_TXTDOMAIN);
+		$r['upload_date_label']	= __('Date Uploaded',CCTM_TXTDOMAIN);
 
-		$r['details'] = '<strong>'.__('Title').':</strong> '.$r['post_title'].'<br/>
-					<strong>'.__('Excerpt').':</strong> '.$r['post_excerpt'].'<br/>
-					<strong>'.__('Modified').':</strong> '.$r['post_modified'];
+		$r['details'] = '<strong>'.__('Title',CCTM_TXTDOMAIN).':</strong> '.$r['post_title'].'<br/>
+					<strong>'.__('Excerpt',CCTM_TXTDOMAIN).':</strong> '.$r['post_excerpt'].'<br/>
+					<strong>'.__('Modified',CCTM_TXTDOMAIN).':</strong> '.$r['post_modified'];
 		return $r;
 	
 	}
@@ -223,10 +228,10 @@ class PostSelector
 	------------------------------------------------------------------------------*/
 	private function _format_yearmonth($results)
 	{
-		$output = '<option value="0">'.__('Choose Date').'</option>';
+		$output = '<option value="0">'.__('Choose Date',CCTM_TXTDOMAIN).'</option>';
 		foreach ( $results as $r )
 		{
-			$output .= '<option value="'.$r['yyyymm'].'">'.__($r['month']).' '.$r['year'].'</option>';	
+			$output .= '<option value="'.$r['yyyymm'].'">'.__($r['month'],CCTM_TXTDOMAIN).' '.$r['year'].'</option>';	
 		}
 		return $output;
 	}
@@ -359,7 +364,8 @@ class PostSelector
 				. $this->_sql_filter_searchterm()
 				. $this->_sql_filter_post_mime_type()
 				. $this->_sql_filter_post_status()
-				. $this->_sql_filter_order_by()
+				
+			. $this->_sql_filter_order_by()
 			. $this->_sql_filter_limit($limit)  
 			. $this->_sql_filter_offset($use_offset);
 			
@@ -436,8 +442,9 @@ class PostSelector
 	private function _sql_filter_order_by()
 	{
 		global $wpdb;
-		$this->_sql_filter_sort_dir();
-		return '';
+		$str = ' ORDER BY ID';
+		$str .= $this->_sql_filter_sort_dir();
+		return $str;
 	}
 	
 	/*------------------------------------------------------------------------------
@@ -520,7 +527,7 @@ class PostSelector
 	------------------------------------------------------------------------------*/
 	private function _sql_filter_sort_dir()
 	{
-
+		return ' DESC';
 	}
 	
 	
@@ -721,7 +728,7 @@ class PostSelector
 
 		if ( empty($results) )
 		{
-			return '<p>'. __('Sorry, no results found.').'</p>';
+			return '<p>'. __('Sorry, no results found.',CCTM_TXTDOMAIN).'</p>';
 		}
 
 		$output = $this->_format_results($results);
@@ -765,13 +772,16 @@ class PostSelector
 		$hash['page']						= $this->page;
 		$hash['default_results'] 			= $this->return_Ajax(); // Default results
 		$hash['default_mime_type'] 			= $this->post_mime_type;
-		$hash['search_label'] 				= __('Search');
-		$hash['clear_label'] 				= __('Reset');
+		$hash['search_label'] 				= __('Search', CCTM_TXTDOMAIN );
+		$hash['clear_label'] 				= __('Reset', CCTM_TXTDOMAIN);
 		$hash['post_type_list_items']		= $this->get_post_type_options($this->post_type);
 		$hash['post_mime_type_options'] 		= $this->get_post_mime_type_options($this->post_mime_type);
 		$hash['date_options'] 				= $this->query_distinct_yearmonth();
 		$hash['post_type']					= $this->post_type;
-		
+		$hash['confirm']					= __('Are you sure you want to leave this page? You should save your work first.', CCTM_TXTDOMAIN );
+		$hash['cctm_path'] = CCTM_PATH;
+		$hash['cctm_url'] = CCTM_URL;
+
 		$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/main.tpl');
 
 		return $this->parse($tpl, $hash);

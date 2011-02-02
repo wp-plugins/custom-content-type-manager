@@ -1,6 +1,6 @@
 <?php
 /*------------------------------------------------------------------------------
-This include is a bit of a cluster.  I wanted to demonstrate how to use 
+This include is a cluster.  I wanted to demonstrate how to use 
 "traditional" PHP files for templates, but this fugly thing got completely
 out of hand...
 ------------------------------------------------------------------------------*/
