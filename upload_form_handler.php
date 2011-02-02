@@ -3,45 +3,13 @@
 This is complicated.  You can't submit $_FILES to be uploaded via a simple
 Ajax form submission (other form fields are fine to submit like this). 
 So the problem is that we NEED to submit the upload form via Ajax, and because
-the upload form is iFramed in a thickbox, we can't submit the page, else we 
-lose the thickbox, so we HAVE to submit the form via Ajax. The solution is 
-to post the data to this page, which then submits itself. Definitely more
-janky than genius here, but I just want this to work.
-
-The first time this page is posted to, the $_POST['secondary'] is not set.
+the upload form is iFramed in a thickbox, we can't submit the page directly, 
+else we lose the thickbox. The solution is to post the data to an iFrame that
+includes this page.
 ------------------------------------------------------------------------------*/
-/*
-
-if ( isset( $_POST['async-upload'] ) )
-{
-?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-	<head>
-	<title>Ajax File Upload</title>
-
-	<script type="text/javascript" language="javascript">
-		function submitform(){
-			document.getElementById('uploadForm').submit();
-		}
-	</script>
-</head>
-<body onload="javascript:submitform()">
- 	<p>No person should ever see this.</p>
-	<form name="uploadForm" id="uploadForm" action="upload_form_handler.php" method="post">
-		<input type="file" name="upload_this" value="<?php print $_POST['async-upload']; ?>">
-		<input type="submit" value="Submit"/>
-	</form>                
-</body>
-</html>
-<?php
-}
-else
-*/
 require_once( realpath('../../../').'/wp-config.php' );
 require_once('../../../wp-admin/admin.php');
 
-//if ( !empty($_POST) && isset($_POST['secondary']) && !empty($_FILES) )
 if ( !empty($_POST) && !empty($_FILES) )// && isset($_POST['async-upload']) && !empty($_FILES) )
 {
 
@@ -82,16 +50,16 @@ if ( !empty($_POST) && !empty($_FILES) )// && isset($_POST['async-upload']) && !
 	}
 
 }
+//Form not submitted yet
 else
 {
-	//Form not submitted yet
+	
 ?>
 
 	<!-- span class="button" onclick="javascript:parent.clear_search();">Back</span -->
 	
 <?php 
 }
-
 
 
 /*EOF*/

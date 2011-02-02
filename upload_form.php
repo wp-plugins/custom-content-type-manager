@@ -1,7 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
 http://stackoverflow.com/questions/168455/how-do-you-post-to-an-iframe
-<?php print CCTM_URL; ?>/post-selector.php
+But there was a bug on that page... the src URL of the iFrame and the action URL
+of the form must be the same.
 ------------------------------------------------------------------------------*/
 require_once( realpath('../../../').'/wp-config.php' );
 ?>
@@ -9,12 +10,12 @@ require_once( realpath('../../../').'/wp-config.php' );
 	<?php wp_nonce_field('client-file-upload'); ?>
 	<div id="html-upload-ui">
 		<p id="async-upload-wrap">
-		<label class="screen-reader-text" for="async-upload">Upload</label>
-		<input type="file" name="async-upload" id="async-upload" /> 
-		<input type="submit" class="button" value="Upload" name="html-upload" />
-		<!-- span class="button" onclick="javascript:handle_upload();">Upload</span--> <span onclick="javascript:clear_search();">Cancel</span>
+			<label class="screen-reader-text" for="async-upload">Upload</label>
+			<input type="file" name="async-upload" id="async-upload" /> 
+			<input type="submit" class="button" value="Upload" name="html-upload" />
+			<span onclick="javascript:clear_search();">Cancel</span>
 		</p>
-		<!-- input type="submit" value="Submit" /-->
+		
 		<div class="clear"></div>
 	</div>
 </form>

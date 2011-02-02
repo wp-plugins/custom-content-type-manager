@@ -6,8 +6,8 @@
 
 	<p>
 		<a class="cctm_helper_link" target="new" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N"><?php _e('Support this Plugin', CCTM_TXTDOMAIN); ?></a>
-		<a class="cctm_helper_link" target="new" href="http://projects.fireproofsocks.com/projects/cctm/wiki"><?php _e('Documentation', CCTM_TXTDOMAIN); ?></a>
-		<a class="cctm_helper_link" target="new" href="http://projects.fireproofsocks.com/projects/cctm/issues/new"><?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a>
+		<a class="cctm_helper_link" target="new" href="http://code.google.com/p/wordpress-custom-content-type-manager/w/list"><?php _e('Documentation', CCTM_TXTDOMAIN); ?></a>
+		<a class="cctm_helper_link" target="new" href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/list"><?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a>
 	</p>
 
 	<table class="widefat" cellspacing="0" id="all-plugins-table">
