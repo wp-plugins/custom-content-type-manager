@@ -156,7 +156,7 @@ class StandardizedCustomFields
 		
 		foreach ( $custom_fields as $def_i => &$field ) {
 			$output_this_field = '';			
-			$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates			
+			//$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates			
 			if ( self::_is_new_post() )
 			{
 				$field['value'] = $field['default_value'];

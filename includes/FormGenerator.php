@@ -173,6 +173,7 @@ class FormGenerator
 		{
 			$data['preview_html'] = wp_get_attachment_image( $data['value'], 'thumbnail', true );
 			$attachment_obj = get_post($data['value']);
+			//$data['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
 			$data['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$data['value'].')</span></span><br />';
 			
 		}
@@ -215,7 +216,9 @@ class FormGenerator
 		{
 			$data['preview_html'] = wp_get_attachment_image( $data['value'], 'thumbnail', true );
 			$attachment_obj = get_post($data['value']);
+//			$data['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
 			$data['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$data['value'].')</span></span><br />';
+
 			
 		}
 		// It's not set yet
@@ -266,6 +269,8 @@ class FormGenerator
 
 			$relation_post = $wpdb->get_results( $wpdb->prepare( $query, $data['value'] ), OBJECT );
 			$data['preview_html'] = '<span class="formgenerator_label">'.$relation_post[0]->post_title.' <span class="formgenerator_id_label">('.$data['value'].')</span></span> <br/>';
+//			$data['preview_html'] = '<span class="formgenerator_label">'.$relation_post[0]->post_title.'</span> <br/>';
+
 		}
 		
 		$data['controller_url'] = CCTM_URL.'/post-selector.php?';
@@ -453,7 +458,7 @@ class FormGenerator
 				default:
 					$div_id = self::element_wrapper_id_prefix . self::$i;
 			}
-						
+			
 			// Div that wraps each form element.
 			$output .= sprintf('
 				<div class="%s" id="%s">
