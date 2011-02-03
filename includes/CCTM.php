@@ -287,15 +287,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _page_create_new_post_type()
 	{
-		// Variables for our template (I'm cheating here, loading in-line styles
-		// becase the enqueue stuff is too heavy). TODO: use enqueue function to 
-		// load this only on the required pages.
-		//! TODO
-/*
-		$style			= '<style>'
-			. file_get_contents( self::get_basepath() .'/css/posts.css' ) 
-			. '</style>';
-*/
+		// Variables for our template
 
 		$page_header 	= __('Create Custom Content Type', CCTM_TXTDOMAIN);
 		$fields			= '';
@@ -614,6 +606,8 @@ class CCTM
 							, '<em>'.$post_type.'</em>'
 						)
 					);
+				self::_page_show_all_post_types($msg);
+				return;
 			}
 		}	
 	
@@ -781,7 +775,7 @@ class CCTM
 			, $d['name']
 			);
 		}
-
+		
 		// Manager Page HTML examples;
 		// post-new.php?post_type=%s
 		$manager_page_html_msg = '';
@@ -845,6 +839,20 @@ class CCTM
 */
 			
 		}
+		
+		if ( empty($def) )
+		{
+			$manager_page_sample_css = sprintf( '/* %s %s */'
+				, __('There are no custom fields defined this post type.', CCTM_TXTDOMAIN) 
+				, "($post_type)"
+			);
+			$manager_page_sample_html = sprintf( '<!-- %s %s -->'
+				, __('There are no custom fields defined this post type.', CCTM_TXTDOMAIN) 
+				, "($post_type)"
+			);
+		}
+
+		
 		
 		include('pages/sample_template.php');
 	}

@@ -27,8 +27,10 @@ class PostSelector
 	public $fieldname;
 	public $s; // search term
 	public $page;
-	public $m;
-
+	public $m;	// month (int)
+	public $b; // whether or not to include the "Add Image" button. 1|0
+	public $dir; // sort direction: ASC|DESC
+	public $c = 'post_modified'; // column to sort.
 
 	private $Pagination; // Pagination object. See Pagination.php
 	private $taxonomies = array(); // taxonomies assigned to this post_type
@@ -321,6 +323,40 @@ class PostSelector
 		{
 			$this->m = (int) $_GET['m'];
 		}
+		// get b (whether or not we want a button to Add Image)
+		if ( isset($_GET['b']))
+		{
+			$this->b = (int) $_GET['b'];
+		}
+		// Sort direction
+		if ( isset($_GET['dir']))
+		{
+			$tmp = (int) $_GET['dir'];
+			if ( $tmp )
+			{
+				$this->dir = 'ASC';
+			}
+			else
+			{
+				$this->dir = 'DESC';
+			}
+		}
+		else
+		{
+			$this->dir = 'DESC';
+		}
+		
+		// Column to sort
+		if ( isset($_GET['c']))
+		{
+			$this->c = $_GET['c'];
+			
+			if ( !preg_match('/[^a-z_]/i', $_GET['c']) )
+			{
+				$this->c = $_GET['c'];	
+			}
+		}		
+
 	}
 
 	//! SQL
@@ -364,7 +400,7 @@ class PostSelector
 				. $this->_sql_filter_searchterm()
 				. $this->_sql_filter_post_mime_type()
 				. $this->_sql_filter_post_status()
-				
+				. $this->_sql_filter_yearmonth()
 			. $this->_sql_filter_order_by()
 			. $this->_sql_filter_limit($limit)  
 			. $this->_sql_filter_offset($use_offset);
@@ -385,11 +421,13 @@ class PostSelector
 	------------------------------------------------------------------------------*/
 	private function _sql_filter_yearmonth()
 	{
+
 		global $wpdb;
 		if ( $this->m )
 		{
-			$query = " AND DATE_FORMAT({$wpdb->posts}.post_modified, '%Y%m') = %s";
-			return $wpdb->prepare( $query, $this->post_mime_type.'%' );
+			$query = ' AND DATE_FORMAT({$wpdb->posts}.post_modified, \'%Y%m\') = %s';
+			$x = $wpdb->prepare( $query, $this->m );
+			return " AND DATE_FORMAT({$wpdb->posts}.post_modified, '%Y%m') = '{$this->m}'";
 		}
 		else
 		{
@@ -442,7 +480,7 @@ class PostSelector
 	private function _sql_filter_order_by()
 	{
 		global $wpdb;
-		$str = ' ORDER BY ID';
+		$str = ' ORDER BY ' . $this->c;
 		$str .= $this->_sql_filter_sort_dir();
 		return $str;
 	}
@@ -527,7 +565,7 @@ class PostSelector
 	------------------------------------------------------------------------------*/
 	private function _sql_filter_sort_dir()
 	{
-		return ' DESC';
+		return ' ' . $this->dir; // b/c we're assemblign a string
 	}
 	
 	
@@ -748,6 +786,9 @@ class PostSelector
 	{
 		$hash = array();
 		$hash['content'] = $this->query_results();
+		//return 'd: ' . $this->dir;
+		//return print_r($_GET, true);
+		//return $this->SQL;
 		$this->cnt = $this->query_count_results();
 		$hash['pagination_links'] = $this->Pagination->paginate($this->cnt);
 
@@ -775,10 +816,16 @@ class PostSelector
 		$hash['search_label'] 				= __('Search', CCTM_TXTDOMAIN );
 		$hash['clear_label'] 				= __('Reset', CCTM_TXTDOMAIN);
 		$hash['post_type_list_items']		= $this->get_post_type_options($this->post_type);
-		$hash['post_mime_type_options'] 		= $this->get_post_mime_type_options($this->post_mime_type);
+		$hash['post_mime_type_options'] 	= $this->get_post_mime_type_options($this->post_mime_type);
 		$hash['date_options'] 				= $this->query_distinct_yearmonth();
 		$hash['post_type']					= $this->post_type;
 		$hash['confirm']					= __('Are you sure you want to leave this page? You should save your work first.', CCTM_TXTDOMAIN );
+
+		if ($this->b)
+		{
+			$hash['add_image_button'] = '<span class="button" onclick="javascript:add_upload_form()">'.__('Add New Image', CCTM_TXTDOMAIN).'</span>';
+		}
+
 		$hash['cctm_path'] = CCTM_PATH;
 		$hash['cctm_url'] = CCTM_URL;
 

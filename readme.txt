@@ -138,6 +138,8 @@ The architecture for this plugin was also inspired by [MODx](http://modxcms.com/
 
 If you are eager to see one of these features implemented in a future release, please share your feedback!
 
+* Internationalize the Post/Media browser.
+* Fix the limit on 7 records per page. CSS is whacky in the thickbox (?)
 * Improve UI (there are some monstrous forms in there... sorry!)
 * Add support for more custom field types: dates, times, months, radio buttons, states, countries.
 * Add "is required" checkbox and validation of custom fields.

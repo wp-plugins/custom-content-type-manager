@@ -9,7 +9,7 @@
 
 
 	<?php screen_icon(); ?>
-	<h2>Custom Content Type Manager <a href="?page=<?php print self::admin_menu_slug; ?>" class="button add-new-h2"><?php _e('Back'); ?></a></h2>
+	<h2><?php print $post_type;?> Sample Templates <a href="?page=<?php print self::admin_menu_slug; ?>" class="button add-new-h2"><?php _e('Back'); ?></a></h2>
 
 	<h3 class="cctm_subheading"><?php _e('Single Page (Front End)',CCTM_TXTDOMAIN); ?></h3>
 	<p>

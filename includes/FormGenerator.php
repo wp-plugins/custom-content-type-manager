@@ -182,7 +182,7 @@ class FormGenerator
 			$data['preview_html'] = '';
 		}
 		
-		$data['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&post_mime_type=';
+		$data['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
 		$data['click_label'] = __('Choose Image');
 		$tpl = '
 			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span>
@@ -268,14 +268,14 @@ class FormGenerator
 			$data['preview_html'] = '<span class="formgenerator_label">'.$relation_post[0]->post_title.' <span class="formgenerator_id_label">('.$data['value'].')</span></span> <br/>';
 		}
 		
-		$data['controller_url'] = CCTM_URL.'/post-selector.php';
-		$data['click_label'] = __('Choose Reference');
+		$data['controller_url'] = CCTM_URL.'/post-selector.php?';
+		$data['click_label'] = __('Choose Relation');
 		$tpl = '
 			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span><br />
 			<input type="hidden" id="[+id+]" name="[+name+]" value="[+value+]" />
 			<div id="[+id+]_media">[+preview_html+]</div>
 			<br class="clear" />
-			<a href="[+controller_url+]?fieldname=[+id+]&post_type=[+option+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+			<a href="[+controller_url+]&fieldname=[+id+]&post_type=[+options+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
 			<br class="clear" /><br />';
 		return self::parse($tpl, $data);
 	}

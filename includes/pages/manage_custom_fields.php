@@ -98,11 +98,12 @@ We pass the following variables to this file:
 			addDropdownOption(specialDivId, i);
 		}
 		// TODO: add options to the 'relation' type fields
+		// must tweak the form generation to handle this.
 /*
 		else if ( inputType == 'relation' )
 		{
 			var relationHtml = '<div id="'+specialDivId+'">' + 
-				'Post Type: <input type="text" name="custom_fields['+i+'][options][]" value="" /><br /><p><em>Leave blank if you want to search through all post_types</em></p>' +
+				'<label class="formgenerator_label">Post Type:</label> <input type="text" name="custom_fields['+i+'][options][]" value="" /><br /><p><em><?php _e('Comma-separate multiple post types, or leave blank if you want to search through all post_types', CCTM_TXTDOMAIN); ?></em></p>' +
 				'</div>';
 			jQuery('#'+ container_id).append(relationHtml);
 		}

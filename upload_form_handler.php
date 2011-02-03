@@ -55,7 +55,7 @@ else
 {
 	
 ?>
-
+	<p>If you are having trouble using this uploader, try using the standard WordPress uploader. Save your work, then click the "Media" menu item on the left to <a href="media-new.php">Add New Media</a>.</p>
 	<!-- span class="button" onclick="javascript:parent.clear_search();">Back</span -->
 	
 <?php 

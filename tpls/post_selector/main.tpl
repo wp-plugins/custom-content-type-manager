@@ -17,13 +17,20 @@
 	</style>
 </head>
 <body>
-<!-- Global variables, used by search_media JS function for persistent storage -->
-<input type="hidden" id="post_selector_page" value="[+page+]" />
+			
 	<!-- Safari seems to need the CSS and JS inside the body when loaded via WP. Standalone, it works fine. -->
 	<style>	
 		[+media_selector_css+]
 	</style>
 	<script type="text/javascript">
+	
+		// toggle var to determine if searches sort A->Z or Z->A
+		var search_term;
+		var sort_dir = 0; // default
+		var current_page = '[+page+]';
+		var default_mime_type = '[+default_mime_type+]';
+		var column = 'post_modified';
+		
 		/*------------------------------------------------------------------------------
 		Adds Upload form
 		------------------------------------------------------------------------------*/
@@ -38,8 +45,9 @@
 		------------------------------------------------------------------------------*/
 		function change_page(new_page)
 		{
-			jQuery("#post_selector_page").val(new_page);
-			search_media("[+default_mime_type+]");
+			//jQuery("#global_current_page").val(new_page);
+			current_page = new_page;
+			search_posts("[+default_mime_type+]");
 		}
 	
 		/*------------------------------------------------------------------------------
@@ -47,9 +55,9 @@
 		------------------------------------------------------------------------------*/
 		function clear_search()
 		{	
-			console.log('clear search was clicked...');
-			jQuery("#media_search_term").val(''); 
-			search_media("[+default_mime_type+]");
+			search_term = ''; //jQuery("#media_search_term").val(''); 
+			current_page = 0;
+			search_posts("[+default_mime_type+]");
 		}
 
 		/*------------------------------------------------------------------------------
@@ -73,15 +81,25 @@
 		}
 
 		/*------------------------------------------------------------------------------
-		Main AJAX function to kick off the query.
+		When someone clicks the search button
 		------------------------------------------------------------------------------*/
-		function search_media(mime_type)
+		function new_search(mime_type)
 		{
-			var search_term = jQuery("#media_search_term").val();
+			search_term = jQuery("#media_search_term").val(); //  global 
+			current_page = 0; // zero it out, otherwise the offset gets wonky when you search from the last page
+			search_posts(default_mime_type);
+		}
+		
+		/*------------------------------------------------------------------------------
+		Main AJAX function to kick off the query.  This is what runs when you click
+		on the next/prev pages
+		------------------------------------------------------------------------------*/
+		function search_posts(mime_type)
+		{
+			// var search_term = jQuery("#media_search_term").val();
+			// search_term = jQuery("#media_search_term").val(); //  global ,"c":column,"dir":sort_dir
 			var yyyymm = jQuery("#m").val();
-			var page = jQuery("#post_selector_page").val();
-			jQuery.get("[+ajax_controller_url+]", { "mode":"query", "s":search_term,"fieldname":"[+fieldname+]","post_mime_type":mime_type,"m":yyyymm,"page":page,"post_type":"[+post_type+]" }, write_results_to_page);
-			console.log('[+fieldname+]');
+			jQuery.get("[+ajax_controller_url+]", { "mode":"query", "s":search_term,"fieldname":"[+fieldname+]","post_mime_type":default_mime_type,"m":yyyymm,"page":current_page,"post_type":"[+post_type+]","c":column,"dir":sort_dir }, write_results_to_page);
 		}
 	
 		/*------------------------------------------------------------------------------
@@ -95,6 +113,27 @@
 			return false;
 		}
 
+		/*------------------------------------------------------------------------------
+		Sorts the posts by the column specified.
+		------------------------------------------------------------------------------*/
+		function sort_posts(new_column)
+		{
+			if ( column == new_column )
+			{	
+				// toggle sort order
+				if ( sort_dir == 1 )
+				{
+					sort_dir = 0;
+				}
+				else
+				{
+					sort_dir = 1;
+				}
+			}
+			column = new_column;
+			search_posts(default_mime_type);
+		}
+		
 		/*------------------------------------------------------------------------------
 		Show / Hide 
 		------------------------------------------------------------------------------*/
@@ -132,7 +171,7 @@
 <div id="[+fieldname+]_post_selector_wrapper">
 	<p id="media-search-term-box" class="search-box">
 		<input type="text" id="media_search_term" name="s" value="" />
-		<span class="button" onclick="javascript:search_media('[+default_mime_type+]');">[+search_label+]</span>
+		<span class="button" onclick="javascript:new_search('[+default_mime_type+]');">[+search_label+]</span>
 		<span class="button" onclick="javascript:clear_search();">[+clear_label+]</span>
 	</p>
 	
@@ -144,22 +183,21 @@
 	
 	<div class="tablenav">			
 		<div class="alignleft actions">
-			<select name="m" onchange="javascript:search_media('[+default_mime_type+]');">
+			<select name="m" id="m" onchange="javascript:search_posts('[+default_mime_type+]');">
 				[+date_options+]
 			</select>
 			
-			<!-- Work in progress here... -->
-			<span class="button" onclick="javascript:add_upload_form()">Add New Image</span>
+			[+add_image_button+]
 			
 		</div>	
 	</div>
-
-
-
-
 </div>
-<br class="clear" />
 
+<br class="clear" />
+<div class="sort_controls"><strong>Sort by:</strong> 
+	<span onclick="javascript:sort_posts('post_modified');">Date</span> 
+	<span onclick="javascript:sort_posts('post_title');">Name</span>
+</div>
 <div id="ajax_search_results_go_here">[+default_results+]</div>
 
 </body>
