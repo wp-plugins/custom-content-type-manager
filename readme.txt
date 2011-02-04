@@ -95,8 +95,10 @@ There are many ways to structure a site depending on what you are selling. For a
 You can always checkout the most recent version of the code by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+	
+= In Development (in the trunk) =
 
-= 0.8.3 In Development (in the trunk)=
+= 0.8.3 =
 
 * Customized manager templates. This is useful if you need to customize the manager interface for the custom fields.
 * Updated sample templates under the "View Sample Template" link for each content type.
