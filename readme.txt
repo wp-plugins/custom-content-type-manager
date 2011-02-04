@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.0.4
-Stable tag: 0.8.2
+Stable tag: 0.8.3
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -18,7 +18,7 @@ For example, you can define a custom content type for "movie", then add a textar
 
 Custom content types get their own link in the admin menus and their own URL structure.
 
-Note that this plugin is still in development.
+Note that this plugin is still in development. Please file bugs at http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
 
 == Installation ==
 
@@ -54,11 +54,11 @@ Deactivating a built-in post-type (a.k.a. content type) merely stops standardizi
 
 = What types of custom fields are supported? =
 
-Text fields, textarea, WYSIWYG, dropdowns (with customizable options), checkboxes, and media fields (which allow the user to select an image, video, or audio clip).
+Text fields, textarea, WYSIWYG, dropdowns (with customizable options), checkboxes, image fields, media fields (which allow the user to select an image, video, or audio clip), and relation fields (which allow the user to select another post of any type to be related to).
 
 = How do I add images or video into a custom field? =
 
-The media-related custom fields tie into WordPress' "attachment" posts.  You must first upload media items using the WordPress manager before they will be available for selection for your custom field.  In the left-hand admin menu, select the "Media" menu, and "Add New".  Add images or videos as you would normally.  Once they have been uploaded to your site, you will be able to select them for any media-related custom field.
+The media-related custom fields tie into WordPress' "attachment" posts, so if you have already uploaded images or video using the Media menu, they will show up for selection when edit a post using a custom image or media field.  You can now choose "Add New Image" when you browse existing images.
 
 = How do I make my custom field values show up in my templates? =
 
@@ -67,7 +67,7 @@ Content and templates must go hand in hand. If you have defined custom fields, y
 * get_custom_field() -- gets the value
 * print_custom_field() -- prints the value
 
-In this plugin's settings area, each content-type has a link to "View Sample Template" -- this page gives you a fully customized example showing demonstrating a custom theme file for your custom content type.
+In this plugin's settings area, each content-type has a link to "View Sample Templates" -- this page gives you a fully customized example showing demonstrating a custom theme file for your custom content type.
 
 See the includes/functions.php file in this plugin's directory for some other theme functions that are in development.
 
@@ -128,7 +128,7 @@ These requirements are tested during WordPress initialization; the plugin will n
 
 == About ==
 
-This plugin was written in part for the forthcoming book "Beginning WordPress Plugin Development" published by Packt. It was inspired by the [Custom-Post Type UI](http://wordpress.org/extend/plugins/custom-post-type-ui/) plugin written by Brad Williams. The Custom-Post Type UI plugin offers some of the same features, but I felt that its architecture was flawed: it stores data as taxonomical terms, which is conceptually awkward at a development level, and more importantly, it limits the each custom field to 200 characters of data, making it impossible to store certain types of custom content.
+This plugin was written in part for a forthcoming book on WordPress Plugin Development published by Packt. It was inspired by the [Custom-Post Type UI](http://wordpress.org/extend/plugins/custom-post-type-ui/) plugin written by Brad Williams. The Custom-Post Type UI plugin offers some of the same features, but I felt that its architecture was flawed: it stores data as taxonomical terms, which is conceptually awkward at a development level, and more importantly, it limits the each custom field to 200 characters of data, making it impossible to store certain types of custom content.
 
 On the surface, this plugin is similar, but this plugin "correctly" stores custom field data as post meta data, which allows allows for different input types (e.g. checkboxes, dropdowns, and images) and the custom fields offered by this plugin can support data of virtually unlimited size. For example, you could define a WYSIWYG custom field for your custom content type and it could hold many pages of data.
 
@@ -151,10 +151,9 @@ If you are eager to see one of these features implemented in a future release, p
 	* Off -- URLs will be simple GET style params
 	* Inherit -- use the same permalink structure used by the rest of the site
 	* Custom -- Fire off a secondary input that lets you define a permalink structure
-		for each custom content type that mirrors the built-in permalink options.
-http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info on this.
-* Integrated taxonomy manager. So far, the "Simple Taxonomy" plugin is the only taxonomy plugin that I've found that is relatively few of bugs and is sensibly architected: http://redmine.beapi.fr/projects/show/simple-taxonomy
-* Allow "list" fields that accept multiple values into the same field. The exact implementation is being reviewed... a guiding principle of this so far has been that the custom fields should work normally if this plugin is uninstalled, but that may not be possible with list fields because I think the most "correct" implementation is not to have multiple rows of data with the same meta key (like WP does), but instead to have a single row of data with a unique meta key, and use JSON to group that data into an array.
+		for each custom content type that mirrors the built-in permalink options. http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info on this.
+* Integrated taxonomy manager. So far, the "Simple Taxonomy" plugin is the only taxonomy plugin that I've found that is relatively few of bugs and is sensibly architected: http://wordpress.org/extend/plugins/simple-taxonomy/
+* Allow "list" fields that accept multiple values into the same field. The exact implementation is being reviewed... a guiding principle of this plugin so far has been that the custom fields should work normally if this plugin is uninstalled, but that may not be possible with list fields because I think the most "correct" implementation is not to have multiple rows of data with the same meta key (like WP does), but instead to have a single row of data with a unique meta key, and use JSON to group that data into an array.
 * Supply more template functions, perhaps via a static class, e.g. CCTM::image('move_poster'); It might also be possible to spin this off to function names that are more familiar to WP template authors, e.g. "CCTM::the_movie_poster()". See includes/functions.php for some functions in development.
 * Archive Support: optionally define whether a content type shows up in the normal site archive menus.
 * Pimp out the search box, INCLUDING the ability to specify a post_type when you create a relation field, e.g. for the posts referencing a page, I should prime the form so that it only displays the relevant post-type posts.  The architecture is there and already can do this, but I was having problems piping that stuff through javascript when fields are created dynamically.
@@ -163,6 +162,9 @@ http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info
 * Add help links to wiki.
 
 == Upgrade Notice ==
+
+= 0.8.3 = 
+Fixes some major bugs in managing custom fields. Now allows direct image uploading. Allows customized manager templates.
 
 = 0.8.2 =
 Fixes a couple other glitches: apostrophes in media custom fields, editing content types.
