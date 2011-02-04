@@ -139,7 +139,7 @@ The architecture for this plugin was also inspired by [MODx](http://modxcms.com/
 If you are eager to see one of these features implemented in a future release, please share your feedback!
 
 * Internationalize the Post/Media browser.
-* Fix the limit on 7 records per page. CSS is whacky in the thickbox (?)
+* Fix the limit on 7 records per page. CSS is whacky in the thickbox (?). No matter what's on my targeted page, it gets cropped by the thickbox to about 400px in height.
 * Improve UI (there are some monstrous forms in there... sorry!)
 * Add support for more custom field types: dates, times, months, radio buttons, states, countries.
 * Add "is required" checkbox and validation of custom fields.
@@ -176,6 +176,7 @@ Initial public release.
 
 == See also and References ==
 * http://kovshenin.com/archives/extending-custom-post-types-in-wordpress-3-0/
+* http://kovshenin.com/archives/custom-post-types-in-wordpress-3-0/
 * http://axcoto.com/blog/article/307
 * Attachments in Custom Post Types:
 http://xplus3.net/2010/08/08/archives-for-custom-post-types-in-wordpress/

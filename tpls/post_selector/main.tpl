@@ -1,22 +1,18 @@
-<html>
-<head>
-	<title>Ajax Post Selector</title>
 	<!-- 
 	This is loaded via a thickbox iFrame from the WP manager when a post-selection field is generated
 	It is parsed by the PostSelector.php class
 	-->
-	<script type="text/javascript" src="../../../../wp-includes/js/jquery/jquery.js"></script>
+
+	<!--script type="text/javascript" src="../../../../wp-includes/js/jquery/jquery.js"></script-->
 
 	<!-- script src="[+cctm_url+]/uploader/fileuploader.js" type="text/javascript"></script>
 	<link href="[+cctm_url+]/uploader/fileuploader.css" rel="stylesheet" type="text/css" -->
-
+<div style="border: 1px solid black; height: 700;">
 	<style>
 		#media-upload-header {
 			display: none;
 		}
 	</style>
-</head>
-<body>
 			
 	<!-- Safari seems to need the CSS and JS inside the body when loaded via WP. Standalone, it works fine. -->
 	<style>	
@@ -37,7 +33,6 @@
 		function add_upload_form()
 		{
 			jQuery.get("[+cctm_url+]/upload_form.php","", write_results_to_page);
-			//write_results_to_page('xxxxxx');
 		}
 	
 		/*------------------------------------------------------------------------------
@@ -198,7 +193,7 @@
 	<span onclick="javascript:sort_posts('post_modified');">Date</span> 
 	<span onclick="javascript:sort_posts('post_title');">Name</span>
 </div>
+
 <div id="ajax_search_results_go_here">[+default_results+]</div>
 
-</body>
-</html>
+</div>

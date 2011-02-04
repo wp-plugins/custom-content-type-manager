@@ -601,7 +601,7 @@ class CCTM
 			else
 			{
 				update_option( self::db_key, $data );
-				$msg = sprintf('<div class="updated">%s</div>'
+				$msg = sprintf('<div class="updated"><p>%s</p></div>'
 						, sprintf(__('Custom fields for %s have been updated', CCTM_TXTDOMAIN)
 							, '<em>'.$post_type.'</em>'
 						)
@@ -630,7 +630,7 @@ class CCTM
 			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
 				, "<em>$post_type</em>" );
 			$y = __('Click the button above to add a custom field.', CCTM_TXTDOMAIN );
-			$msg .= sprintf('<div class="updated">%s %s</div>', $x, $y);
+			$msg .= sprintf('<div class="updated"><p>%s %s</p></div>', $x, $y);
 		}
 
 		$fields = self::_get_html_field_defs($def);
@@ -1851,6 +1851,13 @@ class CCTM
 				&& !in_array($post_type, self::$built_in_post_types)) 
 			{	
 				register_post_type( $post_type, $def );
+				// TODO: make global setting that asks whether or not the user wants us to do this automatically
+				//if ( is_array($def['supports']) && in_array('thumbnail', $def['supports']) )
+				//{
+					/* This generates a warning:
+					Warning: in_array() [function.in-array]: Wrong datatype for second argument in /Users/everett2/Sites/pretasurf/html/blog/wp-includes/theme.php on line 1671 */
+					// add_theme_support( 'post-thumbnails', $post_type );
+				//}
 			}
 		}
 	

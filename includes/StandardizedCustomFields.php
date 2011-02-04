@@ -24,29 +24,27 @@ class StandardizedCustomFields
 	/*------------------------------------------------------------------------------
 	This plugin is meant to be configured so it acts on a specified list of content
 	types, e.g. post, page, or any custom content types that is registered.
-	FUTURE: read this from the database.
+	OUTPUT: array	$active_post_types. Array of strings, each a valid post-type name, 
+		e.g. array('post','page','your_custom_post_type')
 	------------------------------------------------------------------------------*/
 	private static function _get_active_content_types()
 	{
+		$active_post_types = array();	
 		$data = get_option( CCTM::db_key );
 		if ( !empty($data) && is_array($data) )
 		{
-			$known_post_types = array_keys($data);
-			$active_post_types = array();
+			$known_post_types = array_keys($data);	
 			foreach ($known_post_types as $pt)
 			{
 				if ( CCTM::is_active_post_type($pt) )
-//				if ( isset($data[$pt]['is_active']) && $data[$pt]['is_active'] == 1 )
 				{
 					$active_post_types[] = $pt;
 				}
 			}
-			return $active_post_types;
+
 		}
-		else
-		{
-			return array();
-		}
+		
+		return $active_post_types;
 	}
 
 	/*------------------------------------------------------------------------------
@@ -70,11 +68,14 @@ class StandardizedCustomFields
 	}
 
 	/*------------------------------------------------------------------------------
-	
+	This determines if the user is creating a new post (of any type, e.g. a new page).
+	This is used so we know if and when to use the default values for any field.
+	INPUT: none; the current page is read from the server URL.
+	OUTPUT: boolean
 	------------------------------------------------------------------------------*/
 	private static function _is_new_post()
 	{
-		if ( substr($_SERVER["SCRIPT_NAME"],strrpos($_SERVER["SCRIPT_NAME"],"/")+1) == 'post-new.php' )
+		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'post-new.php' )
 		{
 			return true;
 		}
@@ -87,6 +88,8 @@ class StandardizedCustomFields
 	//! Public Functions	
 	/*------------------------------------------------------------------------------
 	* Create the new Custom Fields meta box
+	TODO: allow customization of the name, instead of just 'Custom Fields', and also
+	of the wrapper div.
 	------------------------------------------------------------------------------*/
 	public static function create_meta_box() {
 		$content_types_array = self::_get_active_content_types();

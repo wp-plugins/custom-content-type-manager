@@ -45,7 +45,8 @@ function get_custom_field($fieldname)
 /*------------------------------------------------------------------------------
 Private (?) function that will scour the custom field definitions for any fields
 of the type specified.  This is useful e.g. if you want to return all images 
-attached to a post, or (FUTURE???) if the field is defined as a list.
+attached to a post. Perhaps this would be more useful if I included a "prefix"
+argument so you could retrieve all values from fields named with that prefix.
 
 Must be used when there is an active post.
 
