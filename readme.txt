@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.0.4
-Stable tag: 0.8.4
+Stable tag: 0.8.5
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -98,6 +98,9 @@ You can always checkout the most recent version of the code by going to your wp-
 	
 = In Development (in the trunk) =
 
+= 0.8.5 =
+* Resubmitting to placate WP's repository.
+
 = 0.8.4 =
 
 * Resubmitting to placate WP's repository.
@@ -169,11 +172,14 @@ If you are eager to see one of these features implemented in a future release, p
 
 == Upgrade Notice ==
 
-= 0.8.4 = 
+= 0.8.5 = 
 Fixes some major bugs in managing custom fields. Now allows direct image uploading. Allows customized manager templates. (re-submit of 0.8.3)
 
+= 0.8.4 = 
+Was not picked up correctly by WordPress' repo
+
 = 0.8.3 = 
-Fixes some major bugs in managing custom fields. Now allows direct image uploading. Allows customized manager templates.
+Was not picked up correctly by WordPress' repo
 
 = 0.8.2 =
 Fixes a couple other glitches: apostrophes in media custom fields, editing content types.
