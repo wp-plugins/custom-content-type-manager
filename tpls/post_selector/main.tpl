@@ -7,7 +7,7 @@
 
 	<!-- script src="[+cctm_url+]/uploader/fileuploader.js" type="text/javascript"></script>
 	<link href="[+cctm_url+]/uploader/fileuploader.css" rel="stylesheet" type="text/css" -->
-<div style="border: 1px solid black; height: 700;">
+<div>
 	<style>
 		#media-upload-header {
 			display: none;

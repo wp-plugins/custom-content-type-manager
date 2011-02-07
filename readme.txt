@@ -1,10 +1,10 @@
-=== Plugin Name ===
+=== Custom Content Type Manager ===
 Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.0.4
-Stable tag: 0.8.3
+Stable tag: 0.8.4
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -98,6 +98,10 @@ You can always checkout the most recent version of the code by going to your wp-
 	
 = In Development (in the trunk) =
 
+= 0.8.4 =
+
+* Resubmitting to placate WP's repository.
+
 = 0.8.3 =
 
 * Customized manager templates. This is useful if you need to customize the manager interface for the custom fields.
@@ -164,6 +168,9 @@ If you are eager to see one of these features implemented in a future release, p
 * Add help links to wiki.
 
 == Upgrade Notice ==
+
+= 0.8.4 = 
+Fixes some major bugs in managing custom fields. Now allows direct image uploading. Allows customized manager templates. (re-submit of 0.8.3)
 
 = 0.8.3 = 
 Fixes some major bugs in managing custom fields. Now allows direct image uploading. Allows customized manager templates.

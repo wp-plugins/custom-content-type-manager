@@ -34,7 +34,7 @@ class PostSelector
 
 	private $Pagination; // Pagination object. See Pagination.php
 	private $taxonomies = array(); // taxonomies assigned to this post_type
-	private $results_per_page = 10;
+	private $results_per_page = 7;
 
 	private $cnt; // number of search results
 	private $SQL; // store the query here for debugging.
