@@ -802,7 +802,7 @@ class CCTM
 			$manager_page_sample_html .= "<!-- Individual placeholders follow: -->\n";
 			foreach ($d as $k => $v)
 			{
-				$manager_page_sample_html .= '[+'.$k.'+]'. "\n";	
+				$manager_page_sample_html .= '[+'.$d['name'].'.'.$k.'+]'. "\n";	
 			}
 			$manager_page_sample_html .= "\n";
 			
