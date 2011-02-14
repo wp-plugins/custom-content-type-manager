@@ -1,0 +1,59 @@
+/*------------------------------------------------------------------------------
+This contains style declarations used by the Custom Content Type Manager plugin.
+Primarily, it styles the automatically generated forms, but it also contains 
+rules to style the various manager pages.
+------------------------------------------------------------------------------*/
+/* Used by all automatically generated labels */
+.formgenerator_label {
+	display:block;
+	font-weight:bold;
+}
+
+/* Used to wrap the post id's, in relation/media fields that provide a link
+to the wp_posts table e.g. the '(4)' in 'Preview HTML (4)'*/
+.formgenerator_id_label {
+
+}
+
+.formgenerator_description {
+	display:block;
+	font-style:italic;
+}
+
+.formgenerator_checkbox_label {
+	display: inline;
+}
+.formgenerator_checkbox
+{
+	width: auto;
+}
+
+.formgenerator_element_wrapper {
+	margin-top: 10px;
+}
+
+.cctm_subheading {
+	margin-top: 30px;
+}
+
+/* Used when you view a Custom Post Types sample Templates: 
+Custom Post Types --> View Sample Templates (for any post type) */
+.sample_code_textarea {
+	border: 1px solid black;
+	background-color: lightyellow; 
+}
+
+
+/* This is the button used in the manager to choose a new image, and we 
+only display it when the custom field is an IMAGE or other MEDIA. The button is
+there for "relation" fields, but it doesn't make any sense to display it on a
+relation field because there's no way to "upload" another post or page. */
+.choose_media_button{
+	display: hidden;
+}
+
+/* Styles the thumbnail visible in the post-editor page after an image or media
+item has been selected to be used for a custom image or media field. */
+.attachment-thumbnail{
+	padding: 10px;
+}

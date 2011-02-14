@@ -802,7 +802,7 @@ class CCTM
 			$manager_page_sample_html .= "<!-- Individual placeholders follow: -->\n";
 			foreach ($d as $k => $v)
 			{
-				$manager_page_sample_html .= '[+'.$d['name'].'.'.$k.'+]'. "\n";	
+				$manager_page_sample_html .= '[+'.$k.'+]'. "\n";	
 			}
 			$manager_page_sample_html .= "\n";
 			
@@ -1416,12 +1416,9 @@ class CCTM
 		self::_set_custom_field_def_template();
 		
 		// TODO: $E = new WP_Error();
-		wp_register_style('CCTM_settings'
-			, CCTM_URL . '/css/settings.css');
-		wp_register_style('CCTM_gui'
-			, CCTM_URL . '/css/posts.css');
-		wp_enqueue_style('CCTM_settings');
-		wp_enqueue_style('CCTM_gui');	
+		wp_register_style('CCTM_css'
+			, CCTM_URL . '/css/manager.css');
+		wp_enqueue_style('CCTM_css');
 		// Hand-holding: If your custom post-types omit the main content block, 
 		// then thickbox will not be queued.
 		wp_enqueue_script( 'thickbox' );
