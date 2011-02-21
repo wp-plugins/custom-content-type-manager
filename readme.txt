@@ -71,6 +71,15 @@ In this plugin's settings area, each content-type has a link to "View Sample Tem
 
 See the includes/functions.php file in this plugin's directory for some other theme functions that are in development.
 
+= How do I use a Custom Image Field =
+
+The trick here is that the custom field stores a foreign key, which points to the wp_posts table where the post_type is an "attachment". So you use the get_custom_field() function and pass its output to one of WordPress' built-in image functions. For example, put the following code in your theme file (assuming your custom field is named 'my_image_field'):
+
+`<?php $image_id = get_custom_field('my_image_field'); ?>`
+`<?php print wp_get_attachment_image($image_id, 'full'); ?>`
+
+See the wiki here: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreateImageField
+
 
 = How can I use this plugin to support an eCommerce site? =
 
@@ -97,6 +106,9 @@ You can always checkout the most recent version of the code by going to your wp-
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 	
 = In Development (in the trunk) =
+
+= 0.8.7 =
+* Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
 
 = 0.8.6 =
 * Fixes bad CSS declaration (issue #1 http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=1)
@@ -149,30 +161,7 @@ The architecture for this plugin was also inspired by [MODx](http://modxcms.com/
 
 == Future TO-DO == 
 
-If you are eager to see one of these features implemented in a future release, please share your feedback!
-
-* Internationalize the Post/Media browser.
-* Fix the limit on 7 records per page. CSS is whacky in the thickbox (?). No matter what's on my targeted page, it gets cropped by the thickbox to about 400px in height.
-* Improve UI (there are some monstrous forms in there... sorry!)
-* Add support for more custom field types: dates, times, months, radio buttons, states, countries.
-* Add "is required" checkbox and validation of custom fields.
-* Optionally allow users to add additional custom fields beyond the standardized fields.
-* Add more custom field types, including media specific input-types: "image", "audio", "video" -- all of these are currently handled generically by the "media" custom field type.  Also on the menu: date and time fields.
-* Enable additional filters media browser (post-selector.php), including a post-type filter. 
-* Crack into the attribute meta box so you can optionally select a parent post that is a post_type other than the child. E.g. imagine a post_type of "Theater" with children with a post_type of "Movie" -- currently WP prevents that type of relationship in the page attribute meta box because they are 2 different content types with the exceptions of attachment post_types, which *can* have a parent_id that is a post or page.
-* Full permalink support.  WP does not make this easy with custom post types, but ideally I'd like more options under the "Permalink Action" dropdown:
-	* Off -- URLs will be simple GET style params
-	* Inherit -- use the same permalink structure used by the rest of the site
-	* Custom -- Fire off a secondary input that lets you define a permalink structure
-		for each custom content type that mirrors the built-in permalink options. http://xplus3.net/2010/05/20/wp3-custom-post-type-permalinks/ has some good info on this.
-* Integrated taxonomy manager. So far, the "Simple Taxonomy" plugin is the only taxonomy plugin that I've found that is relatively few of bugs and is sensibly architected: http://wordpress.org/extend/plugins/simple-taxonomy/
-* Allow "list" fields that accept multiple values into the same field. The exact implementation is being reviewed... a guiding principle of this plugin so far has been that the custom fields should work normally if this plugin is uninstalled, but that may not be possible with list fields because I think the most "correct" implementation is not to have multiple rows of data with the same meta key (like WP does), but instead to have a single row of data with a unique meta key, and use JSON to group that data into an array.
-* Supply more template functions, perhaps via a static class, e.g. CCTM::image('move_poster'); It might also be possible to spin this off to function names that are more familiar to WP template authors, e.g. "CCTM::the_movie_poster()". See includes/functions.php for some functions in development.
-* Archive Support: optionally define whether a content type shows up in the normal site archive menus.
-* Pimp out the search box, INCLUDING the ability to specify a post_type when you create a relation field, e.g. for the posts referencing a page, I should prime the form so that it only displays the relevant post-type posts.  The architecture is there and already can do this, but I was having problems piping that stuff through javascript when fields are created dynamically.
-* Show-hide options for each custom field to cut down on crowding in the custom field manager screen.
-* Permissions on editing custom content types -- lock it down! You don't want 2 people editing the same thing at the same time.
-* Add help links to wiki.
+If you are eager to see one of these features implemented in a future release, please share your feedback at the official Issues page: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
 
 == Upgrade Notice ==
 

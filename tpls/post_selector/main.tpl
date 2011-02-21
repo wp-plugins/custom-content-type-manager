@@ -1,3 +1,8 @@
+<html>
+<head>
+	<title>Ajax Post Selector</title>
+</head>
+<body>
 	<!-- 
 	This is loaded via a thickbox iFrame from the WP manager when a post-selection field is generated
 	It is parsed by the PostSelector.php class
@@ -197,3 +202,6 @@
 <div id="ajax_search_results_go_here">[+default_results+]</div>
 
 </div>
+
+</body>
+</html>
