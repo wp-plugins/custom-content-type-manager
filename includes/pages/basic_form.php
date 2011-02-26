@@ -14,8 +14,10 @@ This template expects the following variables:
 ?>
 <?php print $style; ?>
 <div class="wrap">
-	<?php screen_icon(); ?>
-	<h2><?php print $page_header ?></h2>
+
+	<h2>
+	<img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /> 
+	<?php print $page_header ?></h2>
 	
 	<?php print $msg; ?>
 

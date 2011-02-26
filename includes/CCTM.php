@@ -514,6 +514,18 @@ class CCTM
 		$def = self::_populate_form_def_from_data($def, $data[$post_type]);
 		// FormGenerator::$global_placeholders['post_type'] = $post_type; //<--- messy?
 		$fields = FormGenerator::generate($def,'css-friendly');
+		//print_r(FormGenerator::$placeholders); exit;
+		// See if there's a custom manager form tpl avail...
+/*
+		$mgr_tpl_file = CCTM_PATH.'/tpls/settings/edit_post_type.tpl';
+		if ( file_exists($mgr_tpl_file) ) 
+		{ 
+			$tpl = file_get_contents($mgr_tpl_file);
+			$output = FormGenerator::parse($tpl, FormGenerator::$placeholders);
+			print $output; 
+			return;
+		}
+*/
 		include('pages/basic_form.php');
 	}
 	

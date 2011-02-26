@@ -401,6 +401,7 @@ class FormGenerator
 		
 		foreach ( $field_defs_array as $def_i => $field_def ) 
 		{
+			//print_r($field_def); exit;
 			$output_this_field = '';
 			if (!isset($field_def['id']))
 			{
@@ -471,14 +472,22 @@ class FormGenerator
 			self::$i = self::$i + 1;
 			
 			// STORE placeholder for this field
-			$key = $field_def['raw_name'];
+			$key = $field_def['name'];
+			if ( isset($field_def['raw_name']) )
+			{
+				$key = $field_def['raw_name'];
+			}
+			
+			//print $key. '<-----------'; exit;
 			self::$placeholders[$key] = $output;
 			// STORE a 'help' placeholder as an aid to devs creating a custom tpl for a given content type in /tpls/manager/
 			$placeholders_this_field = array_keys($field_def);
+			
 			foreach ( $placeholders_this_field as &$p )
 			{
 				$p = '&#91;+'. $key.'.'.$p.'+&#93;';
 			}
+//			print_r($placeholders_this_field); exit;
 			// Add the primary placeholder that contains the formatted field.
 			array_unshift($placeholders_this_field, '&#91;+'.$key.'+&#93;');
 			

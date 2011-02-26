@@ -57,3 +57,14 @@ item has been selected to be used for a custom image or media field. */
 .attachment-thumbnail{
 	padding: 10px;
 }
+
+
+span.cctm-link {
+	padding: 10px;
+	margin-left: 5px;
+}
+img.cctm-img {
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
