@@ -272,9 +272,10 @@ class PostSelector
 		// Which post types will we be searching for?
 		if ( isset($_GET['post_type']) && !empty($_GET['post_type']) )
 		{
-			if ( preg_match('/[^a-z_\-]/i', $_GET['post_type']) )
+			if ( preg_match('/[^a-z_\-0-9]/i', $_GET['post_type']) )
 			{
-				wp_die(__('Invalid post_type.'));   // Only a-z, _, - is allowed.
+				printf( __('Invalid post_type: %s'), $_GET['post_type'] );   // Only a-z, _, - is allowed.
+				exit;
 			}
 			$this->post_type = $_GET['post_type'];
 		}
@@ -283,7 +284,8 @@ class PostSelector
 		{
 			if ( !in_array( $_GET['post_mime_type'],  $this->valid_post_mime_types ) )
 			{
-				wp_die(__('Invalid post_mime_type.')); 
+				printf( __('Invalid post_mime_type: %s'), $_GET['post_mime_type'] ); 
+				exit;
 			}
 			$this->post_mime_type = $_GET['post_mime_type'];
 		}
@@ -295,15 +297,17 @@ class PostSelector
 		// Get fieldname
 		if ( isset($_GET['fieldname']) && !empty($_GET['fieldname']) )
 		{
-			if ( preg_match('/[^a-z_\-]/i', $_GET['fieldname']) )
+			if ( preg_match('/[^a-z_\-0-9]/i', $_GET['fieldname']) )
 			{
-				wp_die(__('Invalid field_name.'));   // Only a-z, _, - is allowed.
+				printf( __('Invalid fieldname: %s'), $_GET['fieldname'] );   // Only a-z, _, - and numbers are allowed.
+				exit;
 			}
 			$this->fieldname = $_GET['fieldname'];
 		}
 		else
 		{
-			wp_die(__('Invalid field_name.'));
+			_e('Missing fieldname.');
+			exit;
 		}
 		
 		// Search term

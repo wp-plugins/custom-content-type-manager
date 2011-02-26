@@ -165,6 +165,9 @@ If you are eager to see one of these features implemented in a future release, p
 
 == Upgrade Notice ==
 
+= 0.8.7 =
+* Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
+
 = 0.8.6 =
 Fixes CSS declaration that conflicted with Posts->Categories. Corrects examples in sample templates.
 

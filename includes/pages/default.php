@@ -10,7 +10,7 @@
 		<a class="cctm_helper_link" target="new" href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/list"><?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a>
 	</p>
 
-	<table class="widefat" cellspacing="0" id="all-plugins-table">
+	<table class="wp-list-table widefat plugins" cellspacing="0" id="all-plugins-table">
 		<thead>
 			<tr>
 				<th scope="col" class="manage-column">Content Type (post type)</th>
@@ -25,7 +25,7 @@
 			</tr>
 		</tfoot>
 	
-		<tbody class="plugins">
+		<tbody id="the-list" class="plugins">
 
 		<?php print $row_data; ?>
 		

@@ -1463,7 +1463,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	public static function create_admin_menu()
 	 {
-		add_options_page(
+		add_menu_page(
 			'Custom Content Types',					// page title
 			'Custom Content Types',	 				// menu title
 			'manage_options', 						// capability
@@ -1511,7 +1511,7 @@ class CCTM
 				, CCTM::name);
 			printf('<div id="custom-post-type-manager-warning" class="error">
 				<p>
-					<strong>%$1s</strong>
+					<strong>%1$s</strong>
 					<ul style="margin-left:30px;">
 						%2$s
 					</ul>
