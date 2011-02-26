@@ -40,7 +40,87 @@ function get_custom_field($fieldname)
 	return get_post_meta($post_id, $fieldname, true);
 }
 
+//------------------------------------------------------------------------------
+/**
+* Gets info about a custom field's definition (i.e. the meta info about the
+* field). Returns error messages if no data found.
+*
+* Sample usage: <?php print get_custom_field_meta('my_dropdown','label'); ?>
+*
+* @param	string	$fieldname	The name of the custom field
+* @param	string	$item		The name of the definition item that you want
+* @param	string	$post_type	Optional.  Default is read from the global $post.
+* @return	mixed	Usually a string, but some items are arrays (e.g. options)
+*/
+function get_custom_field_meta($fieldname, $item, $post_type=null)
+{
+	if (!$post_type)
+	{
+		global $post;
+		$post_type = $post->post_type;
+		if (!$post_type)
+		{
+			return __('Could not determine the post_type.',CCTM_TXTDOMAIN);
+		}
+	}
 
+	$data = get_option( CCTM::db_key, array() );
+	
+	if ( $data[$post_type]['custom_fields'] )
+	{
+		// Go through the custom field defs
+		foreach ( $data[$post_type]['custom_fields'] as $i => $def_array )
+		{
+			if ( $def_array['name'] == $fieldname )
+			{
+				if ( isset($def_array[$item]) )
+				{
+					return $def_array[$item];
+				}
+				else
+				{
+					return sprintf( __('%$1s is an invalid item for the %$2s field.',CCTM_TXTDOMAIN), $item, $fieldname );
+				}
+			}
+		}
+		
+		return sprintf( __('Invalid field name: %s', CCTM_TXTDOMAIN), $fieldname );
+	}
+}
+
+/*------------------------------------------------------------------------------
+@param	string	Name of the custom field.
+@return	array	Associative array containing all definition items for the custom 
+				field indicated by the $fieldname.
+------------------------------------------------------------------------------*/
+function get_custom_field_def($fieldname, $post_type=null)
+{
+	if (!$post_type)
+	{
+		global $post;
+		$post_type = $post->post_type;
+		if (!$post_type)
+		{
+			return __('Could not determine the post_type.',CCTM_TXTDOMAIN);
+		}
+	}
+	
+	$data = get_option( CCTM::db_key, array() );
+	
+	if ( $data[$post_type]['custom_fields'] )
+	{
+		// Go through the custom field defs
+		foreach ( $data[$post_type]['custom_fields'] as $i => $def_array )
+		{
+			if ( $def_array['name'] == $fieldname )
+			{
+				return $def_array;
+			}
+		}
+	
+		return sprintf( __('Invalid field name: %s', CCTM_TXTDOMAIN), $fieldname );
+	}
+}
 
 /*------------------------------------------------------------------------------
 Private (?) function that will scour the custom field definitions for any fields
@@ -92,77 +172,6 @@ function get_all_fields_of_type($type)
 
 }
 
-/*------------------------------------------------------------------------------
-This will return all posts that are tagged with slug $slug (i.e. term) in the 
-taxonomy $taxonomy. 
-
-Using query_posts() inside of the loop is not possible because WP manipulates that function
-somehow, causing infinite loops. This function uses its own query, so it is safe
-for the loop.
-
-SAMPLE QUERY:
-	SELECT * 
-	FROM wp_terms 
-	JOIN wp_term_taxonomy ON wp_terms.term_id = wp_term_taxonomy.term_id
-	JOIN wp_term_relationships 
-		ON wp_term_relationships.term_taxonomy_id = wp_term_taxonomy.term_taxonomy_id
-	JOIN wp_posts ON wp_posts.ID = wp_term_relationships.object_id
-	WHERE wp_terms.slug = 'bear' 
-	AND wp_term_taxonomy.taxonomy = 'post_tag';
-
-USAGE: 
-
-	$tagged_posts = get_posts_by_taxonomy_term('post_tag','popular');
-
-	foreach ($tagged_posts as $p )
-	{
-		print $p->post_title;
-	}
-
-OR Using a custom taxonomy:
-	get_posts_by_taxonomy_term('genre','horror');
-
-	
-INPUT:
-	$taxonomy (str). Name of a taxonomy, either custom, or built-in. Built in taxonomies 
-		include 'post_type','category', and 'link_category'
-	$slug (str). The slug value of the taxonomy term you're looking for.
-	$limit (int) optionallyi limit the posts returned to the given number. By 
-		default, all posts will be returned.
-OUTPUT: array of post objects or empty array.
-------------------------------------------------------------------------------*/
-function get_posts_by_taxonomy_term($taxonomy, $slug, $limit = false)
-{
-	global $wpdb; 
-	
-	if ( empty($taxonomy) || empty($slug) )
-	{
-		return array();	
-	}
-
-		
-	$limit_sql = '';
-	if ($limit)
-	{
-		$limit_sql = " LIMIT " . (int) $limit;
-	}
-	
-	$query = "SELECT * 
-		FROM {$wpdb->terms} 
-		JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id = {$wpdb->term_taxonomy}.term_id
-		JOIN {$wpdb->term_relationships} ON {$wpdb->term_relationships}.term_taxonomy_id = {$wpdb->term_taxonomy}.term_taxonomy_id
-		JOIN {$wpdb->posts} ON {$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id
-		WHERE 
-			{$wpdb->term_taxonomy}.taxonomy = %s
-			AND 
-			{$wpdb->terms}.slug = %s " . $limit_sql;
-//	print $query; exit;
-		$results = $wpdb->get_results( $wpdb->prepare( $query, $taxonomy, $slug ) );
-	
-	
-//	$results = query_posts( array( $taxonomy => $slug, 'posts_per_page' => $limit ) );
-	return $results;
-}
 
 /*------------------------------------------------------------------------------
 Retrieves a complete post object, including all meta fields.
@@ -327,5 +336,13 @@ function print_custom_field($fieldname)
 	print get_custom_field($fieldname);
 }
 
-
+//------------------------------------------------------------------------------
+/**
+* Convenience function to print the result of get_custom_field_meta().  See
+* get_custom_field_meta.
+*/
+function print_custom_field_meta($fieldname, $item, $post_type=null)
+{
+	print get_custom_field_meta($fieldname, $item, $post_type);
+}
 /*EOF*/

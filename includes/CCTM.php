@@ -268,7 +268,13 @@ class CCTM
 		$data = get_option( self::db_key, array() );
 		$data[$post_type]['is_active'] = 1;
 		update_option( self::db_key, $data );
-		
+		$msg = '
+				<div class="updated">
+					<p>'
+					. sprintf( __('The %s post_type has been activated.', CCTM_TXTDOMAIN), '<em>'.$post_type.'</em>')
+					. '</p>
+				</div>';
+		self::set_flash($msg);
 		// Often, PHP scripts use the header() function to refresh a page, but
 		// WP has already claimed those, so we use a JavaScript refresh instead.
 		// Refreshing the page ensures that active post types are added to menus.	
@@ -276,9 +282,7 @@ class CCTM
 			<script type="text/javascript">
 				window.location.replace("?page='.self::admin_menu_slug.'");
 			</script>';
-		// I think this $msg gets lost, but future TODO: use a 'flash' msg to display it 
-		// even after the page refresh.	
-		self::_page_show_all_post_types($msg);  
+		print $msg;	
 	}
 	
 	/*------------------------------------------------------------------------------
@@ -313,7 +317,8 @@ class CCTM
 					. sprintf( __('The content type %s has been created', CCTM_TXTDOMAIN), '<em>'.$sanitized_vals['post_type'].'</em>')
 					. '</p>
 				</div>';
-				self::_page_show_all_post_types($msg);
+				self::set_flash($msg);
+				self::_page_show_all_post_types();
 				return;
 			}
 			else
@@ -368,7 +373,7 @@ class CCTM
 			<script type="text/javascript">
 				window.location.replace("?page='.self::admin_menu_slug.'");
 			</script>';
-			self::_page_show_all_post_types($msg);
+			print $msg;
 			return;
 		}
 		
@@ -427,7 +432,8 @@ class CCTM
 			$msg = '<div class="updated"><p>'
 				.sprintf( __('The post type %s has been deleted', CCTM_TXTDOMAIN), "<em>$post_type</em>")
 				. '</p></div>';
-			self::_page_show_all_post_types($msg);
+			self::set_flash($msg);
+			self::_page_show_all_post_types();
 			return;
 		}
 		
@@ -487,16 +493,18 @@ class CCTM
 			if ( empty($error_msg) )
 			{				
 				self::_save_post_type_settings($sanitized_vals);
-
-				$msg = '
-					<script type="text/javascript">
-						window.location.replace("?page='.self::admin_menu_slug.'");
-					</script>';
+				
 				$msg .= '<div class="updated"><p>'
 					. sprintf( __('Settings for %s have been updated.', CCTM_TXTDOMAIN )
 						, '<em>'.$sanitized_vals['post_type'].'</em>')
 					.'</p></div>';
-				self::_page_show_all_post_types($msg); // TODO: make this message persist across page refreshes
+				self::set_flash($msg);
+				
+				$msg = '
+					<script type="text/javascript">
+						window.location.replace("?page='.self::admin_menu_slug.'");
+					</script>';
+				print $msg;
 				return;
 			}
 			else
@@ -618,7 +626,8 @@ class CCTM
 							, '<em>'.$post_type.'</em>'
 						)
 					);
-				self::_page_show_all_post_types($msg);
+				self::set_flash($msg);
+				self::_page_show_all_post_types();
 				return;
 			}
 		}	
@@ -873,8 +882,10 @@ class CCTM
 	Manager Page -- called by page_main_controller()
 	List all post types (default page)
 	------------------------------------------------------------------------------*/
-	private static function _page_show_all_post_types($msg='')
+	private static function _page_show_all_post_types()
 	{	
+		$msg = self::get_flash();
+
 		$data = get_option( self::db_key, array() );
 		$customized_post_types =  array_keys($data);
 		$displayable_types = array_merge(self::$built_in_post_types , $customized_post_types);
@@ -909,7 +920,8 @@ class CCTM
 				$row_data .= ob_get_contents();
 			ob_end_clean();
 		}
-		
+		//! TODO
+		//include('pages/sortable-list.php');
 		include('pages/default.php');
 	}
 
@@ -1421,6 +1433,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	public static function admin_init()
 	{
+		session_start();
     	load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
 	
 		// Set our form defs in this, our makeshift constructor.
@@ -1470,6 +1483,20 @@ class CCTM
 		return dirname(dirname(__FILE__));
 	}
 	 
+	//------------------------------------------------------------------------------
+	/**
+	* Get the flash message.
+	*/
+	public static function get_flash()
+	{
+		$output = '';
+		if ( isset($_SESSION[self::db_key]) )
+		{
+			$output = $_SESSION[self::db_key];
+		}
+		unset( $_SESSION[self::db_key] );
+		return $output;
+	}
 	/*------------------------------------------------------------------------------
 	Create custom post-type menu
 	------------------------------------------------------------------------------*/
@@ -1480,7 +1507,8 @@ class CCTM
 			'Custom Content Types',	 				// menu title
 			'manage_options', 						// capability
 			self::admin_menu_slug, 					// menu-slug (should be unique)
-			'CCTM::page_main_controller'			// callback function
+			'CCTM::page_main_controller',			// callback function
+			CCTM_URL .'/images/gear.png'				// Icon
 		);
 	}
 	
@@ -1501,6 +1529,52 @@ class CCTM
 			return false;
 		}
 	}
+
+		
+	/*------------------------------------------------------------------------------
+	This is the function called when someone clicks on the settings page.  
+	The job of a controller is to process requests and route them.
+	------------------------------------------------------------------------------*/
+	public static function page_main_controller() 
+	{
+		if (!current_user_can('manage_options'))  
+		{
+			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$action 		= (int) self::_get_value($_GET,self::action_param,0);
+		$post_type 		= self::_get_value($_GET,self::post_type_param);
+		
+		switch($action)
+		{
+			case 1: // create new custom post type
+				self::_page_create_new_post_type();
+				break;
+			case 2: // update existing custom post type. Override form def.
+				self::$post_type_form_definition['post_type']['type'] = 'readonly';
+				self::$post_type_form_definition['post_type']['description'] = __('The name of the post-type cannot be changed. The name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>.',CCTM_TXTDOMAIN);
+				self::_page_edit_post_type($post_type);
+				break;
+			case 3: // delete existing custom post type
+				self::_page_delete_post_type($post_type);
+				break;
+			case 4: // Manage Custom Fields for existing post type	
+				self::_page_manage_custom_fields($post_type);
+				break;
+			case 5: // TODO: Manage Taxonomies for existing post type
+				break;
+			case 6: // Activate post type
+				self::_page_activate_post_type($post_type);
+				break;
+			case 7: // Deactivate post type
+				self::_page_deactivate_post_type($post_type);
+				break;
+			case 8: // Show an example of custom field template
+				self::_page_sample_template($post_type);
+				break;
+			default: // Default: List all post types	
+				self::_page_show_all_post_types();
+		}
+	}	
 	
 	/*------------------------------------------------------------------------------
 	Print errors if they were thrown by the tests. Currently this is triggered as 
@@ -1604,50 +1678,15 @@ class CCTM
 	
 	}
 	
-		
-	/*------------------------------------------------------------------------------
-	This is the function called when someone clicks on the settings page.  
-	The job of a controller is to process requests and route them.
-	------------------------------------------------------------------------------*/
-	public static function page_main_controller() 
+	
+	//------------------------------------------------------------------------------
+	/**
+	* Sets a flash message that's viewable only for the next page view (for the current user)
+	*/
+	public static function set_flash($msg)
 	{
-		if (!current_user_can('manage_options'))  
-		{
-			wp_die( __('You do not have sufficient permissions to access this page.') );
-		}
-		$action 		= (int) self::_get_value($_GET,self::action_param,0);
-		$post_type 		= self::_get_value($_GET,self::post_type_param);
-		
-		switch($action)
-		{
-			case 1: // create new custom post type
-				self::_page_create_new_post_type();
-				break;
-			case 2: // update existing custom post type. Override form def.
-				self::$post_type_form_definition['post_type']['type'] = 'readonly';
-				self::$post_type_form_definition['post_type']['description'] = __('The name of the post-type cannot be changed. The name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>.',CCTM_TXTDOMAIN);
-				self::_page_edit_post_type($post_type);
-				break;
-			case 3: // delete existing custom post type
-				self::_page_delete_post_type($post_type);
-				break;
-			case 4: // Manage Custom Fields for existing post type	
-				self::_page_manage_custom_fields($post_type);
-				break;
-			case 5: // TODO: Manage Taxonomies for existing post type
-				break;
-			case 6: // Activate post type
-				self::_page_activate_post_type($post_type);
-				break;
-			case 7: // Deactivate post type
-				self::_page_deactivate_post_type($post_type);
-				break;
-			case 8: // Show an example of custom field template
-				self::_page_sample_template($post_type);
-				break;
-			default: // Default: List all post types	
-				self::_page_show_all_post_types();
-		}
-	}	
+		$_SESSION[ self::db_key ] = $msg;
+	}
+
 }
 /*EOF*/
