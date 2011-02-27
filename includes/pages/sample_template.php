@@ -8,7 +8,8 @@
 </style>
 
 	
-	<h2><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /> <?php print $post_type;?> Sample Templates <a href="?page=<?php print self::admin_menu_slug; ?>" class="button add-new-h2"><?php _e('Back'); ?></a></h2>
+	<h2><a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>"><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /></a>
+		<?php print $post_type;?> Sample Templates <a href="?page=<?php print self::admin_menu_slug; ?>" class="button add-new-h2"><?php _e('Back'); ?></a></h2>
 
 	<h3 class="cctm_subheading"><?php _e('Single Page (Front End)',CCTM_TXTDOMAIN); ?></h3>
 	<p>

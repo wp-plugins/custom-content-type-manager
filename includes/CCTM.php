@@ -19,7 +19,7 @@ class CCTM
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver 	= '3.0.1';
 	const php_req_ver 	= '5.2.6';
-	const mysql_req_ver = '5.0.41';
+	const mysql_req_ver = '4.1.2';
 
 	// Used to uniquely identify an option_name in the wp_options table 
 	// ALL data describing the post types and their custom fields lives there.
@@ -487,6 +487,7 @@ class CCTM
 		if ( file_exists($mgr_tpl_file) ) 
 		{ 
 			$tpl = file_get_contents($mgr_tpl_file);
+			FormGenerator::$placeholders['icons'] = self::_get_icons();
 			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
 		}
 		include('pages/basic_form.php');

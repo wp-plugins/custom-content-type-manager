@@ -155,8 +155,10 @@ We pass the following variables to this file:
 
 
 <div class="wrap">
-	<?php screen_icon(); ?>
-	<h2><?php print $post_type; ?>: <?php _e('Custom Fields', CCTM_TXTDOMAIN);?> <a href="#" class="button" onClick="javascript:addFieldDefinition();"><?php _e('Add Custom Field', CCTM_TXTDOMAIN); ?></a></h2>
+	<?php //screen_icon(); ?>
+	<h2>
+		<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>"><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /></a>
+		<?php print $post_type; ?>: <?php _e('Custom Fields', CCTM_TXTDOMAIN);?> <a href="#" class="button" onClick="javascript:addFieldDefinition();"><?php _e('Add Custom Field', CCTM_TXTDOMAIN); ?></a></h2>
 	
 	<?php print $msg; ?>
 

@@ -16,7 +16,7 @@ This template expects the following variables:
 <div class="wrap">
 
 	<h2>
-	<img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /> 
+	<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>"><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /></a> 
 	<?php print $page_header ?> <a class="button" href="?page=<?php print self::admin_menu_slug;?>"><?php _e('Cancel'); ?></a> </h2>
 	
 	<?php print $msg; ?>

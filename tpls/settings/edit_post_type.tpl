@@ -119,7 +119,7 @@
 			<!-- menu_icon -->
 			<div class="formgenerator_element_wrapper" id="custom_field_wrapper_menu_icon">		
 				<label for="[+menu_icon.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_menu_icon">[+menu_icon.label+]</label>
-				<input type="text" name="[+menu_icon.name+]" class="formgenerator_text" id="[+menu_icon.id+]" value="[+menu_icon.value+]" size="120"/>
+				<input type="text" name="[+menu_icon.name+]" class="formgenerator_text" id="[+menu_icon.id+]" value="[+menu_icon.value+]" size="100"/>
 						<span class="formgenerator_description">[+menu_icon.description+]</span>
 			</div>
 		

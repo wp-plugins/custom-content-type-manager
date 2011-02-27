@@ -107,6 +107,19 @@ You can always checkout the most recent version of the code by going to your wp-
 	
 = In Development (in the trunk) =
 
+* Fixed bug causing popup thickbox to load incorrectly: [Issue 17](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1)
+* Styling for the manager updated to match what's used by WordPress 3.1.
+* Greatly improved administration interface including support for icons and a series of tabs for dividing the multi-part form for creating/editing content types.
+* Reduced MySQL requirements to version 4.1.2 (same as WordPress 3.1) after feedback that the plugin is working fine in MySQL 4: [issue 28](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=28&can=1)
+* Fixed typos in CCTMTests.php re the CCTM_TXTDOMAIN: [issue 29](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=29&can=1).
+* Added optional prefix for template *function get_all_fields_of_type()*: [Issue 26](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=26&can=1)
+* Three new template functions added per [Issue 25](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=25&can=1)
+** *get_custom_field_meta()*
+** *print_custom_field_meta()*
+** *get_custom_field_def()*
+See [Template Functsion](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions) in the wiki.
+
+
 = 0.8.7 =
 * Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
 
@@ -146,7 +159,7 @@ You can always checkout the most recent version of the code by going to your wp-
 
 * WordPress 3.0.1 or greater
 * PHP 5.2.6 or greater
-* MySQL 5.0.41 or greater
+* MySQL 4.1.2 or greater
 
 These requirements are tested during WordPress initialization; the plugin will not load if these requirements are not met. Error messaging will fail if the user is using a version of WordPress older than version 2.0.11. 
 
@@ -163,10 +176,15 @@ The architecture for this plugin was also inspired by [MODx](http://modxcms.com/
 
 If you are eager to see one of these features implemented in a future release, please share your feedback at the official Issues page: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
 
+And if you REALLY want some of these features implemented, you can hire me as your developer by making a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
+
 == Upgrade Notice ==
 
+= 0.8.8 =
+Improved administration interface, new template functions, bug fixes.
+
 = 0.8.7 =
-* Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
+Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
 
 = 0.8.6 =
 Fixes CSS declaration that conflicted with Posts->Categories. Corrects examples in sample templates.

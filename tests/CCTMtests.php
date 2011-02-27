@@ -18,10 +18,10 @@ class CCTMtests
 
 		if ( version_compare( $result[0]->ver, $ver, '<') ) 
 		{	
-			$exit_msg = sprintf( __( '%1$s requires MySQL %2$s or newer.', CCTM::txtdomain)
+			$exit_msg = sprintf( __( '%1$s requires MySQL %2$s or newer.', CCTM_TXTDOMAIN)
 			, CCTM::name, $ver );
 			$exit_msg .= ' ';
-			$exit_msg .= __('Talk to your system administrator about upgrading.', CCTM::txtdomain);	
+			$exit_msg .= __('Talk to your system administrator about upgrading.', CCTM_TXTDOMAIN);	
 
 			self::$errors[] = $exit_msg;
 		}
@@ -63,7 +63,7 @@ class CCTMtests
 				{
 					if (version_compare($all_plugins_reindexed[$name]['Version'],$version,'<'))
 					{
-						self::$errors[] = sprintf( __('%1$s requires version %$2% of the %3$s plugin.', CCTM::txtdomain )
+						self::$errors[] = sprintf( __('%1$s requires version %$2% of the %3$s plugin.', CCTM_TXTDOMAIN )
 							, CCTM::name
 							, $version
 							, $name );			
@@ -72,14 +72,14 @@ class CCTMtests
 			}
 			else
 			{
-				$msg = sprintf( __('%1$s requires version %$2% of the %3$s plugin.', CCTM::txtdomain )
+				$msg = sprintf( __('%1$s requires version %$2% of the %3$s plugin.', CCTM_TXTDOMAIN )
 							, CCTM::name
 							, $version
 							, $name );
 							
 				 $msg .= ' ';
 				 $msg .=  sprintf( 
-					__('The %1$s plugin is not installed.', CCTM::txtdomain)
+					__('The %1$s plugin is not installed.', CCTM_TXTDOMAIN)
 					, $name
 				);
 				self::$errors[] = $msg;
@@ -94,7 +94,7 @@ class CCTMtests
 		
 		if (version_compare($wp_version,$ver,'<'))
 		{
-			self::$errors[] = sprintf( __('%1$s requires WordPress %2$s or newer. <a href="http://codex.wordpress.org/Upgrading_WordPress">Please update!</a>', CCTM::txtdomain)
+			self::$errors[] = sprintf( __('%1$s requires WordPress %2$s or newer. <a href="http://codex.wordpress.org/Upgrading_WordPress">Please update!</a>', CCTM_TXTDOMAIN)
 			, CCTM::name
 			, $ver );
 		}
@@ -107,10 +107,10 @@ class CCTMtests
 		
 		if ( version_compare( phpversion(), $ver, '<') ) 
 		{
-			$exit_msg = sprintf( __('%1$s requires PHP %2$s or newer', CCTM::txtdomain )
+			$exit_msg = sprintf( __('%1$s requires PHP %2$s or newer', CCTM_TXTDOMAIN )
 				,  CCTM::name
 				, $ver );
-			$exit_msg .= __('Talk to your system administrator about upgrading.', CCTM::txtdomain);	
+			$exit_msg .= __('Talk to your system administrator about upgrading.', CCTM_TXTDOMAIN);	
 			self::$errors[] = $exit_msg;
 		}
 	}
@@ -134,12 +134,12 @@ class CCTMtests
 		{
 			if ( !in_array($req, $loaded ) )
 			{
-				$msg =  sprintf( __('%1$s requires the %2$s PHP extension.', CCTM::txtdomain)
+				$msg =  sprintf( __('%1$s requires the %2$s PHP extension.', CCTM_TXTDOMAIN)
 					, CCTM::name
 					, $req
 				);
 				
-				$msg .= __('Talk to your system administrator about reconfiguring PHP.', CCTM::txtdomain);
+				$msg .= __('Talk to your system administrator about reconfiguring PHP.', CCTM_TXTDOMAIN);
 				self::$errors[] = $msg;
 			}
 		}
