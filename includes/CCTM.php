@@ -1430,10 +1430,7 @@ class CCTM
  		unset($sanitized['rewrite_slug']);
  		unset($sanitized['rewrite_with_front']);
  		
- 		if ($raw['use_default_menu_icon'])
- 		{
- 			unset($raw['menu_icon']);
- 		}
+ 
  		
  		// The main event
 		// We grab everything, then override specific $keys as needed. 
@@ -1460,7 +1457,7 @@ class CCTM
 		$sanitized['can_export'] 			= (bool) self::_get_value($raw,'can_export');
 		$sanitized['use_default_menu_icon'] = (bool) self::_get_value($raw,'use_default_menu_icon');
 		$sanitized['hierarchical'] 			= (bool) self::_get_value($raw,'hierarchical'); 
-		
+				
 		// *facepalm*... Special handling req'd here for menu_position because 0 
 		// is handled differently than a literal null.
 		if ( (int) self::_get_value($raw,'menu_position') )
@@ -1508,6 +1505,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _save_post_type_settings($def)
 	{
+		
 		$key = $def['post_type'];
 		$all_post_types = get_option( self::db_key, array() );
 		// Update existing settings if this post-type has already been added
@@ -1519,6 +1517,10 @@ class CCTM
 		else
 		{
 			$all_post_types[$key] = $def;
+		}
+		if ($all_post_types[$key]['use_default_menu_icon'])
+		{
+			unset($all_post_types[$key]['menu_icon']);
 		}
 		//print_r($def); exit;
 		//print_r($_POST); exit;
