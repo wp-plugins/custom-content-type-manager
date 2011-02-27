@@ -1,23 +1,74 @@
 <?php
-/*------------------------------------------------------------------------------
+/**
 These are functions in the main namespace, primarily reserved for use in 
 theme files.
 
-WARNING: some of these functions are in development, so their inputs/outputs
-may change with future versions of this plugin.
+See http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions
+for the official documentation.
+*/
 
-The only 2 functions here that are guaranteed not to change are:
-	get_custom_field()
-	print_custom_field()
+//------------------------------------------------------------------------------
+/**
+Scour the custom field definitions for any fields
+of the type specified.  This is useful e.g. if you want to return all images 
+attached to a post. Perhaps this would be more useful if I included a "prefix"
+argument so you could retrieve all values from fields named with that prefix.
+
+Must be used when there is an active post.
+
+A $def looks something like this:
+ Array
+(
+    [label] => Author
+    [name] => author
+    [description] => This is who wrote the book
+    [type] => text
+    [sort_param] => 
+)
+
+@param	string	$type is one of the defined field types , currently:
+	'checkbox','dropdown','media','relation','text','textarea','wysiwyg'
+@param	string	$prefix	string identifying the beginning of the name of each field.
+@return	array	List of values from each field of the type specified. 
+*/
+function get_all_fields_of_type($type, $prefix='')
+{
+	global $post;
+
+	$values = array();
+
+	$data = get_option( CCTM::db_key );
 	
-TODO:
-Tie into WP's image functions:
-http://codex.wordpress.org/Function_Reference/wp_get_attachment_image
-http://codex.wordpress.org/Function_Reference/wp_get_attachment_image_src
-------------------------------------------------------------------------------*/
+	$post_type = $post->post_type;
+	if ( !isset($data[$post_type]['custom_fields']) )
+	{
+		return  sprintf( __('No custom fields defined for the %1$s field.', CCTM_TXTDOMAIN), $fieldname );
+	}
+	
+	foreach ( $data[$post_type]['custom_fields'] as $def )
+	{
+		if ($def['type'] == $type )
+		{
+			if ($prefix)
+			{			
+				if ( preg_match('/^'.$prefix.'/', $def['name']) )
+				{
+					$values[] = get_custom_field($def['name']);
+				}
+			}
+			else
+			{
+				$values[] = get_custom_field($def['name']);
+			}
+		}		
+	}
+	
+	return $values;
 
+}
 
-/*------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/**
 SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
 where you need to print out the value of a specific custom field.
 
@@ -32,7 +83,7 @@ OUTPUT:
 
 See also 	
 http://codex.wordpress.org/Function_Reference/get_post_custom_values
-------------------------------------------------------------------------------*/
+*/
 function get_custom_field($fieldname)
 {
 	// the_ID() function won't work because it *prints* its output
@@ -88,11 +139,14 @@ function get_custom_field_meta($fieldname, $item, $post_type=null)
 	}
 }
 
-/*------------------------------------------------------------------------------
-@param	string	Name of the custom field.
-@return	array	Associative array containing all definition items for the custom 
-				field indicated by the $fieldname.
-------------------------------------------------------------------------------*/
+//------------------------------------------------------------------------------
+/**
+* Gets the definition array for the fieldname specified.
+*
+* @param	string	Name of the custom field.
+* @return	array	Associative array containing all definition items for the custom 
+*				field indicated by the $fieldname.
+*/
 function get_custom_field_def($fieldname, $post_type=null)
 {
 	if (!$post_type)
@@ -122,58 +176,23 @@ function get_custom_field_def($fieldname, $post_type=null)
 	}
 }
 
-/*------------------------------------------------------------------------------
-Private (?) function that will scour the custom field definitions for any fields
-of the type specified.  This is useful e.g. if you want to return all images 
-attached to a post. Perhaps this would be more useful if I included a "prefix"
-argument so you could retrieve all values from fields named with that prefix.
-
-Must be used when there is an active post.
-
-A $def looks something like this:
- Array
-(
-    [label] => Author
-    [name] => author
-    [description] => This is who wrote the book
-    [type] => text
-    [sort_param] => 
-)
-
-INPUT: one of the defined field types , currently:
-	'checkbox','dropdown','media','relation','text','textarea','wysiwyg'
-OUTPUT: an array of values from each field of the type specified
-------------------------------------------------------------------------------*/
-function get_all_fields_of_type($type)
+//------------------------------------------------------------------------------
+/**
+* Gets the custom image referenced by the custom field $fieldname. 
+* Relies on the WordPress wp_get_attachment_image() function.
+*
+* @param	string	$fieldname name of the custom field
+* @return	string	an HTML img element or empty string on failure.
+*/
+function get_custom_image($fieldname)
 {
-	global $post;
-//	print_r($post); exit;	
-	$values = array();
-
-#	return get_post_meta($post_id, $fieldname, true);
-	
-	$data = get_option( CCTM::db_key );
-	
-	$post_type = $post->post_type;
-	if ( !isset($data[$post_type]['custom_fields']) )
-	{
-		return  sprintf( __('No custom fields defined for %1$s field.', CCTM_TXTDOMAIN), $fieldname );
-	}
-	
-	foreach ( $data[$post_type]['custom_fields'] as $def )
-	{
-		if ($def['type'] == $type )
-		{
-			$values[] = get_custom_field($def['name']);
-		}		
-	}
-	
-	return $values;
-
+	$id = get_custom_field($fieldname);
+	return wp_get_attachment_image($id, 'full');
 }
 
 
-/*------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/**
 Retrieves a complete post object, including all meta fields.
 Ah... get_post_custom() will treat each custom field as an array, because in WP
 you can tie multiple rows of data to the same fieldname (which can cause some
@@ -185,9 +204,9 @@ print $post->post_title;
 print $post->my_custom_field; // no $post->my_custom_fields[0];
 
 and if the custom field *is* a list of items, then attach it as such.
-INPUT: $id (int) valid ID of a post (regardless of post_type).
-OUTPUT: post object with all attributes, including custom fields.
-------------------------------------------------------------------------------*/
+@param	integer	$id is valid ID of a post (regardless of post_type).
+@return	object	post object with all attributes, including custom fields.
+*/
 function get_post_complete($id)
 {
 	$complete_post = get_post($id, OBJECT);
@@ -216,7 +235,7 @@ function get_post_complete($id)
 }
 
 
-/*------------------------------------------------------------------------------
+/**
 Returns an array of post "complete" objects (including all custom fields)
 where the custom fieldname = $fieldname and the value of that field is $value.
 This is used to find a bunch of related posts in the same way you would with 
@@ -224,7 +243,7 @@ a taxonomy, but this uses custom field values instead of taxonomical labels.
 
 INPUT: 
 	$fieldname (str) name of the custom field
-	$value (mixed) the value that you are searching for.
+	$value (str) the value that you are searching for.
 
 OUTPUT:
 	array of post objects (complete post objects, with all attributes).
@@ -239,7 +258,7 @@ USAGE:
 	}
 
 This is a hefty, db-intensive function... (bummer).
-------------------------------------------------------------------------------*/
+*/
 function get_posts_sharing_custom_field_value($fieldname, $value)
 {
 	global $wpdb;
@@ -259,7 +278,8 @@ function get_posts_sharing_custom_field_value($fieldname, $value)
 }
 
 
-/*------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/**
 A relation field stores a post ID, and that ID identifies another post.  So given 
 a fieldname, this returns the complete post object for that was referenced by
 the custom field.  You can see it's a wrapper function which relies on 
@@ -268,13 +288,14 @@ INPUT:
 	$fieldname (str) name of a custom field
 OUTPUT:
 	post object
-------------------------------------------------------------------------------*/
+*/
 function get_relation($fieldname)
 {
 	return get_post_complete( get_custom_field($fieldname) );
 }
 
-/*------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/**
 Given a specific custom field name ($fieldname), return an array of all unique
 values contained in this field by *any* published posts which use a custom field 
 of that name, regardless of post_type, and regardless of whether or not the custom 
@@ -296,7 +317,7 @@ field that defines your favorite cartoon named 'favorite_cartoon':
 	print_r($array);
 		Array ( 'Family Guy', 'South Park', 'The Simpsons' );
 
-------------------------------------------------------------------------------*/
+*/
 function get_unique_values_this_custom_field($fieldname)
 {
 	global $wpdb;
@@ -317,8 +338,8 @@ function get_unique_values_this_custom_field($fieldname)
 }
 
 
-
-/*------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/**
 SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
 where you need to print out the value of a specific custom field.
 
@@ -330,7 +351,7 @@ INPUT:
 		Manage Custom Fields area for a particular content type.
 OUTPUT:
 	The contents of that custom field for the current post.
-------------------------------------------------------------------------------*/
+*/
 function print_custom_field($fieldname)
 {
 	print get_custom_field($fieldname);
@@ -345,4 +366,18 @@ function print_custom_field_meta($fieldname, $item, $post_type=null)
 {
 	print get_custom_field_meta($fieldname, $item, $post_type);
 }
+
+//------------------------------------------------------------------------------
+/**
+* Prints the custom image referenced by the custom field $fieldname. 
+* Relies on the WordPress wp_get_attachment_image() function.
+*
+* @param	string	$fieldname name of the custom field
+* @return	none	Prints the results of get_custom_image()
+*/
+function print_custom_image($fieldname)
+{
+	print get_custom_image($fieldname);
+}
+
 /*EOF*/

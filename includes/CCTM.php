@@ -72,6 +72,9 @@ class CCTM
 	errupted had we tried something like this:
 	
 		public $myvar = array( 'val' => __('somevalue') );	
+	
+	That fails because we can't use the __() function nakedly when declaring a class 
+	variable. :(
 	------------------------------------------------------------------------------*/
 	public static $post_type_form_definition = array();
 	
@@ -141,14 +144,49 @@ class CCTM
 		return $output;
 	}
 	
-	/*------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _get_icons()
+	{
+		
+		$icons = array();
+		if ($handle = opendir(CCTM_PATH.'/images/icons/default')) 
+		{
+			while (false !== ($file = readdir($handle))) 
+			{
+				if ($file != '.' && $file != '..') {
+					$icons[] = $file;
+				}
+			}
+			closedir($handle);
+		}
+		
+		$output = '';
+		$tpl = CCTM_PATH.'/tpls/settings/icon.tpl';
+		if ( file_exists($tpl) ) 
+		{ 
+			$tpl = file_get_contents($tpl);
+			
+		}
+		foreach ( $icons as $img )
+		{
+			$output .= FormGenerator::parse($tpl, array('title'=> $img, 'src'=> CCTM_URL.'/images/icons/default/'.$img) );
+		}
+		
+		return $output;
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	Gets a field definition ready for use inside of a JS variable.  We have to over-
 	ride some of the names used by the _get_html_field_defs() function so the 
 	resulting HTML/Javascript will inherit values from Javascript variables dynamically
 	as the user adds new form fields on the fly.
 	
 	Here +def_i+ represents a JS concatenation, where def_i is a JS variable.
-	------------------------------------------------------------------------------*/
+	*/
 	private static function _get_javascript_field_defs()
 	{
 		$def = self::$custom_field_def_template;
@@ -249,7 +287,111 @@ class CCTM
 			return false;
 		}
 	}
+	
+	//! Links
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_activate($post_type)
+	{
+		return sprintf(
+			'<a href="?page=%s&%s=6&%s=%s" title="%s">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Activate this content type', CCTM_TXTDOMAIN)
+			, __('Activate',CCTM_TXTDOMAIN) 
+		);
+	}
+	
 		
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_deactivate($post_type)
+	{
+		return sprintf(
+			'<a href="?page=%s&%s=7&%s=%s" title="%s">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Deactivate this content type', CCTM_TXTDOMAIN)
+			, __('Deactivate',CCTM_TXTDOMAIN) 
+		);
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_delete($post_type)
+	{
+		return sprintf(
+			'<a href="?page=%s&%s=3&%s=%s" title="%s">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Delete this content type', CCTM_TXTDOMAIN)
+			, __('Delete',CCTM_TXTDOMAIN) 
+		);
+	}
+	
+	///------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_manage_custom_fields($post_type)
+	{
+		return sprintf(
+			'<a href="?page=%s&%s=4&%s=%s" title="%s">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+			, __('Manage Custom Fields',CCTM_TXTDOMAIN) 
+		);
+			
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_edit($post_type)
+	{				
+		return sprintf(
+			'<a href="?page=%s&%s=2&%s=%s" title="%s">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Edit this content type', CCTM_TXTDOMAIN )
+			, __('Edit', CCTM_TXTDOMAIN)
+		);
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_view_sample_templates($post_type)
+	{
+		return sprintf('<a href="?page=%s&%s=8&%s=%s" title="%s">%s</a>'
+					, self::admin_menu_slug
+					, self::action_param
+					, self::post_type_param
+					, $post_type
+					, __('View Sample Templates for this content type', CCTM_TXTDOMAIN )
+					, __('View Sample Templates', CCTM_TXTDOMAIN)
+				);
+	}
+	//! Pages	
 	/*------------------------------------------------------------------------------
 	Manager Page -- called by page_main_controller()
 	Activating a post type will cause it to show up in the WP menus and its custom 
@@ -332,8 +474,21 @@ class CCTM
 				$msg = "<div class='error'>$error_msg</div>";
 			}
 		}
-				
+		
+		// 
+		foreach ($def as $pt => &$d)
+		{
+			$d['raw_name'] = $pt;
+		}				
 		$fields = FormGenerator::generate($def,'css-friendly');	
+	
+
+		$mgr_tpl_file = CCTM_PATH.'/tpls/settings/edit_post_type.tpl';
+		if ( file_exists($mgr_tpl_file) ) 
+		{ 
+			$tpl = file_get_contents($mgr_tpl_file);
+			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
+		}
 		include('pages/basic_form.php');
 	}
 	
@@ -368,6 +523,11 @@ class CCTM
 			$data[$post_type]['is_active'] = 0;
 			update_option( self::db_key, $data );
 			
+			$msg = '<div class="updated"><p>'
+				. sprintf( __('The %s content type has been deactivated.', CCTM_TXTDOMAIN), $post_type )
+				. '</p></div>';
+			self::set_flash($msg);
+			
 			// A JavaScript refresh ensures that inactive post types are removed from the menus.	
 			$msg = '
 			<script type="text/javascript">
@@ -378,14 +538,14 @@ class CCTM
 		}
 		
 		$msg = '<div class="error"><p>'
-			. sprintf( __('You are about to deactivate the %s post type. Deactivation does not delete anything.', CCTM_TXTDOMAIN ), "<em>$post_type</em>")
+			. sprintf( __('You are about to deactivate the %s post type.', CCTM_TXTDOMAIN ), "<em>$post_type</em>")
 			.'</p>';		
 		
 		// If it's a custom post type, we include some additional info.
 		if ( !in_array($post_type, self::$built_in_post_types) )
 		{
 			$msg .= '<p>'
-			. sprintf( __('After deactivation, %s posts will be unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), $post_type, "<strong>$post_type</strong>" )
+			. sprintf( __('Deactivation does not delete anything, but it does make %s posts unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), $post_type, "<strong>$post_type</strong>" )
 			.'</p>';
 		}
 		
@@ -488,6 +648,7 @@ class CCTM
 		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
 		{
 			$sanitized_vals = self::_sanitize_post_type_def($_POST);
+			//print_r($sanitized_vals); exit;
 			$error_msg = self::_post_type_name_has_errors($sanitized_vals['post_type']);
 
 			if ( empty($error_msg) )
@@ -518,22 +679,28 @@ class CCTM
 		// get current values from database
 		$data = get_option( self::db_key, array() );
 		
+		// 
+		foreach ($def as $pt => &$d)
+		{
+			$d['raw_name'] = $pt;
+		}
+		
 		// Populate the form $def with values from the database
 		$def = self::_populate_form_def_from_data($def, $data[$post_type]);
 		// FormGenerator::$global_placeholders['post_type'] = $post_type; //<--- messy?
 		$fields = FormGenerator::generate($def,'css-friendly');
 		//print_r(FormGenerator::$placeholders); exit;
 		// See if there's a custom manager form tpl avail...
-/*
+		
+		
+		//!TODO
 		$mgr_tpl_file = CCTM_PATH.'/tpls/settings/edit_post_type.tpl';
 		if ( file_exists($mgr_tpl_file) ) 
 		{ 
 			$tpl = file_get_contents($mgr_tpl_file);
-			$output = FormGenerator::parse($tpl, FormGenerator::$placeholders);
-			print $output; 
-			return;
+			FormGenerator::$placeholders['icons'] = self::_get_icons();
+			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
 		}
-*/
 		include('pages/basic_form.php');
 	}
 	
@@ -702,7 +869,6 @@ class CCTM
 			$def = $data[$post_type]['custom_fields'];
 		}
 		//print_r($data[$post_type]); exit;
-		//!TODO check this post-type for whether or not it is using content, excerpt, comments
 		// built-in content types don't verbosely display what they display
 		/* Array
 (
@@ -823,11 +989,11 @@ class CCTM
 			$manager_page_sample_html .= "<!-- Individual placeholders follow: -->\n";
 			foreach ($d as $k => $v)
 			{
-				$manager_page_sample_html .= '[+'.$k.'+]'. "\n";	
+				$manager_page_sample_html .= '[+'.$d['name'].'.'.$k.'+]'. "\n";	
 			}
 			$manager_page_sample_html .= "\n";
 			
-//! FUTURE: Give more complete examples.
+//! FUTURE: TODO: Give more complete examples.
 /*
 			switch ( $d['type'] ) 
 			{
@@ -892,33 +1058,74 @@ class CCTM
 		$displayable_types = array_unique($displayable_types);
 		
 		$row_data = '';
+		$tpl = file_get_contents(CCTM_PATH.'/tpls/settings/post_type_tr.tpl');
 		foreach ( $displayable_types as $post_type )
 		{
+			$hash = array(); // populated for the tpl
+			$hash['post_type'] = $post_type;
+			
+			// Get our links
+			$deactivate				= self::_link_deactivate($post_type);
+			$edit_link 				= self::_link_edit($post_type);
+			$manage_custom_fields 	= self::_link_manage_custom_fields($post_type);
+			$view_templates 		= self::_link_view_sample_templates($post_type);
+			 
+			 
+			$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates;
+			
 			if ( isset($data[$post_type]['is_active']) && !empty($data[$post_type]['is_active']) )
 			{
-				$class = 'active';
+				$hash['class'] = 'active';
+				$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';	
 				$is_active = true;
 			}
 			else
 			{
-				$class = 'inactive';
+				$hash['class'] = 'inactive';
+				$hash['activate_deactivate_delete_links'] = '<span class="activate">'
+					. self::_link_activate($post_type) . ' | </span>'
+					. '<span class="delete">'. self::_link_delete($post_type).'</span>';
 				$is_active = false;
 			}
 
-			// Built-in post types use a canned description.
+			// Built-in post types use a canned description and override a few other behaviors
 			if ( in_array($post_type, self::$built_in_post_types) ) 
 			{
-				$description 	= __('Built-in post type');
+				$hash['description'] 	= __('Built-in post type.', CCTM_TXTDOMAIN);
+				$hash['edit_manage_view_links'] = $manage_custom_fields . ' | ' . $view_templates;
+				if (!$is_active)
+				{
+					$hash['activate_deactivate_delete_links'] = '<span class="activate">'
+						. self::_link_activate($post_type) . '</span>';
+				}
+				
+				$hash['activate_deactivate_delete_links'] = '';
 			}
 			// Whereas users define the description for custom post types
 			else
 			{
-				$description 	= self::_get_value($data[$post_type],'description');
+				$hash['description'] 	= self::_get_value($data[$post_type],'description');
 			}
-			ob_start();
-	    	    include('single_content_type_tr.php');
-				$row_data .= ob_get_contents();
-			ob_end_clean();
+			
+			// Images
+			$hash['icon'] = '';
+			switch ($post_type)
+			{
+				case 'post':
+					$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/post.png' . '" width="15" height="15"/>';
+					break;
+				case 'page':
+					$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/page.png' . '" width="14" height="16"/>';
+					break;
+				default:
+				//print_r($data[$post_type]); exit;
+					if ( !empty($data[$post_type]['menu_icon']) && !$data[$post_type]['use_default_menu_icon'] )
+					{
+						$hash['icon'] = '<img src="'. $data[$post_type]['menu_icon'] . '" />';
+					}
+					break;
+			}
+			$row_data .= FormGenerator::parse($tpl, $hash);
 		}
 		//! TODO
 		//include('pages/sortable-list.php');
@@ -947,6 +1154,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _populate_form_def_from_data($def, $pt_data)
 	{
+		//print_r($pt_data); exit;
 		foreach ($def as $node_id => $tmp)
 		{
 			if ( $node_id == 'supports_title' )
@@ -1081,6 +1289,33 @@ class CCTM
 					$def[$node_id]['value'] = '';
 				}				
 			}
+
+			elseif ( $node_id == 'taxonomy_categories' )
+			{	
+				//print $node_id; exit;
+				//print_r($pt_data['taxonomies']); exit;
+				if ( !empty($pt_data['taxonomies']) && is_array($pt_data['taxonomies']) && in_array('category', $pt_data['taxonomies']) )
+				{
+					$def[$node_id]['value'] = 'category';
+				}
+				else
+				{
+					$def[$node_id]['value'] = '';
+				}				
+			}
+			elseif ( $node_id == 'taxonomy_tags' )
+			{	
+				//print $node_id; exit;
+				//print_r($pt_data['taxonomies']); exit;
+				if ( !empty($pt_data['taxonomies']) && is_array($pt_data['taxonomies']) && in_array('post_tag', $pt_data['taxonomies']) )
+				{
+					$def[$node_id]['value'] = 'post_tag';
+				}
+				else
+				{
+					$def[$node_id]['value'] = '';
+				}				
+			}
 			else
 			{
 				$field_name = $def[$node_id]['name'];
@@ -1165,7 +1400,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _sanitize_post_type_def($raw)
 	{
-//		print_r($raw); exit;
+		//print_r($raw); exit;
 		$sanitized = array();
 
 		// This will be empty if none of the "supports" items are checked.
@@ -1173,12 +1408,34 @@ class CCTM
 		{
 			$sanitized['supports'] = $raw['supports'];
 		}
-		unset($raw['supports']); // we manually set this later
-
+		else
+		{
+			$sanitized['supports'] = array();
+		}
+		
+		if (!empty($raw['taxonomies']) )
+		{
+			$sanitized['taxonomies'] = $raw['taxonomies'];
+		}
+		else
+		{
+			// do this so this will take precedence when you merge the existing array with the new one in the _save_post_type_settings() function.
+			$sanitized['taxonomies'] = array(); 
+		}
+		// You gotta unset these if you want the arrays to passed unmolested.
+		unset($raw['supports']); 
+		unset($raw['taxonomies']); 
+		
  		// Temporary thing...
  		unset($sanitized['rewrite_slug']);
  		unset($sanitized['rewrite_with_front']);
  		
+ 		if ($raw['use_default_menu_icon'])
+ 		{
+ 			unset($raw['menu_icon']);
+ 		}
+ 		
+ 		// The main event
 		// We grab everything, then override specific $keys as needed. 
 		foreach ($raw as $key => $value )
 		{
@@ -1241,7 +1498,7 @@ class CCTM
 			default:
 				$sanitized['rewrite'] = false;
 		}
-		// print_r($sanitized); exit;
+		//print_r($sanitized); exit;
 		return $sanitized;
 	}
 
@@ -1263,6 +1520,10 @@ class CCTM
 		{
 			$all_post_types[$key] = $def;
 		}
+		//print_r($def); exit;
+		//print_r($_POST); exit;
+		//print_r($all_post_types[$key]); exit;
+		
 		update_option( self::db_key, $all_post_types );
 	}
 
@@ -1433,7 +1694,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	public static function admin_init()
 	{
-		session_start();
+		//self::_get_icons(); exit;
     	load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
 	
 		// Set our form defs in this, our makeshift constructor.
@@ -1448,7 +1709,8 @@ class CCTM
 		// then thickbox will not be queued.
 		wp_enqueue_script( 'thickbox' );
 		wp_enqueue_style( 'thickbox' );
-			
+
+		wp_enqueue_script( 'jquery-ui-tabs');
 	}
 	
 	/*------------------------------------------------------------------------------
@@ -1508,7 +1770,8 @@ class CCTM
 			'manage_options', 						// capability
 			self::admin_menu_slug, 					// menu-slug (should be unique)
 			'CCTM::page_main_controller',			// callback function
-			CCTM_URL .'/images/gear.png'				// Icon
+			CCTM_URL .'/images/gear.png',			// Icon
+			71
 		);
 	}
 	

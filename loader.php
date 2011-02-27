@@ -5,7 +5,7 @@ conflicts with function names, class names, or constant names. With so many WP
 plugins available and so many potential conflicts out there, I've attempted to 
 avoid the headaches caused from name pollution as much as possible.
 ------------------------------------------------------------------------------*/
-
+		session_start(); // Used for flash messages.
 // Required Files
 include_once('includes/constants.php');
 include_once('includes/CCTM.php');

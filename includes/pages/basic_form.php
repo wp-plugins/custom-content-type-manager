@@ -17,7 +17,7 @@ This template expects the following variables:
 
 	<h2>
 	<img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /> 
-	<?php print $page_header ?></h2>
+	<?php print $page_header ?> <a class="button" href="?page=<?php print self::admin_menu_slug;?>"><?php _e('Cancel'); ?></a> </h2>
 	
 	<?php print $msg; ?>
 

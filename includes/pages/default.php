@@ -11,22 +11,22 @@
 		<span class="cctm-link"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/> <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/list"><?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a></span>
 	</p>
 
-	<table class="wp-list-table widefat plugins" cellspacing="0" id="all-plugins-table">
+	<table class="wp-list-table widefat plugins" cellspacing="0">
 		<thead>
 			<tr>
-				<th scope="col" class="manage-column">Content Type (post type)</th>
-				<th scope="col" class="manage-column"><?php _e('Description'); ?></th>
+				<th scope='col' id='name' class='manage-column column-name'  style="">Content Type</th>
+				<th scope='col' id='description' class='manage-column column-description'  style="">Description</th>	
 			</tr>
 		</thead>
 		
 		<tfoot>
 			<tr>
-				<th scope="col" class="manage-column">Content Type (post type)</th>
-				<th scope="col" class="manage-column"><?php _e('Description'); ?></th>
+				<th scope='col'  class='manage-column column-name'  style="">Content Type</th>
+				<th scope='col'  class='manage-column column-description'  style="">Description</th>	
 			</tr>
 		</tfoot>
 	
-		<tbody id="the-list" class="plugins">
+		<tbody id="the-list">
 
 		<?php print $row_data; ?>
 		

@@ -26,6 +26,25 @@ $def['label']['description']	= __('Plural name used in the admin menu, e.g. "Pos
 $def['label']['type']			= 'text';
 $def['label']['sort_param']		= 3;
 
+//!TODO: more labels
+/*
+labels
+(array) (optional) labels - An array of labels for this post type. By default post labels are used for non-hierarchical types and page labels for hierarchical ones.
+Default: if empty, name is set to label value, and singular_name is set to name value
+
+'name' - general name for the post type, usually plural. The same as, and overridden by $post_type_object->label
+'singular_name' - name for one object of this post type. Defaults to value of name
+'add_new' - the add new text. The default is Add New for both hierarchical and non-hierarchical types. When internationalizing this string, please use a gettext context matching your post type. Example: _x('Add New', 'product');
+'add_new_item' - the add new item text. Default is Add New Post/Add New Page
+'edit_item' - the edit item text. Default is Edit Post/Edit Page
+'new_item' - the new item text. Default is New Post/New Page
+'view_item' - the view item text. Default is View Post/View Page
+'search_items' - the search items text. Default is Search Posts/Search Pages
+'not_found' - the not found text. Default is No posts found/No pages found
+'not_found_in_trash' - the not found in trash text. Default is No posts found in Trash/No pages found in Trash
+'parent_item_colon' - the parent text. This string isn't used on non-hierarchical types. In hierarchical ones the default is Parent Page
+'menu_name' - the menu name text. This string is the name to give menu items. Defaults to value of name
+*/
 $def['description']['name']			= 'description';
 $def['description']['label']		= __('Description', CCTM_TXTDOMAIN);
 $def['description']['value']		= '';
@@ -177,15 +196,24 @@ $def['menu_position']['description']	=
 			<li><strong>5</strong> - %2$s</li>
 			<li><strong>10</strong> - %3$s</li>
 			<li><strong>20</strong> - %4$s</li>
-			<li><strong>60</strong> - %5$s</li>
-			<li><strong>100</strong> - %6$s</li>
+			<li><strong>25</strong> - %5$s</li>
+			<li><strong>60</strong> - %6$s</li>
+			<li><strong>65</strong> - %7$s</li>
+			<li><strong>75</strong> - %8$s</li>
+			<li><strong>80</strong> - %9$s</li>
+			<li><strong>100</strong> - %10$s</li>
 		</ul>'
 		, __('This setting determines where this post type should appear in the left-hand admin menu. Default: null (below Comments)', CCTM_TXTDOMAIN)
 		, __('below Posts', CCTM_TXTDOMAIN)
 		, __('below Media', CCTM_TXTDOMAIN)
-		, __('below Posts', CCTM_TXTDOMAIN)
+		, __('below Links', CCTM_TXTDOMAIN)
 		, __('below Pages', CCTM_TXTDOMAIN)
+		, __('below Comments', CCTM_TXTDOMAIN)
 		, __('below first separator', CCTM_TXTDOMAIN)
+		, __('below Plugins', CCTM_TXTDOMAIN)
+		, __('below Users', CCTM_TXTDOMAIN)
+		, __('below Tools', CCTM_TXTDOMAIN)
+		, __('below Settings', CCTM_TXTDOMAIN)
 		, __('below second separator', CCTM_TXTDOMAIN)
 	);
 $def['menu_position']['type']			= 'text';
@@ -269,5 +297,26 @@ $def['show_in_nav_menus']['extra']			= '';
 $def['show_in_nav_menus']['description']	= __('Whether post_type is available for selection in navigation menus. Default: value of public argument', CCTM_TXTDOMAIN);
 $def['show_in_nav_menus']['type']			= 'checkbox';
 $def['show_in_nav_menus']['sort_param']	= 40;
+
+
+$def['taxonomy_categories']['name']			= 'taxonomies[]';
+$def['taxonomy_categories']['id']			= 'taxonomy_categories';
+$def['taxonomy_categories']['label']		= __('Supports Categories', CCTM_TXTDOMAIN);
+$def['taxonomy_categories']['value']		= '';
+$def['taxonomy_categories']['checked_value'] = 'category';
+$def['taxonomy_categories']['extra']		= '';
+$def['taxonomy_categories']['description']	= '';
+$def['taxonomy_categories']['type']			= 'checkbox';
+$def['taxonomy_categories']['sort_param']	= 41;
+
+$def['taxonomy_tags']['name']			= 'taxonomies[]';
+$def['taxonomy_tags']['id']				= 'taxonomy_tags';
+$def['taxonomy_tags']['label']			= __('Supports Tags', CCTM_TXTDOMAIN);
+$def['taxonomy_tags']['value']			= '';
+$def['taxonomy_tags']['checked_value'] 	= 'post_tag';
+$def['taxonomy_tags']['extra']			= '';
+$def['taxonomy_tags']['description']	= '';
+$def['taxonomy_tags']['type']			= 'checkbox';
+$def['taxonomy_tags']['sort_param']		= 42;
 
 /*EOF*/

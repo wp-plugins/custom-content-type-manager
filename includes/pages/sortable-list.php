@@ -1,3 +1,6 @@
+<?php
+
+/*
 See: http://jqueryui.com/demos/sortable/
 http://stackoverflow.com/questions/2509801/jquery-connected-sortable-lists-save-order-to-mysql
 http://forum.jquery.com/topic/save-sortable-li-list-order-to-database
@@ -15,7 +18,8 @@ http://stackoverflow.com/questions/4928002/jquery-sortable-set-item-to-an-index-
 75 - below Tools
 80 - below Settings
 100 - below second separator
-
+*/
+?>
 Put these into the enqueue 
 			<!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script -->
 			<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js" type="text/javascript"></script>
@@ -71,14 +75,14 @@ jQuery(function() {
 <table class="wp-list-table widefat plugins" cellspacing="0">
 <thead>
 	<tr>
-		<th scope='col' id='name' class='manage-column column-name'  style="">Plugin</th>
+		<th scope='col' id='name' class='manage-column column-name'  style="">Content Type</th>
 		<th scope='col' id='description' class='manage-column column-description'  style="">Description</th>	
 	</tr>
 </thead>
 
 <tfoot>
 	<tr>
-		<th scope='col'  class='manage-column column-name'  style="">Plugin</th>
+		<th scope='col'  class='manage-column column-name'  style="">Content Type</th>
 		<th scope='col'  class='manage-column column-description'  style="">Description</th>	
 	</tr>
 </tfoot>
@@ -98,6 +102,7 @@ jQuery(function() {
 		</td>
 	</tr>
 	
+	<!-- Sample Separator row -->
 	<tr id='myseparator' style='background-color:black;'>
 		<td colspan="2">
 			First Separator
@@ -105,8 +110,11 @@ jQuery(function() {
 	</tr>
 
 	<tr id='custom-content-type-manager' class='active'>
-		<td class='plugin-title'><strong>Custom Content Type Manager</strong>
-			<div class="row-actions-visible"><span class='0'><a href="">Settings</a> | </span><span class='deactivate'><a href="" title="">Deactivate</a></span></div>
+		<td class='plugin-title'>
+			<strong>Custom Content Type Manager</strong>
+			<div class="row-actions-visible">
+				<span class='0'><a href="">Settings</a> | </span><span class='deactivate'><a href="" title="">Deactivate</a></span>
+			</div>
 		</td>
 		<td class='column-description desc'>
 			<div class='plugin-description'><p>Allows users to create custom content types (also known as post types) and standardize custom fields for each content type, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.</p></div>

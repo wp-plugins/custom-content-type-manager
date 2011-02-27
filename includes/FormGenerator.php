@@ -446,12 +446,19 @@ class FormGenerator
 					<span class="formgenerator_description">'.$field_def['description'].'</span>';
 			}
 
+			// STORE placeholder for this field
+			$key = $field_def['name'];
+			if ( isset($field_def['raw_name']) )
+			{
+				$key = $field_def['raw_name'];
+			}
+			
 			// The way we id each element is controlled by the $id_method param
 			$div_id = '';
 			switch ($id_method)
 			{
 				case 'css-friendly':
-					$div_id = self::element_wrapper_id_prefix . $field_def['raw_name'];
+					$div_id = self::element_wrapper_id_prefix . $key;
 					break;
 				case 'javascript':
 					$div_id = self::element_wrapper_id_prefix . "'+ ".self::javascript_iterator_function."() + '";
@@ -461,7 +468,7 @@ class FormGenerator
 			}
 			
 			// Div that wraps each form element.
-			$output .= sprintf('
+			$output_this_field = sprintf('
 				<div class="%s" id="%s">
 					%s
 				</div>'
@@ -471,15 +478,10 @@ class FormGenerator
 			);
 			self::$i = self::$i + 1;
 			
-			// STORE placeholder for this field
-			$key = $field_def['name'];
-			if ( isset($field_def['raw_name']) )
-			{
-				$key = $field_def['raw_name'];
-			}
-			
-			//print $key. '<-----------'; exit;
-			self::$placeholders[$key] = $output;
+			$output .= $output_this_field;
+
+			// Store
+			self::$placeholders[$key] = $output_this_field;
 			// STORE a 'help' placeholder as an aid to devs creating a custom tpl for a given content type in /tpls/manager/
 			$placeholders_this_field = array_keys($field_def);
 			
