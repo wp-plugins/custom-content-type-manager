@@ -660,8 +660,11 @@ class CCTM
 		$submit 		= __('Save',CCTM_TXTDOMAIN);
 		$msg 			= ''; 	// Any validation errors
 	
+
 		$def = self::$post_type_form_definition;
-		
+		$def['post_type']['type'] = 'readonly';
+		$def['post_type']['description'] = __('The name of the post-type cannot be changed. The name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>.',CCTM_TXTDOMAIN);		
+
 		// Save data if it was properly submitted
 		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
 		{
@@ -1863,8 +1866,6 @@ class CCTM
 				self::_page_create_new_post_type();
 				break;
 			case 2: // update existing custom post type. Override form def.
-				self::$post_type_form_definition['post_type']['type'] = 'readonly';
-				self::$post_type_form_definition['post_type']['description'] = __('The name of the post-type cannot be changed. The name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <strong>single-movie.php</strong>.',CCTM_TXTDOMAIN);
 				self::_page_edit_post_type($post_type);
 				break;
 			case 3: // delete existing custom post type

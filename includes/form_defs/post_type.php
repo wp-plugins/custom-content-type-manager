@@ -165,7 +165,7 @@ $def['hierarchical']['name']		= 'hierarchical';
 $def['hierarchical']['label']		= __('Hierarchical', CCTM_TXTDOMAIN);
 $def['hierarchical']['value']		= '';
 $def['hierarchical']['extra']		= '';
-$def['hierarchical']['description']	= __('Allows parent to be specified (Page Attributes should be checked)', CCTM_TXTDOMAIN);
+$def['hierarchical']['description']	= __('Allows parent to be specified.', CCTM_TXTDOMAIN);
 $def['hierarchical']['type']		= 'checkbox';
 $def['hierarchical']['sort_param']	= 8;
 
@@ -261,7 +261,7 @@ $def['supports_revisions']['sort_param']	= 28;
 
 $def['supports_page-attributes']['name']			= 'supports[]';
 $def['supports_page-attributes']['id']				= 'supports_page-attributes';
-$def['supports_page-attributes']['label']			= __('Enable Page Attributes', CCTM_TXTDOMAIN);
+$def['supports_page-attributes']['label']			= __('Menu Order and Page Attributes', CCTM_TXTDOMAIN);
 $def['supports_page-attributes']['value']			= '';
 $def['supports_page-attributes']['checked_value'] 	= 'page-attributes';
 $def['supports_page-attributes']['extra']			= '';

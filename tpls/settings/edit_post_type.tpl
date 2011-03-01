@@ -2,14 +2,8 @@
 	
 	
 	jQuery(document).ready(function(){
-			if( jQuery('#[+use_default_menu_icon.id+]:checked').val() == '1' )
-			{
-	            jQuery('#menu_icon_container').hide();
-	        } 
-	        else 
-	        {
-	            jQuery('#menu_icon_container').show();	
-	        }
+		toggle_image_detail();
+		toggle_div('[+supports_page-attributes.id+]', 'extended_page_attributes', '[+supports_page-attributes.value+]');
 	});
 	
 	jQuery(function() {
@@ -21,11 +15,26 @@
 
 		if( jQuery('#[+use_default_menu_icon.id+]:checked').val() == '1' )
 		{
-            jQuery('#menu_icon_container').hide();
+            jQuery('#menu_icon_container').hide("slide");
         } 
         else 
         {
-            jQuery('#menu_icon_container').show();
+            jQuery('#menu_icon_container').show("slide");
+
+        }
+
+	}
+
+	function toggle_div(checkbox_id, css_id, checked_value)
+	{
+
+		if( jQuery('#'+checkbox_id+':checked').val() == checked_value )
+		{
+            jQuery('#'+css_id).show("slide");
+        } 
+        else 
+        {
+            jQuery('#'+css_id).hide("slide");
 
         }
 
@@ -44,7 +53,6 @@
 		<li><a href="#labels-tab">Labels</a></li>
 		<li><a href="#fields-tab">Fields</a></li>
 		<li><a href="#menu-tab">Menu</a></li>
-		<li><a href="#attributes-tab">Page Attributes</a></li>
 		<li><a href="#urls-tab">URLs</a></li>
 		<li><a href="#advanced-tab">Advanced</a></li>
 	</ul>
@@ -213,6 +221,29 @@
 		[+supports_excerpt+]
 		
 		[+supports_custom-fields+]
+		
+		<!-- supports_page-attributes -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+supports_page-attributes.id+]">
+
+			<input type="checkbox" 
+				name="[+supports_page-attributes.name+]" 
+				class="formgenerator_checkbox" 
+				id="[+supports_page-attributes.id+]" 
+				value="[+supports_page-attributes.value+]" 
+				onclick="javascript:toggle_div('[+supports_page-attributes.id+]', 'extended_page_attributes', '[+supports_page-attributes.value+]');" [+supports_page-attributes.is_checked+] />
+			<label for="[+supports_page-attributes.id+]" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_[+supports_page-attributes.id+]">
+				[+supports_page-attributes.label+]
+			</label>
+			<span class="formgenerator_description">[+supports_page-attributes.description+]</span>
+		</div>
+		
+		<div id="extended_page_attributes" style="width:500px; padding-left:50px">
+			<!-- supports_thumbnail -->
+			[+supports_thumbnail+]
+			
+			<!-- hierarchical -->
+			[+hierarchical+]
+		</div>
 
 	</div>
 	<!-- ================================================================================================ -->
@@ -247,19 +278,7 @@
 		</div>
 
 	</div>
-	
-	<!-- ================================================================================================ -->
-	<div id="attributes-tab">
-			
-		[+supports_page-attributes+]
-		
-		<!-- Featured Image -->
-		[+supports_thumbnail+]
-		
-		<!--!Hierarchical -->
-		[+hierarchical+]
-	</div>
-	
+
 	<!-- ================================================================================================ -->
 	
 	<div id="urls-tab">
