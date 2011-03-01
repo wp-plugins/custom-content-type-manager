@@ -43,9 +43,10 @@ class FormGenerator
 	// <div id="custom_field_id_5"> 
 	const element_wrapper_id_prefix = 'custom_field_wrapper_';
 		
-	// You can use these to put in headings or styling
+	// You can use these to put in headings or styling after each form fe
 	public static $before_elements = '';
 	public static $after_elements = '';
+
 	// used for global placeholders, e.g. if you always want [+post_type+] to parse, set this
 	// to self::$global_placeholders['post_type'] = 'Something';
 	//public static $global_placeholders = array('cctm_path' => CCTM_PATH, 'cctm_url' => CCTM_URL );
@@ -150,6 +151,15 @@ class FormGenerator
 		
 		$data['options'] = $option_str; // overwrite the array with the string.
 		
+		return self::parse($tpl, $data);
+	}
+
+	/*------------------------------------------------------------------------------
+	Used to create a hidden field.
+	------------------------------------------------------------------------------*/
+	private static function _get_hidden_element(&$data)
+	{
+		$tpl = '<input type="hidden" name="[+name+]" class="formgenerator_hidden" id="[+name+]" value="[+value+]"/>';
 		return self::parse($tpl, $data);
 	}
 
@@ -321,7 +331,6 @@ class FormGenerator
 	//------------------------------------------------------------------------------
 	private static function _get_text_element(&$data)
 	{
-		$data['bears'] = 'yogi';
 		$tpl = '
 			<label for="[+name+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+name+]">[+label+]</label>
 			<input type="text" name="[+name+]" class="formgenerator_text" id="[+name+]" value="[+value+]"[+extra+]/>';
@@ -383,14 +392,40 @@ class FormGenerator
 	Default behavior is to rely on the class variable Function::$i; this is used when generating
 	existing custom fields in the "Manage Custom Fields" page.
 	
-	INPUT: $field_defs_array (mixed) a definition array of arrays
-	@param string $id_method  (optional) css-friendly|javascript or omitted. See above for description.
-	OUTPUT: HTML text.
+	@param	mixed	$field_defs_array (mixed) an array of arrays, e.g.
+	
+		Array
+		(
+		    [label] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][label]
+		            [label] => Label
+		            [value] => Product Image Lrg (front)
+		            [extra] => 
+		            [description] => 
+		            [type] => text
+		            [sort_param] => 1
+		            [def_i] => 0
+		        )
+		
+		    [name] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][name]
+		            [label] => Name
+		            [value] => front_img_lrg
+		            [extra] => 
+		            [description] => The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.
+		            [type] => text
+		            [sort_param] => 2
+		            [def_i] => 0
+		        )
+		)
+		
+	@param	string $id_method  (optional) css-friendly|javascript or omitted. See above for description.
+	@return	HTML text representing the form defined by the $field_defs_array
 	------------------------------------------------------------------------------*/
 	public static function generate($field_defs_array, $id_method=null)
-	{
-		// self::$placeholders = array(); // reset.
-		
+	{	
 		if ( empty($field_defs_array) )
 		{
 			return '';
@@ -417,6 +452,9 @@ class FormGenerator
 				case 'dropdown':
 					$output_this_field .= self::_get_dropdown_element($field_def);
 					break;
+				case 'hidden':
+					$output_this_field .= self::_get_hidden_element($field_def);
+					break;
 				case 'image':
 					$output_this_field .= self::_get_image_element($field_def);
 					break;
@@ -441,7 +479,7 @@ class FormGenerator
 					break;
 			}
 			// optionally add description
-			if ( isset($field_def['description']) && !empty($field_def['description']) ) 
+			if ( isset($field_def['description']) && !empty($field_def['description']) && $field_def['type'] != 'hidden' ) 
 			{
 				$output_this_field .= '
 					<span class="formgenerator_description">'.$field_def['description'].'</span>';

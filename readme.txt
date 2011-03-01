@@ -121,6 +121,8 @@ You can always checkout the most recent version of the code by going to your wp-
 	
 = In Development (in the trunk) =
 
+* More CRUD-like interface for creating and editing custom fields one at a time.
+* Drag and Drop interface added for Custom Fields
 * Added support for built-in taxonomies (Categories and Tags).
 * Fixed unreported bugs affecting custom tpls. 
 * Fixed bug causing popup thickbox to load incorrectly: [Issue 17](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1)

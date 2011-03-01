@@ -39,6 +39,10 @@ class CCTM
 	// CSS and $_POST variables
 	public static $def_i = 0; 
 
+	// Where are the icons for custom images stored?
+	// TODO: let the users select their own dir in their own directory
+	public static $custom_field_icons_dir;
+	
 	// Built-in post-types that can have custom fields, but cannot be deleted.
 	public static $built_in_post_types = array('post','page');
 	
@@ -90,6 +94,16 @@ class CCTM
 
 	
 	//! Private Functions
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _get_custom_icons_src_dir()
+	{
+		self::$custom_field_icons_dir = CCTM_URL.'/images/custom-fields/';	
+		return self::$custom_field_icons_dir;
+	}
+	
 	/*------------------------------------------------------------------------------
 	Generate HTML portion of our manage custom fields form. This is in distinction
 	to the JS portion of the form, which uses a slightly different format.
@@ -137,6 +151,7 @@ class CCTM
 			</div>';
 			
 			$translated = self::_transform_data_structure_for_editing($def);
+			// print_r($translated); exit;
 			$output .= FormGenerator::generate($translated);
 			self::$def_i++;
 		}
@@ -315,7 +330,23 @@ class CCTM
 		);
 	}
 	
-		
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	private static function _link_create_custom_field($post_type)
+	{
+		return sprintf(
+			'<a href="?page=%s&%s=9&%s=%s" class="button" title="%s">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Create a custom field content type', CCTM_TXTDOMAIN)
+			, __('Create Custom Field',CCTM_TXTDOMAIN) 
+		);
+	}
+			
 	//------------------------------------------------------------------------------
 	/**
 	* 
@@ -434,6 +465,44 @@ class CCTM
 				window.location.replace("?page='.self::admin_menu_slug.'");
 			</script>';
 		print $msg;	
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	//! TODO: Create custom field
+	private static function _page_create_custom_field($post_type)
+	{
+		// We can't edit built-in post types
+		if (!self::_is_existing_post_type($post_type, false ) )
+		{
+			self::_page_display_error();
+			return;
+		}
+		$def = self::$custom_field_def_template;
+		$action_name 	= 'custom_content_type_mgr_create_new_custom_field';
+		$nonce_name 	= 'custom_content_type_mgr_create_new_custom_field_nonce';
+		
+		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
+		{
+			print "Saving..."; exit;
+		}
+		
+		$translated = self::_transform_data_structure_for_editing($def);
+		$fields = FormGenerator::generate($translated);
+		$icon_src = self::_get_custom_icons_src_dir() . 'text.png';
+		FormGenerator::$placeholders['icon'] = sprintf('<img src="%s"/>',$icon_src);
+		
+		$tpl_file = CCTM_PATH.'/tpls/custom_fields/text.tpl';
+		if ( file_exists($tpl_file) ) 
+		{ 
+			$tpl = file_get_contents($tpl_file);
+			FormGenerator::$placeholders['CCTM_URL'] = CCTM_URL;
+			// print_r(FormGenerator::$placeholders); exit;
+			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
+		}
+		include('pages/custom_field.php');
 	}
 	
 	/*------------------------------------------------------------------------------
@@ -823,6 +892,7 @@ class CCTM
 		{
 			$def = $data[$post_type]['custom_fields'];
 		}
+
 		// count # of custom field definitions --> replaces [+def_i+]
 		$def_cnt = count($def);
 		
@@ -846,6 +916,94 @@ class CCTM
 //		print $new_field_def_js; exit;
 		include('pages/manage_custom_fields.php');
 	}
+
+
+	/*------------------------------------------------------------------------------
+	Manager Page -- called by page_main_controller()
+	Manage custom fields for any post type, built-in or custom.
+	------------------------------------------------------------------------------*/
+	private static function _page_show_custom_fields($post_type)
+	{
+		// Validate post type
+		if (!self::_is_existing_post_type($post_type) )
+		{
+			self::_page_display_error();
+			return;
+		}
+		
+		$action_name = 'cctm_custom_save_sort_order';
+		$nonce_name = 'cctm_custom_save_sort_order_nonce';
+		$msg = '';
+		
+		$data = get_option( self::db_key, array() );
+		
+		// Validate/Save data if it was properly submitted
+		if ( !empty($_POST) && check_admin_referer($action_name,$nonce_name) )
+		{
+			foreach ( $data[$post_type]['custom_fields'] as $def_i => &$cf )
+			{
+				$name = $cf['name'];
+				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
+			}
+			
+//			print_r($data[$post_type]['custom_fields']);
+//			exit;
+			update_option( self::db_key, $all_post_types );
+			$x = sprintf( __('Sort order has been saved.', CCTM_TXTDOMAIN) );
+			$msg .= sprintf('<div class="updated"><p>%s</p></div>', $x);
+		}	
+	
+		// We want to extract a $def for only THIS content_type's custom_fields
+		$def = array();
+		if ( isset($data[$post_type]['custom_fields']) )
+		{
+			$def = $data[$post_type]['custom_fields'];
+		}
+				
+		$def_cnt = count($def);
+
+		if (!$def_cnt)
+		{
+			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
+				, "<em>$post_type</em>" );
+			$y = __('Click the button below to add a custom field.', CCTM_TXTDOMAIN );
+			$msg .= sprintf('<div class="updated"><p>%s %s</p></div>', $x, $y);
+		}
+
+		$tpl = '';
+		$tpl_file = CCTM_PATH.'/tpls/settings/custom_field_tr.tpl';
+		if ( file_exists($tpl_file) ) 
+		{ 
+			$tpl = file_get_contents($tpl_file);
+		}
+		// Sort by sort_param column: (1st input is by reference)
+		usort($def, CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
+		$fields = '';
+
+		foreach ($def as $def_i => $d)
+		{
+			//print_r($d); exit;
+			$icon_src = self::_get_custom_icons_src_dir() . $d['type'].'.png';
+
+			if ( true /*file_exists($icon_src)*/ )
+			{
+				$d['icon'] = sprintf('<img src="%s" style="float:left;"/>',$icon_src);
+			}
+			else
+			{
+				$d['image'] = '';
+			}
+			
+			$fields .= FormGenerator::parse($tpl, $d);
+		}
+
+		// Gets a form definition ready for use inside of a JS variable
+		// $new_field_def_js = self::_get_javascript_field_defs();
+//		print $new_field_def_js; exit;
+		include('pages/sortable-list.php');
+//		include('pages/manage_custom_fields.php');
+	}
+
 	
 	/*------------------------------------------------------------------------------
 	Manager Page -- called by page_main_controller()
@@ -1071,7 +1229,14 @@ class CCTM
 		$msg = self::get_flash();
 
 		$data = get_option( self::db_key, array() );
-		$customized_post_types =  array_keys($data);
+		$customized_post_types =  array();
+		$displayable_types = array();
+		$displayable_types = array();
+
+		if ( !empty($data) )
+		{
+			$customized_post_types =  array_keys($data);
+		}
 		$displayable_types = array_merge(self::$built_in_post_types , $customized_post_types);
 		$displayable_types = array_unique($displayable_types);
 		
@@ -1145,15 +1310,17 @@ class CCTM
 			}
 			$row_data .= FormGenerator::parse($tpl, $hash);
 		}
-		//! TODO
-		//include('pages/sortable-list.php');
+
 		include('pages/default.php');
 	}
 
 	/*------------------------------------------------------------------------------
-	Populate form definition with data that defines a post-type.  This data comes 
-	either from the database or from the $_POST array.  The $pt_data 
-	(i.e. post-type data) should contain only information about 
+	Data is stored in the database (and submitted in the $_POST array) in a format
+	that matches what's required by the register_post_type() function... but
+	the FormGenerator requires a more-flat data-structure, so here's where we 
+	flatten it out for compatibility with the FormGenerator.
+	
+	The $pt_data (i.e. post-type data) should contain only information about 
 	a single post_type; do not pass this function the entire contents of the 
 	get_option().
 	
@@ -1426,7 +1593,7 @@ class CCTM
 		else
 		{
 			$data = get_option( self::db_key, array() );
-			if ( $new && in_array($post_type, array_keys($data) ) )
+			if ( $new && is_array($data) && in_array($post_type, array_keys($data) ) )
 			{
 				return __('That name is already in use.');
 			}
@@ -1590,56 +1757,7 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _set_custom_field_def_template()
 	{
-		$def['label']['name']			= 'custom_fields[[+def_i+]][label]';
-		$def['label']['label']			= __('Label', CCTM_TXTDOMAIN);
-		$def['label']['value']			= '';
-		$def['label']['extra']			= '';			
-		$def['label']['description']	= '';
-		$def['label']['type']			= 'text';
-		$def['label']['sort_param']		= 1;
-
-		$def['name']['name']			= 'custom_fields[[+def_i+]][name]';
-		$def['name']['label']			= __('Name', CCTM_TXTDOMAIN);
-		$def['name']['value']			= '';
-		$def['name']['extra']			= '';			
-		$def['name']['description']		= __('The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
-		$def['name']['type']			= 'text';
-		$def['name']['sort_param']		= 2;
-
-		$def['description']['name']			= 'custom_fields[[+def_i+]][description]';
-		$def['description']['label']		= __('Description',CCTM_TXTDOMAIN);
-		$def['description']['value']		= '';
-		$def['description']['extra']		= '';
-		$def['description']['description']	= '';
-		$def['description']['type']			= 'textarea';
-		$def['description']['sort_param']	= 3;
-
-		$def['type']['name']		= 'custom_fields[[+def_i+]][type]';
-		$def['type']['label']		= __('Input Type', CCTM_TXTDOMAIN);
-		$def['type']['value']		= 'text';
-		$def['type']['extra']		= ' onchange="javascript:addRemoveDropdown(this.parentNode.id,this.value, [+def_i+])"';
-		$def['type']['description']	= '';
-		$def['type']['type']		= 'dropdown';
-		$def['type']['options']		= array('checkbox','dropdown','image','media','relation','text','textarea','wysiwyg');
-		$def['type']['sort_param']	= 4;
-
-		$def['default_value']['name']			= 'custom_fields[[+def_i+]][default_value]';
-		$def['default_value']['label']			= __('Default Value', CCTM_TXTDOMAIN);
-		$def['default_value']['value']			= '';
-		$def['default_value']['extra']			= '';
-		$def['default_value']['description']		= __('The default value will appear in form fields when a post is first created. For checkboxes, use a default value of "1" if you want it to be checked by default.', CCTM_TXTDOMAIN);
-		$def['default_value']['type']			= 'text';
-		$def['default_value']['sort_param']		= 5;
-
-
-		$def['sort_param']['name']			= 'custom_fields[[+def_i+]][sort_param]';
-		$def['sort_param']['label']			= __('Sort Order',CCTM_TXTDOMAIN);
-		$def['sort_param']['value']			= '';
-		$def['sort_param']['extra']			= ' size="2" maxlength="4"';
-		$def['sort_param']['description']	= __('This controls where this field will appear on the page. Fields with smaller numbers will appear higher on the page.',CCTM_TXTDOMAIN);
-		$def['sort_param']['type']			= 'text';
-		$def['sort_param']['sort_param']	= 6;
-
+		include('form_defs/custom_field.php');
 
 		self::$custom_field_def_template = $def;
 	}
@@ -1661,7 +1779,8 @@ class CCTM
 	"Transformation" here refers to the reflexive mapping that is required to create
 	a form definition that will generate a form that allows users to define a definition.
 	In other words, given a form definition, calculate the definition the allows you
-	to edit that definition.
+	to edit that definition.  This function explodes an incoming definition array into
+	a more complicated series of arrays that define that array.
 	
 	The custom_fields array consists of form element definitions that are used when
 	editing or creating a new post.  When we want to edit that definition, 
@@ -1670,7 +1789,7 @@ class CCTM
 	the "label", we need a textarea element to allow us to edit the "description",
 	etc.
 
-	INPUT: $field_def (mixed) a single custom field definition.  Something like:
+	@param	mixed	$field_def	A single custom field definition.  Something like:
 	
 		Array
 		(
@@ -1688,10 +1807,89 @@ class CCTM
             [sort_param] => 		
 		)
 		
-	OUTPUT: a modified version of the $custom_field_def_template, with values updated 
+	
+	@return	mixed	a modified version of the $custom_field_def_template, with values updated 
 	based on the incoming $field_def.  The 'options' are handled in a special way: 
 	they are moved to the 'special' key -- this causes the FormGenerator to generate 
 	text fields for each one so the user can edit the options for their dropdown.
+	
+	Example:
+	
+		Array
+		(
+		    [label] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][label]
+		            [label] => Label
+		            [value] => Product Image Lrg (front)
+		            [extra] => 
+		            [description] => 
+		            [type] => text
+		            [sort_param] => 1
+		            [def_i] => 0
+		        )
+		
+		    [name] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][name]
+		            [label] => Name
+		            [value] => front_img_lrg
+		            [extra] => 
+		            [description] => The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.
+		            [type] => text
+		            [sort_param] => 2
+		            [def_i] => 0
+		        )
+		
+		    [description] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][description]
+		            [label] => Description
+		            [value] => 
+		            [extra] => 
+		            [description] => 
+		            [type] => textarea
+		            [sort_param] => 3
+		            [def_i] => 0
+		        )
+		
+		    [type] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][type]
+		            [label] => Input Type
+		            [value] => image
+		            [extra] =>  onchange="javascript:addRemoveDropdown(this.parentNode.id,this.value, [+def_i+])"
+		            [description] => 
+		            [type] => dropdown
+		            [options] => Array
+		                (
+		                    [0] => checkbox
+		                    [1] => dropdown
+		                    [2] => image
+		                    [3] => media
+		                    [4] => relation
+		                    [5] => text
+		                    [6] => textarea
+		                    [7] => wysiwyg
+		                )
+		
+		            [sort_param] => 4
+		            [def_i] => 0
+		        )
+		
+		    [sort_param] => Array
+		        (
+		            [name] => custom_fields[[+def_i+]][sort_param]
+		            [label] => Sort Order
+		            [value] => 2
+		            [extra] =>  size="2" maxlength="4"
+		            [description] => This controls where this field will appear on the page. Fields with smaller numbers will appear higher on the page.
+		            [type] => text
+		            [sort_param] => 6
+		            [def_i] => 0
+		        )
+		
+		)
 	------------------------------------------------------------------------------*/
 	private static function _transform_data_structure_for_editing($field_def)
 	{
@@ -1716,12 +1914,14 @@ class CCTM
 			}
 		}
 		
+		//print_r($translated_defs); exit;
+		//print_r($field_def); exit;
 		// Populate the new form definitions with their values from the original
 		foreach ( $translated_defs as $field => &$def )
 		{
 			if ( isset($field_def[$field]))
 			{
-				$def['value'] = $field_def[$field];
+				$def['value'] = $field_def[$field]['value'];
 			}
 			else
 			{
@@ -1730,6 +1930,7 @@ class CCTM
 			// Associate the group of new elements back to this definition.
 			$def['def_i'] = self::$def_i; 
 		}
+		//print_r($translated_defs); exit;
 		return $translated_defs;
 	}	
 
@@ -1764,6 +1965,7 @@ class CCTM
 
 		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/custom-theme/jquery-ui-1.8.10.custom.css');
 		wp_enqueue_script( 'jquery-ui-tabs');
+		wp_enqueue_script( 'jquery-ui-sortable');
 	}
 	
 	/*------------------------------------------------------------------------------
@@ -1872,7 +2074,8 @@ class CCTM
 				self::_page_delete_post_type($post_type);
 				break;
 			case 4: // Manage Custom Fields for existing post type	
-				self::_page_manage_custom_fields($post_type);
+				//self::_page_manage_custom_fields($post_type);
+				self::_page_show_custom_fields($post_type);
 				break;
 			case 5: // TODO: Manage Taxonomies for existing post type
 				break;
@@ -1884,6 +2087,9 @@ class CCTM
 				break;
 			case 8: // Show an example of custom field template
 				self::_page_sample_template($post_type);
+				break;
+			case 9: //
+				self::_page_create_custom_field($post_type);
 				break;
 			default: // Default: List all post types	
 				self::_page_show_all_post_types();
@@ -1973,21 +2179,23 @@ class CCTM
 	{	
 
 		$data = get_option( self::db_key, array() );
-		foreach ($data as $post_type => $def) 
+		if ( is_array($data) )
 		{
-			if ( isset($def['is_active']) 
-				&& !empty($def['is_active']) 
-				&& !in_array($post_type, self::$built_in_post_types)) 
-			{	
-	#			print_r($def); exit;
-				register_post_type( $post_type, $def );
-				// TODO: make global setting that asks whether or not the user wants us to do this automatically
-				//if ( is_array($def['supports']) && in_array('thumbnail', $def['supports']) )
-				//{
-					/* This generates a warning:
-					Warning: in_array() [function.in-array]: Wrong datatype for second argument in /Users/everett2/Sites/pretasurf/html/blog/wp-includes/theme.php on line 1671 */
-					// add_theme_support( 'post-thumbnails', $post_type );
-				//}
+			foreach ($data as $post_type => $def) 
+			{
+				if ( isset($def['is_active']) 
+					&& !empty($def['is_active']) 
+					&& !in_array($post_type, self::$built_in_post_types)) 
+				{
+					register_post_type( $post_type, $def );
+					// TODO: make global setting that asks whether or not the user wants us to do this automatically
+					//if ( is_array($def['supports']) && in_array('thumbnail', $def['supports']) )
+					//{
+						/* This generates a warning:
+						Warning: in_array() [function.in-array]: Wrong datatype for second argument in /Users/everett2/Sites/pretasurf/html/blog/wp-includes/theme.php on line 1671 */
+						// add_theme_support( 'post-thumbnails', $post_type );
+					//}
+				}
 			}
 		}
 	
@@ -2003,5 +2211,13 @@ class CCTM
 		$_SESSION[ self::db_key ] = $msg;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	* Used by php usort to sort custom field defs by their sort_param attribute
+	*/
+	public static function sort_custom_fields($field, $sortfunc)
+	{
+    	return create_function('$var1, $var2', 'return '.$sortfunc.'($var1["'.$field.'"], $var2["'.$field.'"]);');
+	}
 }
 /*EOF*/

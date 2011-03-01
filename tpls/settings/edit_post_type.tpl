@@ -1,6 +1,4 @@
 <script>
-	
-	
 	jQuery(document).ready(function(){
 		toggle_image_detail();
 		toggle_div('[+supports_page-attributes.id+]', 'extended_page_attributes', '[+supports_page-attributes.value+]');
@@ -44,7 +42,6 @@
 	{
 		jQuery('#menu_icon').val(src);
 	}
-	
 </script>
 
 <div id="tabs">
