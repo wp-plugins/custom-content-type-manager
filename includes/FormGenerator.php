@@ -5,6 +5,7 @@ generate() function a definition data object.  This plugin does not
 generate the entire form! The developer is expected to supply his own <form>
 tags, nonces, and submit buttons as required.
 
+
 USAGE:
 
 $my_def = array(

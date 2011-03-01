@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.0.5
-Stable tag: 0.8.6
+Stable tag: 0.8.7
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -54,11 +54,20 @@ Deactivating a built-in post-type (a.k.a. content type) merely stops standardizi
 
 = What types of custom fields are supported? =
 
-Text fields, textarea, WYSIWYG, dropdowns (with customizable options), checkboxes, image fields, media fields (which allow the user to select an image, video, or audio clip), and relation fields (which allow the user to select another post of any type to be related to).
+* Text fields
+* textarea
+* WYSIWYG
+* dropdowns (with customizable options)
+* checkboxes 
+* image fields
+* media fields (which allow the user to select an image, video, or audio clip)
+* relation fields (which allow the user to select another post of any type to be related to).
+
+More field types coming...
 
 = How do I add images or video into a custom field? =
 
-The media-related custom fields tie into WordPress' "attachment" posts, so if you have already uploaded images or video using the Media menu, they will show up for selection when edit a post using a custom image or media field.  You can now choose "Add New Image" when you browse existing images.
+The media-related custom fields tie into WordPress' "attachment" posts, so if you have already uploaded images or video using the Media menu, they will show up for selection when edit a post using a custom image or media field.  You can also choose "Add New Image" when you browse existing images.
 
 = How do I make my custom field values show up in my templates? =
 
@@ -69,16 +78,21 @@ Content and templates must go hand in hand. If you have defined custom fields, y
 
 In this plugin's settings area, each content-type has a link to "View Sample Templates" -- this page gives you a fully customized example showing demonstrating a custom theme file for your custom content type.
 
-See the includes/functions.php file in this plugin's directory for some other theme functions that are in development.
+See the wiki page on [Template Functions](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions) for more information (and more functions).
 
 = How do I use a Custom Image Field =
 
-The trick here is that the custom field stores a foreign key, which points to the wp_posts table where the post_type is an "attachment". So you use the get_custom_field() function and pass its output to one of WordPress' built-in image functions. For example, put the following code in your theme file (assuming your custom field is named 'my_image_field'):
+The trick here is that the custom field stores a numeric foreign key, which points to the wp_posts table where the post_type is an "attachment". Assuming your custom field is named 'my_image_field':
+
+`<?php print get_custom_image('my_image_field'); ?>`
+
+This is the same as using the more verbose process:
 
 `<?php $image_id = get_custom_field('my_image_field'); ?>`
 `<?php print wp_get_attachment_image($image_id, 'full'); ?>`
 
-See the wiki here: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreateImageField
+
+See the wiki pages about [Creating an Image Field](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreateImageField) or about [Template Functions](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions).
 
 
 = How can I use this plugin to support an eCommerce site? =
@@ -107,6 +121,8 @@ You can always checkout the most recent version of the code by going to your wp-
 	
 = In Development (in the trunk) =
 
+* Added support for built-in taxonomies (Categories and Tags).
+* Fixed unreported bugs affecting custom tpls. 
 * Fixed bug causing popup thickbox to load incorrectly: [Issue 17](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1)
 * Styling for the manager updated to match what's used by WordPress 3.1.
 * Greatly improved administration interface including support for icons and a series of tabs for dividing the multi-part form for creating/editing content types.
@@ -124,7 +140,7 @@ See [Template Functsion](http://code.google.com/p/wordpress-custom-content-type-
 * Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
 
 = 0.8.6 =
-* Fixes bad CSS declaration (issue #1 http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=1)
+* Fixes bad CSS declaration: [issue 1](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=1)
 * Fixed omission in sample template placeholders.
 
 = 0.8.5 =

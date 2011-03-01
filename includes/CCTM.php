@@ -156,7 +156,8 @@ class CCTM
 		{
 			while (false !== ($file = readdir($handle))) 
 			{
-				if ($file != '.' && $file != '..') {
+				if ( !preg_match('/^\./', $file) )
+				{
 					$icons[] = $file;
 				}
 			}
@@ -230,8 +231,16 @@ class CCTM
 			return $default;
 		}
 		else
-		{	// Warning: stripslashes was added to avoid some weird behavior
-			return esc_html(stripslashes($hash[$key]));
+		{	
+			if ( is_array($hash[$key]) )
+			{
+				return $hash[$key];
+			}
+			// Warning: stripslashes was added to avoid some weird behavior
+			else
+			{
+				return esc_html(stripslashes($hash[$key]));
+			}
 		}
 	}
 		
@@ -433,8 +442,9 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _page_create_new_post_type()
 	{
+		self::_set_post_type_form_definition();
+		
 		// Variables for our template
-
 		$page_header 	= __('Create Custom Content Type', CCTM_TXTDOMAIN);
 		$fields			= '';
 		$action_name 	= 'custom_content_type_mgr_create_new_content_type';
@@ -488,6 +498,7 @@ class CCTM
 		{ 
 			$tpl = file_get_contents($mgr_tpl_file);
 			FormGenerator::$placeholders['icons'] = self::_get_icons();
+			FormGenerator::$placeholders['CCTM_URL'] = CCTM_URL;
 			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
 		}
 		include('pages/basic_form.php');
@@ -538,15 +549,17 @@ class CCTM
 			return;
 		}
 		
-		$msg = '<div class="error"><p>'
-			. sprintf( __('You are about to deactivate the %s post type.', CCTM_TXTDOMAIN ), "<em>$post_type</em>")
+		$msg = '<div class="error">
+			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
+			<p>'
+			. sprintf( __('You are about to deactivate the %s post type.', CCTM_TXTDOMAIN ), "<strong>$post_type</strong>")
 			.'</p>';		
 		
 		// If it's a custom post type, we include some additional info.
 		if ( !in_array($post_type, self::$built_in_post_types) )
 		{
 			$msg .= '<p>'
-			. sprintf( __('Deactivation does not delete anything, but it does make %s posts unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), $post_type, "<strong>$post_type</strong>" )
+			. sprintf( __('Deactivation does not delete anything, but it does make %s posts unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), "<strong>$post_type</strong>", "<strong>$post_type</strong>" )
 			.'</p>';
 		}
 		
@@ -554,7 +567,7 @@ class CCTM
 		$msg .= '<p>'
 			. sprintf( __('This would affect %1$s published %2$s posts.'
 			,CCTM_TXTDOMAIN), '<strong>'.$post_cnt_obj->publish.'</strong>'
-				 , "<em>$post_type</em>")
+				 , "<strong>$post_type</strong>")
 				.'</p>';
 		$msg .= '<p>'.__('Are you sure you want to do this?',CCTM_TXTDOMAIN).'</p>
 			</div>';		
@@ -598,10 +611,12 @@ class CCTM
 			return;
 		}
 		
-		$msg = '<div class="error"><p>'
+		$msg = '<div class="error">
+			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
+			<p>'
 			. sprintf( __('You are about to delete the %s post type. This will remove all of its settings from the database, but this will NOT delete any rows from the wp_posts table. However, without a custom post type defined for those rows, they will be essentially invisible to WordPress.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 			.'</p>'
-			. '<p>'.__('Are you sure you want to do this?',CCTM_TXTDOMAIN).'</p>';
+			. '<p>'.__('Are you sure you want to do this?',CCTM_TXTDOMAIN).'</p></div>';
 
 		include('pages/basic_form.php');
 		
@@ -633,6 +648,8 @@ class CCTM
 			self::_page_display_error();
 			return;
 		}
+
+		self::_set_post_type_form_definition($post_type);
 
 		// Variables for our template (TODO: register this instead of this cheap inline trick)
 		$style			= '';
@@ -688,18 +705,15 @@ class CCTM
 		
 		// Populate the form $def with values from the database
 		$def = self::_populate_form_def_from_data($def, $data[$post_type]);
-		// FormGenerator::$global_placeholders['post_type'] = $post_type; //<--- messy?
-		$fields = FormGenerator::generate($def,'css-friendly');
-		//print_r(FormGenerator::$placeholders); exit;
-		// See if there's a custom manager form tpl avail...
+		$fields = FormGenerator::generate($def,'css-friendly');		
 		
-		
-		//!TODO
 		$mgr_tpl_file = CCTM_PATH.'/tpls/settings/edit_post_type.tpl';
 		if ( file_exists($mgr_tpl_file) ) 
 		{ 
 			$tpl = file_get_contents($mgr_tpl_file);
 			FormGenerator::$placeholders['icons'] = self::_get_icons();
+			FormGenerator::$placeholders['CCTM_URL'] = CCTM_URL;
+			// print_r(FormGenerator::$placeholders);
 			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
 		}
 		include('pages/basic_form.php');
@@ -1155,6 +1169,20 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	private static function _populate_form_def_from_data($def, $pt_data)
 	{
+		$labels_array = array(
+			'singular_label'	=> 'singular_name',
+			'add_new_label'		=> 'add_new',
+			'add_new_item_label' => 'add_new_item',
+			'edit_item_label'	=> 'edit_item',
+			'new_item_label'	=> 'new_item',
+			'view_item_label'	=> 'view_item',
+			'search_items_label'	=> 'search_items',			
+			'not_found_label'	=> 'not_found',
+			'not_found_in_trash_label'	=> 'not_found_in_trash',
+			'parent_item_colon_label'	=> 'parent_item_colon',
+			'menu_name_label'	=> 'menu_name'
+		);
+
 		//print_r($pt_data); exit;
 		foreach ($def as $node_id => $tmp)
 		{
@@ -1317,6 +1345,21 @@ class CCTM
 					$def[$node_id]['value'] = '';
 				}				
 			}
+			
+			// Labels: Handles all arguments to the $labels_array
+			elseif ( array_key_exists($node_id, $labels_array) )
+			{
+				$v = $labels_array[$node_id];
+				if ( !empty($pt_data['labels'][$v]) )
+				{
+					$def[$node_id]['value'] = $pt_data['labels'][$v];
+				}
+				else
+				{
+					$def[$node_id]['value'] = '';
+				}
+			}
+			
 			else
 			{
 				$field_name = $def[$node_id]['name'];
@@ -1398,6 +1441,8 @@ class CCTM
 	Problems with:
 		hierarchical
 		rewrite_with_front
+	
+	This is janky... sorta doesn't work how it's supposed when combined with _save_post_type_settings().
 	------------------------------------------------------------------------------*/
 	private static function _sanitize_post_type_def($raw)
 	{
@@ -1601,7 +1646,7 @@ class CCTM
 	I had to put this here in a function rather than in a config file so I could
 	take advantage of the WP translation functions __()
 	------------------------------------------------------------------------------*/
-	private static function _set_post_type_form_definition()
+	private static function _set_post_type_form_definition($post_type_label='sample_post_type')
 	{
 		$def =	array();
 		include('form_defs/post_type.php');	
@@ -1697,11 +1742,12 @@ class CCTM
 	------------------------------------------------------------------------------*/
 	public static function admin_init()
 	{
-		//self::_get_icons(); exit;
+		
+		
     	load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
 	
 		// Set our form defs in this, our makeshift constructor.
-		self::_set_post_type_form_definition();
+		//self::_set_post_type_form_definition();
 		self::_set_custom_field_def_template();
 		
 		// TODO: $E = new WP_Error();
@@ -1713,6 +1759,7 @@ class CCTM
 		wp_enqueue_script( 'thickbox' );
 		wp_enqueue_style( 'thickbox' );
 
+		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/custom-theme/jquery-ui-1.8.10.custom.css');
 		wp_enqueue_script( 'jquery-ui-tabs');
 	}
 	
@@ -1931,6 +1978,7 @@ class CCTM
 				&& !empty($def['is_active']) 
 				&& !in_array($post_type, self::$built_in_post_types)) 
 			{	
+	#			print_r($def); exit;
 				register_post_type( $post_type, $def );
 				// TODO: make global setting that asks whether or not the user wants us to do this automatically
 				//if ( is_array($def['supports']) && in_array('thumbnail', $def['supports']) )

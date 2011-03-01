@@ -26,7 +26,7 @@ This template expects the following variables:
 		<?php print $fields; ?>
 	
 		<?php wp_nonce_field($action_name, $nonce_name); ?>
-	
+	<br/>
 		<div class="custom_content_type_mgr_form_controls">
 			<input type="submit" name="Submit" class="button-primary" value="<?php print $submit; ?>" />
 			<a class="button" href="?page=<?php print self::admin_menu_slug;?>"><?php _e('Cancel'); ?></a> 

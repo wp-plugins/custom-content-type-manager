@@ -1,6 +1,5 @@
 <script>
 	
-	// var default_menu_icon_checkbox = '[+use_default_menu_icon.value+]';
 	
 	jQuery(document).ready(function(){
 			if( jQuery('#[+use_default_menu_icon.id+]:checked').val() == '1' )
@@ -23,19 +22,12 @@
 		if( jQuery('#[+use_default_menu_icon.id+]:checked').val() == '1' )
 		{
             jQuery('#menu_icon_container').hide();
-            console.log('hiding');
         } 
         else 
         {
             jQuery('#menu_icon_container').show();
-        	console.log( jQuery('#[+use_default_menu_icon.id+]:checked').val() );
-        	console.log('showing');
 
         }
-
-
-/*		jQuery('#'+css_id).slideToggle(400);
-		    return false; */
 
 	}
 	
@@ -49,6 +41,7 @@
 <div id="tabs">
 	<ul>
 		<li><a href="#basic-tab">Basic</a></li>
+		<li><a href="#labels-tab">Labels</a></li>
 		<li><a href="#fields-tab">Fields</a></li>
 		<li><a href="#menu-tab">Menu</a></li>
 		<li><a href="#attributes-tab">Page Attributes</a></li>
@@ -62,11 +55,8 @@
 		<!--!Post Type -->
 		[+post_type+]
 		
-		<!--!Singular Label -->
-		[+singular_label+]
-				
-		<!--!Plural Label -->
-		[+label+]
+		<!--!Plural Label (Main Label)-->
+		[+label+]			
 		
 		<!--!Description-->
 		<!-- description -->
@@ -84,6 +74,132 @@
 		[+public+]
 		
 	</div>
+
+	<!-- ================================================================================================ -->	
+	<!-- More advanced labels-->
+	<!--!Labels -->
+	<div id="labels-tab">	
+	
+		<!--singular_label -->
+		[+singular_label+]
+		
+		<!-- add_new_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+add_new_label.id+]_label">			
+			<label for="[+add_new_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+add_new_label.id+]">
+				[+add_new_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/add-new.jpg" title="[+add_new_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+add_new_label.name+]" class="formgenerator_text" id="[+add_new_label.id+]" value="[+add_new_label.value+]"/>
+			<span class="formgenerator_description">[+add_new_label.description+]</span>
+		</div>
+		
+		<!-- add_new_item_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+add_new_item_label.id+]_label">			
+			<label for="[+add_new_item_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+add_new_item_label.id+]">
+				[+add_new_item_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/add-new-item.jpg" title="[+add_new_item_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+add_new_item_label.name+]" class="formgenerator_text" id="[+add_new_item_label.id+]" value="[+add_new_item_label.value+]"/>
+			<span class="formgenerator_description">[+add_new_item_label.description+]</span>
+		</div>
+		
+		<!-- edit_item_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+edit_item_label.id+]_label">			
+			<label for="[+edit_item_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+edit_item_label.id+]">
+				[+edit_item_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/edit-item.jpg" title="[+edit_item_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+edit_item_label.name+]" class="formgenerator_text" id="[+edit_item_label.id+]" value="[+edit_item_label.value+]"/>
+			<span class="formgenerator_description">[+edit_item_label.description+]</span>
+		</div>	
+		
+		<!-- new_item_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+new_item_label.id+]_label">			
+			<label for="[+new_item_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+new_item_label.id+]">
+				[+new_item_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/new-item.jpg" title="[+new_item_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+new_item_label.name+]" class="formgenerator_text" id="[+new_item_label.id+]" value="[+new_item_label.value+]"/>
+			<span class="formgenerator_description">[+new_item_label.description+]</span>
+		</div>
+
+		
+		<!-- view_item_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+view_item_label.id+]">
+			<label for="[+view_item_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+view_item_label.id+]">
+				[+view_item_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/view-item.jpg" title="[+view_item_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+view_item_label.name+]" class="formgenerator_text" id="[+view_item_label.id+]" value="[+view_item_label.value+]"/>
+			<span class="formgenerator_description">[+view_item_label.description+]</span>
+		</div>
+
+		
+		<!-- search_items_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+search_items_label.id+]">
+			<label for="[+search_items_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+search_items_label.id+]">
+				[+search_items_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/search-items.jpg" title="[+search_items_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+search_items_label.name+]" class="formgenerator_text" id="[+search_items_label.id+]" value="[+search_items_label.value+]"/>
+			<span class="formgenerator_description">[+search_items_label.description+]</span>
+		</div>
+		
+		<!-- not_found_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+not_found_label.id+]">
+			<label for="[+not_found_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+not_found_label.id+]">
+				[+not_found_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/not-found.jpg" title="[+not_found_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+not_found_label.name+]" class="formgenerator_text" id="[+not_found_label.id+]" value="[+not_found_label.value+]"/>
+			<span class="formgenerator_description">[+not_found_label.description+]</span>
+		</div>
+
+		
+		<!-- not_found_in_trash_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+not_found_in_trash_label.id+]">
+			<label for="[+not_found_in_trash_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+not_found_in_trash_label.id+]">
+				[+not_found_in_trash_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/not-found-in-trash.jpg" title="[+not_found_in_trash_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+not_found_in_trash_label.name+]" class="formgenerator_text" id="[+not_found_in_trash_label.id+]" value="[+not_found_in_trash_label.value+]"/>
+			<span class="formgenerator_description">[+not_found_in_trash_label.description+]</span>
+		</div>
+
+		
+		<!-- parent_item_colon_label -->		
+		[+parent_item_colon_label+]
+		
+		<!-- menu_name_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+menu_name_label.id+]">
+			<label for="[+menu_name_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+menu_name_label.id+]">
+				[+menu_name_label.label+] 
+				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/menu-name.jpg" title="[+menu_name_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+menu_name_label.name+]" class="formgenerator_text" id="[+menu_name_label.id+]" value="[+menu_name_label.value+]"/>
+			<span class="formgenerator_description">[+menu_name_label.description+]</span>
+		</div>
+		
+	</div>
+	
 	<!-- ================================================================================================ -->	
 	<div id="fields-tab">
 		<!--!Supports -->
@@ -123,8 +239,10 @@
 						<span class="formgenerator_description">[+menu_icon.description+]</span>
 			</div>
 		
-			<div style="width:300px">
+			<div style="width:300px; margin-top:10px;">
 			[+icons+]
+				<br/>
+				<p>Do you want more icons? Check the <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomIcons">Wiki</a> for instructions.  You can help this project include a better default set -- see the related <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=30">issue</a> in the bug tracker. Thanks!</p>
 			</div>
 		</div>
 
@@ -179,10 +297,18 @@
 		
 		[+supports_revisions+]
 	
+		<hr />
+		
 		<h3>Taxonomies</h3>
+		
+		<p>Taxonomies offer ways to classify data as an aid to searching.</p>
+		
 		[+taxonomy_categories+]
 		
 		[+taxonomy_tags+]
+		
+		<p>Currently, this plugin only allows you to use default taxonomies with your content types. We recommend using momo360modena's <a href="http://wordpress.org/extend/plugins/simple-taxonomy/">Simple Taxonomy</a> plugin to create custom taxonomies.</p>
+		
 	</div>
 </div>
 
