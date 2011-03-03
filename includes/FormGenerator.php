@@ -38,7 +38,8 @@ class FormGenerator
 	
 	// Stores keys => values each time the generate() function is run.
 	public static $placeholders = array();
-		
+	// Stores helpful messages about the contents of each placeholder
+	public static $help_val_array = array();	
 	// A div wraps each element, their ids have an integer appended to the prefix, e.g. 
 	// <div id="custom_field_id_5"> 
 	const element_wrapper_id_prefix = 'custom_field_wrapper_';
@@ -129,7 +130,7 @@ class FormGenerator
 		{
 			if ( empty($option) )
 			{
-				$option_str .= '<option value="">Pick One</option>';
+				$option_str .= '<option value="">Pick One</option>' . "\n";
 			}
 			else
 			{
@@ -139,7 +140,7 @@ class FormGenerator
 				{
 					$is_selected = 'selected="selected"';
 				}
-				$option_str .= '<option value="'.$option.'" '.$is_selected.'>'.$option.'</option>';
+				$option_str .= '<option value="'.$option.'" '.$is_selected.'>'.$option.'</option>' . "\n";
 			}
 		}
 		
@@ -521,27 +522,50 @@ class FormGenerator
 
 			// Store
 			self::$placeholders[$key] = $output_this_field;
+
 			// STORE a 'help' placeholder as an aid to devs creating a custom tpl for a given content type in /tpls/manager/
 			$placeholders_this_field = array_keys($field_def);
 			
+			//print_r(self::$placeholders); 
 			foreach ( $placeholders_this_field as &$p )
 			{
+				self::$help_val_array[$key.'.'.$p]['key'] = '&#91;+'. $key.'.'.$p.'+&#93;';
 				$p = '&#91;+'. $key.'.'.$p.'+&#93;';
 			}
-//			print_r($placeholders_this_field); exit;
+			
 			// Add the primary placeholder that contains the formatted field.
 			array_unshift($placeholders_this_field, '&#91;+'.$key.'+&#93;');
 			
-			// Messaging to the user
-			self::$placeholders[$key.'.help'] = sprintf( __('The %s custom field can use the following placeholders: %s',CCTM_TXTDOMAIN)
-				, $key
-				, implode(' ,', $placeholders_this_field)
-			);
-			// STORE placeholders for each value in this field 
+			// STORE placeholders for each value in this field... populate the [+field.help+] placeholder.
+			// FormGenerator Help
 			foreach ( $field_def as $k => $v )
 			{
-				self::$placeholders[$key.'.'.$k] = $v;	
+				self::$placeholders[$key.'.'.$k] = $v;
+				self::$help_val_array[$key.'.'.$k]['value'] = '<input type="text" value="'.htmlentities($v).'"/>';
 			}
+			self::$help_val_array[$key]['key'] = '&#91;+'. $key.'+&#93;';
+			self::$help_val_array[$key]['value'] = '<textarea rows="10" cols="100">'.preg_replace('/\t/','', self::$placeholders[$key]).'</textarea>';
+			
+			// Messaging to the user
+			self::$placeholders[$key.'.help'] = '<div class="cctm-help-'.$key.'" style="border:1px solid black; padding: 10px;">';
+			self::$placeholders[$key.'.help'] .= '<h2>'. __('FormGenerator Help', CCTM_TXTDOMAIN).'</h2>';
+			self::$placeholders[$key.'.help'] .= sprintf( __('The %s custom field can use the following placeholders: %s',CCTM_TXTDOMAIN)
+				, '<em>'.$key.'</em>'
+				, '<br />'. implode(', ', $placeholders_this_field) . '<hr />'
+			);
+			
+			self::$placeholders[$key.'.help'] .= '<ul>';
+			foreach ($field_def as $k => $v)
+			{
+				self::$placeholders[$key.'.help'] .= '<li>';
+				self::$placeholders[$key.'.help'] .= '<strong>'.self::$help_val_array[$key.'.'.$k]['key'].'</strong>';
+				self::$placeholders[$key.'.help'] .= self::$help_val_array[$key.'.'.$k]['value'];
+				self::$placeholders[$key.'.help'] .= '</li>';
+			}
+			self::$placeholders[$key.'.help'] .= '<li><strong>';
+			self::$placeholders[$key.'.help'] .= self::$help_val_array[$key]['key'] . '</strong>';
+			self::$placeholders[$key.'.help'] .= self::$help_val_array[$key]['value'] . '</li>';
+			self::$placeholders[$key.'.help'] .= '</ul></div>';
 		}
 
 		// Wrap output

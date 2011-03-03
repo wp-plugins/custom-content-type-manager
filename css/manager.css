@@ -71,3 +71,46 @@ img.cctm-img {
 .cctm-icon {
 	margin: 5px;
 }
+
+/* http://jcornelius.com/articles/polaroidizing-photos-with-css/ */
+/*img.polaroid {
+	margin:-5px 0 0px -5px !important;
+	padding:12px 15px 35px 14px !important;
+	background: url('../images/polaroid-background.png') 0 0 no-repeat;
+}
+.orglist_li {
+   background: url("bg_grey_drop.png") left top; 
+   border: 1px solid #000;
+   border-width: 0 1px 1px;
+   margin-top: 1px;
+   padding: 5px 10px 7px;
+   }
+       
+.orglist_li a {
+   color: #fff;
+   display: block;
+   font-size: 12px;
+   height: 18px;
+   margin: 4px 0 0 5px;
+   }        
+   
+.orglist_li a:hover {
+   text-decoration: none;
+   border: 0;
+   color: #CC6A11;
+   }
+
+#cctm-field-type-selector a {
+	display: block;
+	height: 18px;
+	margin: 35px 0 0 5px;
+}
+
+*/
+#cctm-field-type-selector li {
+	display: inline;
+	list-style-type: none;
+	border-width: 0 1px 1px;
+	/* padding: 5px 10px 7px; */
+}
+

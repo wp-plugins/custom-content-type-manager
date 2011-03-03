@@ -14,15 +14,15 @@ Placeholders are mostly:
 -->
 <tr id="cctm_custom_field_[+name+]" class="active">
 	<td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+	<td>[+icon+]</td>
 	<td class='plugin-title'>
-		[+icon+]
 		<strong>[+label+]</strong> ([+name+])
 	</td>
 	<td class="column-description desc">
 		<div class='plugin-description'><p>[+description+]</p></div>
 		<div class='active second plugin-version-author-uri'>
-			<input id="o1" name="[+name+][sort_param]" type="text" class="store_me" />
-			<a href="#" title="Edit this field">Edit</a> | <a href="#" title="Delete this field">Delete</a></div>
+			<input name="[+name+][sort_param]" type="hidden" class="store_me" />
+			[+edit_field_link+] | [+delete_field_link+]</div>
 
 	</td>
 </tr>

@@ -10,7 +10,7 @@ $def['post_type']['description'] 	= __('Unique singular name to identify this po
 $def['post_type']['type'] 			= 'text';
 $def['post_type']['sort_param'] 	= 1;
 	
-
+//! Labels
 $def['label']['name']			= 'label';
 $def['label']['label']			= __('Main Menu Label (Plural)', CCTM_TXTDOMAIN);
 $def['label']['value']			= '';
@@ -19,7 +19,7 @@ $def['label']['description']	= __('Plural name used in the admin menu, e.g. "Pos
 $def['label']['type']			= 'text';
 $def['label']['sort_param']		= 3;
 
-//! Labels
+
 $def['singular_label']['id']			= 'singular_label';
 $def['singular_label']['name']			= 'labels[singular_name]';
 $def['singular_label']['label']			= __('Singular', CCTM_TXTDOMAIN);
@@ -119,7 +119,7 @@ $def['parent_item_colon_label']['sort_param']	= 2;
 
 $def['menu_name_label']['id']			= 'menu_name_label';
 $def['menu_name_label']['name']			= 'labels[menu_name]';
-$def['menu_name_label']['label']		= __('Menu Name', CCTM_TXTDOMAIN);
+$def['menu_name_label']['label']		= __('Menu Name', CCTM_TXTDOMAIN) . '*';
 $def['menu_name_label']['value']		= '';
 $def['menu_name_label']['extra']		= '';
 $def['menu_name_label']['description']	= __('The menu name text. This string is the name to give menu items. Defaults to value of name', CCTM_TXTDOMAIN);

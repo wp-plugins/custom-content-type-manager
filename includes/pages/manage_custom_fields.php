@@ -153,7 +153,6 @@ We pass the following variables to this file:
 	}
 </style>
 
-
 <div class="wrap">
 	<?php //screen_icon(); ?>
 	<h2>

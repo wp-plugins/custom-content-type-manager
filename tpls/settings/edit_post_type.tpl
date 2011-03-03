@@ -60,16 +60,28 @@
 		<!--!Post Type -->
 		[+post_type+]
 		
-		<!--!Plural Label (Main Label)-->
-		[+label+]			
+		<!-- menu_name_label -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+menu_name_label.id+]">
+			<label for="[+menu_name_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+menu_name_label.id+]">
+				[+menu_name_label.label+] 
+				<a rel="ungrouped" href="[+CCTM_URL+]/images/screenshots/menu-name.jpg" title="[+menu_name_label.label+]" class="thickbox">
+					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+				</a>
+			</label>
+			<input type="text" name="[+menu_name_label.name+]" class="formgenerator_text" id="[+menu_name_label.id+]" value="[+menu_name_label.value+]"/>
+			<span class="formgenerator_description">[+menu_name_label.description+]</span>
+		</div>
+		
 		
 		<!--!Description-->
 		<!-- description -->
 		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_description">
 					
-			<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">[+description.label+]</label>
-			<textarea name="[+description.name+]" class="formgenerator_textarea" id="description" rows="4" cols="60">[+description.value+]</textarea>
+			<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_[+description.id+]">[+description.label+]</label>
+			<textarea name="[+description.name+]" class="formgenerator_textarea" id="[+description.id+]" rows="4" cols="60">[+description.value+]</textarea>
 		</div>
+		
+		
 		
 		
 		<!--!Show UI -->
@@ -87,6 +99,9 @@
 	
 		<!--singular_label -->
 		[+singular_label+]
+		
+		<!--!Plural Label (Main Label)-->
+		[+label+]	
 		
 		<!-- add_new_label -->
 		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+add_new_label.id+]_label">			
@@ -190,18 +205,6 @@
 		
 		<!-- parent_item_colon_label -->		
 		[+parent_item_colon_label+]
-		
-		<!-- menu_name_label -->
-		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_[+menu_name_label.id+]">
-			<label for="[+menu_name_label.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_[+menu_name_label.id+]">
-				[+menu_name_label.label+] 
-				<a rel="label-screenshots" href="[+CCTM_URL+]/images/screenshots/menu-name.jpg" title="[+menu_name_label.label+]" class="thickbox">
-					<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
-				</a>
-			</label>
-			<input type="text" name="[+menu_name_label.name+]" class="formgenerator_text" id="[+menu_name_label.id+]" value="[+menu_name_label.value+]"/>
-			<span class="formgenerator_description">[+menu_name_label.description+]</span>
-		</div>
 		
 	</div>
 	

@@ -15,14 +15,14 @@ $def['name']['name']			= 'name';
 $def['name']['label']			= __('Name', CCTM_TXTDOMAIN);
 $def['name']['value']			= '';
 $def['name']['extra']			= '';			
-$def['name']['description']		= __('The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
+$def['name']['description']		= __('The name identifies the option_name in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 $def['name']['type']			= 'text';
 $def['name']['sort_param']		= 2;
 
 $def['description']['name']			= 'description';
 $def['description']['label']		= __('Description',CCTM_TXTDOMAIN);
 $def['description']['value']		= '';
-$def['description']['extra']		= '';
+$def['description']['extra']		= 'rows="5" cols="60"';
 $def['description']['description']	= '';
 $def['description']['type']			= 'textarea';
 $def['description']['sort_param']	= 3;
