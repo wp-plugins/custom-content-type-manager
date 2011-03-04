@@ -22,7 +22,7 @@ $back_link = sprintf(
 	
 	<?php print $fields; ?>
 		
-	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" />
+	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" /> <a href="<?php print $back_link; ?>" class="button"><?php _e('Cancel', CCTM_TXTDOMAIN); ?></a>
 
 </form>
 

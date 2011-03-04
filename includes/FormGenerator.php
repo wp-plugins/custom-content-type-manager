@@ -445,6 +445,7 @@ class FormGenerator
 				$field_def['id'] = $field_def['name'];
 			}
 			$field_def['i'] = self::$i;
+			//! TODO: make these a class/interface http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=42
 			switch ( $field_def['type'] ) 
 			{
 				case 'checkbox':
@@ -546,7 +547,7 @@ class FormGenerator
 			self::$help_val_array[$key]['key'] = '&#91;+'. $key.'+&#93;';
 			self::$help_val_array[$key]['value'] = '<textarea rows="10" cols="100">'.preg_replace('/\t/','', self::$placeholders[$key]).'</textarea>';
 			
-			// Messaging to the user
+			// Messaging to the user... populate the [+xxx.help+] placeholders
 			self::$placeholders[$key.'.help'] = '<div class="cctm-help-'.$key.'" style="border:1px solid black; padding: 10px;">';
 			self::$placeholders[$key.'.help'] .= '<h2>'. __('FormGenerator Help', CCTM_TXTDOMAIN).'</h2>';
 			self::$placeholders[$key.'.help'] .= sprintf( __('The %s custom field can use the following placeholders: %s',CCTM_TXTDOMAIN)
@@ -568,6 +569,15 @@ class FormGenerator
 			self::$placeholders[$key.'.help'] .= '</ul></div>';
 		}
 
+		// Populate the super-help: [+*.help+]
+		self::$placeholders['*.help'] .= print_r(self::$placeholders, true);
+		/*
+print_r(self::$help_val_array); exit;
+		foreach ( self::$help_val_array as $k => $arr )
+		{
+			
+		}
+*/
 		// Wrap output
 		$output = self::$before_elements . $output . self::$after_elements;
 

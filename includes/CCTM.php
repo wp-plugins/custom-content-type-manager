@@ -140,33 +140,6 @@ class CCTM {
 	OUTPUT: An HTML form, length depends on the # of field defs.
 	------------------------------------------------------------------------------*/
 
-	/**
-	 *
-	 *
-	 * @param unknown $custom_field_defs
-	 * @return unknown
-	 */
-	private static function _get_html_field_defs($custom_field_defs) {
-		$output = '';
-		foreach ($custom_field_defs as $def) {
-			FormGenerator::$before_elements = '
-			<div id="generated_form_number_'.self::$def_i.'">';
-
-			FormGenerator::$after_elements = '
-				<br/>
-				<span class="button custom_content_type_mgr_remove" onClick="javascript:removeDiv(this.parentNode.id);">'.__('Remove This Field').'</span>
-				<hr/>
-			</div>';
-
-			$translated = self::_transform_data_structure_for_editing($def);
-			// print_r($translated); exit;
-			$output .= FormGenerator::generate($translated);
-			self::$def_i++;
-		}
-
-		return $output;
-	}
-
 
 	//------------------------------------------------------------------------------
 	/**
@@ -229,41 +202,6 @@ class CCTM {
 		}
 
 		return $output;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Gets a field definition ready for use inside of a JS variable.  We have to over-
-	 * ride some of the names used by the _get_html_field_defs() function so the
-	 * resulting HTML/Javascript will inherit values from Javascript variables dynamically
-	 * as the user adds new form fields on the fly.
-	 * Here +def_i+ represents a JS concatenation, where def_i is a JS variable.
-	 *
-	 * @return unknown
-	 */
-	private static function _get_javascript_field_defs() {
-		$def = self::$custom_field_def_template;
-		foreach ($def as $row_id => &$field) {
-			$name = $row_id;
-			// alter the Extra part of this for the listener on the dropdown
-			if ($name == 'type') {
-				$field['extra'] = str_replace('[+def_i+]', "'+def_i+'", $field['extra']);
-			}
-			$field['name'] = "custom_fields['+def_i+'][$name]";
-		}
-
-		FormGenerator::$before_elements = '<div id="generated_form_number_\'+def_i+\'">';
-		FormGenerator::$after_elements = '
-			<a class="button" href="#" onClick="javascript:removeDiv(this.parentNode.id);">'
-			.__('Remove This Field', CCTM_TXTDOMAIN).'</a>
-			<hr/>
-		</div>';
-
-		$output = FormGenerator::generate($def, 'javascript');
-
-		// Javascript chokes on newlines...
-		return str_replace( array("\r\n", "\r", "\n", "\t"), ' ', $output);
 	}
 
 
@@ -572,11 +510,6 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 */
-	//! TODO: Create custom field
-	/**
-	 *
 	 *
 	 * @param unknown $post_type
 	 * @param unknown $field_type (optional)
@@ -2460,13 +2393,13 @@ class CCTM {
 	 */
 	public static function create_admin_menu() {
 		add_menu_page(
-			'Custom Content Types',     // page title
-			'Custom Content Types',      // menu title
-			'manage_options',       // capability
-			self::admin_menu_slug,      // menu-slug (should be unique)
+			'Custom Content Types',    		// page title
+			'Custom Content Types',     	// menu title
+			'manage_options',       		// capability
+			self::admin_menu_slug,      	// menu-slug (should be unique)
 			'CCTM::page_main_controller',   // callback function
 			CCTM_URL .'/images/gear.png',   // Icon
-			71
+			71								// menu position
 		);
 	}
 
