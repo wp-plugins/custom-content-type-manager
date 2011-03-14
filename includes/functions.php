@@ -304,9 +304,10 @@ field is defined as a "standardized" custom field.
 This filters out empty values ('' or null). 
 
 INPUT:
-	$fieldname (str) name of a custom field
-OUTPUT:
-	array of unique values.
+@param	string	$fieldname	name of a custom field
+@param	string	$order	specify the order of the results returned, either 'ASC' (default) or 'DESC'
+
+@return	array 	unique values.
 
 USAGE:
 Imagine a custom post_type that profiles you and your friends. There is a custom 
@@ -318,15 +319,26 @@ field that defines your favorite cartoon named 'favorite_cartoon':
 		Array ( 'Family Guy', 'South Park', 'The Simpsons' );
 
 */
-function get_unique_values_this_custom_field($fieldname)
+function get_unique_values_this_custom_field($fieldname, $order='ASC')
 {
 	global $wpdb;
+
+	$order = strtoupper($order);
+	// Sanitize
+	if ($order != 'ASC' && $order != 'DESC') {
+		$order = 'ASC';  // back to default.
+	}
 	$query = "SELECT DISTINCT {$wpdb->postmeta}.meta_value 
 		FROM {$wpdb->postmeta} JOIN {$wpdb->posts} ON {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID
 		WHERE {$wpdb->postmeta}.meta_key=%s 
 		AND {$wpdb->postmeta}.meta_value !=''
-		AND {$wpdb->posts}.post_status = 'publish'";
-	$results = $wpdb->get_results( $wpdb->prepare($query, $fieldname), ARRAY_N );	
+		AND {$wpdb->posts}.post_status = 'publish'
+		ORDER BY {$wpdb->postmeta}.meta_value $order";
+
+	$sql = $wpdb->prepare($query, $fieldname);
+	//print '<textarea>'.$sql.'</textarea>';
+	$results = $wpdb->get_results( $sql, ARRAY_N );	
+	//print_r($results); exit;
 	// Repackage
 	$uniques = array();
 	foreach ($results as $r )
@@ -336,7 +348,6 @@ function get_unique_values_this_custom_field($fieldname)
 
 	return array_unique($uniques);
 }
-
 
 //------------------------------------------------------------------------------
 /**

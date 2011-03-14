@@ -157,31 +157,42 @@ class StandardizedCustomFields
 			return;
 		}
 		
-		foreach ( $custom_fields as $def_i => &$field ) {
+		foreach ( $custom_fields as $def_i => &$field_def ) {
 			$output_this_field = '';			
-			//$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates			
+			//$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates
+			CCTM::include_form_element_class($field_def['type']); // This will die on errors
+			$field_type_name = CCTM::FormElement_classname_prefix.$field_def['type'];
+			$FieldObj = new $field_type_name(); // Instantiate the field element
+//print_r($field_def); exit;
+			
 			if ( self::_is_new_post() )
 			{
-				$field['value'] = $field['default_value'];
+				$output_this_field = $FieldObj->get_create_post_form($field_def);
 			}
 			else
 			{
-				$field['value'] = htmlspecialchars( get_post_meta( $post->ID, $field['name'], true ) );
-			}		
+				$field_def['value'] = htmlspecialchars( get_post_meta( $post->ID, $field_def['name'], true ) );
+				$output_this_field =  $FieldObj->get_edit_post_form($field_def);
+			}
+			
 			$field['raw_name'] = $field['name']; // preserved
 			$field['name'] = self::field_name_prefix . $field['name']; // this ensures unique keys in $_POST
+			
+			$output .= $output_this_field;
 		}
 
 		// generate() gets the final output, but it also populates FormGenerator::$placeholders (used for custom mgr forms)
-		$output = FormGenerator::generate($custom_fields,'css-friendly');
+		// $output = FormGenerator::generate($custom_fields,'css-friendly');
 		
 		// See if there's a custom manager form tpl avail...
+/*
 		$mgr_tpl_file = CCTM_PATH.'/tpls/manager/'.$post->post_type.'.tpl';
 		if ( file_exists($mgr_tpl_file) ) 
 		{ 
 			$tpl = file_get_contents($mgr_tpl_file);
 			$output = self::parse($tpl, FormGenerator::$placeholders);
 		}
+*/
  		// Print the form
  		print '<div class="form-wrap">';
 	 	wp_nonce_field('update_custom_content_fields','custom_content_fields_nonce');

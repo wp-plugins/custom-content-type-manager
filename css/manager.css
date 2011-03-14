@@ -114,3 +114,7 @@ img.cctm-img {
 	/* padding: 5px 10px 7px; */
 }
 
+input.cctm_error { 
+	background: #fed; 
+	border: 1px solid red;
+}

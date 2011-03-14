@@ -15,7 +15,7 @@ Placeholders are mostly:
 <tr id="cctm_custom_field_[+name+]" class="active">
 	<td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
 	<td>[+icon+]</td>
-	<td class='plugin-title'>
+	<td class="plugin-title">
 		<strong>[+label+]</strong> ([+name+])
 	</td>
 	<td class="column-description desc">

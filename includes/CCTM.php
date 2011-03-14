@@ -14,7 +14,7 @@ http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-
 class CCTM {
 	// Name of this plugin
 	const name   = 'Custom Content Type Manager';
-
+	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.0.1';
 	const php_req_ver  = '5.2.6';
@@ -34,6 +34,8 @@ class CCTM {
 	const action_param    = 'a';
 	const post_type_param   = 'pt';
 
+	const FormElement_classname_prefix = 'CCTM_';
+	
 	// integer iterator used to uniquely identify groups of field definitions for
 	// CSS and $_POST variables
 	public static $def_i = 0;
@@ -95,18 +97,30 @@ class CCTM {
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @return unknown
-	 */
-
-
-	private static function _get_custom_icons_src_dir() {
-		self::$custom_field_icons_dir = CCTM_URL.'/images/custom-fields/';
-		return self::$custom_field_icons_dir;
+	* Geared to be backwards compatible with CCTM versions prior to 0.8.8 where
+	* custom field defs were stored in numbered arrays instead of keyed off of their
+	* unique names.
+	*
+	* @param 	mixed	$data: full data structure
+	* @param	string	$post_type: the name of this post_type
+	* @param	string	$field_name: the name of the field whose data you want
+	* @return	array	associative array representing a field definition for $field_name
+	*/
+	private static function _get_field_data($data, $post_type, $field_name) {
+		if ( empty($data) || empty($data[$post_type]) || empty($data[$post_type]['custom_fields']))
+		{
+			return array();
+		}
+		foreach ( $data[$post_type]['custom_fields'] as $tmp => $def )
+		{
+			if ( $def['name'] == $field_name )
+			{
+				return $def;
+			}
+		}
+		return array(); // gave up
 	}
-
-
+	
 	/*------------------------------------------------------------------------------
 	Generate HTML portion of our manage custom fields form. This is in distinction
 	to the JS portion of the form, which uses a slightly different format.
@@ -138,13 +152,6 @@ class CCTM {
 	)
 
 	OUTPUT: An HTML form, length depends on the # of field defs.
-	------------------------------------------------------------------------------*/
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 *
-	 *
 	 * @return unknown
 	 */
 	private static function _get_field_type_icons() {
@@ -238,7 +245,6 @@ class CCTM {
 		}
 	}
 
-
 	/*------------------------------------------------------------------------------
 	SYNOPSIS: checks the custom content data array to see if $post_type exists.
 		The $data array is structured something like this:
@@ -266,9 +272,9 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
-	 * @param unknown $search_built_ins (optional)
-	 * @return unknown
+	 * @param string $post_type
+	 * @param boolean $search_built_ins (optional)
+	 * @return boolean
 	 */
 	private static function _is_existing_post_type($post_type, $search_built_ins=true) {
 		$data = get_option( self::db_key );
@@ -347,11 +353,11 @@ class CCTM {
 
 		foreach ( self::$custom_field_def_template['type']['options'] as $field_type ) {
 			$hash = array();
-			$hash['icon_src'] = self::_get_custom_icons_src_dir() . $field_type.'.png';
+			$hash['icon_src'] = self::get_custom_icons_src_dir() . $field_type.'.png';
 
 			// Use the default image if necessary
 			if (!@fclose(@fopen($hash['icon_src'], 'r'))) {
-				$hash['icon_src'] = self::_get_custom_icons_src_dir() . 'default.png';
+				$hash['icon_src'] = self::get_custom_icons_src_dir() . 'default.png';
 			}
 
 			$hash['field_type'] = $field_type;
@@ -507,129 +513,10 @@ class CCTM {
 		print $msg;
 	}
 
-
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 * @param unknown $post_type
-	 * @param unknown $field_type (optional)
-	 */
-	private static function _page_create_custom_field($post_type, $field_type='text') {
-		// We can't edit built-in post types
-		if (!self::_is_existing_post_type($post_type, false ) ) {
-			self::_page_display_error();
-			return;
-		}
-		$def = self::$custom_field_def_template;
-		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
-		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
-		$translated = self::_transform_data_structure_for_editing($def);
-
-		// Save sort order if submitted...
-		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-			$data = get_option( self::db_key, array() );
-			$error_msg = array(); // used as a flag
-			unset($_POST['custom_content_type_mgr_create_new_custom_field_nonce']);
-			unset($_POST['_wp_http_referer']);
-
-			$name = self::_get_value($_POST, 'name', '');
-			if ( empty($name) ) {
-				$error_msg[] = __('Name is required.', CCTM_TXTDOMAIN);
-			}
-			else {
-				if ( preg_match('/[^a-z_0-9]/i', $name)) {
-					$error_msg[] = sprintf(
-						__('%s contains invalid characters.', CCTM_TXTDOMAIN)
-						, "<strong>$name</strong>");
-					$translated['name']['value'] = preg_replace('/[^a-z_]/', '', $name);
-				}
-				if ( strlen($name) > 20 ) {
-					$_POST['name'] = substr($name, 0 , 20);
-					$error_msg[] = __('The name is too long. Names must not exceed 20 characters.', CCTM_TXTDOMAIN);
-				}
-				if ( in_array($name, self::$reserved_field_names ) ) {
-					$error_msg[] = sprintf(
-						__('%s is a reserved name.', CCTM_TXTDOMAIN)
-						, "<strong>$name</strong>");
-				}
-				if ( is_array($data[$post_type]['custom_fields']) && in_array( $name, array_keys($data[$post_type]['custom_fields']) ) ) {
-					$error_msg[] = __('That name is already in use. Please choose another.', CCTM_TXTDOMAIN);
-					$_POST['name'] = '';
-				}
-			}
-
-			// Any errors?
-			if ($error_msg) {
-				foreach ( $error_msg as &$e ) {
-					$e = '<li>'.$e.'</li>';
-				}
-
-				$msg = sprintf('<div class="error">
-					<h3>%1$s</h3>
-					<ul style="margin-left:30px">
-						%2$s
-					</ul>
-					</div>'
-					, __('There were errors in the names of your custom fields.', CCTM_TXTDOMAIN)
-					, implode("\n", $error_msg)
-				);
-				// repopulate the form values
-				foreach ( $_POST as $k => $v ) {
-					$translated[$k]['value'] = $v;
-				}
-			}
-			// Save;
-			else {
-				$data[$post_type]['custom_fields'][$name] = $_POST;
-				// print 'Pass!  Saving!'; print_r($data); exit;
-
-				update_option( self::db_key, $data );
-				$msg = sprintf('<div class="updated"><p>%s</p></div>'
-					, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
-						, '<em>'.$post_type.'</em>'
-					)
-				);
-				unset($_POST);
-				self::set_flash($msg);
-				self::_page_show_custom_fields($post_type);
-				return;
-			}
-
-		}
-
-
-		$fields = FormGenerator::generate($translated);
-		$submit_link = $tpl = sprintf(
-			'?page=%s&%s=9&%s=%s&type=%s'
-			, self::admin_menu_slug
-			, self::action_param
-			, self::post_type_param
-			, $post_type
-			, $field_type
-		);
-
-		$icon_src = self::_get_custom_icons_src_dir() . $field_type.'.png';
-		// This generates our placeholders
-		FormGenerator::$placeholders['icon'] = sprintf('<img src="%s"/>', $icon_src);
-
-		$tpl_file = CCTM_PATH."/tpls/custom_fields/$field_type.tpl";
-		if ( file_exists($tpl_file) ) {
-			$tpl = file_get_contents($tpl_file);
-			FormGenerator::$placeholders['CCTM_URL'] = CCTM_URL;
-			// print_r(FormGenerator::$placeholders); exit;
-			$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
-		}
-		include 'pages/custom_field.php';
-	}
-
-
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Create a new post type
-	------------------------------------------------------------------------------*/
-
-	/**
-	 *
+	 * Manager Page -- called by page_main_controller()
+	 * Create a new post type
 	 */
 	private static function _page_create_new_post_type() {
 		self::_set_post_type_form_definition();
@@ -784,8 +671,14 @@ class CCTM {
 		// get current values from database
 		$data = get_option( self::db_key, array() );
 		$custom_fields_array = array();
+		#print_r($data[$post_type]['custom_fields']); exit;
+		// For compatibility with versions prior to 0.8.8, we iterate through
 		if ( !empty($data[$post_type]['custom_fields']) ) {
-			$custom_fields_array = array_keys($data[$post_type]['custom_fields']);
+			foreach ($data[$post_type]['custom_fields'] as $k => $def )
+			{
+				$custom_fields_array[] = $def['name'];
+			}
+			# $custom_fields_array = array_keys($data[$post_type]['custom_fields']);
 		}
 		if ( !in_array($field, $custom_fields_array) ) {
 			$msg = '<p>'. __('Invalid custom field.', CCTM_TXTDOMAIN)
@@ -808,7 +701,15 @@ class CCTM {
 			die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 		}
 		else {
-			unset($data[$post_type]['custom_fields'][$field]); // <-- Delete this node of the data structure
+			// Again, for compatibility with versions prior to 0.8.8, we do not assume that the 
+			// field names exist as keys inside of 'custom_fields'
+			foreach ($data[$post_type]['custom_fields'] as $k => $def ) {
+				if ($def['name'] == $field) {
+					unset($data[$post_type]['custom_fields'][$k]);
+				}
+			}
+			 
+			
 			update_option( self::db_key, $data );
 			$msg = '<div class="updated"><p>'
 				.sprintf( __('The %s custom field has been deleted', CCTM_TXTDOMAIN), "<em>$field</em>")
@@ -897,175 +798,125 @@ class CCTM {
 	 *
 	 * @param unknown $post_type
 	 * @param unknown $field_name
-	 */
-	private static function _page_edit_custom_field($post_type, $field_name) {
-		// We can't delete built-in post types
-		if (!self::_is_existing_post_type($post_type, false ) ) {
+	private static function _page_create_custom_field($post_type, $field_type='text') {
+		// We can't edit built-in post types
+		if (!self::_is_existing_post_type($post_type, true ) ) {
 			self::_page_display_error();
 			return;
 		}
 
-		// get current values from database
-		$data = get_option( self::db_key, array() );
-		$custom_fields_array = array();
-		if ( !empty($data[$post_type]['custom_fields']) ) {
-			$custom_fields_array = array_keys($data[$post_type]['custom_fields']);
-		}
-		if ( !in_array($field_name, $custom_fields_array) ) {
-			$msg = '<p>'. __('Invalid custom field.', CCTM_TXTDOMAIN)
-				. '</p>';
-			$msg .= sprintf(
-				'<a href="?page=%s&%s=4&%s=%s" title="%s" class="button">%s</a>'
-				, self::admin_menu_slug
-				, self::action_param
-				, self::post_type_param
-				, $post_type
-				, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
-				, __('Back', CCTM_TXTDOMAIN)
-			);
-			wp_die( $msg );
-		}
+		self::include_form_element_class($field_type); // This will die on errors
+		$field_type_name = self::FormElement_classname_prefix.$field_type;
+		$FieldObj = new $field_type_name(); // Instantiate the field element
+		
+		$field_data = $FieldObj->get_defaults(); // overridden by submitted data (if validation errors)
+		
+		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
+		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
 
-		$nonce = self::_get_value($_GET, '_wpnonce');
 
-		if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
-			wp_die( __('Invalid request.', CCTM_TXTDOMAIN ) );
-		}
-		else {
-			// We gotta run the gauntlet to get here
-			// SAVE STUFF!!!
-			if ( !empty($_POST) )
-			{
-				#print 'Stuff saving...'; 
-				#print_r($_POST); exit;
-				
-				$error_msg = array(); // used as a flag
-				unset($_POST['custom_content_type_mgr_edit_custom_field_nonce']);
-				unset($_POST['_wp_http_referer']);
-	
-				$name = self::_get_value($_POST, 'name', '');
-				if ( empty($name) ) {
-					$error_msg[] = __('Name is required.', CCTM_TXTDOMAIN);
-				}
-				else {
-					if ( preg_match('/[^a-z_0-9]/i', $name)) {
-						$error_msg[] = sprintf(
-							__('%s contains invalid characters.', CCTM_TXTDOMAIN)
-							, "<strong>$name</strong>");
-						$translated['name']['value'] = preg_replace('/[^a-z_]/', '', $name);
-					}
-					if ( strlen($name) > 20 ) {
-						$_POST['name'] = substr($name, 0 , 20);
-						$error_msg[] = __('The name is too long. Names must not exceed 20 characters.', CCTM_TXTDOMAIN);
-					}
-					if ( in_array($name, self::$reserved_field_names ) ) {
-						$error_msg[] = sprintf(
-							__('%s is a reserved name.', CCTM_TXTDOMAIN)
-							, "<strong>$name</strong>");
-					}
-					if ( is_array($data[$post_type]['custom_fields']) && in_array( $name, array_keys($data[$post_type]['custom_fields']) ) ) {
-						$error_msg[] = __('That name is already in use. Please choose another.', CCTM_TXTDOMAIN);
-						$_POST['name'] = '';
-					}
-				}
-	
-				// Any errors?
-				if ($error_msg) {
-					foreach ( $error_msg as &$e ) {
-						$e = '<li>'.$e.'</li>';
-					}
-	
-					$msg = sprintf('<div class="error">
-						<h3>%1$s</h3>
-						<ul style="margin-left:30px">
-							%2$s
-						</ul>
-						</div>'
-						, __('There were errors in the names of your custom fields.', CCTM_TXTDOMAIN)
-						, implode("\n", $error_msg)
-					);
-					// repopulate the form values
-					foreach ( $_POST as $k => $v ) {
-						$translated[$k]['value'] = $v;
-					}
-				}
-				// Save;
-				else {
-				 	$original_name = self::_get_value($_POST,'original_name');
-					if ( $original_name != $name )
-					{
-						unset($data[$post_type]['custom_fields'][$original_name]);
-					}
-					$data[$post_type]['custom_fields'][$name] = $_POST;
-	
-					update_option( self::db_key, $data );
-					$msg = sprintf('<div class="updated"><p>%s</p></div>'
-						, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
-							, '<em>'.$post_type.'</em>'
-						)
-					);
-					unset($_POST);
-					self::set_flash($msg);
-					self::_page_show_custom_fields($post_type);
-					return;
-				}
-			
-			
+		// Save sort order if submitted...
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+
+			$data = get_option( self::db_key, array() );
+			$error_msg = array(); // used as a flag
+			unset($_POST['custom_content_type_mgr_create_new_custom_field_nonce']);
+			unset($_POST['_wp_http_referer']);
+
+			// Validate and sanitize any submitted data
+			$field_data = $FieldObj->save_settings_filter($_POST, $data, $post_type);
+
+			// Any errors?
+			if ( !empty($FieldObj->errors) ) {
+				$msg = $FieldObj->format_errors();
 			}
-						
-			// Clean the input for backwards compatibility (prior to v.0.8.8 stored custom fields using an integer for $def_i instead of the field id)
-			foreach ( $data[$post_type]['custom_fields'] as $def_id => $d ) {
-				$k = $d['name'];
-				$data[$post_type]['custom_fields'][$k] = $d;
-				if ( is_int($def_id) ) {
-					unset($data[$post_type]['custom_fields'][$def_id]); // remove the integer version
-				}
-			}
-			// Let's edit this thing!
-			$def = $data[$post_type]['custom_fields'][$field_name];
-			$action_name  = 'custom_content_type_mgr_edit_custom_field';
-			$nonce_name  = 'custom_content_type_mgr_edit_custom_field_nonce';
-			$translated = self::_transform_data_structure_for_editing($def);
-
-			// Populate values for the form
-			foreach ( $data[$post_type]['custom_fields'][$field_name] as $k => $v ) {
-				$translated[$k]['value'] = $def[$k];
+			// Save;
+			else {
+				$data[$post_type]['custom_fields'][ $field_data['name'] ] = $field_data;
+//				print_r($data);
+//				exit;
+				update_option( self::db_key, $data );
+				$msg = sprintf('<div class="updated"><p>%s</p></div>'
+					, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
+						, '<em>'.$post_type.'</em>'
+					)
+				);
+				unset($_POST);
+				self::set_flash($msg);
+				self::_page_show_custom_fields($post_type);
+				return;
 			}
 
-			$fields = FormGenerator::generate($translated);
-			$submit_link = $tpl = sprintf(
-				'?page=%s&%s=11&%s=%s&type=%s'
-				, self::admin_menu_slug
-				, self::action_param
-				, self::post_type_param
-				, $post_type
-				, $field_name
-			);
+		}
 
-			$icon_src = self::_get_custom_icons_src_dir() . $def['type'].'.png';
+		$fields = $FieldObj->get_create_settings_form($field_data);
 
-			// This generates our placeholders
-			FormGenerator::$placeholders['icon'] = sprintf('<img src="%s"/>', $icon_src);
+		$submit_link = $tpl = sprintf(
+			'?page=%s&%s=9&%s=%s&type=%s'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, $field_type
+		);
+		
+		$icon = $FieldObj->get_icon();
+		$heading = __('Create Field', CCTM_TXTDOMAIN);
+		include 'pages/custom_field.php';
+	}	 
+	 
+	 */
+	private static function _page_create_edit_custom_field($post_type, $vars, &$FieldObj) {
+		// We can't edit built-in post types
+		if ( !self::_is_existing_post_type($post_type, true ) ) {
+			self::_page_display_error();
+			return;
+		}
+		
+		// Save if submitted...
+		if ( !empty($_POST) && check_admin_referer($vars['action_name'], $vars['nonce_name']) ) {
 
-			$tpl_file = CCTM_PATH."/tpls/custom_fields/".$def['type'].".tpl";
-			if ( file_exists($tpl_file) ) {
-				$tpl = file_get_contents($tpl_file);
-				FormGenerator::$placeholders['CCTM_URL'] = CCTM_URL;
-				$fields = FormGenerator::parse($tpl, FormGenerator::$placeholders);
+			unset($_POST[ $vars['nonce_name'] ]);
+			unset($_POST['_wp_http_referer']);
+
+			// Validate and sanitize any submitted data
+			$vars['field_data'] = $FieldObj->save_settings_filter($_POST, $vars, $post_type);
+
+			// Any errors?
+			if ( !empty($FieldObj->errors) ) {
+				$msg = $FieldObj->format_errors();
 			}
-			$fields .= sprintf('<input type="hidden" name="original_name" value="%s" />', $field_name );
-			$action_link = sprintf(
-				'?page=%s&%s=11&%s=%s&field=%s&_wpnonce=%s'
-				, self::admin_menu_slug
-				, self::action_param
-				, self::post_type_param
-				, $post_type
-				, $field_name
-				, wp_create_nonce('cctm_edit_field')
-			);
-			include 'pages/custom_field.php';
+			// Save;
+			else {
+				if ( isset($vars['field_name']) ) {
+					unset($vars['data'][$post_type]['custom_fields'][ $vars['field_name'] ]); //<-- OLD name
+				}
+				$field_name = $vars['field_data']['name']; // <-- this is the NEW name
+				$vars['data'][$post_type]['custom_fields'][$field_name] = $vars['field_data'];
+				update_option( self::db_key, $vars['data'] );
+				$msg = $success_msg;
+				unset($_POST);
+				self::set_flash($msg);
+				self::_page_show_custom_fields($post_type);
+				return;
+			}
 
 		}
+
+		$fields = $FieldObj->get_create_settings_form($vars['field_data']);
+
+		$submit_link = $tpl = sprintf(
+			'?page=%s&%s=9&%s=%s&type=%s'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, $field_type
+		);
+		
+		$icon = $FieldObj->get_icon();
+		
+		include 'pages/custom_field.php';
 
 	}
 
@@ -1276,15 +1127,11 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Manage custom fields for any post type, built-in or custom.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $post_type
+	 * Manager Page -- called by page_main_controller()
+	 * Manage custom fields for any post type, built-in or custom.
+	 * @param string $post_type
 	 */
 	private static function _page_show_custom_fields($post_type) {
 		// Validate post type
@@ -1301,10 +1148,12 @@ class CCTM {
 
 		// Validate/Save data if it was properly submitted
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+			$sanitized = array();
 			foreach ( $data[$post_type]['custom_fields'] as $def_i => &$cf ) {
 				$name = $cf['name'];
 				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
 			}
+			# print_r($data); exit;
 			update_option( self::db_key, $data );
 			$x = sprintf( __('Sort order has been saved.', CCTM_TXTDOMAIN) );
 			$msg .= sprintf('<div class="updated"><p>%s</p></div>', $x);
@@ -1336,7 +1185,7 @@ class CCTM {
 		foreach ( $def as $def_id => $d ) {
 			$k = $d['name'];
 			$def[$k] = $d;
-			if ( is_int($def_id) ) {
+			if ( is_int($def_id) || empty($def_id) ) {
 				unset($def[$def_id]); // remove the integer version
 			}
 		}
@@ -1344,15 +1193,16 @@ class CCTM {
 		$fields = '';
 
 		foreach ($def as $def_i => $d) {
-			//print_r($d); exit;
-			$icon_src = self::_get_custom_icons_src_dir() . $d['type'].'.png';
+			# print_r($d); exit;
+			$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
 
-			if ( true /*file_exists($icon_src)*/ ) {
-				$d['icon'] = sprintf('<img src="%s" style="float:left;"/>', $icon_src);
+			if (!@fclose(@fopen($icon_src, 'r'))) {
+				$icon_src = self::get_custom_icons_src_dir() . 'default.png';
 			}
-			else {
-				$d['image'] = '';
-			}
+
+			$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $icon_src);
+
+			
 			$d['edit'] = __('Edit');
 			$d['delete'] = __('Delete');
 			$d['edit_field_link'] = sprintf(
@@ -1602,13 +1452,10 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	List all post types (default page)
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * Manager Page -- called by page_main_controller()
+	 * List all post types (default page)
 	 */
 	private static function _page_show_all_post_types() {
 		$msg = self::get_flash();
@@ -1660,8 +1507,6 @@ class CCTM {
 					$hash['activate_deactivate_delete_links'] = '<span class="activate">'
 						. self::_link_activate($post_type) . '</span>';
 				}
-
-				$hash['activate_deactivate_delete_links'] = '';
 			}
 			// Whereas users define the description for custom post types
 			else {
@@ -1712,15 +1557,11 @@ class CCTM {
 
 	INPUT: $def (mixed) form definition
 		$pt_data (mixed) data describing a single post type
-	OUTPUT: $def updated with values
-	------------------------------------------------------------------------------*/
-
-	/**
 	 *
 	 *
-	 * @param unknown $def
-	 * @param unknown $pt_data
-	 * @return unknown
+	 * @param array		$def form definition
+	 * @param array 	$pt_data -- data for a single post type
+	 * @return array	$def updated with values
 	 */
 	private static function _populate_form_def_from_data($def, $pt_data) {
 		$labels_array = array(
@@ -1887,14 +1728,11 @@ class CCTM {
 			(the only way that an update would fail would be if someone somehow POST'ed
 			against this form)
 	OUTPUT: null if there are no errors, otherwise return a string describing an error.
-	------------------------------------------------------------------------------*/
-
-	/**
 	 *
 	 *
-	 * @param unknown $data
-	 * @param unknown $new  (optional)
-	 * @return unknown
+	 * @param mixed 	$data describes a post type (this will be input to the register_post_type() function
+	 * @param boolean 	$new  (optional)
+	 * @return mixed 	returns null if there are no errors, otherwise returns a string describing an error.
 	 */
 	private static function _post_type_name_has_errors($data, $new=false) {
 		$errors = null;
@@ -2384,6 +2222,17 @@ class CCTM {
 	}
 
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Returns a path with trailing slash.
+	 *
+	 * @return unknown
+	 */
+	public static function get_custom_icons_src_dir() {
+		self::$custom_field_icons_dir = CCTM_URL.'/images/custom-fields/';
+		return self::$custom_field_icons_dir;
+	}
+
 	/*------------------------------------------------------------------------------
 	Create custom post-type menu
 	------------------------------------------------------------------------------*/
@@ -2403,14 +2252,46 @@ class CCTM {
 		);
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	* Includes the class file for the field type specified by $field_type
+	*/
+	public static function include_form_element_class($field_type) {
+		if (empty($field_type) ) {
+			$msg = __('Field type is empty.', CCTM_TXTDOMAIN);
+			die($msg);
+		}
+		
+		$element_file = CCTM_PATH.'/includes/elements/'.$field_type.'.php';
+		if ( !file_exists($element_file))
+		{
+			// ERROR!
+			$msg = sprintf( __('File not found for %s element: %s', CCTM_TXTDOMAIN) 
+				, $field_type
+				, $element_file
+			);
+			die ($msg); //! TODO: print admin notice
+		}
+		//
+		else
+		{
+			// TODO: try/catch block
+			include_once($element_file);
+			if ( !class_exists(self::FormElement_classname_prefix.$field_type) )
+			{
+				$msg = sprintf( __('Incorrect class name in %s file.', CCTM_TXTDOMAIN)
+					, $element_file
+				);
+				die( $msg );
+			}
+		}
+	}
+
 
 	/*------------------------------------------------------------------------------
 	Checks whether or not a given post-type is active with its custom fields standardized..
 	INPUT: $content_type (str) name of a post type.
 	OUTPUT: true|false
-	------------------------------------------------------------------------------*/
-
-	/**
 	 *
 	 *
 	 * @param unknown $content_type
@@ -2456,7 +2337,7 @@ class CCTM {
 			//self::_page_manage_custom_fields($post_type);
 			self::_page_show_custom_fields($post_type);
 			break;
-		case 5: // TODO: Manage Taxonomies for existing post type
+		case 5: // TODO: Manage Taxonomies for existing post type (???)
 			break;
 		case 6: // Activate post type
 			self::_page_activate_post_type($post_type);
@@ -2469,15 +2350,47 @@ class CCTM {
 			break;
 		case 9: // Create custom field
 			$field_type = self::_get_value($_GET, 'type');
-			self::_page_create_custom_field($post_type, $field_type);
+			# self::_page_create_custom_field($post_type, $field_type);
+			$vars = array();
+			$vars['heading'] = __('Create Field', CCTM_TXTDOMAIN);
+			$vars['data'] = get_option( self::db_key, array() );
+			$vars['action_name']  = 'custom_content_type_mgr_create_new_custom_field';
+			$vars['nonce_name']  = 'custom_content_type_mgr_create_new_custom_field_nonce';
+			$vars['success_msg'] = sprintf('<div class="updated"><p>%s</p></div>'
+							, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
+								, '<em>'.$post_type.'</em>'));
+			self::include_form_element_class($field_type); // This will die on errors
+			$field_type_name = self::FormElement_classname_prefix.$field_type;
+			$FieldObj = new $field_type_name(); // Instantiate the field element
+			// Populate Field data
+			$vars['field_data'] = $FieldObj->get_defaults();
+			$vars['field_type'] = $field_type;
+						
+			self::_page_create_edit_custom_field($post_type, $vars, $FieldObj);
 			break;
-		case 10: // Delete cusotm field
+		case 10: // Delete custom field
 			$field_name = self::_get_value($_GET, 'field');
 			self::_page_delete_custom_field($post_type, $field_name);
 			break;
 		case 11: // Edit custom field
 			$field_name = self::_get_value($_GET, 'field');
-			self::_page_edit_custom_field($post_type, $field_name);
+			// Variables for this request
+			$vars = array();
+			$vars['field_name'] = $field_name;
+			$vars['heading'] = __('Edit Field', CCTM_TXTDOMAIN);
+			$vars['data'] = get_option( self::db_key, array() );
+			$vars['action_name']  = 'custom_content_type_mgr_edit_custom_field';
+			$vars['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
+			$vars['success_msg'] = sprintf('<div class="updated"><p>%s</p></div>'
+							, sprintf(__('%s has been updated.', CCTM_TXTDOMAIN)
+								, '<em>'.$field_name.'</em>'));
+			// Populate Field data
+			$vars['field_data'] = self::_get_field_data($vars['data'], $post_type, $field_name);
+			$field_type = $vars['field_data']['type'];
+			self::include_form_element_class($field_type); // This will die on errors
+			$field_type_name = self::FormElement_classname_prefix.$field_type;
+			$FieldObj = new $field_type_name(); // Instantiate the field element
+			self::_page_create_edit_custom_field($post_type, $vars, $FieldObj);
 			break;
 
 

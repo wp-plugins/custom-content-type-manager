@@ -14,11 +14,13 @@ $back_link = sprintf(
 <div class="wrap">
 	<h2>
 	<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>"><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /></a>
-	<?php print $post_type; ?> : Custom Fields <a href="<?php print $back_link; ?>" class="button"><?php _e('Show all Fields', CCTM_TXTDOMAIN); ?></a></h2>
+	<?php print $post_type; ?> : <?php print $vars['heading']; ?> <a href="<?php print $back_link; ?>" class="button"><?php _e('Show all Fields', CCTM_TXTDOMAIN); ?></a></h2>
 
 	<?php print $msg; ?>
+
+	<?php print $icon; ?>
 	
-	<?php wp_nonce_field($action_name, $nonce_name); ?>
+	<?php wp_nonce_field($vars['action_name'], $vars['nonce_name']); ?>
 	
 	<?php print $fields; ?>
 		
