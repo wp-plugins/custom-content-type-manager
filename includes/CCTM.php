@@ -903,7 +903,7 @@ class CCTM {
 
 		}
 
-		$fields = $FieldObj->get_create_settings_form($vars['field_data']);
+		$fields = $FieldObj->get_create_field_form($vars['field_data']);
 
 		$submit_link = $tpl = sprintf(
 			'?page=%s&%s=9&%s=%s&type=%s'
@@ -2150,7 +2150,7 @@ class CCTM {
 		wp_register_style('CCTM_css'
 			, CCTM_URL . '/css/manager.css');
 		wp_enqueue_style('CCTM_css');
-		// Hand-holding: If your custom post-types omit the main content block,
+		// Hand-holding: If your custom post-type omits the main content block,
 		// then thickbox will not be queued.
 		wp_enqueue_script( 'thickbox' );
 		wp_enqueue_style( 'thickbox' );
@@ -2158,6 +2158,8 @@ class CCTM {
 		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/custom-theme/jquery-ui-1.8.10.custom.css');
 		wp_enqueue_script( 'jquery-ui-tabs');
 		wp_enqueue_script( 'jquery-ui-sortable');
+		
+		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
 	}
 
 

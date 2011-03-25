@@ -163,10 +163,9 @@ class StandardizedCustomFields
 			CCTM::include_form_element_class($field_def['type']); // This will die on errors
 			$field_type_name = CCTM::FormElement_classname_prefix.$field_def['type'];
 			$FieldObj = new $field_type_name(); // Instantiate the field element
-//print_r($field_def); exit;
 			
 			if ( self::_is_new_post() )
-			{
+			{		
 				$output_this_field = $FieldObj->get_create_post_form($field_def);
 			}
 			else

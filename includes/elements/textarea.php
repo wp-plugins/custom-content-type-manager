@@ -66,8 +66,8 @@ class CCTM_textarea extends FormElement
 	 * @param unknown $default_vals
 	 * @return unknown
 	 */
-	public function get_create_settings_form($def) {
-		return $this->get_edit_settings_form($def);
+	public function get_create_field_form($def) {
+		return $this->get_edit_field_form($def);
 	}
 
 
@@ -82,7 +82,7 @@ class CCTM_textarea extends FormElement
 			}
 			</style>
 	 */
-	public function get_edit_settings_form($def) {
+	public function get_edit_field_form($def) {
 		return '
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">

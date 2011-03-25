@@ -61,7 +61,7 @@ class CCTM_checkbox extends FormElement
 			, $def['value_when_checked']
 			, $is_checked
 		);
-		$output .= $this->label; #$this->wrap_label();
+		$output .= $this->wrap_label();
 		return $this->wrap_outer($output);
 	}
 
@@ -77,8 +77,8 @@ class CCTM_checkbox extends FormElement
 	 * @param unknown $default_vals
 	 * @return unknown
 	 */
-	public function get_create_settings_form($def) {
-		return $this->get_edit_settings_form($def);
+	public function get_create_field_form($def) {
+		return $this->get_edit_field_form($def);
 	}
 
 
@@ -93,7 +93,7 @@ class CCTM_checkbox extends FormElement
 			}
 			</style>
 	 */
-	public function get_edit_settings_form($def) {
+	public function get_edit_field_form($def) {
 		$is_checked = '';
 		if ( $def['checked_by_default'] ) {
 			$is_checked = 'checked="checked"';

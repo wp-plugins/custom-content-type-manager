@@ -1,11 +1,11 @@
 <?php
 /**
-* CCTM_wysiwyg
+* CCTM_image
 *
 * Implements an HTML text input.
 *
 */
-class CCTM_wysiwyg extends FormElement
+class CCTM_image extends FormElement
 {
 	/**
 	 *
@@ -38,33 +38,38 @@ class CCTM_wysiwyg extends FormElement
 	 *
 	 * @param unknown $def
 	 * @return unknown
-	 
-	 
-		$tpl = '
-			<label for="[+name+]" class="formgenerator_label formgenerator_wsyiwyg_label" id="formgenerator_label_[+name+]">[+label+]</label>
-			<textarea name="[+name+]" class="formgenerator_wysiwyg" id="[+name+]" [+extra+]>[+value+]</textarea>
-			<script type="text/javascript">
-				jQuery( document ).ready( function() {
-					jQuery( "[+name+]" ).addClass( "mceEditor" );
-					if ( typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" ) {
-						tinyMCE.execCommand( "mceAddControl", false, "[+name+]" );
-					}
-				});
-			</script>';		 
 	 */
 	public function get_edit_post_form($def) {
-		$output = sprintf('
-			%s 
-			<input type="text" name="%s" class="%s" id="%s" value="%s"/>
-			'
-			, $this->wrap_label()
-			, self::post_name_prefix . $this->name
-			, $this->get_css_class()
-			, $this->name
-			, $def['default_value']
-		);
+		global $post;
 		
-		return $this->wrap_outer($output);
+		$media_html = '';
+
+		// It has a value
+		if ( !empty($def['value']) )
+		{
+			$def['preview_html'] = wp_get_attachment_image( $def['value'], 'thumbnail', true );
+			$attachment_obj = get_post($def['value']);
+			//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
+			$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['value'].')</span></span><br />';
+			
+		}
+		// It's not set yet
+		else
+		{
+			$def['preview_html'] = '';
+		}
+		
+		$def['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
+		$def['click_label'] = __('Choose Image');
+		$tpl = '
+			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span>
+			<input type="hidden" id="[+id+]" name="[+name+]" value="[+value+]" /><br />
+			<div id="[+id+]_media">[+preview_html+]</div>
+			<br class="clear" />
+			<a href="[+controller_url+]&fieldname=[+id+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+			<br class="clear" /><br />';
+		return FormGenerator::parse($tpl, $def);
+		
 	}
 
 
@@ -94,9 +99,38 @@ class CCTM_wysiwyg extends FormElement
 				background: #fed; border: 1px solid red;
 			}
 			</style>
+
+
+		if ( !empty($def['value']) )
+		{
+			$def['preview_html'] = wp_get_attachment_image( $def['value'], 'thumbnail', true );
+			$attachment_obj = get_post($def['value']);
+			//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
+			$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['value'].')</span></span><br />';
+			
+		}
+		// It's not set yet
+		else
+		{
+			$def['preview_html'] = '';
+		}
+		
+		$def['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
+		$def['click_label'] = __('Choose Image');
+		$tpl = '
+			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span>
+			<input type="hidden" id="[+id+]" name="[+name+]" value="[+value+]" /><br />
+			<div id="[+id+]_media">[+preview_html+]</div>
+			<br class="clear" />
+			<a href="[+controller_url+]&fieldname=[+id+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+			<br class="clear" /><br />';
+		return FormGenerator::parse($tpl, $def);
+			
+			
+			
 	 */
 	public function get_edit_field_form($def) {
-		return '
+		$out = '
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
 			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
@@ -110,22 +144,47 @@ class CCTM_wysiwyg extends FormElement
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_css_class('name','text').'" id="name" value="'.$def['name'].'"/>'
 				 . $this->get_description('name') . '
-			 </div>
+			 </div>';
+			// Default Image			 
+/*
+			if ( !empty($def['value']) )
+			{
+				$def['preview_html'] = wp_get_attachment_image( $def['value'], 'thumbnail', true );
+				$attachment_obj = get_post($def['value']);
+				//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
+				$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['value'].')</span></span><br />';
+				
+			}
+			// It's not set yet
+			else
+			{
+				$def['preview_html'] = '';
+			}
+			
+			$def['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
+			$def['click_label'] = __('Choose Image');
+			$tpl = '
+				<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_default_value">[+label+]</span>
+				<input type="hidden" id="default_value" name="[+name+]" value="[+value+]" /><br />
+				<div id="[+id+]_media">[+preview_html+]</div>
+				<br class="clear" />
+				<a href="[+controller_url+]&fieldname=default_value" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+				<br class="clear" /><br />';
+			$out .= FormGenerator::parse($tpl, $def);
+*/
+
 			 
+			 
+			 
+			 $out .= '
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
 			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_default_value">'.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<textarea name="default_value" class="'.$this->get_css_class('default_value','textarea').'" id="default_value" rows="5" cols="60">'
+			 		<input type="text" name="default_value" class="'.$this->get_css_class('default_value','textarea').'" id="default_value" value="'
 			 			.$def['default_value']
-			 		.'</textarea>
+			 		.'" size="80"/>
 			 	' . $this->get_description('default_value') .'
 			 </div>
-
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
-			 	<label for="extra" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_extra">'.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_css_class('extra','text').'" id="extra" value="'.htmlentities(stripslashes($def['extra'])).'"/>
-			 	' . $this->get_description('extra') .'
-			 </div>
-			 
+			
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
 			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_css_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
@@ -134,6 +193,8 @@ class CCTM_wysiwyg extends FormElement
 			 
 			 
 			 ';
+			 
+			 return $out;
 	}
 
 }

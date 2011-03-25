@@ -194,12 +194,12 @@ abstract class FormElement {
 	 *
 	 * @param mixed   $current_values should be an associative array.
 	 */
-	abstract public function get_create_settings_form($current_values);
+	abstract public function get_create_field_form($current_values);
 
 	/**
 	 *
 	 */
-	abstract public function get_edit_settings_form($current_values);
+	abstract public function get_edit_field_form($current_values);
 
 
 
@@ -217,6 +217,7 @@ abstract class FormElement {
 	 *
 	 * @param string  $input_type: the type of HTML field (if applicable)
 	 * @return string a string representing a CSS class.
+	 *
 	 */
 	protected function get_css_class( $id, $input_type='text' ) {
 		// formgenerator_text
@@ -242,6 +243,27 @@ abstract class FormElement {
 	 */
 	protected function get_css_id() {
 		return $this->input_id_prefix . $this->props['name'];
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	* Behavior is determined by the function that calls this: see 
+	* http://bytes.com/topic/php/answers/221-function-global-var-return-name-calling-function
+	*/
+	protected function get_name() {
+		$backtrace = debug_backtrace();
+		$calling_function = $backtrace[1]['function'];
+		
+		switch ($calling_function) {
+			case 'get_create_post_form':
+			case 'get_edit_post_form':
+				
+				break;
+			case 'get_edit_field_form':
+			case 'get_create_settings_form':
+			default: 
+
+		}
 	}
 
 	//------------------------------------------------------------------------------
@@ -286,6 +308,7 @@ abstract class FormElement {
 			%s
 		</label>
 		';
+		
 		return sprintf($wrapper
 			, $this->props['name']
 			, self::label_css_class_prefix . $this->props['name']
@@ -379,7 +402,11 @@ abstract class FormElement {
 			case 'extra':
 				$out = 
 			 		 __('Any extra attributes for this text field, e.g. <code>size="10"</code>', CCTM_TXTDOMAIN);
-			 	break;		
+			 	break;
+			case 'default_option':
+				$out = 
+			 		 __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
+				break;
 			case 'default_value':
 				$out = 
 			 		 __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
@@ -408,6 +435,19 @@ abstract class FormElement {
 		 return sprintf($tpl, $out);
 	}
  
+ 	//------------------------------------------------------------------------------
+ 	//------------------------------------------------------------------------------
+ 	/**
+ 	* @param	string	$html string, with linebreaks, quotes, etc.
+ 	* @return	string	Filtered: linebreaks removed, quotes escaped.
+ 	*/
+ 	public static function make_js_safe($html) {
+ 		$html = preg_replace("/\n\r|\r\n|\r|\n/",'',$html);
+ 		$html = preg_replace( '/\s+/', ' ', $html );
+ 		$html = addslashes($html);
+ 		$html = trim($html);
+ 	}
+ 	
 	//------------------------------------------------------------------------------
 	/**
 	 * Get the full image tag for this field-type's icon.  The icon should be 48x48.

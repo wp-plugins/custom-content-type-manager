@@ -90,6 +90,33 @@
 		<!--!Public -->
 		[+public+]
 		
+		
+				<!--!Use Default Menu Icon -->
+		<!-- use_default_menu_icon -->
+		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_use_default_menu_icon">
+			<input type="checkbox" name="[+use_default_menu_icon.name+]" class="formgenerator_checkbox" id="use_default_menu_icon" value="[+use_default_menu_icon.checked_value+]" [+use_default_menu_icon.is_checked+] onclick="javascript:toggle_image_detail('menu_icon_container');"/> 
+			<label for="use_default_menu_icon" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_use_default_menu_icon">[+use_default_menu_icon.label+]</label>
+			<span class="formgenerator_description">[+use_default_menu_icon.description+]</span>
+		</div>
+		
+		<div id="menu_icon_container" style="display: none;">
+		
+		<!--!Menu Icon -->
+			<!-- menu_icon -->
+			<div class="formgenerator_element_wrapper" id="custom_field_wrapper_menu_icon">		
+				<label for="[+menu_icon.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_menu_icon">[+menu_icon.label+]</label>
+				<input type="text" name="[+menu_icon.name+]" class="formgenerator_text" id="[+menu_icon.id+]" value="[+menu_icon.value+]" size="100"/>
+						<span class="formgenerator_description">[+menu_icon.description+]</span>
+			</div>
+		
+			<div style="width:300px; margin-top:10px;">
+			[+icons+]
+				<br/>
+				<p>Do you want more icons? Check the <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomIcons">Wiki</a> for instructions.  You can help this project include a better default set -- see the related <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=30">issue</a> in the bug tracker. Thanks!</p>
+			</div>
+		</div>
+		
+		
 	</div>
 
 	<!-- ================================================================================================ -->	
@@ -251,31 +278,6 @@
 	
 		<!--!Menu Position-->
 		[+menu_position+]
-		
-		<!--!Use Default Menu Icon -->
-		<!-- use_default_menu_icon -->
-		<div class="formgenerator_element_wrapper" id="custom_field_wrapper_use_default_menu_icon">
-			<input type="checkbox" name="[+use_default_menu_icon.name+]" class="formgenerator_checkbox" id="use_default_menu_icon" value="[+use_default_menu_icon.checked_value+]" [+use_default_menu_icon.is_checked+] onclick="javascript:toggle_image_detail('menu_icon_container');"/> 
-			<label for="use_default_menu_icon" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_use_default_menu_icon">[+use_default_menu_icon.label+]</label>
-			<span class="formgenerator_description">[+use_default_menu_icon.description+]</span>
-		</div>
-		
-		<div id="menu_icon_container" style="display: none;">
-		
-		<!--!Menu Icon -->
-			<!-- menu_icon -->
-			<div class="formgenerator_element_wrapper" id="custom_field_wrapper_menu_icon">		
-				<label for="[+menu_icon.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_menu_icon">[+menu_icon.label+]</label>
-				<input type="text" name="[+menu_icon.name+]" class="formgenerator_text" id="[+menu_icon.id+]" value="[+menu_icon.value+]" size="100"/>
-						<span class="formgenerator_description">[+menu_icon.description+]</span>
-			</div>
-		
-			<div style="width:300px; margin-top:10px;">
-			[+icons+]
-				<br/>
-				<p>Do you want more icons? Check the <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomIcons">Wiki</a> for instructions.  You can help this project include a better default set -- see the related <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=30">issue</a> in the bug tracker. Thanks!</p>
-			</div>
-		</div>
 
 	</div>
 

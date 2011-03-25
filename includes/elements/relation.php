@@ -1,11 +1,11 @@
 <?php
 /**
-* CCTM_text
+* CCTM_relation
 *
 * Implements an HTML text input.
 *
 */
-class CCTM_text extends FormElement
+class CCTM_relation extends FormElement
 {
 	/**
 	 *
@@ -24,7 +24,7 @@ class CCTM_text extends FormElement
 	 * @param string HTML to be used in the WP manager for an instance of this type of element.
 	 */
 	public function get_create_post_form($def) {
-		# $def = $this->get_defaults();
+		$def = $this->get_defaults();
 		return $this->get_edit_post_form($def); // pass on to 
 	}
 
@@ -40,14 +40,13 @@ class CCTM_text extends FormElement
 	 * @return unknown
 	 */
 	public function get_edit_post_form($def) {
-		$this->props = $def;
 		$output = sprintf('
 			%s 
 			<input type="text" name="%s" class="%s" id="%s" value="%s"/>
 			'
 			, $this->wrap_label()
 			, self::post_name_prefix . $this->name
-			, $this->get_css_class($this->name, 'text')
+			, $this->get_css_class()
 			, $this->name
 			, $def['default_value']
 		);
@@ -102,17 +101,21 @@ class CCTM_text extends FormElement
 			 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
 			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_default_value">'.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_css_class('default_value','text').'" id="default_value" value="'. $def['default_value']
-			 		.'"/>
+			 		<input type="text" name="default_value" class="'.$this->get_css_class('default_value','textarea').'" id="default_value" value="'
+			 			.$def['default_value']
+			 		.'" />
 			 	' . $this->get_description('default_value') .'
 			 </div>
 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
-			 	<label for="extra" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_extra">'.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_css_class('extra','text').'" id="extra" value="'.htmlentities(stripslashes($def['extra'])).'"/>
-			 	' . $this->get_description('extra') .'
-			 </div>
-			 
+			<div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
+				<label for="options" class="formgenerator_label formgenerator_select_label" id="formgenerator_label_options">'.__('Options', CCTM_TXTDOMAIN) .'</label>
+				
+				<input type="text" name="options[]" value="Something" /> <span class="button">Delete</span><br/>
+				<input type="text" name="options[]" value="Something" /> <span class="button">Delete</span><br/>
+				<input type="text" name="options[]" value="Something" /> <span class="button">Delete</span><br/>
+				
+			</div>
+			
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
 			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_css_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
