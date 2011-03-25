@@ -104,6 +104,8 @@
 	
 		/*------------------------------------------------------------------------------
 		Where the magic happens: this sends our selection back to WordPress
+		@param	integer	post_id is the ID of the attachment that has been selected
+		@param	string	thumbnail_html is the html that displays a thumbnail of the post_id referenced
 		------------------------------------------------------------------------------*/
 		function send_back_to_wp( post_id, thumbnail_html )
 		{

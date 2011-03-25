@@ -35,12 +35,13 @@ abstract class FormElement {
 	// Set default properties here
 	public $props = array(
 		'label' => '',
-		'name' => '', // uniquely identifies this custom-field
+		'name' => '', // uniquely identifies this custom-field; corresponds to wp_postmeta.meta_key for each post
 		'description' => '',
 		'type' => '', // e.g. checkbox, dropbox, text
 		'options' => array(),
 		'default_value' => '',
 		
+		// Should these be used at all?
 		'input_css_class'	=> '',
 		'label_css_class'	=> '',
 		'wrapper_css_class'	=> '',
@@ -249,8 +250,10 @@ abstract class FormElement {
 	/**
 	* Behavior is determined by the function that calls this: see 
 	* http://bytes.com/topic/php/answers/221-function-global-var-return-name-calling-function
+	* @param	string	$name is the name of a field, e.g. 'my_name' in <input type="text" name="my_name" />
+	* @return	string	A name safe for the context in which it was called.
 	*/
-	protected function get_name() {
+	protected function get_name($name) {
 		$backtrace = debug_backtrace();
 		$calling_function = $backtrace[1]['function'];
 		
@@ -260,7 +263,7 @@ abstract class FormElement {
 				
 				break;
 			case 'get_edit_field_form':
-			case 'get_create_settings_form':
+			case 'get_create_field_form':
 			default: 
 
 		}
@@ -506,12 +509,12 @@ abstract class FormElement {
 			$this->errors['name'][] = __('Name is required.', CCTM_TXTDOMAIN);
 		}
 		else {
-			// Are there any invalid characters?
-			if ( preg_match('/[^a-z_0-9]/i', $post['name'])) {
+			// Are there any invalid characters? 1st char. must be a letter
+			if ( preg_match('/^[^a-z]{1}[^a-z_0-9]*/i', $post['name'])) {
 				$this->errors['name'][] = sprintf(
-					__('%s contains invalid characters.', CCTM_TXTDOMAIN)
+					__('%s contains invalid characters. The name may only contain letters, numbers, and underscores, and it must begin with a letter.', CCTM_TXTDOMAIN)
 					, '<strong>'.$post['name'].'</strong>');
-				$data['name'] = preg_replace('/[^a-z_]/', '', $data['name']);
+				$data['name'] = preg_replace('/[^a-z_0-9]/', '', $data['name']);
 			}
 			// Is the name too long?
 			if ( strlen($post['name']) > 20 ) {

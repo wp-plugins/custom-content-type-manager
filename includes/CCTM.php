@@ -417,8 +417,8 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
-	 * @return unknown
+	 * @param string 	$post_type a post_type known to CCTM (not necessarily currently registered)
+	 * @return string	HTML link for managing the custom fields 
 	 */
 	private static function _link_manage_custom_fields($post_type) {
 		return sprintf(
@@ -438,8 +438,8 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
-	 * @return unknown
+	 * @param string $post_type a post_type known to CCTM (not necessarily currently registered)
+	 * @return string	HTML link to edit a post_type
 	 */
 	private static function _link_edit($post_type) {
 		return sprintf(
@@ -512,6 +512,138 @@ class CCTM {
 			</script>';
 		print $msg;
 	}
+
+	/*------------------------------------------------------------------------------
+	Edit a custom field.  This is a bit complicated, but it doesn't involve JS like
+	the previous version did. 
+	------------------------------------------------------------------------------*/
+	/**
+	 *
+	 *
+	 * @param unknown $post_type
+	 * @param unknown $field_name
+	private static function _page_create_custom_field($post_type, $field_type='text') {
+		// We can't edit built-in post types
+		if (!self::_is_existing_post_type($post_type, true ) ) {
+			self::_page_display_error();
+			return;
+		}
+
+		self::include_form_element_class($field_type); // This will die on errors
+		$field_type_name = self::FormElement_classname_prefix.$field_type;
+		$FieldObj = new $field_type_name(); // Instantiate the field element
+		
+		$field_data = $FieldObj->get_defaults(); // overridden by submitted data (if validation errors)
+		
+		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
+		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
+
+
+		// Save sort order if submitted...
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+
+			$data = get_option( self::db_key, array() );
+			$error_msg = array(); // used as a flag
+			unset($_POST['custom_content_type_mgr_create_new_custom_field_nonce']);
+			unset($_POST['_wp_http_referer']);
+
+			// Validate and sanitize any submitted data
+			$field_data = $FieldObj->save_settings_filter($_POST, $data, $post_type);
+
+			// Any errors?
+			if ( !empty($FieldObj->errors) ) {
+				$msg = $FieldObj->format_errors();
+			}
+			// Save;
+			else {
+				$data[$post_type]['custom_fields'][ $field_data['name'] ] = $field_data;
+//				print_r($data);
+//				exit;
+				update_option( self::db_key, $data );
+				$msg = sprintf('<div class="updated"><p>%s</p></div>'
+					, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
+						, '<em>'.$post_type.'</em>'
+					)
+				);
+				unset($_POST);
+				self::set_flash($msg);
+				self::_page_show_custom_fields($post_type);
+				return;
+			}
+
+		}
+
+		$fields = $FieldObj->get_create_settings_form($field_data);
+
+		$submit_link = $tpl = sprintf(
+			'?page=%s&%s=9&%s=%s&type=%s'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, $field_type
+		);
+		
+		$icon = $FieldObj->get_icon();
+		$heading = __('Create Field', CCTM_TXTDOMAIN);
+		include 'pages/custom_field.php';
+	}	 
+	 
+	 */
+	 //! Working here...
+	private static function _page_create_edit_custom_field($post_type, $vars, &$FieldObj) {
+
+		if ( !self::_is_existing_post_type($post_type, true ) ) {
+			self::_page_display_error();
+			return;
+		}
+		
+		// Save if submitted...
+		if ( !empty($_POST) && check_admin_referer($vars['action_name'], $vars['nonce_name']) ) {
+			// A little cleanup before we handoff to save_settings_filter
+			unset($_POST[ $vars['nonce_name'] ]);
+			unset($_POST['_wp_http_referer']);
+
+			// Validate and sanitize any submitted data
+			$vars['field_data'] = $FieldObj->save_settings_filter($_POST, $vars, $post_type);
+
+			// Any errors?
+			if ( !empty($FieldObj->errors) ) {
+				$msg = $FieldObj->format_errors();
+			}
+			// Save;
+			else {
+				if ( isset($vars['field_name']) ) {
+					unset($vars['data'][$post_type]['custom_fields'][ $vars['field_name'] ]); //<-- unset the OLD name
+				}
+				$field_name = $vars['field_data']['name']; // <-- this is the NEW name
+				$vars['data'][$post_type]['custom_fields'][$field_name] = $vars['field_data'];
+				update_option( self::db_key, $vars['data'] );
+				unset($_POST);
+				self::set_flash($vars['success_msg']);
+				self::_page_show_custom_fields($post_type);
+				return;
+			}
+
+		}
+		// this should change to get_edit_field_form() if it's an edit.
+		$fields = $FieldObj->get_create_field_form($vars['field_data']);
+
+		$submit_link = $tpl = sprintf(
+			'?page=%s&%s=9&%s=%s&type=%s'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, $field_type
+		);
+		
+		$icon = $FieldObj->get_icon();
+		
+		include 'pages/custom_field.php';
+
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -787,139 +919,6 @@ class CCTM {
 			.self::admin_menu_slug.'">'. __('Back', CCTM_TXTDOMAIN). '</a>';
 		wp_die( $msg );
 	}
-
-
-	/*------------------------------------------------------------------------------
-	Edit a custom field.  This is a bit complicated, but it doesn't involve JS like
-	the previous version did. 
-	------------------------------------------------------------------------------*/
-	/**
-	 *
-	 *
-	 * @param unknown $post_type
-	 * @param unknown $field_name
-	private static function _page_create_custom_field($post_type, $field_type='text') {
-		// We can't edit built-in post types
-		if (!self::_is_existing_post_type($post_type, true ) ) {
-			self::_page_display_error();
-			return;
-		}
-
-		self::include_form_element_class($field_type); // This will die on errors
-		$field_type_name = self::FormElement_classname_prefix.$field_type;
-		$FieldObj = new $field_type_name(); // Instantiate the field element
-		
-		$field_data = $FieldObj->get_defaults(); // overridden by submitted data (if validation errors)
-		
-		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
-		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
-
-
-		// Save sort order if submitted...
-		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-
-			$data = get_option( self::db_key, array() );
-			$error_msg = array(); // used as a flag
-			unset($_POST['custom_content_type_mgr_create_new_custom_field_nonce']);
-			unset($_POST['_wp_http_referer']);
-
-			// Validate and sanitize any submitted data
-			$field_data = $FieldObj->save_settings_filter($_POST, $data, $post_type);
-
-			// Any errors?
-			if ( !empty($FieldObj->errors) ) {
-				$msg = $FieldObj->format_errors();
-			}
-			// Save;
-			else {
-				$data[$post_type]['custom_fields'][ $field_data['name'] ] = $field_data;
-//				print_r($data);
-//				exit;
-				update_option( self::db_key, $data );
-				$msg = sprintf('<div class="updated"><p>%s</p></div>'
-					, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
-						, '<em>'.$post_type.'</em>'
-					)
-				);
-				unset($_POST);
-				self::set_flash($msg);
-				self::_page_show_custom_fields($post_type);
-				return;
-			}
-
-		}
-
-		$fields = $FieldObj->get_create_settings_form($field_data);
-
-		$submit_link = $tpl = sprintf(
-			'?page=%s&%s=9&%s=%s&type=%s'
-			, self::admin_menu_slug
-			, self::action_param
-			, self::post_type_param
-			, $post_type
-			, $field_type
-		);
-		
-		$icon = $FieldObj->get_icon();
-		$heading = __('Create Field', CCTM_TXTDOMAIN);
-		include 'pages/custom_field.php';
-	}	 
-	 
-	 */
-	private static function _page_create_edit_custom_field($post_type, $vars, &$FieldObj) {
-		// We can't edit built-in post types
-		if ( !self::_is_existing_post_type($post_type, true ) ) {
-			self::_page_display_error();
-			return;
-		}
-		
-		// Save if submitted...
-		if ( !empty($_POST) && check_admin_referer($vars['action_name'], $vars['nonce_name']) ) {
-
-			unset($_POST[ $vars['nonce_name'] ]);
-			unset($_POST['_wp_http_referer']);
-
-			// Validate and sanitize any submitted data
-			$vars['field_data'] = $FieldObj->save_settings_filter($_POST, $vars, $post_type);
-
-			// Any errors?
-			if ( !empty($FieldObj->errors) ) {
-				$msg = $FieldObj->format_errors();
-			}
-			// Save;
-			else {
-				if ( isset($vars['field_name']) ) {
-					unset($vars['data'][$post_type]['custom_fields'][ $vars['field_name'] ]); //<-- OLD name
-				}
-				$field_name = $vars['field_data']['name']; // <-- this is the NEW name
-				$vars['data'][$post_type]['custom_fields'][$field_name] = $vars['field_data'];
-				update_option( self::db_key, $vars['data'] );
-				$msg = $success_msg;
-				unset($_POST);
-				self::set_flash($msg);
-				self::_page_show_custom_fields($post_type);
-				return;
-			}
-
-		}
-
-		$fields = $FieldObj->get_create_field_form($vars['field_data']);
-
-		$submit_link = $tpl = sprintf(
-			'?page=%s&%s=9&%s=%s&type=%s'
-			, self::admin_menu_slug
-			, self::action_param
-			, self::post_type_param
-			, $post_type
-			, $field_type
-		);
-		
-		$icon = $FieldObj->get_icon();
-		
-		include 'pages/custom_field.php';
-
-	}
-
 
 	/*------------------------------------------------------------------------------
 	Manager Page -- called by page_main_controller()
@@ -2277,7 +2276,7 @@ class CCTM {
 		//
 		else
 		{
-			// TODO: try/catch block
+			//! TODO: try/catch block
 			include_once($element_file);
 			if ( !class_exists(self::FormElement_classname_prefix.$field_type) )
 			{

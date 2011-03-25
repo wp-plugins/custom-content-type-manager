@@ -13,12 +13,15 @@ require_once('../../../wp-admin/admin.php');
 if ( !empty($_POST) && !empty($_FILES) )// && isset($_POST['async-upload']) && !empty($_FILES) )
 {
 
+	// This is a WP built-in, poorly documented.
 	$id = media_handle_upload('async-upload',''); //post id of Client Files page
-	
+
 	// on success, $id should be an inteter (last_insert_id), on error, it's a WP_Error Object 
+	// BUT.. it's a valid use case that this would get called when defining a custom field.  In that case, 
+	// there is no post_id.
 	if ( is_object($id) )
 	{
-		print "<p>There was a problem uploading. Please try using WordPress' <a href='media-new.php'>built-in manager</a> to upload new media.</p>";
+		printf( __("<p>There was a problem uploading. Did you select a file? If you continue to have problems, please try using WordPress' <a href='media-new.php'>built-in manager</a> to upload new media.</p>", CCTM::CCTM_TXTDOMAIN) );
 	}
 	else
 	{
