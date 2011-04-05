@@ -1,167 +1,136 @@
 <?php
 /**
- * TODO: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=42
- * We need a class that can be extended on a per custom-field-type basis.
- * Think about this... each form element gets its own array in the custom_fields array...
- * but each form element might have completely disparate attributes.  The whole FormGenerator
- * approach may not be the best way to do this.
- * How should this be extended by other users?  I should register an action that savvy users
- * can tap into.
+ * @package FormElement
  *
- * Example def
- * Array
- * (
- * 		[label] => Class
- *		[name] => class
- * 		[description] => Used to style the display.
- * 		[type] => dropdown
- * 		[options] => Array
- * 		(
- * 			[0] => regular
- * 			[1] => long
- * 		)
- * 		[default_value] => regular
- * 		[sort_param] => 8
- * )
+ * This class can be extended for each type of custom field, e.g. dropdown, textarea, etc.
+ * so that instances of these field types can be created and attached to a post_type.
+ * The notion of a "class" or "object" has two layers here: First there is a general class
+ * of form element (e.g. dropdown) which is implemented inside of a given post_type. E.g.
+ * a "State" dropdown might be attached to an "Address" post_type. Secondly, instances of 
+ * the post_type create instances of the "State" field are created with each "Address" post.
+ * The second layer here is really another way of saying that each field has its own value.
  *
- * There are layers here... first there is a child class of FormElement that
- 
- * @package
+ * The functions in this class serve the following primary purposes:
+ *		1.	Generate forms which allow a custom field definition to be created and edited.
+ * 		2. 	Generate form elements which allow an instance of custom field to be displayed
+ *			when a post is created or edited
+ *		3.	Retrieve and filter the meta_value stored for a given post and return it to the
+ *			theme file, e.g. if an image id is stored in the meta_value, the filter function
+ *			can translate this id into a full image tag.
+ *
+ * When a new type of custom field is defined, all the abstract functions must be implemented.
+ * This is how we force the children classes to implement their own behavior. Bruhaha.
+ * Usually the forms to create and edit a definition or element are the same, but if needed,
+ * there are separate functions to create and edit a definition or value.
+ * 
  */
 
 
 abstract class FormElement {
 
-	// Set default properties here
-	public $props = array(
-		'label' => '',
-		'name' => '', // uniquely identifies this custom-field; corresponds to wp_postmeta.meta_key for each post
-		'description' => '',
-		'type' => '', // e.g. checkbox, dropbox, text
-		'options' => array(),
-		'default_value' => '',
-		
-		// Should these be used at all?
-		'input_css_class'	=> '',
-		'label_css_class'	=> '',
-		'wrapper_css_class'	=> '',
-		
-		// 'sort_param' => '', // handled automatically
-	);
+	/** 
+	* The $props array acts as a template which defines the properties for each instance of this type of field.
+	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
+	* Some properties are required of all fields (see below), some are automatically generated (see below), but
+	* each type of custom field (i.e. each class that extends FormElement) can have whatever properties it needs
+	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
+	* 
+	* 
+	*
+	* The following properties MUST be implemented:
+	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
+	*	'label'	=> 
+	*	'description'	=> a description of this type of field.
+	*
+	* The following properties are set automatically:
+	*
+	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
+	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
+	*/
+	public $props = array();
 
+	public $element_i = 0; // used to increment CSS ids as we wrap multiple elements
+	
+	// Contains reusable localized descriptions of common field definition elements, e.g. 'label'
 	public $descriptions = array();
 	
-	public $css_class = '';
-
 	// Stores any errors with fields.  The format here is array( 'field_name' => array('Error msg1','Error msg2') )
 	public $errors = array();
 
-	// Vars from $props that you don't want any dev in a childclass to change
+	// Definition vars from $props that you don't want any dev in a child class to change
 	// during runtime.
 	private $protected_instance_vars = array('sort_param', 'name');
 
 	// Added to each key in the $_POST array, e.g. $_POST['cctm_firstname']
-	const post_name_prefix = 'cctm_';
-	const input_type_class_prefix = 'cctm_';
-	const input_id_prefix = 'cctm_';
+	const post_name_prefix 	= 'cctm_';
+	const css_class_prefix 	= 'cctm_';
+	const css_id_prefix 	= 'cctm_';
 
 	
 	/* Always include this CSS class in generated input labels, e.g. 
 	<label for="xyz" class="formgenerator_label formgenerator_text_label" id="xyz_label">
 		Address</label>
 	*/
-	const label_css_class_prefix = 'formgenerator_label '; // include a space
-	const label_css_id_prefix = 'formgenerator_label_';
-	const css_class_description = 'formgenerator_description';
-	const error_css = 'cctm_error'; // used for validation errors
+	const wrapper_css_class 		= 'formgenerator_element_wrapper';
+	const label_css_class 			= 'formgenerator_label';
+	const label_css_id_prefix 		= 'formgenerator_label_';
+	const css_class_description 	= 'formgenerator_description';
+	const error_css 				= 'cctm_error'; // used for validation errors
+	
 	//------------------------------------------------------------------------------
 	/**
-	 * When we instantiate an instance of a particular FormElement, we pass it 
-	 * a definition hash.
-	 * @param	array	$def: Associative array used to populate the $props variable. 
+	 *	 
 	 */
 	public function __construct() {
+				
+		// Run-time Localization
+		$this->descriptions['class'] = __('Add a CSS class to instances of this field. Use this to customize styling in the WP manager.', CCTM_TXTDOMAIN);
 		$this->descriptions['extra'] = __('Any extra attributes for this text field, e.g. <code>size="10"</code>', CCTM_TXTDOMAIN);
+		$this->descriptions['default_option'] = __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
 		$this->descriptions['default_value'] = __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['value_when_checked'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
 		$this->descriptions['value_when_unchecked'] =  __('What value should be stored in the database when this checkbox is unchecked? Normally, checkboxes do not store a value when not checked, but you have the option to store a value when the checkbox is not checked. This makes it behave more like a dropdown or radio button.', CCTM_TXTDOMAIN);
-
-/*
-		
-		// Validation: make sure the declaration is legit
-		if ( !isset($def['name']) ) {
-			CCTM::$errors[] = __('FormElement definition must contain a "name" attribute.', CCTM_TXTDOMAIN);
-		}
-		if ( !empty(CCTM::$errors) ) {
-			return;
-		}
-		
-		
-		
-		// The name of this type of FormElement should come directly from the class name
-		$this->props['type'] = str_replace(
-			CCTM::FieldElement_classname_prefix,
-			'',
-			__CLASS__ );
-			
-		// For parsing function
-		$this->props['CCTM_URL'] = CCTM_URL;
-		$this->props['CCTM_PATH'] = CCTM_PATH;
-		
-		// --- CSS Defaults ---
-		// css class used on the HTML form element that is accepting input
-		if ( !isset($def['input_css_class']) ) {
-			$this->props['input_css_class'] = self::input_type_class_prefix . $this->props['type'];
-		}
-		// css class used on the label for the form element
-		// formgenerator_label formgenerator_text_label
-		if ( !isset($def['label_css_class']) ) {
-			$this->props['label_css_class'] = self::input_type_class_prefix . $this->props['type'];
-		}
-		// css class used on the div that wraps all generated content for this FormElement instance
-		if ( !isset($def['wrapper_css_class']) ) {
-			$this->props['wrapper_css_class'] = self::input_type_class_prefix . $this->props['type'];
-		}		
-*/
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $k
-	 * @return unknown
+	 * @param string $k
+	 * @return string
 	 */
 	public function __get($k) {
 		if ( isset($this->props[$k]) ) {
-			switch ($k) {
-				// Ensures a unique key in $_POST
-/*
-			case 'name':
-				return self::post_name_prefix . $this->props[$k];
-				break;
-*/
-			default:
-				return $this->props[$k];
-			}
-
+			return $this->props[$k];
 		}
 		else {
 			return ''; // Error?
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * @param string $k
+	 * @return boolean
+	 */
+
+	public function __isset($k) {
+		if ( isset($this->props[$k]) ) {
+			return true;
+		}
+		else {
+			return false; 
+		}
+	}
 
 	//------------------------------------------------------------------------------
 	/**
 	 *
 	 *
-	 * @param unknown $k
-	 * @param unknown $v
+	 * @param string $k representing the attribute name
+	 * @param mixed $v value for the requested attribute
 	 */
 	public function __set($k, $v) {
 		if ( !in_array($k, $this->protected_instance_vars) ) {
@@ -173,32 +142,103 @@ abstract class FormElement {
 	//! Abstract Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * get_manager_form
-	 * This function needs to return the form element(s) for an instance of this custom field
-	 * when a post or page is being edited.
+	* This function gives a description of this type of field so users will know 
+	* whether or not they want to add this type of field to their custom content
+	* type. The string should be no longer than 255 characters. 
+	* The returned value should be localized using the __() function.
+	* @return	string	plain text description
+	*/
+	abstract public function get_description();
+
+	//------------------------------------------------------------------------------
+	/**
+	* get_example_image
+	* 
+	* This function should return a URL to a sample image so users can see an example
+	* of this type of field in action. The image should be in a web-friendly format:
+	* (jpg, png, gif) and it should be respectfully small in dimensions and filesize.
+	*
+	* @return	string	e.g. 'http://yoursite.com/images/example.jpg'
+	*/
+	abstract public function get_example_image();
+
+	//------------------------------------------------------------------------------
+	/**
+	* This function provides a name for this type of field. This should return plain
+	* text (no HTML). The string should be no longer than 32 characters.
+	* The returned value should be localized using the __() function.
+	* @return	string
+	*/
+	abstract public function get_name();
+		
+	//------------------------------------------------------------------------------
+	/**
+	* This function should return the URL where users can read more information about
+	* the type of field that they want to add to their post_type. The string may
+	* be localized using __() if necessary (e.g. for language-specific pages)
+	* @return	string 	e.g. http://www.yoursite.com/some/page.html
+	*/
+	abstract public function get_url();
+	
+
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * This generates the field elements when a user creates a new post that uses a 
+	 * field of this type.  In most cases, the form elements generated for a new post
+	 * are identical to the form elements generated when editing a post, so you can 
+	 * hand off to the get_edit_post_form() function like this:
 	 *
+	 * Override this function in the rare cases when you need behavior that is specific 
+	 * to when you first create a post (e.g. to specify a special default value). 
+	 * Most of the time, the create/edit functions are nearly identical.
+	 *
+	 * @return string HTML field(s)
 	 */
-	abstract public function get_create_post_form($def);
+	public function get_create_post_form() {
+		$this->value = $this->default_value; // Set $this->value to your desired default value
+		return $this->get_edit_post_form($this->props); 
+	}
 
 	/**
+	 * get_edit_post_form
 	 *
+	 * The form returned is what is displayed when a user is creating a post that contains
+	 * an instance of this field type.
+	 * @param	mixed	$def is the definition for the field, including a $def['value'] which contains
+	 * 					the current value of the field instance.
+	 * @return	string	HTML element.
 	 */
 	abstract public function get_edit_post_form($def);
 
 	//------------------------------------------------------------------------------
 	/**
-	 * This should returm a form element(s) that handles all the controls required to define this
-	 * type of field.  The default properties correspond to this class's public variables:
-	 * name, id, label, type, default_value, value. Whatever inputs are defined here (as keys in the
-	 * $_POST array) will be stored alongside the custom-field data for the parent post-type.
-	 * THAT data (along with the current value of the field) is what's passed to the get_manager_form() function.
+	 * This should return (not print) form elements that handle all the controls required to define this
+	 * type of field.  The default properties correspond to this class's public variables,
+	 * e.g. name, label, etc. The form elements you create should have names that correspond
+	 * with the public $props variable. A populated array of $props will be stored alongside 
+	 * the custom-field data for the containing post-type.
+	 * 
+	 * Override this function in the rare cases when you need behavior that is specific 
+	 * to when you first define a field definition. Most of the time, the create/edit 
+	 * functions are nearly identical.
+	 *
+	 * @return	string	HTML input fields
+	 */
+	public function get_create_field_form() {
+		return $this->get_edit_field_form( $this->props );
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This should return (not print) form elements that handle all the controls required to define this
+	 * type of field.  The default properties correspond to this class's public variables,
+	 * e.g. name, label, etc. The form elements you create should have names that correspond
+	 * with the public $props variable. A populated array of $props will be stored alongside 
+	 * the custom-field data for the containing post-type.
 	 *
 	 * @param mixed   $current_values should be an associative array.
-	 */
-	abstract public function get_create_field_form($current_values);
-
-	/**
-	 *
+	 * @return	string	HTML input fields
 	 */
 	abstract public function get_edit_field_form($current_values);
 
@@ -210,17 +250,19 @@ abstract class FormElement {
 	/**
 	 * Generate a CSS class for this type of field, typically keyed off the actual HTML
 	 * input type, e.g. text, textarea, submit, etc.
+	 * 
+	 * This is dynamic so we can flag fields that have failed error validation.
 	 
 	 cctm_text
 	 cctm_my_text_field
 	 cctm_error
 	 
 	 *
-	 * @param string  $input_type: the type of HTML field (if applicable)
+	 * @param string  $id: unique id for the field 
 	 * @return string a string representing a CSS class.
 	 *
 	 */
-	protected function get_css_class( $id, $input_type='text' ) {
+	protected function get_field_class( $id, $input_type='text' ) {
 		// formgenerator_text
 		// TODO!!! 
 		$css_arr = array();
@@ -230,71 +272,82 @@ abstract class FormElement {
 			$css_arr[] = self::error_css;
 		}
 
-		$css_arr[] = self::input_type_class_prefix . $id;
-		$css_arr[] = self::input_type_class_prefix . $input_type;
+		$css_arr[] = self::css_class_prefix . $id;
+		$css_arr[] = self::css_class_prefix . $input_type;
 		return implode(' ', $css_arr);
 	}
 
-
 	//------------------------------------------------------------------------------
 	/**
+	 * We need special behavior when we are creating and editing posts because 
+	 * WP uses all kinds of form inputs and classes, so it's easy for names and
+	 * CSS classes to collide.
 	 *
-	 *
-	 * @return unknown
+	 * @return string
 	 */
-	protected function get_css_id() {
-		return $this->input_id_prefix . $this->props['name'];
+	protected function get_field_id() {
+		$backtrace = debug_backtrace();
+		$calling_function = $backtrace[1]['function'];
+		switch ($calling_function) {
+			case 'get_create_post_form':
+			case 'get_edit_post_form':
+			case 'wrap_label':
+				return self::css_id_prefix . $this->name;
+				break;
+			case 'get_edit_field_form':
+			case 'get_create_field_form':
+			default: 
+				return $this->name;
+		}
 	}
 
 	//------------------------------------------------------------------------------
 	/**
+	* get_field_name
+	*
+	* This function gets an input's name for use while a post is being edited or created.
+	* We offer this function so we can pre-pend the names with a custom prefix to ensure
+	* that no naming collisions occur inside the $_POST array.
+	*
 	* Behavior is determined by the function that calls this: see 
 	* http://bytes.com/topic/php/answers/221-function-global-var-return-name-calling-function
 	* @param	string	$name is the name of a field, e.g. 'my_name' in <input type="text" name="my_name" />
 	* @return	string	A name safe for the context in which it was called.
 	*/
-	protected function get_name($name) {
+	protected function get_field_name() {
 		$backtrace = debug_backtrace();
 		$calling_function = $backtrace[1]['function'];
 		
 		switch ($calling_function) {
 			case 'get_create_post_form':
 			case 'get_edit_post_form':
-				
+			case 'wrap_label':
+				return self::post_name_prefix . $this->name;
 				break;
 			case 'get_edit_field_form':
 			case 'get_create_field_form':
 			default: 
-
+				return $this->name;
 		}
 	}
-
+	
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @return an associative array containing default values for this type of field.
-	 */
-	public function get_defaults() {
-		return $this->props;
+	* Use this function to wrap the HTML for a single form element in a div.
+	* @param	string	$html	The HTML that generates the info for a particular element,
+	*							typically an HTML <input> and its <label>
+	* @param	string	$class	Optional CSS class to further define the wrapper <div>
+	* @return	string	The input $html wrapped in a div.
+	*/
+	protected function wrap_element($html, $class='') {
+		$wrapper = '
+		<div class="formgenerator_element_wrapper %s" id="custom_field_wrapper_%s">
+		%s
+		</div>';
+		$this->element_i = $this->element_i + 1;
+		return sprintf($wrapper, $class, $this->element_i, $html);	
 	}
 	
-
-	//------------------------------------------------------------------------------
-	/**
-	 *
-	 *
-	 * @return unknown
-	 */
-	protected function wrap_description() {
-		// TODO: localize this?
-		return sprintf('<span class="%s">%s</span>'
-			, self::css_class_description
-			, $this->description); 
-
-	}
-
-
 
 	/**
 	 * This function returns an HTML label that wraps the label attribute for the instance of
@@ -302,19 +355,18 @@ abstract class FormElement {
 	 * I added some carriage returns here for readability in the generated HTML
 	 *
 <label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">Description</label>	 
-	 
+	 * @param	string $additional_class any extra CSS class(es) you want to pass to this label
 	 * @return string	HTML representing the label for this field.
 	 */
-	protected function wrap_label() {
+	protected function wrap_label($additional_class='') {
 		$wrapper = '
 		<label for="%s" class="%s" id="%s">
 			%s
 		</label>
 		';
-		
 		return sprintf($wrapper
-			, $this->props['name']
-			, self::label_css_class_prefix . $this->props['name']
+			, $this->get_field_id()
+			, self::label_css_class . ' ' . self::css_class_prefix . $this->props['name'] . $additional_class
 			, self::label_css_id_prefix . $this->props['name']
 			, $this->props['label']
 		);  # TODO: __('label', ????) localized
@@ -366,93 +418,6 @@ abstract class FormElement {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * This static function acts as a per-fieldtype filter for the front-end for any given
-	 * FormElement so that any type of custom field can customize its output to the
-	 * front-end. It's called statically from the theme function: get_custom_field()
-	 *
-	 * Example of custom handling per field type:
-	 * $img_atts = array();
-	 * $img_html = get_custom_field('my_img_field', $img_atts);
-	 * print $img_html; // prints <img src="/path/to/image.jpg" />
-	 * print_r($img_atts); // prints Array('src'=>'/path/to/image.jpg', 'h'=>'100', 'w' => '50')
-	 *
-	 * question.  Override this function to provide special output filtering on a
-	 *  field-type basis.
-	 *
-	 * @returm string The output should be string.  If you need more complex outputs,
-	 * utilize the $extra input and set its values directly. It's passed by reference,
-	 *  so any edits to $extra will be visible to the caller.
-	 *
-	 * @param string  $value is whatever was stored in this field for the post in
-	 * @param unknown $extra (reference)
-	 * @return unknown
-	 */
-	public function get_field_value($value, &$extra) {
-		return $value;
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	* A little clearing house for getting descriptions for various components
-	*
-	* @param	string	$item to identify which description you want.
-	* @return	string	HTML localized description
-	*/
-	public function get_description($item) {
-		$tpl = '<span class="formgenerator_description">%s</span>';
-		$out = '';
-		switch ($item) {
-			case 'extra':
-				$out = 
-			 		 __('Any extra attributes for this text field, e.g. <code>size="10"</code>', CCTM_TXTDOMAIN);
-			 	break;
-			case 'default_option':
-				$out = 
-			 		 __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
-				break;
-			case 'default_value':
-				$out = 
-			 		 __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
-			 	break;
-			case 'description':
-				$out = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
-				break;
-			case 'label':
-				$out = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
-				break;
-			case 'name':
-				$out = 
-			 		 __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
-			 	break;
-			case 'value_when_checked':
-				$out = 
-			 		 __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
-			 	break;
-			case 'value_when_unchecked':
-				$out = 
-			 		 __('What value should be stored in the database when this checkbox is unchecked? Normally, checkboxes do not store a value when not checked, but you have the option to store a value when the checkbox is not checked. This makes it behave more like a dropdown or radio button.', CCTM_TXTDOMAIN);
-			 	break;
-
-		 }
-		 
-		 return sprintf($tpl, $out);
-	}
- 
- 	//------------------------------------------------------------------------------
- 	//------------------------------------------------------------------------------
- 	/**
- 	* @param	string	$html string, with linebreaks, quotes, etc.
- 	* @return	string	Filtered: linebreaks removed, quotes escaped.
- 	*/
- 	public static function make_js_safe($html) {
- 		$html = preg_replace("/\n\r|\r\n|\r|\n/",'',$html);
- 		$html = preg_replace( '/\s+/', ' ', $html );
- 		$html = addslashes($html);
- 		$html = trim($html);
- 	}
- 	
-	//------------------------------------------------------------------------------
-	/**
 	 * Get the full image tag for this field-type's icon.  The icon should be 48x48.
 	 * Default behavior is to look inside the images/custom-fields directory
 	 *
@@ -474,6 +439,33 @@ abstract class FormElement {
 
 		return sprintf('<img src="%s"/>', $icon_src);
 	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* A little clearing house for getting wrapped translations for various components
+	*
+	* @param	string	$item to identify which description you want.
+	* @return	string	HTML localized description
+	*/
+	public function get_translation($item) {
+		$tpl = '<span class="formgenerator_description">%s</span>';		 
+		 return sprintf($tpl, $this->descriptions[$item]);
+	}
+ 
+ 	//------------------------------------------------------------------------------
+ 	//------------------------------------------------------------------------------
+ 	/**
+ 	* @param	string	$html string, with linebreaks, quotes, etc.
+ 	* @return	string	Filtered: linebreaks removed, quotes escaped.
+ 	*/
+ 	public static function make_js_safe($html) {
+ 		$html = preg_replace("/\n\r|\r\n|\r|\n/",'',$html);
+ 		$html = preg_replace( '/\s+/', ' ', $html );
+ 		$html = addslashes($html);
+ 		$html = trim($html);
+ 	}
+ 	
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -481,77 +473,105 @@ abstract class FormElement {
 	 * it is saved to the database. Data validation and filtering should happen here,
 	 * although it's difficult to enforce any validation errors.
 	 *
-	 * Output should be whatever string value you want to save in the wp_postmeta table
+	 * Note that the field name in the $_POST array is prefixed by FormElement::post_name_prefix,
+	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
+	 * (where FormElement::post_name_prefix = 'cctm_').
+	 *
+	 * Output should be whatever string value you want to store in the wp_postmeta table
 	 * for the post in question. This function will be called after the post/page has
 	 * been submitted: this can be loosely thought of as the "on save" event
 	 *
-	 * @param mixed   $data associative array, must have a key for 'name'
+	 * @param mixed   	$posted_data  $_POST data
+	 * @param string	$field_name: the unique name for this instance of the field
+	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
-	public function save_post_filter($data) {
-		return $data;
+	public function save_post_filter($posted_data, $field_name) {
+		return trim($posted_data[ FormElement::post_name_prefix . $field_name ]);
 	}
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * Validate and sanitize any submitted data. 
-	 * Used when editing the definition for this type of element.
-	 * Default behavior here is require only a unique name and label.
-	 * @param	array	$post = $_POST data
-	 * @param	array	$vars = lots of data, most importantly $vars['data'] = all stored data
+	 * Validate and sanitize any submitted data. Used when editing the definition for 
+	 * this type of element. Default behavior here is require only a unique name and 
+	 * label. Override this if customized validation is required.
+	 *
+	 * @param	array	$posted_data = $_POST data
 	 * @param	string	$post_type the string defining this post_type
 	 * @return	array	filtered field_data that can be saved OR can be safely repopulated
 	 *					into the field values.
 	 */
-	public function save_settings_filter($post, $vars, $post_type) {
+	public function save_field_filter($posted_data, $post_type) {
 	
-		$data = $vars['data'];
-		if ( empty($post['name']) ) {
+		if ( empty($posted_data['name']) ) {
 			$this->errors['name'][] = __('Name is required.', CCTM_TXTDOMAIN);
 		}
 		else {
-			// Are there any invalid characters? 1st char. must be a letter
-			if ( preg_match('/^[^a-z]{1}[^a-z_0-9]*/i', $post['name'])) {
+			// Are there any invalid characters? 1st char. must be a letter (req'd for valid prop/func names)
+			if ( preg_match('/^[^a-z]{1}[^a-z_0-9]*/i', $posted_data['name'])) {
 				$this->errors['name'][] = sprintf(
 					__('%s contains invalid characters. The name may only contain letters, numbers, and underscores, and it must begin with a letter.', CCTM_TXTDOMAIN)
-					, '<strong>'.$post['name'].'</strong>');
-				$data['name'] = preg_replace('/[^a-z_0-9]/', '', $data['name']);
+					, '<strong>'.$posted_data['name'].'</strong>');
+				$posted_data['name'] = preg_replace('/[^a-z_0-9]/', '', $posted_data['name']);
 			}
 			// Is the name too long?
-			if ( strlen($post['name']) > 20 ) {
-				$post['name'] = substr($post['name'], 0 , 20);
+			if ( strlen($posted_data['name']) > 20 ) {
+				$posted_data['name'] = substr($posted_data['name'], 0 , 20);
 				$this->errors['name'][] = __('The name is too long. Names must not exceed 20 characters.', CCTM_TXTDOMAIN);
 			}
 			// Run into any reserved words?
-			if ( in_array($post, CCTM::$reserved_field_names ) ) {
+			if ( in_array($posted_data['name'], CCTM::$reserved_field_names ) ) {
 				$this->errors['name'][] = sprintf(
 					__('%s is a reserved name.', CCTM_TXTDOMAIN)
-					, '<strong>'.$post['name'].'</strong>');
-				$data['name'] = '';	
+					, '<strong>'.$posted_data['name'].'</strong>');
+				$posted_data['name'] = '';	
 			}
 			
 			// Is that name already in use? 
-			// if $vars['field_name'] is empty, then we're creating a new field.
-			if ( !empty($vars['field_name'])
-				&& $vars['field_name'] != $post['name']
-				&& is_array($data[$post_type]['custom_fields']) 
-				&& in_array( $post['name'], array_keys($data[$post_type]['custom_fields']) ) ) {
-				$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another.', CCTM_TXTDOMAIN), '<em>'.$post['name'].'</em>');
-				$post['name'] = '';
+			// if the original field_name is not empty, then we're editing an existing field.
+			// if it's an edit, the name changed, and it's equal to an existing name ==> error.
+			if ( !empty($this->original_name)
+				&& $this->original_name != $posted_data['name'] // i.e. if the name changed
+				&& is_array(CCTM::$data[$post_type]['custom_fields']) 
+				&& in_array( $posted_data['name'], array_keys(CCTM::$data[$post_type]['custom_fields']) ) ) {
+					$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
+					$posted_data['name'] = '';
 			}
 		}
 		
-		if ( empty($post['label']) ) {
+		if ( empty($posted_data['label']) ) {
 			$this->errors['label'][] = __('Label is required.', CCTM_TXTDOMAIN);
 		}
-		
-		$post['type'] = str_replace(
-			CCTM::FormElement_classname_prefix,
-			'',
-			get_class($this) );
-			
-		return $post; // filtered data
+					
+		return $posted_data; // filtered data
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This function acts as a per-fieldtype filter for the front-end for any given
+	 * FormElement so that any type of custom field can convert whatever value is stored
+	 * in the datbase into a value that's appropriate for the front-end. 
+	 * This function is called from the theme function: get_custom_field()
+	 *
+	 * The output of this function should be a string.  If you need more complex outputs,
+	 * utilize the $extra parameters and set its values directly. It's passed by reference,
+	 *  so any edits to $extra will be visible to the caller.
+	 *
+	 * Example of custom handling per field type:
+	 * $img_atts = array();
+	 * $img_html = get_custom_field('my_img_field', $img_atts);
+	 * print $img_html; // prints <img src="/path/to/image.jpg" />
+	 * print_r($img_atts); // prints Array('src'=>'/path/to/image.jpg', 'h'=>'100', 'w' => '50')
+	 *
+	 * Override this function to provide special output filtering on a
+	 *  field-type basis.
+	 *
+	 * @param string  $value is whatever was stored in the database for this field for the current post
+	 * @param mixed $extra (reference)
+	 * @return string
+	 */
+	public function value_filter($value, &$extra) {
+		return $value;
 	}
 
 }
-
 /*EOF FormElement.php */

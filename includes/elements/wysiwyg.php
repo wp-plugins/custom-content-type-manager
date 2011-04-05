@@ -59,7 +59,7 @@ class CCTM_wysiwyg extends FormElement
 			'
 			, $this->wrap_label()
 			, self::post_name_prefix . $this->name
-			, $this->get_css_class()
+			, $this->get_field_class()
 			, $this->name
 			, $def['default_value']
 		);
@@ -100,7 +100,7 @@ class CCTM_wysiwyg extends FormElement
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
 			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
-			 	<input type="text" name="label" class="'.$this->get_css_class('label','text').'" id="label" value="'.$def['label'].'"/>
+			 	<input type="text" name="label" class="'.$this->get_field_class('label','text').'" id="label" value="'.$def['label'].'"/>
 			 	' . $this->get_description('label') . '
 			 </div>
 		
@@ -108,13 +108,13 @@ class CCTM_wysiwyg extends FormElement
 				 <label for="name" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_name">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_css_class('name','text').'" id="name" value="'.$def['name'].'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'].'"/>'
 				 . $this->get_description('name') . '
 			 </div>
 			 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
 			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_default_value">'.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<textarea name="default_value" class="'.$this->get_css_class('default_value','textarea').'" id="default_value" rows="5" cols="60">'
+			 		<textarea name="default_value" class="'.$this->get_field_class('default_value','textarea').'" id="default_value" rows="5" cols="60">'
 			 			.$def['default_value']
 			 		.'</textarea>
 			 	' . $this->get_description('default_value') .'
@@ -122,13 +122,13 @@ class CCTM_wysiwyg extends FormElement
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
 			 	<label for="extra" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_extra">'.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_css_class('extra','text').'" id="extra" value="'.htmlentities(stripslashes($def['extra'])).'"/>
+			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'.htmlentities(stripslashes($def['extra'])).'"/>
 			 	' . $this->get_description('extra') .'
 			 </div>
 			 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
 			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_css_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
 			 	' . $this->get_description('description') .'
 			 </div>
 			 

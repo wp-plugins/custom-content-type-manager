@@ -142,7 +142,7 @@ class CCTM_dropdown extends FormElement
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
 			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
-			 	<input type="text" name="label" class="'.$this->get_css_class('label','text').'" id="label" value="'.$def['label'].'"/>
+			 	<input type="text" name="label" class="'.$this->get_field_class('label','text').'" id="label" value="'.$def['label'].'"/>
 			 	' . $this->get_description('label') . '
 			 </div>
 		
@@ -150,13 +150,13 @@ class CCTM_dropdown extends FormElement
 				 <label for="name" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_name">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_css_class('name','text').'" id="name" value="'.$def['name'].'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'].'"/>'
 				 . $this->get_description('name') . '
 			 </div>
 			 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
 			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_default_value">'.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_css_class('default_value','text').'" id="default_value" value="'
+			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'
 			 			.$def['default_value']
 			 		.'" />
 			 	' . $this->get_description('default_option') .'
@@ -199,7 +199,7 @@ class CCTM_dropdown extends FormElement
 			
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
 			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_css_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
 			 	' . $this->get_description('description') .'
 			 </div>
 			 ';

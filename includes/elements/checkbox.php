@@ -56,7 +56,7 @@ class CCTM_checkbox extends FormElement
 			<input type="checkbox" name="%s" class="%s" id="%s" value="%s" %s/>
 			'
 			, self::post_name_prefix . $this->name
-			, 'xxxxx' //$this->get_css_class()
+			, 'xxxxx' //$this->get_field_class()
 			, $this->name
 			, $def['value_when_checked']
 			, $is_checked
@@ -101,7 +101,7 @@ class CCTM_checkbox extends FormElement
 		return '
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
 			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
-			 	<input type="text" name="label" class="'.$this->get_css_class('label','text').'" id="label" value="'.$def['label'].'"/>
+			 	<input type="text" name="label" class="'.$this->get_field_class('label','text').'" id="label" value="'.$def['label'].'"/>
 			 	' . $this->get_description('label') . '
 			 </div>
 		
@@ -109,31 +109,31 @@ class CCTM_checkbox extends FormElement
 				 <label for="name" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_name">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_css_class('name','text').'" id="name" value="'.$def['name'].'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'].'"/>'
 				 . $this->get_description('name') . '
 			 </div>
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
 			 	<label for="value_when_checked" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_value_when_checked">'.__('Value when checked', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="value_when_checked" class="'.$this->get_css_class('value_when_checked','text').'" id="value_when_checked" value="'.htmlentities(stripslashes($def['value_when_checked'])).'"/>
+			 		<input type="text" name="value_when_checked" class="'.$this->get_field_class('value_when_checked','text').'" id="value_when_checked" value="'.htmlentities(stripslashes($def['value_when_checked'])).'"/>
 			 	' . $this->get_description('value_when_checked') .'
 			 </div>
 			 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
 			 	<label for="value_when_unchecked" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_value_when_unchecked">'.__('Value when unchecked', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="value_when_unchecked" class="'.$this->get_css_class('value_when_unchecked','text').'" id="value_when_unchecked" value="'.htmlentities(stripslashes($def['value_when_unchecked'])).'"/>
+			 		<input type="text" name="value_when_unchecked" class="'.$this->get_field_class('value_when_unchecked','text').'" id="value_when_unchecked" value="'.htmlentities(stripslashes($def['value_when_unchecked'])).'"/>
 			 	' . $this->get_description('value_when_unchecked') .'
 			 </div>
 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
-		 		<input type="checkbox" name="checked_by_default" class="'.$this->get_css_class('checked_by_default','checkbox').'" id="checked_by_default" value="1" '. $is_checked.'/>
+		 		<input type="checkbox" name="checked_by_default" class="'.$this->get_field_class('checked_by_default','checkbox').'" id="checked_by_default" value="1" '. $is_checked.'/>
 			 	<label for="checked_by_default" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_checked_by_default">'.__('Checked by default', CCTM_TXTDOMAIN) .'</label>
 			 	' . $this->get_description('checked_by_default') .'
 			 </div>
 			 
 			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_5">
 			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_css_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
 			 	' . $this->get_description('description') .'
 			 </div>
 			 

@@ -10,7 +10,12 @@ This template expects the following variables:
 	$nonce_name; 	// used by wp_nonce_field
 	$submit;		// text that appears on the primary submit button
 	
+	$cancel_target_url // (optional) Default is '?page='.self::admin_menu_slug;
 ------------------------------------------------------------------------------*/
+if ( !isset($cancel_target_url) ) {
+	$cancel_target_url = '?page='.self::admin_menu_slug;
+}
+
 ?>
 <?php print $style; ?>
 <div class="wrap">
@@ -29,7 +34,7 @@ This template expects the following variables:
 	<br/>
 		<div class="custom_content_type_mgr_form_controls">
 			<input type="submit" name="Submit" class="button-primary" value="<?php print $submit; ?>" />
-			<a class="button" href="?page=<?php print self::admin_menu_slug;?>"><?php _e('Cancel'); ?></a> 
+			<a class="button" href="<?php print $cancel_target_url; ?>"><?php _e('Cancel'); ?></a> 
 		</div>
 	
 	</form>

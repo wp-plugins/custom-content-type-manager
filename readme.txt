@@ -122,6 +122,7 @@ You can always checkout the most recent version of the code by going to your wp-
 = In Development (in the trunk) =
 
 * More CRUD-like interface for creating and editing custom fields one at a time.
+* Object-Oriented class structure implemented for custom fields in accordance with future plans for more field types
 * Drag and Drop interface added for Custom Fields
 * Added support for built-in taxonomies (Categories and Tags).
 * Fixed unreported bugs affecting custom tpls. 
@@ -199,7 +200,7 @@ And if you REALLY want some of these features implemented, you can hire me as yo
 == Upgrade Notice ==
 
 = 0.8.8 =
-Improved administration interface, new template functions, bug fixes.
+Improved administration interface, new template functions, lots bug fixes; this is a big release.  If you are upgrading to 0.8.8 from a previous version, it is recommended that you *uninstall* the plugin, then *re-install*.  This will ensure that the data-structure in the database is updated appropriately.
 
 = 0.8.7 =
 Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).

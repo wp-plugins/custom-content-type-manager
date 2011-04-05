@@ -1,11 +1,12 @@
 <?php if ( ! defined('WP_CONTENT_DIR')) exit('No direct script access allowed');
-/*------------------------------------------------------------------------------
-This file (loader.php) is called only when we've checked for any potential 
-conflicts with function names, class names, or constant names. With so many WP 
-plugins available and so many potential conflicts out there, I've attempted to 
-avoid the headaches caused from name pollution as much as possible.
-------------------------------------------------------------------------------*/
-		session_start(); // Used for flash messages.
+/**
+* This file (loader.php) is called only when we've checked for any potential 
+* conflicts with function names, class names, or constant names. With so many WP 
+* plugins available and so many potential conflicts out there, I've attempted to 
+* avoid the headaches caused from name pollution as much as possible.
+*/
+session_start(); // Used for flash messages.
+
 // Required Files
 include_once('includes/constants.php');
 include_once('includes/CCTM.php');
@@ -27,6 +28,9 @@ add_action( 'admin_notices', 'CCTM::print_notices');
 
 if ( empty(CCTMtests::$errors) )
 {
+	// Load up the CCTM data from wp_options
+	CCTM::$data = get_option( CCTM::db_key, array() );
+
 	add_action( 'admin_init', 'CCTM::admin_init');	
 	
 	// Register any custom post-types (a.k.a. content types)

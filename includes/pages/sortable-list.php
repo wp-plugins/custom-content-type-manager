@@ -28,12 +28,18 @@ jQuery(function() {
 	<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>"><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /></a>
 	<?php _e('Content Type', CCTM_TXTDOMAIN);?> <strong><?php print $post_type; ?></strong> : <?php _e('Custom Fields', CCTM_TXTDOMAIN);?> <input type="submit" 
 		class="button-primary" 
-		onclick="javascript:save_order();" value="<?php _e('Save Field Order', CCTM_TXTDOMAIN ); ?>" /></h2>
+		onclick="javascript:save_order();" value="<?php _e('Save Field Order', CCTM_TXTDOMAIN ); ?>" />
+		<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>" class="button"><?php _e('Back'); ?></a> 
+		
+		</h2>
 
 	<?php print $msg; ?>
 	<br />
 	<?php print self::_link_create_custom_field($post_type); ?>
-	<?php if (!$def_cnt) { return; } ?>	
+	<?php 
+	// The page ends here if there are no custom fields defined.
+	if (!$def_cnt) { return; } 
+	?>	
 	
 
 	<br />
@@ -67,5 +73,6 @@ jQuery(function() {
 </table>
 
 </form>
-
+<br/>
+<?php print self::_link_reset_all_custom_fields($post_type); ?>
 </div>

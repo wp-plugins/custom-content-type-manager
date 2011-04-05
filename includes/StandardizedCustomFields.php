@@ -21,14 +21,15 @@ class StandardizedCustomFields
 	public static $content_types_array = array('post');
 	
 	//! Private Functions
-	/*------------------------------------------------------------------------------
-	This plugin is meant to be configured so it acts on a specified list of content
-	types, e.g. post, page, or any custom content types that is registered.
-	OUTPUT: array	$active_post_types. Array of strings, each a valid post-type name, 
+	//------------------------------------------------------------------------------
+	/**
+	 * This plugin is meant to be configured so it acts on a specified list of post
+	 * types, e.g. post, page, or any custom content types that is registered.
+	 * @return array	$active_post_types. Array of strings, each a valid post-type name, 
 		e.g. array('post','page','your_custom_post_type')
-	------------------------------------------------------------------------------*/
-	private static function _get_active_content_types()
-	{
+	*/
+	private static function _get_active_post_types() {
+	
 		$active_post_types = array();	
 		$data = get_option( CCTM::db_key );
 		if ( !empty($data) && is_array($data) )
@@ -41,25 +42,23 @@ class StandardizedCustomFields
 					$active_post_types[] = $pt;
 				}
 			}
-
 		}
 		
 		return $active_post_types;
 	}
 
-	/*------------------------------------------------------------------------------
-	Get custom fields for this content type.
-	INPUT: $content_type (str) the name of the content type, e.g. post, page.
+	//------------------------------------------------------------------------------
+	/**
+	 * Get custom fields for this content type.
+	 * @param string $post_type the name of the post_type, e.g. post, page.
 	OUTPUT: array of associative arrays where each associative array describes 
 		a custom field to be used for the $content_type specified.
 	FUTURE: read these arrays from the database.
-	------------------------------------------------------------------------------*/
-	private static function _get_custom_fields($content_type)
-	{
-		$data = get_option( CCTM::db_key );
-		if (isset($data[$content_type]['custom_fields']))
+	*/
+	private static function _get_custom_fields($post_type) {
+		if (isset(CCTM::$data[$post_type]['custom_fields']))
 		{
-			return $data[$content_type]['custom_fields'];
+			return CCTM::$data[$post_type]['custom_fields'];
 		}
 		else
 		{
@@ -86,13 +85,14 @@ class StandardizedCustomFields
 	}
 
 	//! Public Functions	
-	/*------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	/**
 	* Create the new Custom Fields meta box
-	TODO: allow customization of the name, instead of just 'Custom Fields', and also
-	of the wrapper div.
-	------------------------------------------------------------------------------*/
+	* TODO: allow customization of the name, instead of just 'Custom Fields', and also
+	* of the wrapper div.
+	*/
 	public static function create_meta_box() {
-		$content_types_array = self::_get_active_content_types();
+		$content_types_array = self::_get_active_post_types();
 		foreach ( $content_types_array as $content_type ) {
 			add_meta_box( 'custom-content-type-mgr-custom-fields'
 				, __('Custom Fields', CCTM_TXTDOMAIN )
@@ -128,18 +128,18 @@ class StandardizedCustomFields
 	/*------------------------------------------------------------------------------
 	Display the new Custom Fields meta box
 	INPUT:
-		$post (the post object is always passed to this callback function). 
-		$callback_args will always have a copy of this object passed (I'm not sure why),
+	@param object $post passed to this callback function by WP. 
+	@param object $callback_args will always have a copy of this object passed (I'm not sure why),
 		but in $callback_args['args'] will be the 7th parameter from the add_meta_box() function.
 		We are using this argument to pass the content_type.
 	
-
+	@return null	this function should print form fields.
 	------------------------------------------------------------------------------*/
 	public static function print_custom_fields($post, $callback_args='') 
 	{
 		//return;
-		$content_type = $callback_args['args']; // the 7th arg from add_meta_box()
-		$custom_fields = self::_get_custom_fields($content_type);
+		$post_type = $callback_args['args']; // the 7th arg from add_meta_box()
+		$custom_fields = self::_get_custom_fields($post_type);
 		$output = '';		
 				
 
@@ -158,40 +158,26 @@ class StandardizedCustomFields
 		}
 		
 		foreach ( $custom_fields as $def_i => &$field_def ) {
-			$output_this_field = '';			
-			//$field['label'] = $field['label'] . ' ('.$field['name'].')'; // to display the name used in templates
+			$output_this_field = '';
 			CCTM::include_form_element_class($field_def['type']); // This will die on errors
 			$field_type_name = CCTM::FormElement_classname_prefix.$field_def['type'];
 			$FieldObj = new $field_type_name(); // Instantiate the field element
 			
 			if ( self::_is_new_post() )
-			{		
-				$output_this_field = $FieldObj->get_create_post_form($field_def);
+			{	
+				$FieldObj->props = $field_def;
+				$output_this_field = $FieldObj->get_create_post_form();
 			}
 			else
 			{
 				$field_def['value'] = htmlspecialchars( get_post_meta( $post->ID, $field_def['name'], true ) );
+				$FieldObj->props = $field_def;
 				$output_this_field =  $FieldObj->get_edit_post_form($field_def);
 			}
-			
-			$field['raw_name'] = $field['name']; // preserved
-			$field['name'] = self::field_name_prefix . $field['name']; // this ensures unique keys in $_POST
-			
+						
 			$output .= $output_this_field;
 		}
 
-		// generate() gets the final output, but it also populates FormGenerator::$placeholders (used for custom mgr forms)
-		// $output = FormGenerator::generate($custom_fields,'css-friendly');
-		
-		// See if there's a custom manager form tpl avail...
-/*
-		$mgr_tpl_file = CCTM_PATH.'/tpls/manager/'.$post->post_type.'.tpl';
-		if ( file_exists($mgr_tpl_file) ) 
-		{ 
-			$tpl = file_get_contents($mgr_tpl_file);
-			$output = self::parse($tpl, FormGenerator::$placeholders);
-		}
-*/
  		// Print the form
  		print '<div class="form-wrap">';
 	 	wp_nonce_field('update_custom_content_fields','custom_content_fields_nonce');
@@ -208,7 +194,7 @@ class StandardizedCustomFields
 	------------------------------------------------------------------------------*/
 	public static function remove_default_custom_fields( $type, $context, $post ) 
 	{
-		$content_types_array = self::_get_active_content_types();
+		$content_types_array = self::_get_active_post_types();
 		foreach ( array( 'normal', 'advanced', 'side' ) as $context ) {
 			foreach ( $content_types_array as $content_type )
 			{
@@ -217,49 +203,57 @@ class StandardizedCustomFields
 		}
 	}
 	
-	/*------------------------------------------------------------------------------
-	Save the new Custom Fields values. If the content type is not active in the 
-	CCTM plugin or its custom fields are not being standardized, then this function 
-	effectively does nothing.
-	INPUT:
-		$post_id (int) id of the post these custom fields are associated with
-		$post (obj) the post object
-	------------------------------------------------------------------------------*/
+	//------------------------------------------------------------------------------
+	/**
+	 * Save the new Custom Fields values. If the content type is not active in the 
+	 * CCTM plugin or its custom fields are not being standardized, then this function 
+	 * effectively does nothing.
+	 * 
+	 * @param	integer	$post_id id of the post these custom fields are associated with
+	 * @param	object	$post  the post object
+	 */
 	public static function save_custom_fields( $post_id, $post ) 
 	{
 		// Bail if this post-type is not active in the CCTM
-		if ( !CCTM::is_active_post_type($post->post_type) )
-		{
+		if ( !CCTM::is_active_post_type($post->post_type) ) {
 			return;
 		}
 	
 		// Bail if there are no custom fields defined in the CCTM
-		$data = get_option( CCTM::db_key );
-		if ( empty($data[$post->post_type]['custom_fields']) )
-		{
+		#$data = get_option( CCTM::db_key );
+		if ( empty(CCTM::$data[$post->post_type]['custom_fields']) ) {
 			return;
 		}
 		
 		// The 2nd arg here is important because there are multiple nonces on the page
-		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') )
-		{			
+		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
 			
+			//! TODO: implement the save_post_filter() function
 			foreach ( $custom_fields as $field ) {
-				if ( isset( $_POST[ self::field_name_prefix . $field['name'] ] ) )
+				if ( isset( $_POST[ FormElement::post_name_prefix . $field['name'] ] ) )
 				{
-					$value = trim($_POST[ self::field_name_prefix . $field['name'] ]);
+					$field_type = CCTM::$data[$post->post_type]['custom_fields'][ $field['name'] ]['type'];
+					CCTM::include_form_element_class($field_type); // This will die on errors
+		
+					$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+					$FieldObj = new $field_type_name(); // Instantiate the field element
+
+					$value = $FieldObj->save_post_filter($_POST, $field['name']);
+/*
+					$value = trim($_POST[ FormElement::post_name_prefix . $field['name'] ]);
 					// Auto-paragraphs for any WYSIWYG
 					if ( $field['type'] == 'wysiwyg' ) 
 					{
 						$value = wpautop( $value );
 					}
-					update_post_meta( $post_id, $field[ 'name' ], $value );
+*/
+					update_post_meta( $post_id, $field['name'], $value );
 				}
 				// if not set, then it's an unchecked checkbox, so blank out the value.
 				else 
 				{
-					update_post_meta( $post_id, $field[ 'name' ], '' );
+					update_post_meta( $post_id, $field['name'], '' );
 				}
 			}
 			

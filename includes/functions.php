@@ -78,17 +78,33 @@ associated with the current post. See get_post_meta() for more details.
 INPUT: 
 	$fieldname (str) the name of the custom field as defined inside the 
 		Manage Custom Fields area for a particular content type.
+	$extra	(mixed) optional input. Can be used to set additional arguments.
+	
 OUTPUT:
 	The contents of that custom field for the current post.
 
 See also 	
 http://codex.wordpress.org/Function_Reference/get_post_custom_values
 */
-function get_custom_field($fieldname)
+function get_custom_field($fieldname, &$extra=null)
 {
-	// the_ID() function won't work because it *prints* its output
-	$post_id = get_the_ID();
-	return get_post_meta($post_id, $fieldname, true);
+	// print_r(CCTM::$data); exit;
+	
+	global $post;
+
+	if ( !isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]) ) {
+		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname );
+	}
+	
+	$field_type = CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['type'];
+	CCTM::include_form_element_class($field_type); // This will die on errors
+		
+	$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+	$FieldObj = new $field_type_name(); // Instantiate the field element
+	
+	$value = get_post_meta($post->ID, $fieldname, true);
+	
+	return $FieldObj->value_filter($value, &$extra);
 }
 
 //------------------------------------------------------------------------------
@@ -363,9 +379,9 @@ INPUT:
 OUTPUT:
 	The contents of that custom field for the current post.
 */
-function print_custom_field($fieldname)
+function print_custom_field($fieldname, &$extra=null)
 {
-	print get_custom_field($fieldname);
+	print get_custom_field($fieldname, $extra);
 }
 
 //------------------------------------------------------------------------------

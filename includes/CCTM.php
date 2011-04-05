@@ -27,7 +27,7 @@ class CCTM {
 	const db_key  = 'custom_content_types_mgr_data';
 
 	// Used to uniquely identify this plugin's menu page in the WP manager
-	const admin_menu_slug = 'custom_content_type_mgr';
+	const admin_menu_slug = 'cctm';
 
 	// These parameters identify where in the $_GET array we can find the values
 	// and how URLs are constructed, e.g. some-admin-page.php?a=123&pt=xyz
@@ -35,6 +35,10 @@ class CCTM {
 	const post_type_param   = 'pt';
 
 	const FormElement_classname_prefix = 'CCTM_';
+	
+	// Data object stored in the wp_options table representing all primary data
+	// for post_types and custom fields
+	public static $data = array();
 	
 	// integer iterator used to uniquely identify groups of field definitions for
 	// CSS and $_POST variables
@@ -245,7 +249,8 @@ class CCTM {
 		}
 	}
 
-	/*------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	/**
 	SYNOPSIS: checks the custom content data array to see if $post_type exists.
 		The $data array is structured something like this:
 
@@ -261,34 +266,25 @@ class CCTM {
 	default, even if they haven't been explicitly defined for use by this plugin
 	so long as the 2nd argument, $search_built_ins, is not overridden to false.
 
-	INPUT:
-		$post_type (string) the lowercase database slug identifying a post type.
-		$search_built_ins (boolean) whether or not to search inside the
+	 *
+	 *
+	 * @param string $post_type	the lowercase database slug identifying a post type.
+	 * @param boolean $search_built_ins (optional) whether or not to search inside the
 			$built_in_post_types array.
-
-	OUTPUT: boolean true | false indicating whether this is a valid post-type
-	------------------------------------------------------------------------------*/
-
-	/**
-	 *
-	 *
-	 * @param string $post_type
-	 * @param boolean $search_built_ins (optional)
-	 * @return boolean
+	 * @return boolean indicating whether this is a valid post-type
 	 */
 	private static function _is_existing_post_type($post_type, $search_built_ins=true) {
-		$data = get_option( self::db_key );
-
+	
 		// If there is no existing data, check against the built-ins
-		if ( empty($data) && $search_built_ins ) {
+		if ( empty(self::$data) && $search_built_ins ) {
 			return in_array($post_type, self::$built_in_post_types);
 		}
 		// If there's no existing $data and we omit the built-ins...
-		elseif ( empty($data) && !$search_built_ins ) {
+		elseif ( empty(self::$data) && !$search_built_ins ) {
 			return false;
 		}
 		// Check to see if we've stored this $post_type before
-		elseif ( array_key_exists($post_type, $data) ) {
+		elseif ( array_key_exists($post_type, self::$data) ) {
 			return true;
 		}
 		// Check the built-ins
@@ -306,7 +302,7 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 * @return unknown
 	 */
 	private static function _link_activate($post_type) {
@@ -330,7 +326,7 @@ class CCTM {
 	 * <br/>[+label+]</a>
 	 * </li>'
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 * @return unknown
 	 */
 	private static function _link_create_custom_field($post_type) {
@@ -377,7 +373,7 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 * @return unknown
 	 */
 	private static function _link_deactivate($post_type) {
@@ -397,7 +393,7 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 * @return unknown
 	 */
 	private static function _link_delete($post_type) {
@@ -412,6 +408,25 @@ class CCTM {
 		);
 	}
 
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Delete all custom fields for the given post_type
+	 *
+	 * @param string $post_type
+	 * @return string
+	 */
+	private static function _link_reset_all_custom_fields($post_type) {
+		return sprintf(
+			'<a href="?page=%s&%s=12&%s=%s" title="%s" class="button">%s</a>'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, __('Delete all custom field definitions for this post type', CCTM_TXTDOMAIN)
+			, __('Reset Custom Fields', CCTM_TXTDOMAIN)
+		);
+	}
 
 	///------------------------------------------------------------------------------
 	/**
@@ -458,7 +473,7 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 * @return unknown
 	 */
 	private static function _link_view_sample_templates($post_type) {
@@ -474,16 +489,12 @@ class CCTM {
 
 
 	//! Pages
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Activating a post type will cause it to show up in the WP menus and its custom
-	fields will be managed.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $post_type
+	 * Manager Page -- called by page_main_controller()
+	 * Activating a post type will cause it to show up in the WP menus and its custom
+	 * fields will be managed.
+	 * @param string $post_type
 	 */
 	private static function _page_activate_post_type($post_type) {
 		// Validate post type
@@ -492,10 +503,8 @@ class CCTM {
 			return;
 		}
 
-		// get current values from database (if any)
-		$data = get_option( self::db_key, array() );
-		$data[$post_type]['is_active'] = 1;
-		update_option( self::db_key, $data );
+		self::$data[$post_type]['is_active'] = 1;
+		update_option( self::db_key, self::$data );
 		$msg = '
 				<div class="updated">
 					<p>'
@@ -513,99 +522,50 @@ class CCTM {
 		print $msg;
 	}
 
-	/*------------------------------------------------------------------------------
+
+	//------------------------------------------------------------------------------
+	/**
 	Edit a custom field.  This is a bit complicated, but it doesn't involve JS like
 	the previous version did. 
-	------------------------------------------------------------------------------*/
-	/**
 	 *
 	 *
-	 * @param unknown $post_type
-	 * @param unknown $field_name
-	private static function _page_create_custom_field($post_type, $field_type='text') {
-		// We can't edit built-in post types
-		if (!self::_is_existing_post_type($post_type, true ) ) {
-			self::_page_display_error();
-			return;
-		}
-
-		self::include_form_element_class($field_type); // This will die on errors
-		$field_type_name = self::FormElement_classname_prefix.$field_type;
-		$FieldObj = new $field_type_name(); // Instantiate the field element
-		
-		$field_data = $FieldObj->get_defaults(); // overridden by submitted data (if validation errors)
-		
-		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
-		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
-
-
-		// Save sort order if submitted...
-		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-
-			$data = get_option( self::db_key, array() );
-			$error_msg = array(); // used as a flag
-			unset($_POST['custom_content_type_mgr_create_new_custom_field_nonce']);
-			unset($_POST['_wp_http_referer']);
-
-			// Validate and sanitize any submitted data
-			$field_data = $FieldObj->save_settings_filter($_POST, $data, $post_type);
-
-			// Any errors?
-			if ( !empty($FieldObj->errors) ) {
-				$msg = $FieldObj->format_errors();
-			}
-			// Save;
-			else {
-				$data[$post_type]['custom_fields'][ $field_data['name'] ] = $field_data;
-//				print_r($data);
-//				exit;
-				update_option( self::db_key, $data );
-				$msg = sprintf('<div class="updated"><p>%s</p></div>'
-					, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
-						, '<em>'.$post_type.'</em>'
-					)
-				);
-				unset($_POST);
-				self::set_flash($msg);
-				self::_page_show_custom_fields($post_type);
-				return;
-			}
-
-		}
-
-		$fields = $FieldObj->get_create_settings_form($field_data);
-
-		$submit_link = $tpl = sprintf(
-			'?page=%s&%s=9&%s=%s&type=%s'
-			, self::admin_menu_slug
-			, self::action_param
-			, self::post_type_param
-			, $post_type
-			, $field_type
-		);
-		
-		$icon = $FieldObj->get_icon();
-		$heading = __('Create Field', CCTM_TXTDOMAIN);
-		include 'pages/custom_field.php';
-	}	 
-	 
+	 * @param string $post_type
+	 * @param string $field_name	 
 	 */
-	 //! Working here...
-	private static function _page_create_edit_custom_field($post_type, $vars, &$FieldObj) {
+	private static function _page_create_custom_field($post_type, $field_type) {
 
 		if ( !self::_is_existing_post_type($post_type, true ) ) {
 			self::_page_display_error();
 			return;
 		}
 		
+		// Page variables
+		$heading = __('Create Field', CCTM_TXTDOMAIN);
+		
+		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
+		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
+		$success_msg = sprintf('<div class="updated"><p>%s</p></div>'
+			, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
+			, '<em>'.$post_type.'</em>'));
+			
+		$field_data = array(); // Data object we will save
+		
+		self::include_form_element_class($field_type); // This will die on errors
+		
+		$field_type_name = self::FormElement_classname_prefix.$field_type;
+		$FieldObj = new $field_type_name(); // Instantiate the field element
+		
 		// Save if submitted...
-		if ( !empty($_POST) && check_admin_referer($vars['action_name'], $vars['nonce_name']) ) {
-			// A little cleanup before we handoff to save_settings_filter
-			unset($_POST[ $vars['nonce_name'] ]);
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+			// A little cleanup before we handoff to save_field_filter
+			unset($_POST[ $nonce_name ]);
 			unset($_POST['_wp_http_referer']);
 
 			// Validate and sanitize any submitted data
-			$vars['field_data'] = $FieldObj->save_settings_filter($_POST, $vars, $post_type);
+			$field_data 		= $FieldObj->save_field_filter($_POST, $post_type);
+			$field_data['type'] = $field_type; // same effect as adding a hidden field
+			
+			$FieldObj->props 	= $field_data;  // This is how we repopulate data in the create forms
 
 			// Any errors?
 			if ( !empty($FieldObj->errors) ) {
@@ -613,21 +573,18 @@ class CCTM {
 			}
 			// Save;
 			else {
-				if ( isset($vars['field_name']) ) {
-					unset($vars['data'][$post_type]['custom_fields'][ $vars['field_name'] ]); //<-- unset the OLD name
-				}
-				$field_name = $vars['field_data']['name']; // <-- this is the NEW name
-				$vars['data'][$post_type]['custom_fields'][$field_name] = $vars['field_data'];
-				update_option( self::db_key, $vars['data'] );
+				$field_name = $field_data['name']; 
+				self::$data[$post_type]['custom_fields'][$field_name] = $field_data;
+				update_option( self::db_key, self::$data );
 				unset($_POST);
-				self::set_flash($vars['success_msg']);
+				self::set_flash($success_msg);
 				self::_page_show_custom_fields($post_type);
 				return;
 			}
 
 		}
 		// this should change to get_edit_field_form() if it's an edit.
-		$fields = $FieldObj->get_create_field_form($vars['field_data']);
+		$fields = $FieldObj->get_create_field_form();
 
 		$submit_link = $tpl = sprintf(
 			'?page=%s&%s=9&%s=%s&type=%s'
@@ -642,6 +599,115 @@ class CCTM {
 		
 		include 'pages/custom_field.php';
 
+	}
+	
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Edit a custom field.  This is a bit complicated, but it doesn't involve JS like
+	 * the previous version did. 
+	 *
+	 * @param string $post_type
+	 * @param string $field_name	uniquely identifies this field inside this post_type
+	 */
+	 //! Working here...
+	private static function _page_edit_custom_field($post_type, $field_name) {
+	
+		if ( !self::_is_existing_post_type($post_type, true ) ) {
+			self::_page_display_error();
+			return;
+		}
+		
+		$field_data = array(); // Data object we will save
+		// For compatibility with versions prior to 0.8.8, we iterate through
+		if ( !empty(self::$data[$post_type]['custom_fields']) ) {
+			foreach (self::$data[$post_type]['custom_fields'] as $k => $def )
+			{
+				$custom_fields_array[] = $def['name'];
+				if ($def['name'] == $field_name) {
+					$field_data = $def; // Data object we will save
+				}
+			}
+			# $custom_fields_array = array_keys($data[$post_type]['custom_fields']);
+		}
+		if ( !in_array($field_name, $custom_fields_array) ) {
+			$msg = '<p>'. __('Invalid custom field.', CCTM_TXTDOMAIN)
+				. '</p>';
+			$msg .= sprintf(
+				'<a href="?page=%s&%s=4&%s=%s" title="%s" class="button">%s</a>'
+				, self::admin_menu_slug
+				, self::action_param
+				, self::post_type_param
+				, $post_type
+				, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+				, __('Back', CCTM_TXTDOMAIN)
+			);
+			wp_die( $msg );
+		}
+		
+		$field_type = $field_data['type'];
+		
+		// Page variables
+		$heading = __('Create Field', CCTM_TXTDOMAIN);
+		
+		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
+		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
+		$success_msg = sprintf('<div class="updated"><p>%s</p></div>'
+			, sprintf(__('The %s custom field has been edited.', CCTM_TXTDOMAIN)
+			, '<em>'.$post_type.'</em>'));
+			
+		
+		self::include_form_element_class($field_type); // This will die on errors
+		
+		$field_type_name = self::FormElement_classname_prefix.$field_type;
+		$FieldObj = new $field_type_name(); // Instantiate the field element
+		//
+		$FieldObj->props 	= $field_data;  // This is how we populate data
+		$FieldObj->original_name = $field_name; // THIS is what keys us off to the fact that we're EDITING a field: ensures we don't overwrite other names
+		
+		// Save if submitted...
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+			// A little cleanup before we handoff to save_field_filter
+			unset($_POST[ $nonce_name ]);
+			unset($_POST['_wp_http_referer']);
+
+			// Validate and sanitize any submitted data
+			$field_data 		= $FieldObj->save_field_filter($_POST, $post_type);
+			$field_data['type'] = $field_type; // same effect as adding a hidden field
+			
+			$FieldObj->props 	= $field_data;  // This is how we repopulate data in the create forms
+
+			// Any errors?
+			if ( !empty($FieldObj->errors) ) {
+				$msg = $FieldObj->format_errors();
+			}
+			// Save;
+			else {
+				$field_name = $field_data['name']; 
+				self::$data[$post_type]['custom_fields'][$field_name] = $field_data;
+				update_option( self::db_key, self::$data );
+				unset($_POST);
+				self::set_flash($success_msg);
+				self::_page_show_custom_fields($post_type);
+				return;
+			}
+
+		}
+		// this should change to get_edit_field_form() if it's an edit.
+		$fields = $FieldObj->get_create_field_form();
+
+		$submit_link = $tpl = sprintf(
+			'?page=%s&%s=9&%s=%s&type=%s'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+			, $field_type
+		);
+		
+		$icon = $FieldObj->get_icon();
+		
+		include 'pages/custom_field.php';
 	}
 
 
@@ -720,7 +786,7 @@ class CCTM {
 	/**
 	 *
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 */
 	private static function _page_deactivate_post_type($post_type) {
 		// Validate post type
@@ -739,9 +805,8 @@ class CCTM {
 		// If properly submitted, Proceed with deleting the post type
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 			// get current values from database
-			$data = get_option( self::db_key, array() );
-			$data[$post_type]['is_active'] = 0;
-			update_option( self::db_key, $data );
+			self::$data[$post_type]['is_active'] = 0;
+			update_option( self::db_key, self::$data );
 
 			$msg = '<div class="updated"><p>'
 				. sprintf( __('The %s content type has been deactivated.', CCTM_TXTDOMAIN), $post_type )
@@ -783,15 +848,60 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	called by page_main_controller()
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
+	Manager Page -- called by page_main_controller()
+	Deletes all custom field definitions for a given post_type.
+	 * @param string $post_type
+	 */
+	private static function _page_reset_all_custom_fields($post_type) {
+		// We can't delete built-in post types
+		if (!self::_is_existing_post_type($post_type, true ) ) {
+			self::_page_display_error();
+			return;
+		}
+
+		// Variables for our template
+		$style   = '';
+		$page_header = sprintf( __('Reset custom field definitions for post type %s', CCTM_TXTDOMAIN), $post_type );
+		$fields   		= '';
+		$action_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
+		$nonce_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
+		$submit   		= __('Reset', CCTM_TXTDOMAIN);
+
+		// If properly submitted, Proceed with deleting the post type
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+
+			unset(self::$data[$post_type]['custom_fields']); // <-- Delete this node of the data structure
+			update_option( self::db_key, self::$data );
+			$msg = '<div class="updated"><p>'
+				.sprintf( __('All custom field definitions for the %s post type have been deleted', CCTM_TXTDOMAIN), "<em>$post_type</em>")
+				. '</p></div>';
+			self::set_flash($msg);
+			self::_page_show_custom_fields($post_type, true);
+			return;
+		}
+
+		$msg = '<div class="error">
+			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
+			<p>'
+			. sprintf( __('You are about to delete all custom field definitions for the %s post type. This will not delete any data from the wp_postmeta table, but it will make any custom fields invisible to WordPress users on the front and back end.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
+			.'</p>'
+			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'</p></div>';
+
+		// The URL nec. to take the "Cancel" button back to this page.
+		$cancel_target_url = '?page='.self::admin_menu_slug . '&'.self::action_param .'=4&'.self::post_type_param.'='.$post_type;
+		
+		include 'pages/basic_form.php';
+
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * called by page_main_controller()
 	 *
-	 *
-	 * @param unknown $post_type
-	 * @param unknown $field
+	 * @param string $post_type
+	 * @param null
 	 */
 	private static function _page_delete_custom_field($post_type, $field) {
 		// We can't delete built-in post types
@@ -800,13 +910,11 @@ class CCTM {
 			return;
 		}
 
-		// get current values from database
-		$data = get_option( self::db_key, array() );
 		$custom_fields_array = array();
 		#print_r($data[$post_type]['custom_fields']); exit;
 		// For compatibility with versions prior to 0.8.8, we iterate through
-		if ( !empty($data[$post_type]['custom_fields']) ) {
-			foreach ($data[$post_type]['custom_fields'] as $k => $def )
+		if ( !empty(self::$data[$post_type]['custom_fields']) ) {
+			foreach (self::$data[$post_type]['custom_fields'] as $k => $def )
 			{
 				$custom_fields_array[] = $def['name'];
 			}
@@ -834,15 +942,15 @@ class CCTM {
 		}
 		else {
 			// Again, for compatibility with versions prior to 0.8.8, we do not assume that the 
-			// field names exist as keys inside of 'custom_fields'
-			foreach ($data[$post_type]['custom_fields'] as $k => $def ) {
+			// field names exist as keys inside of 'custom_fields' (there could be int keys)
+			foreach (self::$data[$post_type]['custom_fields'] as $k => $def ) {
 				if ($def['name'] == $field) {
-					unset($data[$post_type]['custom_fields'][$k]);
+					unset(self::$data[$post_type]['custom_fields'][$k]);
 				}
 			}
 			 
 			
-			update_option( self::db_key, $data );
+			update_option( self::db_key, self::$data );
 			$msg = '<div class="updated"><p>'
 				.sprintf( __('The %s custom field has been deleted', CCTM_TXTDOMAIN), "<em>$field</em>")
 				. '</p></div>';
@@ -853,16 +961,12 @@ class CCTM {
 		}
 	}
 
-
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	This is only a valid page for custom post types.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $post_type
+	 * Manager Page -- called by page_main_controller()
+	 * This is only a valid page for custom post types.
+	 * @param string $post_type
+	 * @return null
 	 */
 	private static function _page_delete_post_type($post_type) {
 		// We can't delete built-in post types
@@ -881,10 +985,8 @@ class CCTM {
 
 		// If properly submitted, Proceed with deleting the post type
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-			// get current values from database
-			$data = get_option( self::db_key, array() );
-			unset($data[$post_type]); // <-- Delete this node of the data structure
-			update_option( self::db_key, $data );
+			unset(self::$data[$post_type]); // <-- Delete this node of the data structure
+			update_option( self::db_key, self::$data );
 			$msg = '<div class="updated"><p>'
 				.sprintf( __('The post type %s has been deleted', CCTM_TXTDOMAIN), "<em>$post_type</em>")
 				. '</p></div>';
@@ -905,31 +1007,34 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Returned on errors. Future: accept an argument identifying an error
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * Manager Page -- called by page_main_controller()
+	 * Returned on errors. Future: accept an argument identifying an error
+	 * @param string $msg_id identifies the error.
 	 */
-	private static function _page_display_error() {
-		$msg = '<p>'. __('Invalid post type.', CCTM_TXTDOMAIN)
-			. '</p><a class="button" href="?page='
-			.self::admin_menu_slug.'">'. __('Back', CCTM_TXTDOMAIN). '</a>';
+	private static function _page_display_error($msg_id='invalid_post_type') {
+		$msg = '';
+		switch ($msg_id) {
+			case 'invalid_field_name':
+				$msg = '<p>'. __('Invalid field name.', CCTM_TXTDOMAIN)
+					. '</p><a class="button" href="?page='
+					.self::admin_menu_slug.'">'. __('Back', CCTM_TXTDOMAIN). '</a>';
+				break;
+			default:
+				$msg = '<p>'. __('Invalid post type.', CCTM_TXTDOMAIN)
+					. '</p><a class="button" href="?page='
+					.self::admin_menu_slug.'">'. __('Back', CCTM_TXTDOMAIN). '</a>';
+		}
 		wp_die( $msg );
 	}
 
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Edit an existing post type. Changing the unique post-type identifier (i.e. name)
-	is not allowed.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $post_type
+	 * Manager Page -- called by page_main_controller()
+	 * Edit an existing post type. Changing the unique post-type identifier (i.e. name)
+	 * is not allowed.
+	 * @param string $post_type
 	 */
 	private static function _page_edit_post_type($post_type) {
 		// We can't edit built-in post types
@@ -983,16 +1088,13 @@ class CCTM {
 			}
 		}
 
-		// get current values from database
-		$data = get_option( self::db_key, array() );
-
 		//
 		foreach ($def as $pt => &$d) {
 			$d['raw_name'] = $pt;
 		}
 
 		// Populate the form $def with values from the database
-		$def = self::_populate_form_def_from_data($def, $data[$post_type]);
+		$def = self::_populate_form_def_from_data($def, self::$data[$post_type]);
 		$fields = FormGenerator::generate($def, 'css-friendly');
 
 		$mgr_tpl_file = CCTM_PATH.'/tpls/settings/edit_post_type.tpl';
@@ -1007,132 +1109,14 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Manage custom fields for any post type, built-in or custom.
-	------------------------------------------------------------------------------*/
-
-	/**
-	 *
-	 *
-	 * @param unknown $post_type
-	 */
-	private static function _page_manage_custom_fields($post_type) {
-		// Validate post type
-		if (!self::_is_existing_post_type($post_type) ) {
-			self::_page_display_error();
-			return;
-		}
-
-		$action_name = 'custom_content_type_mgr_manage_custom_fields';
-		$nonce_name = 'custom_content_type_mgr_manage_custom_fields_nonce';
-		$msg = '';    // Any validation errors
-		$def_cnt = ''; // # of custom field definitions
-		// The set of fields that makes up a custom field definition, but stripped of newlines
-		// and with some modifications so it can be used inside a javascript variable
-		$new_field_def_js = '';
-		// Existing fields
-		$fields = '';
-
-		$data = get_option( self::db_key, array() );
-
-		// Validate/Save data if it was properly submitted
-		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-			$error_msg = array(); // used as a flag
-			if (!isset($_POST['custom_fields'])) {
-				$data[$post_type]['custom_fields'] = array(); // all custom fields were deleted
-			}
-			else {
-				$data[$post_type]['custom_fields'] = $_POST['custom_fields'];
-				foreach ( $data[$post_type]['custom_fields'] as &$cf ) {
-					if ( preg_match('/[^a-z_0-9]/i', $cf['name'])) {
-						$error_msg[] = sprintf(
-							__('%s contains invalid characters.', CCTM_TXTDOMAIN)
-							, '<strong>'.$cf['name'].'</strong>');
-						$cf['name'] = preg_replace('/[^a-z_]/', '', $cf['name']);
-					}
-					if ( strlen($cf['name']) > 20 ) {
-						$cf['name'] = substr($cf['name'], 0 , 20);
-						$error_msg[] = sprintf(
-							__('%s is too long.', CCTM_TXTDOMAIN)
-							, '<strong>'.$cf['name'].'</strong>');
-					}
-					if ( in_array($cf['name'], self::$reserved_field_names ) ) {
-						$error_msg[] = sprintf(
-							__('%s is a reserved name.', CCTM_TXTDOMAIN)
-							, '<strong>'.$cf['name'].'</strong>');
-					}
-				}
-			}
-			if ($error_msg) {
-				foreach ( $error_msg as &$e ) {
-					$e = '<li>'.$e.'</li>';
-				}
-
-				$msg = sprintf('<div class="error">
-					<h3>%1$s</h3>
-					%2$s %3$s %4$s
-					<ul style="margin-left:30px">
-						%5$s
-					</ul>
-					</div>'
-					, __('There were errors in the names of your custom fields.', CCTM_TXTDOMAIN)
-					, __('Names must not exceed 20 characters in length.', CCTM_TXTDOMAIN)
-					, __('Names may contain the letters, numbers, and underscores only.', CCTM_TXTDOMAIN)
-					, __('You cannot name your field using any reserved name.', CCTM_TXTDOMAIN)
-					, implode("\n", $error_msg)
-				);
-			}
-			else {
-				update_option( self::db_key, $data );
-				$msg = sprintf('<div class="updated"><p>%s</p></div>'
-					, sprintf(__('Custom fields for %s have been updated', CCTM_TXTDOMAIN)
-						, '<em>'.$post_type.'</em>'
-					)
-				);
-				self::set_flash($msg);
-				self::_page_show_all_post_types();
-				return;
-			}
-		}
-
-		// We want to extract a $def for only THIS content_type's custom_fields
-		$def = array();
-		if ( isset($data[$post_type]['custom_fields']) ) {
-			$def = $data[$post_type]['custom_fields'];
-		}
-
-		// count # of custom field definitions --> replaces [+def_i+]
-		$def_cnt = count($def);
-
-		// We don't need the exact number of form elements, we just need an integer
-		// that is sufficiently high so that the ids of Javascript-created elements
-		// do not conflict with the ids of PHP-created elements.
-		$element_cnt = count($def, COUNT_RECURSIVE);
-
-		if (!$def_cnt) {
-			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
-				, "<em>$post_type</em>" );
-			$y = __('Click the button above to add a custom field.', CCTM_TXTDOMAIN );
-			$msg .= sprintf('<div class="updated"><p>%s %s</p></div>', $x, $y);
-		}
-
-		$fields = self::_get_html_field_defs($def);
-
-		// Gets a form definition ready for use inside of a JS variable
-		$new_field_def_js = self::_get_javascript_field_defs();
-		//  print $new_field_def_js; exit;
-		include 'pages/manage_custom_fields.php';
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Manager Page -- called by page_main_controller()
 	 * Manage custom fields for any post type, built-in or custom.
 	 * @param string $post_type
+	 * @param boolen $reset true only if we've just reset all custom fields
 	 */
-	private static function _page_show_custom_fields($post_type) {
+	private static function _page_show_custom_fields($post_type, $reset=false) {
 		// Validate post type
 		if (!self::_is_existing_post_type($post_type) ) {
 			self::_page_display_error();
@@ -1143,30 +1127,29 @@ class CCTM {
 		$nonce_name = 'cctm_custom_save_sort_order_nonce';
 		$msg = self::get_flash();
 
-		$data = get_option( self::db_key, array() );
 
 		// Validate/Save data if it was properly submitted
-		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+		if ( !$reset && !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 			$sanitized = array();
-			foreach ( $data[$post_type]['custom_fields'] as $def_i => &$cf ) {
+			foreach ( self::$data[$post_type]['custom_fields'] as $def_i => &$cf ) {
 				$name = $cf['name'];
 				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
 			}
 			# print_r($data); exit;
-			update_option( self::db_key, $data );
+			update_option( self::db_key, self::$data );
 			$x = sprintf( __('Sort order has been saved.', CCTM_TXTDOMAIN) );
 			$msg .= sprintf('<div class="updated"><p>%s</p></div>', $x);
 		}
 
 		// We want to extract a $def for only THIS content_type's custom_fields
 		$def = array();
-		if ( isset($data[$post_type]['custom_fields']) ) {
-			$def = $data[$post_type]['custom_fields'];
+		if ( isset(self::$data[$post_type]['custom_fields']) ) {
+			$def = self::$data[$post_type]['custom_fields'];
 		}
 
 		$def_cnt = count($def);
 
-		if (!$def_cnt ) {
+		if (!$reset && !$def_cnt ) {
 			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
 				, "<em>$post_type</em>" );
 			$y = __('Click one of the buttons below to add a custom field.', CCTM_TXTDOMAIN );
@@ -1245,19 +1228,16 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Manager Page -- called by page_main_controller()
-	Show what a single page for this custom post-type might look like.  This is
-	me throwing a bone to template editors and creators.
-
-	I'm using a tpl and my parse() function because I have to print out sample PHP
-	code and it's too much of a pain in the ass to include PHP without it executing.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
+	 * Manager Page -- called by page_main_controller()
+	 * Show what a single page for this custom post-type might look like.  This is
+	 * me throwing a bone to template editors and creators.
 	 *
+	 * I'm using a tpl and my parse() function because I have to print out sample PHP
+	 * code and it's too much of a pain in the ass to include PHP without it executing.
 	 *
-	 * @param unknown $post_type
+	 * @param string $post_type
 	 */
 	private static function _page_sample_template($post_type) {
 		// Validate post type
@@ -1270,7 +1250,7 @@ class CCTM {
 		$current_theme_path = get_stylesheet_directory();
 
 		$hash = array();
-		$data = get_option( self::db_key, array() );
+
 		$tpl = file_get_contents( CCTM_PATH.'/tpls/samples/single_post.tpl');
 		$tpl = htmlentities($tpl);
 
@@ -1282,10 +1262,9 @@ class CCTM {
 			, '<strong>'.$current_theme_path.'</strong>'
 		);
 
-		$data = get_option( self::db_key, array() );
 		$def = array();
-		if ( isset($data[$post_type]['custom_fields']) ) {
-			$def = $data[$post_type]['custom_fields'];
+		if ( isset(self::$data[$post_type]['custom_fields']) ) {
+			$def = self::$data[$post_type]['custom_fields'];
 		}
 		//print_r($data[$post_type]); exit;
 		// built-in content types don't verbosely display what they display
@@ -1311,23 +1290,23 @@ class CCTM {
 		$builtin_fields_str = '';
 		$comments_str = '';
 		// Built-in Fields
-		if ( is_array($data[$post_type]['supports']) ) {
-			if ( in_array('title', $data[$post_type]['supports']) ) {
+		if ( is_array(self::$data[$post_type]['supports']) ) {
+			if ( in_array('title', self::$data[$post_type]['supports']) ) {
 				$builtin_fields_str .= "\n\t<h1><?php the_title(); ?></h1>\n";
 			}
-			if ( in_array('editor', $data[$post_type]['supports']) ) {
+			if ( in_array('editor', self::$data[$post_type]['supports']) ) {
 				$builtin_fields_str .= "\n\t\t<?php the_content(); ?>\n";
 			}
-			if ( in_array('author', $data[$post_type]['supports']) ) {
+			if ( in_array('author', self::$data[$post_type]['supports']) ) {
 				$builtin_fields_str .= "\n\t\t<?php the_author(); ?>\n";
 			}
-			if ( in_array('thumbnail', $data[$post_type]['supports']) ) {
+			if ( in_array('thumbnail', self::$data[$post_type]['supports']) ) {
 				$builtin_fields_str .= "\n\t\t<?php the_post_thumbnail(); ?>\n";
 			}
-			if ( in_array('excerpt', $data[$post_type]['supports']) ) {
+			if ( in_array('excerpt', self::$data[$post_type]['supports']) ) {
 				$builtin_fields_str .= "\n\t\t<?php the_excerpt(); ?>\n";
 			}
-			if ( in_array('comments', $data[$post_type]['supports']) ) {
+			if ( in_array('comments', self::$data[$post_type]['supports']) ) {
 				$comments_str .= "\n\t\t<?php comments_template(); ?>\n";
 			}
 		}
@@ -1459,13 +1438,12 @@ class CCTM {
 	private static function _page_show_all_post_types() {
 		$msg = self::get_flash();
 
-		$data = get_option( self::db_key, array() );
 		$customized_post_types =  array();
 		$displayable_types = array();
 		$displayable_types = array();
 
-		if ( !empty($data) ) {
-			$customized_post_types =  array_keys($data);
+		if ( !empty(self::$data) ) {
+			$customized_post_types =  array_keys(self::$data);
 		}
 		$displayable_types = array_merge(self::$built_in_post_types , $customized_post_types);
 		$displayable_types = array_unique($displayable_types);
@@ -1485,7 +1463,7 @@ class CCTM {
 
 			$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates;
 
-			if ( isset($data[$post_type]['is_active']) && !empty($data[$post_type]['is_active']) ) {
+			if ( isset(self::$data[$post_type]['is_active']) && !empty(self::$data[$post_type]['is_active']) ) {
 				$hash['class'] = 'active';
 				$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
 				$is_active = true;
@@ -1509,7 +1487,7 @@ class CCTM {
 			}
 			// Whereas users define the description for custom post types
 			else {
-				$hash['description']  = self::_get_value($data[$post_type], 'description');
+				$hash['description']  = self::_get_value(self::$data[$post_type], 'description');
 			}
 
 			// Images
@@ -1523,8 +1501,8 @@ class CCTM {
 				break;
 			default:
 				//print_r($data[$post_type]); exit;
-				if ( !empty($data[$post_type]['menu_icon']) && !$data[$post_type]['use_default_menu_icon'] ) {
-					$hash['icon'] = '<img src="'. $data[$post_type]['menu_icon'] . '" />';
+				if ( !empty(self::$data[$post_type]['menu_icon']) && !self::$data[$post_type]['use_default_menu_icon'] ) {
+					$hash['icon'] = '<img src="'. self::$data[$post_type]['menu_icon'] . '" />';
 				}
 				break;
 			}
@@ -1535,27 +1513,26 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Data is stored in the database (and submitted in the $_POST array) in a format
-	that matches what's required by the register_post_type() function... but
-	the FormGenerator requires a more-flat data-structure, so here's where we
-	flatten it out for compatibility with the FormGenerator.
-
-	The $pt_data (i.e. post-type data) should contain only information about
-	a single post_type; do not pass this function the entire contents of the
-	get_option().
-
-	This whole function is necessary because the form generator definition needs
-	to know where to find values for its fields -- the $def is an empty template,
-	so we need to populate it with values by splicing the $def together with the
-	$pt_data.  Some of this complication is due to the fact that we need to update
-	the field names to acommodate arrays, e.g.
-		<input type="text" name="some[2][name]" />
-
-	See http://codex.wordpress.org/Function_Reference/register_post_type
-
-	INPUT: $def (mixed) form definition
-		$pt_data (mixed) data describing a single post type
+	//------------------------------------------------------------------------------
+	/**
+	 * Data is stored in the database (and submitted in the $_POST array) in a format
+	 * that matches what's required by the register_post_type() function... but
+	 * the FormGenerator requires a more-flat data-structure, so here's where we
+	 * flatten it out for compatibility with the FormGenerator.
+	 * 
+	 * The $pt_data (i.e. post-type data) should contain only information about
+	 * a single post_type; do not pass this function the entire contents of the
+	 * get_option().
+	 *
+	 * This whole function is necessary because the form generator definition needs
+	 * to know where to find values for its fields -- the $def is an empty template,
+	 * so we need to populate it with values by splicing the $def together with the
+	 * $pt_data.  Some of this complication is due to the fact that we need to update
+	 * the field names to acommodate arrays, e.g.
+	 *	<input type="text" name="some[2][name]" />
+	 * 
+	 * See http://codex.wordpress.org/Function_Reference/register_post_type
+	 *
 	 *
 	 *
 	 * @param array		$def form definition
@@ -1719,18 +1696,13 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	SYNOPSIS: Check for errors: ensure that $post_type is a valid post_type name.
-	INPUT:
-		$post_type (str) name of the post type
-		$new (boolean) whether or not this is validating a new post_type or an updated one
-			(the only way that an update would fail would be if someone somehow POST'ed
-			against this form)
-	OUTPUT: null if there are no errors, otherwise return a string describing an error.
+	//------------------------------------------------------------------------------
+	/**
+	 * Check for errors: ensure that $post_type is a valid post_type name.
 	 *
 	 *
 	 * @param mixed 	$data describes a post type (this will be input to the register_post_type() function
-	 * @param boolean 	$new  (optional)
+	 * @param boolean 	$new  (optional) whether or not the post_type is new (default=false)
 	 * @return mixed 	returns null if there are no errors, otherwise returns a string describing an error.
 	 */
 	private static function _post_type_name_has_errors($data, $new=false) {
@@ -1773,8 +1745,7 @@ class CCTM {
 		// If this is a new post_type or if the $post_type name has been changed,
 		// ensure that it is not going to overwrite an existing post type name.
 		else {
-			$existing_data = get_option( self::db_key, array() );
-			if ( $new && is_array($existing_data) && in_array($data['post_type'], array_keys($existing_data) ) ) {
+			if ( $new && is_array(self::$data) && in_array($data['post_type'], array_keys(self::$data) ) ) {
 				return __('That name is already in use.');
 			}
 		}
@@ -1783,26 +1754,22 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Every form element when creating a new post type must be filtered here.
-	INPUT: unsanitized $_POST data.
-	OUTPUT: filtered data.  Only white-listed values are passed thru to output.
-
-	Problems with:
-		hierarchical
-		rewrite_with_front
-
-	This is janky... sorta doesn't work how it's supposed when combined with _save_post_type_settings().
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
+	 * Every form element when creating a new post type must be filtered here.
+	 * 
+	 * Problems with:
+	 * 	hierarchical
+	 * 	rewrite_with_front
+	 * 
+	 * This is janky... sorta doesn't work how it's supposed when combined with _save_post_type_settings().
 	 *
 	 *
-	 * @param unknown $raw
-	 * @return unknown
+	 * @param mixed $raw unsanitized $_POST data
+	 * @return mixed filtered $_POST data (only white-listed are passed thru to output)
 	 */
 	private static function _sanitize_post_type_def($raw) {
-		//print_r($raw); exit;
+		#print_r($raw); exit;
 		$sanitized = array();
 
 		// This will be empty if none of the "supports" items are checked.
@@ -1891,51 +1858,44 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	INPUT: $def (mixed) associative array describing a single post-type.
-	OUTPUT: none; this saves a serialized data structure (arrays of arrays) to the db
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
+	OUTPUT: none; this saves a serialized data structure (arrays of arrays) to the db
 	 *
 	 *
-	 * @param unknown $def
+	 * @param mixed $def associative array definition describing a single post-type.
+	 * @return 
 	 */
 	private static function _save_post_type_settings($def) {
 
 		$key = $def['post_type'];
-		$all_post_types = get_option( self::db_key, array() );
 		// Update existing settings if this post-type has already been added
-		if ( isset($all_post_types[$key]) ) {
-			$all_post_types[$key] = array_merge($all_post_types[$key], $def);
+		if ( isset(self::$data[$key]) ) {
+			self::$data[$key] = array_merge(self::$data[$key], $def);
 		}
 		// OR, create a new node in the data structure for our new post-type
 		else {
-			$all_post_types[$key] = $def;
+			self::$data[$key] = $def;
 		}
-		if ($all_post_types[$key]['use_default_menu_icon']) {
-			unset($all_post_types[$key]['menu_icon']);
+		if (self::$data[$key]['use_default_menu_icon']) {
+			unset(self::$data[$key]['menu_icon']);
 		}
-		//print_r($def); exit;
-		//print_r($_POST); exit;
-		//print_r($all_post_types[$key]); exit;
 
-		update_option( self::db_key, $all_post_types );
+		update_option( self::db_key, self::$data );
 	}
 
 
-	/*------------------------------------------------------------------------------
-	This defines the form required to define a custom field. Note that names imply
-	arrays, e.g. name="custom_fields[3][label]".
-	This is intentional: since all custom field definitions are stored as a serialized
-	array in the wp_options table, we have to treat all defs as a kind of recordset
-	(i.e. an array of similar hashes).
-
-	[+def_i+] gets used by Javascript for on-the-fly adding of form fields (where
-	def_i is a Javascript variable indicating the definition number (or i for integer).
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
+	 * This defines the form required to define a custom field. Note that names imply
+	 * arrays, e.g. name="custom_fields[3][label]".
+	 * This is intentional: since all custom field definitions are stored as a serialized
+	 * array in the wp_options table, we have to treat all defs as a kind of recordset
+	 * (i.e. an array of similar hashes).
+	 * 
+	 * [+def_i+] gets used by Javascript for on-the-fly adding of form fields (where
+	 * def_i is a Javascript variable indicating the definition number (or i for integer).
+	 * 
 	 *
 	 */
 	private static function _set_custom_field_def_template() {
@@ -1945,16 +1905,12 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Used when creating or editing Post Types
-	I had to put this here in a function rather than in a config file so I could
-	take advantage of the WP translation functions __()
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $post_type_label (optional)
+	 * Used when creating or editing Post Types
+	 * I had to put this here in a function rather than in a config file so I could
+	 * take advantage of the WP translation functions __()
+	 * @param string $post_type_label (optional)
 	 */
 	private static function _set_post_type_form_definition($post_type_label='sample_post_type') {
 		$def = array();
@@ -1963,178 +1919,14 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	"Transformation" here refers to the reflexive mapping that is required to create
-	a form definition that will generate a form that allows users to define a definition.
-	In other words, given a form definition, calculate the definition the allows you
-	to edit that definition.  This function explodes an incoming definition array into
-	a more complicated series of arrays that define that array.
-
-	The custom_fields array consists of form element definitions that are used when
-	editing or creating a new post.  When we want to edit that definition,
-	we have to create new form elements that allow us to edit each part of the
-	original definition, e.g. we need a text element to allow us to edit
-	the "label", we need a textarea element to allow us to edit the "description",
-	etc.
-
-	@param	mixed	$field_def	A single custom field definition.  Something like:
-
-		Array
-		(
-            [label] => Rating
-            [name] => rating
-            [description] => MPAA rating
-            [type] => dropdown
-            [options] => Array
-                (
-                    [0] => PG
-                    [1] => PG-13
-                    [2] => R
-                )
-
-            [sort_param] =>
-		)
-
-
-	@return	mixed	a modified version of the $custom_field_def_template, with values updated
-	based on the incoming $field_def.  The 'options' are handled in a special way:
-	they are moved to the 'special' key -- this causes the FormGenerator to generate
-	text fields for each one so the user can edit the options for their dropdown.
-
-	Example:
-
-		Array
-		(
-		    [label] => Array
-		        (
-		            [name] => custom_fields[[+def_i+]][label]
-		            [label] => Label
-		            [value] => Product Image Lrg (front)
-		            [extra] =>
-		            [description] =>
-		            [type] => text
-		            [sort_param] => 1
-		            [def_i] => 0
-		        )
-
-		    [name] => Array
-		        (
-		            [name] => custom_fields[[+def_i+]][name]
-		            [label] => Name
-		            [value] => front_img_lrg
-		            [extra] =>
-		            [description] => The name identifies the option_name in the wp_postmeta database table. You will use this name in your template functions to identify this custom field.
-		            [type] => text
-		            [sort_param] => 2
-		            [def_i] => 0
-		        )
-
-		    [description] => Array
-		        (
-		            [name] => custom_fields[[+def_i+]][description]
-		            [label] => Description
-		            [value] =>
-		            [extra] =>
-		            [description] =>
-		            [type] => textarea
-		            [sort_param] => 3
-		            [def_i] => 0
-		        )
-
-		    [type] => Array
-		        (
-		            [name] => custom_fields[[+def_i+]][type]
-		            [label] => Input Type
-		            [value] => image
-		            [extra] =>  onchange="javascript:addRemoveDropdown(this.parentNode.id,this.value, [+def_i+])"
-		            [description] =>
-		            [type] => dropdown
-		            [options] => Array
-		                (
-		                    [0] => checkbox
-		                    [1] => dropdown
-		                    [2] => image
-		                    [3] => media
-		                    [4] => relation
-		                    [5] => text
-		                    [6] => textarea
-		                    [7] => wysiwyg
-		                )
-
-		            [sort_param] => 4
-		            [def_i] => 0
-		        )
-
-		    [sort_param] => Array
-		        (
-		            [name] => custom_fields[[+def_i+]][sort_param]
-		            [label] => Sort Order
-		            [value] => 2
-		            [extra] =>  size="2" maxlength="4"
-		            [description] => This controls where this field will appear on the page. Fields with smaller numbers will appear higher on the page.
-		            [type] => text
-		            [sort_param] => 6
-		            [def_i] => 0
-		        )
-
-		)
-	------------------------------------------------------------------------------*/
-
-	/**
-	 *
-	 *
-	 * @param unknown $field_def
-	 * @return unknown
-	 */
-	private static function _transform_data_structure_for_editing($field_def) {
-		// Used to collect all 5 translated field definitions for this $field_def
-		$translated_defs = array();
-		// print_r($field_def); exit;
-		// print_r(self::$custom_field_def_template); exit;
-		// Copying over all elments from the self::$custom_field_def_template
-		foreach ( $field_def as $attr => $val ) {
-			// Is this $attr an editable item for which we must generate a form element?
-			if (isset(self::$custom_field_def_template[$attr]) ) {
-				foreach (self::$custom_field_def_template[$attr] as $key => $v ) {
-					$translated_defs[$attr][$key] = self::$custom_field_def_template[$attr][$key];
-				}
-			}
-			// Special handling: 'options' really belong to 'type', e.g. spec. opts for a dropdown
-			elseif ( $attr == 'options' && !empty($val) ) {
-				$translated_defs['type']['special'] = $val;
-			}
-		}
-
-		// print_r($translated_defs); exit;
-		// print_r($field_def); exit;
-		// Populate the new form definitions with their values from the original
-		foreach ( $translated_defs as $field => &$def ) {
-			if ( isset($field_def[$field])) {
-				$def['value'] = $field_def[$field]['value'];
-			}
-			else {
-				$def['value'] = '';
-			}
-			// Associate the group of new elements back to this definition.
-			$def['def_i'] = self::$def_i;
-		}
-		// print_r($translated_defs); exit;
-		return $translated_defs;
-	}
-
-
-
 	//! Public Functions
-	/*------------------------------------------------------------------------------
-	Load CSS and JS for admin folks in the manager.  Note that we have to verbosely
-	ensure that thickbox css and js are loaded: normally they are tied to the
-	"main content" area of the content type, so thickbox would otherwise fail
-	if your custom post_type doesn't use the main content type.
-	Errors: TO-DO.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * Load CSS and JS for admin folks in the manager.  Note that we have to verbosely
+	 * ensure that thickbox css and js are loaded: normally they are tied to the
+	 * "main content" area of the content type, so thickbox would otherwise fail
+	 * if your custom post_type doesn't use the main content type.
+	 * Errors: TO-DO.
 	 */
 	public static function admin_init() {
 
@@ -2162,25 +1954,18 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Adds a link to the settings directly from the plugins page.  This filter is
-	called for each plugin, so we need to make sure we only alter the links that
-	are displayed for THIS plugin.
-
-	INPUT (determined by WordPress):
-		$links is a hash of links to display in the format of name => translation e.g.
-			array('deactivate' => 'Deactivate')
-		$file is the path to plugin's main file (the one with the info header),
-			relative to the plugins directory, e.g. 'custom-content-type-manager/index.php'
-	OUTPUT: $links array.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $links
-	 * @param unknown $file
-	 * @return unknown
+	 * Adds a link to the settings directly from the plugins page.  This filter is
+	 * called for each plugin, so we need to make sure we only alter the links that
+	 * are displayed for THIS plugin.
+	 * 
+	 * INPUTS (determined by WordPress):
+	 * @param	array	$links is a hash of links to display in the format of name => translation e.g.
+	 * 		array('deactivate' => 'Deactivate')
+	 * @param	string	$file is the path to plugin's main file (the one with the info header),
+			relative to the plugins directory, e.g. 'custom-content-type-manager/index.php'
+	 * @return array $links 
 	 */
 	public static function add_plugin_settings_link($links, $file) {
 		if ( $file == basename(self::get_basepath()) . '/index.php' ) {
@@ -2196,11 +1981,10 @@ class CCTM {
 
 
 	//------------------------------------------------------------------------------
-	// Defines the diretory for this plugin.
 	/**
+	 *  Defines the diretory for this plugin.
 	 *
-	 *
-	 * @return unknown
+	 * @return string
 	 */
 	public static function get_basepath() {
 		return dirname(dirname(__FILE__));
@@ -2209,9 +1993,11 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Get the flash message.
+	 * Get the flash message (i.e. a message that persists for the current user only
+	 * for the next page view). See "Flashdata" here:
+	 * http://codeigniter.com/user_guide/libraries/sessions.html
 	 *
-	 * @return unknown
+	 * @return message
 	 */
 	public static function get_flash() {
 		$output = '';
@@ -2227,19 +2013,16 @@ class CCTM {
 	/**
 	 * Returns a path with trailing slash.
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	public static function get_custom_icons_src_dir() {
 		self::$custom_field_icons_dir = CCTM_URL.'/images/custom-fields/';
 		return self::$custom_field_icons_dir;
 	}
 
-	/*------------------------------------------------------------------------------
-	Create custom post-type menu
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * Create custom post-type menu
 	 */
 	public static function create_admin_menu() {
 		add_menu_page(
@@ -2289,18 +2072,15 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Checks whether or not a given post-type is active with its custom fields standardized..
-	INPUT: $content_type (str) name of a post type.
-	OUTPUT: true|false
-	 *
-	 *
-	 * @param unknown $content_type
-	 * @return unknown
+	//------------------------------------------------------------------------------
+	/**
+	 * Checks whether or not a given post-type is active with its custom fields standardized..
+	 * 
+	 * @param string $post_type
+	 * @return boolean
 	 */
-	public static function is_active_post_type($content_type) {
-		$data = get_option( self::db_key );
-		if ( isset($data[$content_type]['is_active']) && $data[$content_type]['is_active'] == 1 ) {
+	public static function is_active_post_type($post_type) {
+		if ( isset(self::$data[$post_type]['is_active']) && self::$data[$post_type]['is_active'] == 1 ) {
 			return true;
 		}
 		else {
@@ -2309,15 +2089,16 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
-	This is the function called when someone clicks on the settings page.
-	The job of a controller is to process requests and route them.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
+	 * This is the grand poobah of functions for the admin pages: it routes requests 
+	 * to specific functions.
+	 * This is the function called when someone clicks on the settings page.
+	 * The job of a controller is to process requests and route them.
 	 *
 	 */
 	public static function page_main_controller() {
+		// TODO: this should be specific to the request
 		if (!current_user_can('manage_options')) {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
 		}
@@ -2351,23 +2132,7 @@ class CCTM {
 			break;
 		case 9: // Create custom field
 			$field_type = self::_get_value($_GET, 'type');
-			# self::_page_create_custom_field($post_type, $field_type);
-			$vars = array();
-			$vars['heading'] = __('Create Field', CCTM_TXTDOMAIN);
-			$vars['data'] = get_option( self::db_key, array() );
-			$vars['action_name']  = 'custom_content_type_mgr_create_new_custom_field';
-			$vars['nonce_name']  = 'custom_content_type_mgr_create_new_custom_field_nonce';
-			$vars['success_msg'] = sprintf('<div class="updated"><p>%s</p></div>'
-							, sprintf(__('A custom field for %s has been created.', CCTM_TXTDOMAIN)
-								, '<em>'.$post_type.'</em>'));
-			self::include_form_element_class($field_type); // This will die on errors
-			$field_type_name = self::FormElement_classname_prefix.$field_type;
-			$FieldObj = new $field_type_name(); // Instantiate the field element
-			// Populate Field data
-			$vars['field_data'] = $FieldObj->get_defaults();
-			$vars['field_type'] = $field_type;
-						
-			self::_page_create_edit_custom_field($post_type, $vars, $FieldObj);
+			self::_page_create_custom_field($post_type, $field_type);
 			break;
 		case 10: // Delete custom field
 			$field_name = self::_get_value($_GET, 'field');
@@ -2375,43 +2140,26 @@ class CCTM {
 			break;
 		case 11: // Edit custom field
 			$field_name = self::_get_value($_GET, 'field');
-			// Variables for this request
-			$vars = array();
-			$vars['field_name'] = $field_name;
-			$vars['heading'] = __('Edit Field', CCTM_TXTDOMAIN);
-			$vars['data'] = get_option( self::db_key, array() );
-			$vars['action_name']  = 'custom_content_type_mgr_edit_custom_field';
-			$vars['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
-			$vars['success_msg'] = sprintf('<div class="updated"><p>%s</p></div>'
-							, sprintf(__('%s has been updated.', CCTM_TXTDOMAIN)
-								, '<em>'.$field_name.'</em>'));
-			// Populate Field data
-			$vars['field_data'] = self::_get_field_data($vars['data'], $post_type, $field_name);
-			$field_type = $vars['field_data']['type'];
-			self::include_form_element_class($field_type); // This will die on errors
-			$field_type_name = self::FormElement_classname_prefix.$field_type;
-			$FieldObj = new $field_type_name(); // Instantiate the field element
-			self::_page_create_edit_custom_field($post_type, $vars, $FieldObj);
+			self::_page_edit_custom_field($post_type, $field_name);
 			break;
-
-
+		case 12: // Reset all custom fields from this post_type
+			self::_page_reset_all_custom_fields($post_type);
+			break;
 		default: // Default: List all post types
 			self::_page_show_all_post_types();
 		}
 	}
 
 
-	/*------------------------------------------------------------------------------
-	Print errors if they were thrown by the tests. Currently this is triggered as
-	an admin notice so as not to disrupt front-end user access, but if there's an
-	error, you should fix it! The plugin may behave erratically!
-	INPUT: none... ideally I'd pass this a value, but the WP interface doesn't make
-		this easy, so instead I just read the class variable: CCTMtests::$errors
-	OUTPUT: none directly.  But errors are printed if present.
-	------------------------------------------------------------------------------*/
-
+	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * Print errors if they were thrown by the tests. Currently this is triggered as
+	 * an admin notice so as not to disrupt front-end user access, but if there's an
+	 * error, you should fix it! The plugin may behave erratically!
+	 * INPUT: none... ideally I'd pass this a value, but the WP interface doesn't make
+	 * 	this easy, so instead I just read the class variable: CCTMtests::$errors
+	 * 	
+	 * @return	none  But errors are printed if present.
 	 */
 	public static function print_notices() {
 		if ( !empty(CCTMtests::$errors) ) {
@@ -2435,7 +2183,8 @@ class CCTM {
 	}
 
 
-	/*------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	/**
 	Register custom post-types, one by one. Data is stored in the wp_options table
 	in a structure that matches exactly what the register_post_type() function
 	expectes as arguments.
@@ -2469,7 +2218,7 @@ class CCTM {
 	    'is_active' => 1,
 	);
 
-	FUTURE:
+	FUTURE??:
 		register_taxonomy( $post_type,
 			$cpt_post_types,
 			array( 'hierarchical' => get_disp_boolean($cpt_tax_type["hierarchical"]),
@@ -2480,16 +2229,11 @@ class CCTM {
 			'singular_label' => $cpt_singular_label,
 			'labels' => $cpt_labels
 		) );
-	------------------------------------------------------------------------------*/
-
-	/**
-	 *
-	 */
+	*/
 	public static function register_custom_post_types() {
-
-		$data = get_option( self::db_key, array() );
-		if ( is_array($data) ) {
-			foreach ($data as $post_type => $def) {
+	
+		if ( is_array(self::$data) ) {
+			foreach (self::$data as $post_type => $def) {
 				if ( isset($def['is_active'])
 					&& !empty($def['is_active'])
 					&& !in_array($post_type, self::$built_in_post_types)) {
@@ -2512,7 +2256,7 @@ class CCTM {
 	/**
 	 * Sets a flash message that's viewable only for the next page view (for the current user)
 	 *
-	 * @param unknown $msg
+	 * @param string $msg text or html message
 	 */
 	public static function set_flash($msg) {
 		$_SESSION[ self::db_key ] = $msg;
@@ -2523,16 +2267,13 @@ class CCTM {
 	/**
 	 * Used by php usort to sort custom field defs by their sort_param attribute
 	 *
-	 * @param unknown $field
-	 * @param unknown $sortfunc
-	 * @return unknown
+	 * @param string $field
+	 * @param string $sortfunc
+	 * @return array
 	 */
 	public static function sort_custom_fields($field, $sortfunc) {
 		return create_function('$var1, $var2', 'return '.$sortfunc.'($var1["'.$field.'"], $var2["'.$field.'"]);');
 	}
-
-
 }
 
-
-/*EOF*/
+/*EOF CCTM.php*/
