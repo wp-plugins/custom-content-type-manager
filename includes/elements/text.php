@@ -106,12 +106,13 @@ class CCTM_text extends FormElement
 		# print_r($this->props); exit;
 		$output = sprintf('
 			%s 
-			<input type="text" name="%s" class="%s" id="%s" value="%s"/>
+			<input type="text" name="%s" class="%s" id="%s" %s value="%s"/>
 			'
 			, $this->wrap_label()
 			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'text')
+			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
 			, $this->get_field_id()
+			, stripslashes($def['extra'])
 			, $def['value']
 		);
 		
@@ -121,13 +122,7 @@ class CCTM_text extends FormElement
 	//------------------------------------------------------------------------------
 	/**
 	 *
-	 *
-	 * @param mixed $def	associative array of existing values
-			<style>
-			input.cctm_error { 
-				background: #fed; border: 1px solid red;
-			}
-			</style>
+	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_form($def) {
 		// Label

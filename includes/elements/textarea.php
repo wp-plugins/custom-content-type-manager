@@ -2,125 +2,182 @@
 /**
 * CCTM_textarea
 *
-* Implements an HTML text input.
+* Implements an HTML textarea input.
 *
 */
 class CCTM_textarea extends FormElement
 {
+
+	/** 
+	* The $props array acts as a template which defines the properties for each instance of this type of field.
+	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
+	* Some properties are required of all fields (see below), some are automatically generated (see below), but
+	* each type of custom field (i.e. each class that extends FormElement) can have whatever properties it needs
+	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
+	* 
+	* 
+	*
+	* The following properties MUST be implemented:
+	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
+	*	'label'	=> 
+	*	'description'	=> a description of this type of field.
+	*
+	* The following properties are set automatically:
+	*
+	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
+	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
+	*/
+	public $props = array(
+		'label' => '',
+		'name' => '',
+		'description' => '',
+		'value'	=> '',
+		'class' => '',
+		'extra'	=> '',
+		'default_value' => '',
+		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
+		// 'sort_param' => '', // handled automatically
+	);
+
+
 	/**
+	 * Tie into the parent constructor. Add additional items if necessary, e.g. localizations of
+	 * the $props, e.g. 
 	 *
+	 * 	public function __construct() {
+	 *		parent::__construct();
+	 *		$this->props['special_stuff'] = __('Translate me');
+	 *	}
+	 * 	
 	 */
 	public function __construct() {
 		parent::__construct();
-		# $this->props['type_label'] = __('Text', CCTM_TXTDOMAIN );
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	* This function provides a name for this type of field. This should return plain
+	* text (no HTML). The returned value should be localized using the __() function.
+	* @return	string
+	*/
+	public function get_name() {
+		return __('Text',CCTM_TXTDOMAIN);	
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* Used to drive a thickbox pop-up when a user clicks "See Example"
+	*/
+	public function get_example_image() {
+		return '';
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* This function gives a description of this type of field so users will know 
+	* whether or not they want to add this type of field to their custom content
+	* type. The returned value should be localized using the __() function.
+	* @return	string text description
+	*/
+	public function get_description() {
+		return __('Text fields implement the standard <input="text"> element. 
+			"Extra" parameters, e.g. "size" can be specified in the definition.',CCTM_TXTDOMAIN);
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* This function should return the URL where users can read more information about
+	* the type of field that they want to add to their post_type. The string may
+	* be localized using __() if necessary (e.g. for language-specific pages)
+	* @return	string 	e.g. http://www.yoursite.com/some/page.html
+	*/
+	public function get_url() {
+		return '';
+	}
+	
 
 	//------------------------------------------------------------------------------
 	/**
 	 *
-	 *
-	 * @param mixed $def associative array containing the full definition for this type of element.
-	 * @param string HTML to be used in the WP manager for an instance of this type of element.
-	 */
-	public function get_create_post_form($def) {
-		$def = $this->get_defaults();
-		return $this->get_edit_post_form($def); // pass on to 
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * <div class="formgenerator_element_wrapper" id="custom_field_wrapper_address1">
-	 * <label for="custom_content_address1" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_custom_content_address1">Address</label>
-	 * <input type="text" name="custom_content_address1" class="formgenerator_text" id="custom_content_address1" value="3835 Cross Creek Road"/>
-	 * </div>
-	 *
-	 * @param unknown $def
-	 * @return unknown
+	 * @param mixed $def	contains all settings for this type of field.
+	 * @return string	
+	 <label for="[+name+]" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_[+name+]">[+label+]</label>
+			<textarea name="[+name+]" class="formgenerator_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
 	 */
 	public function get_edit_post_form($def) {
+		# print_r($this->props); exit;
 		$output = sprintf('
-			%s 
-			<input type="text" name="%s" class="%s" id="%s" value="%s"/>
+			%s
+			<textarea name="%s" class="%s" id="%s" %s>%s</textarea>
 			'
 			, $this->wrap_label()
-			, self::post_name_prefix . $this->name
-			, $this->get_field_class()
-			, $this->name
-			, $def['default_value']
+			, $this->get_field_name()
+			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
+			, $this->get_field_id()
+			, stripslashes($def['extra'])
+			, $def['value']
 		);
 		
 		return $this->wrap_outer($output);
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This should returm a form element(s) that handles all the controls required to define this
-	 * type of field.  The default properties correspond to this class's public variables:
-	 * name, id, label, type, default_value, value. Whatever inputs are defined here (as keys in the
-	 * $_POST array) will be stored alongside the custom-field data for the parent post-type.
-	 * THAT data (along with the current value of the field) is what's passed to the get_manager_form() function.
-	 *
-	 * @param unknown $default_vals
-	 * @return unknown
-	 */
-	public function get_create_field_form($def) {
-		return $this->get_edit_field_form($def);
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 *
-	 *
-	 * @param unknown $current_values
-			<style>
-			input.cctm_error { 
-				background: #fed; border: 1px solid red;
-			}
-			</style>
+	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_form($def) {
-		return '
-
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
-			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
-			 	<input type="text" name="label" class="'.$this->get_field_class('label','text').'" id="label" value="'.$def['label'].'"/>
-			 	' . $this->get_description('label') . '
-			 </div>
-		
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_1">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_name">'
+		// Label
+		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
+			 		<label for="label" class="'.self::label_css_class.'">'
+			 			.__('Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		' . $this->get_translation('label').'
+			 	</div>';
+		// Name
+		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
+				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'].'"/>'
-				 . $this->get_description('name') . '
-			 </div>
-			 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
-			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_default_value">'.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<textarea name="default_value" class="'.$this->get_field_class('default_value','textarea').'" id="default_value" rows="5" cols="60">'
-			 			.$def['default_value']
-			 		.'</textarea>
-			 	' . $this->get_description('default_value') .'
-			 </div>
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 . $this->get_translation('name') .'
+			 	</div>';
+			 	
+		// Default Value
+		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
+			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="default_value_label">'
+			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
+			 		.'"/>
+			 	' . $this->get_translation('default_value') .'
+			 	</div>';
 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
-			 	<label for="extra" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_extra">'.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'.htmlentities(stripslashes($def['extra'])).'"/>
-			 	' . $this->get_description('extra') .'
-			 </div>
-			 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
-			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
+		// Extra
+		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
+			 		<label for="extra" class="'.self::label_css_class.'">'
+			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 			.htmlentities(stripslashes($def['extra'])).'"/>
+			 	' . $this->get_translation('extra').'
+			 	</div>';
+
+		// Class
+		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
+			 	<label for="class" class="'.self::label_css_class.'">'
+			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 			.strip_tags(stripslashes($def['class'])).'"/>
+			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		// Description	 
+		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
+			 	<label for="description" class="'.self::label_css_class.'">'
+			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
-			 	' . $this->get_description('description') .'
-			 </div>
-			 
-			 
-			 ';
+			 	' . $this->get_translation('description').'
+			 	</div>';
+		return $out;
 	}
 
 }
