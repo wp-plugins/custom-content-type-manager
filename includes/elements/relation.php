@@ -8,146 +8,179 @@
 */
 class CCTM_relation extends FormElement
 {
-	/**
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-		# $this->props['type_label'] = __('Text', CCTM_TXTDOMAIN );
-	}
-
+	/** 
+	* The $props array acts as a template which defines the properties for each instance of this type of field.
+	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
+	* Some properties are required of all fields (see below), some are automatically generated (see below), but
+	* each type of custom field (i.e. each class that extends FormElement) can have whatever properties it needs
+	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
+	* 
+	* 
+	*
+	* The following properties MUST be implemented:
+	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
+	*	'label'	=> 
+	*	'description'	=> a description of this type of field.
+	*
+	* The following properties are set automatically:
+	*
+	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
+	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
+	*/
+	public $props = array(
+		'label' => '',
+		'name' => '',
+		'description' => '',
+		'class' => '',
+		'extra'	=> '',
+		'default_value' => '',
+		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
+		// 'sort_param' => '', // handled automatically
+	);
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param mixed $def associative array containing the full definition for this type of element.
-	 * @param string HTML to be used in the WP manager for an instance of this type of element.
-	 */
-	public function get_create_post_form($def) {
-		$def = $this->get_defaults();
-		return $this->get_edit_post_form($def); // pass on to 
+	* This function provides a name for this type of field. This should return plain
+	* text (no HTML). The returned value should be localized using the __() function.
+	* @return	string
+	*/
+	public function get_name() {
+		return __('Relation',CCTM_TXTDOMAIN);	
 	}
-
+	
+	//------------------------------------------------------------------------------
+	/**
+	* Used to drive a thickbox pop-up when a user clicks "See Example"
+	*/
+	public function get_example_image() {
+		return '';
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* This function gives a description of this type of field so users will know 
+	* whether or not they want to add this type of field to their custom content
+	* type. The returned value should be localized using the __() function.
+	* @return	string text description
+	*/
+	public function get_description() {
+		return __('Relation fields are used to store a reference to another post of some kind. For example you can use a relation to link to a related post or to a parent post.',CCTM_TXTDOMAIN);
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* This function should return the URL where users can read more information about
+	* the type of field that they want to add to their post_type. The string may
+	* be localized using __() if necessary (e.g. for language-specific pages)
+	* @return	string 	e.g. http://www.yoursite.com/some/page.html
+	*/
+	public function get_url() {
+		return '';
+	}
+	
 
 	//------------------------------------------------------------------------------
 	/**
-	 * <div class="formgenerator_element_wrapper" id="custom_field_wrapper_address1">
-	 * <label for="custom_content_address1" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_custom_content_address1">Address</label>
-	 * <input type="text" name="custom_content_address1" class="formgenerator_text" id="custom_content_address1" value="3835 Cross Creek Road"/>
-	 * </div>
-	 *
-	 * @param unknown $def
-	 * @return unknown
+	 * @param mixed $current_value	current value for this field (an integer ID).
+	 * @return string	
 	 */
-	public function get_edit_post_form($def) {
+	public function get_edit_field_instance($current_value) {
+	
 		global $post;
 		
 		$media_html = '';
-
+		$preview_html = '';
+		#$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
+		$controller_url = CCTM_URL.'/post-selector.php?post_mime_type=';
+		$click_label = __('Choose Relation');
+		
 		// It has a value
-		if ( !empty($def['value']) )
+		if ( !empty($current_value) )
 		{
-			$def['preview_html'] = wp_get_attachment_image( $def['value'], 'thumbnail', true );
-			$attachment_obj = get_post($def['value']);
-			//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
-			$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['value'].')</span></span><br />';
-			
-		}
-		// It's not set yet
-		else
-		{
-			$def['preview_html'] = '';
+			$attachment_post = get_post($current_value, ARRAY_A);
+			$attachment_post['post_id'] = $attachment_post['ID'];
+			$attachment_post['view'] = __('View');
+			$attachment_post['site_url'] = get_site_url();			
+			$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/preview_html.tpl');
+			$attachment_post['preview_html'] = wp_get_attachment_image( $current_value, 'thumbnail', true );
+			$preview_html = CCTM::parse($tpl, $attachment_post);
 		}
 		
-		$def['controller_url'] = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
-		$def['click_label'] = __('Choose Media');
-		$tpl = '
-			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_[+name+]">[+label+]</span>
-			<input type="hidden" id="[+id+]" name="[+name+]" value="[+value+]" /><br />
-			<div id="[+id+]_media">[+preview_html+]</div>
+		$output = $this->wrap_label();
+		$output .= '
+			<input type="hidden" id="'.$this->get_field_id().'" name="'.$this->get_field_id().'" value="'.$current_value.'" />
+			<br />
+			<div id="'.$this->get_field_id().'_media">'.$preview_html.'</div>
 			<br class="clear" />
-			<a href="[+controller_url+]&fieldname=[+id+]" name="[+click_label+]" class="thickbox button">[+click_label+]</a>
+			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="thickbox button">'
+			.$click_label.'</a>
 			<br class="clear" /><br />';
-		return FormGenerator::parse($tpl, $def);
-		
+		return $this->wrap_outer($output);
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 * This should returm a form element(s) that handles all the controls required to define this
-	 * type of field.  The default properties correspond to this class's public variables:
-	 * name, id, label, type, default_value, value. Whatever inputs are defined here (as keys in the
-	 * $_POST array) will be stored alongside the custom-field data for the parent post-type.
-	 * THAT data (along with the current value of the field) is what's passed to the get_manager_form() function.
+	 * This should return (not print) form elements that handle all the controls required to define this
+	 * type of field.  The default properties correspond to this class's public variables,
+	 * e.g. name, label, etc. The form elements you create should have names that correspond
+	 * with the public $props variable. A populated array of $props will be stored alongside 
+	 * the custom-field data for the containing post-type.
 	 *
-	 * @param unknown $default_vals
-	 * @return unknown
+	 * @param mixed   $current_values should be an associative array.
+	 * @return	string	HTML input fields
 	 */
-	public function get_create_field_form($def) {
-		return $this->get_edit_field_form($def);
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 *
-	 *
-	 * @param unknown $current_values
-			
-			
-	 */
-	public function get_edit_field_form($def) {
-		$out = '
-
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
-			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
-			 	<input type="text" name="label" class="'.$this->get_field_class('label','text').'" id="label" value="'.$def['label'].'"/>
-			 	' . $this->get_description('label') . '
-			 </div>
-		
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_1">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_name">'
+	public function get_edit_field_definition($def) {
+		// Label
+		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
+			 		<label for="label" class="'.self::label_css_class.'">'
+			 			.__('Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		' . $this->get_translation('label').'
+			 	</div>';
+		// Name
+		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
+				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'].'"/>'
-				 . $this->get_description('name') . '
-			 </div>';
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 . $this->get_translation('name') .'
+			 	</div>';
 			
-			// Initialize / defaults
-			$preview_html = '';
-			$click_label = __('Choose Media');
-			$label = __('Default Value', CCTM_TXTDOMAIN);
-			$controller_url = CCTM_URL.'/post-selector.php?';
+		// Initialize / defaults
+		$preview_html = '';
+		$click_label = __('Choose Relation');
+		$label = __('Default Value', CCTM_TXTDOMAIN);
+		$controller_url = CCTM_URL.'/post-selector.php?';
 			
-			// Handle the display of the Default Image thumbnail
-			if ( !empty($def['default_value']) )
-			{
-				$preview_html = wp_get_attachment_image( $def['default_value'], 'thumbnail', true );
-				$attachment_obj = get_post($def['default_value']);
-				//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
-				// Wrap it
-				$preview_html .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['default_value'].')</span></span><br />';
+		// Handle the display of the Default Image thumbnail
+		if ( !empty($def['default_value']) ) {
+			$preview_html = wp_get_attachment_image( $def['default_value'], 'thumbnail', true );
+			$attachment_obj = get_post($def['default_value']);
+			//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
+			// Wrap it
+			$preview_html .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['default_value'].')</span></span><br />';
+			
+		}
+
+		// Default Value 			
+		$out .= '
+			<div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
+				<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a></span> 
+				<input type="hidden" id="default_value" name="default_value" value="'.$def['default_value'].'" /><br />
+				<div id="default_value_media">'.$preview_html.'</div>
 				
-			}
-			
-			$out .= '
-				<div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
-					<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a></span> 
-					<input type="hidden" id="default_value" name="default_value" value="'.$def['default_value'].'" /><br />
-					<div id="default_value_media">'.$preview_html.'</div>
-					
-					<br />
-				</div>';
+				<br />
+			</div>';
 
 			
-			 $out .= '<div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
-			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
+		// Description	 
+		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
+			 	<label for="description" class="'.self::label_css_class.'">'
+			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
-			 	' . $this->get_description('description') .'
-			 </div>
-			 ';
+			 	' . $this->get_translation('description').'
+			 	</div>';
 			 
 			 return $out;
 	}

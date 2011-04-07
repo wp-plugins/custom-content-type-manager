@@ -7,14 +7,81 @@
 */
 class CCTM_checkbox extends FormElement
 {
+
+	/** 
+	* The $props array acts as a template which defines the properties for each instance of this type of field.
+	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
+	* Some properties are required of all fields (see below), some are automatically generated (see below), but
+	* each type of custom field (i.e. each class that extends FormElement) can have whatever properties it needs
+	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
+	* 
+	* 
+	*
+	* The following properties MUST be implemented:
+	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
+	*	'label'	=> 
+	*	'description'	=> a description of this type of field.
+	*
+	* The following properties are set automatically:
+	*
+	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
+	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
+	*/
+	public $props = array(
+		'label' => '',
+		'name' => '',
+		'description' => '',
+		// checked_by_default determines whether 'checked_value' or 'unchecked_value' is passed to 
+		// the current value for new field instances.  This value should be 1 (checked) or 0 (unchecked)
+		'checked_by_default' => '0', 
+		'checked_value' => '1',
+		'unchecked_value' => '0',
+		'class' => '',
+		'extra'	=> '',
+		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
+		// 'sort_param' => '', // handled automatically
+	);
+
+	//------------------------------------------------------------------------------
 	/**
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-		# $this->props['type_label'] = __('Text', CCTM_TXTDOMAIN );
+	* This function provides a name for this type of field. This should return plain
+	* text (no HTML). The returned value should be localized using the __() function.
+	* @return	string
+	*/
+	public function get_name() {
+		return __('Checkbox',CCTM_TXTDOMAIN);	
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* Used to drive a thickbox pop-up when a user clicks "See Example"
+	*/
+	public function get_example_image() {
+		return '';
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	* This function gives a description of this type of field so users will know 
+	* whether or not they want to add this type of field to their custom content
+	* type. The returned value should be localized using the __() function.
+	* @return	string text description
+	*/
+	public function get_description() {
+		return __('Checkbox fields implement the standard <input="checkbox"> element. 
+			"Extra" parameters, e.g. "alt" can be specified in the definition.',CCTM_TXTDOMAIN);
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	* This function should return the URL where users can read more information about
+	* the type of field that they want to add to their post_type. The string may
+	* be localized using __() if necessary (e.g. for language-specific pages)
+	* @return	string 	e.g. http://www.yoursite.com/some/page.html
+	*/
+	public function get_url() {
+		return '';
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -23,62 +90,64 @@ class CCTM_checkbox extends FormElement
 	 * @param mixed $def associative array containing the full definition for this type of element.
 	 * @param string HTML to be used in the WP manager for an instance of this type of element.
 	 */
-	public function get_create_post_form($def) {
-		# print_r($def); exit;
-		$this->props = $def;
-		if ( $this->props['checked_by_default'])
-		{
-			$this->props['value'] = $def['value_when_checked'];
+	public function get_create_field_instance() {
+		if ( $this->props['checked_by_default']) {
+			$current_value = $this->props['checked_value'];
 		}
-		return $this->get_edit_post_form($def); // pass on to 
+		else {
+			$current_value = $this->props['unchecked_value'];		
+		}
+		return $this->get_edit_field_instance($current_value); // pass on to 
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 * <div class="formgenerator_element_wrapper" id="custom_field_wrapper_address1">
-	 * <label for="custom_content_address1" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_custom_content_address1">Address</label>
-	 * <input type="text" name="custom_content_address1" class="formgenerator_text" id="custom_content_address1" value="3835 Cross Creek Road"/>
-	 * </div>
 	 *
-	 * @param unknown $def
-	 * @return unknown
+	 * @param string $current_value
+	 * @return string
+	 			<input type="checkbox" name="[+name+]" class="formgenerator_checkbox" id="[+id+]" value="[+checked_value+]" [+is_checked+] [+extra+]/> 
+			<label for="[+id+]" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_[+name+]">[+label+]</label>';
+
+
+		$output = sprintf('
+			%s 
+			<input type="text" name="%s" class="%s" id="%s" %s value="%s"/>
+			'
+			, $this->wrap_label()
+			, $this->get_field_name()
+			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
+			, $this->get_field_id()
+			, stripslashes($this->extra)
+			, $current_value
+		);
+		
+		return $this->wrap_outer($output);
+
+	 
 	 */
-	public function get_edit_post_form($def) {
+	public function get_edit_field_instance($current_value) {
+#		print $current_value; exit;
+#		print_r($this->props); exit;
 		#print_r($def); exit;
 		$is_checked = '';
-		if ($def['value'] == $def['value_when_checked']) {
+		if ($current_value == $this->checked_value) {
 			$is_checked = 'checked="checked"';
 		}
-		$this->props = $def; # ???
-#		print_r($this->props); exit;
+
 		$output = sprintf(' 
-			<input type="checkbox" name="%s" class="%s" id="%s" value="%s" %s/>
+			<input type="checkbox" name="%s" class="%s" id="%s" value="%s" %s %s/>
 			'
-			, self::post_name_prefix . $this->name
-			, 'xxxxx' //$this->get_field_class()
-			, $this->name
-			, $def['value_when_checked']
+			, $this->get_field_name()
+			, $this->get_field_class($this->name, 'checkbox') . ' ' . $this->class
+			, $this->get_field_id()
+			, $this->checked_value
+			, $this->extra
 			, $is_checked
 		);
+
 		$output .= $this->wrap_label();
 		return $this->wrap_outer($output);
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This should returm a form element(s) that handles all the controls required to define this
-	 * type of field.  The default properties correspond to this class's public variables:
-	 * name, id, label, type, default_value, value. Whatever inputs are defined here (as keys in the
-	 * $_POST array) will be stored alongside the custom-field data for the parent post-type.
-	 * THAT data (along with the current value of the field) is what's passed to the get_manager_form() function.
-	 *
-	 * @param unknown $default_vals
-	 * @return unknown
-	 */
-	public function get_create_field_form($def) {
-		return $this->get_edit_field_form($def);
 	}
 
 
@@ -93,55 +162,101 @@ class CCTM_checkbox extends FormElement
 			}
 			</style>
 	 */
-	public function get_edit_field_form($def) {
+	public function get_edit_field_definition($def) {
 		$is_checked = '';
-		if ( $def['checked_by_default'] ) {
+		if ($def['checked_by_default']) {
 			$is_checked = 'checked="checked"';
-		}
-		return '
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_0">
-			 	<label for="label" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_label">'.__('Label', CCTM_TXTDOMAIN).'</label>
-			 	<input type="text" name="label" class="'.$this->get_field_class('label','text').'" id="label" value="'.$def['label'].'"/>
-			 	' . $this->get_description('label') . '
-			 </div>
-		
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_1">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_name">'
+		}		
+	
+		// Label
+		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
+			 		<label for="label" class="'.self::label_css_class.'">'
+			 			.__('Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		' . $this->get_translation('label').'
+			 	</div>';
+		// Name
+		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
+				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'].'"/>'
-				 . $this->get_description('name') . '
-			 </div>
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 . $this->get_translation('name') .'
+			 	</div>';
 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
-			 	<label for="value_when_checked" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_value_when_checked">'.__('Value when checked', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="value_when_checked" class="'.$this->get_field_class('value_when_checked','text').'" id="value_when_checked" value="'.htmlentities(stripslashes($def['value_when_checked'])).'"/>
-			 	' . $this->get_description('value_when_checked') .'
-			 </div>
-			 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_3">
-			 	<label for="value_when_unchecked" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_value_when_unchecked">'.__('Value when unchecked', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="value_when_unchecked" class="'.$this->get_field_class('value_when_unchecked','text').'" id="value_when_unchecked" value="'.htmlentities(stripslashes($def['value_when_unchecked'])).'"/>
-			 	' . $this->get_description('value_when_unchecked') .'
-			 </div>
+		// Value when Checked			 	
+		$out .= '<div class="'.self::wrapper_css_class .'" id="checked_value_wrapper">
+				 <label for="checked_value" class="formgenerator_label formgenerator_text_label" id="checked_value_label">'
+					. __('Value when checked', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <input type="text" name="checked_value" size="8" class="'.$this->get_field_class('checked_value','text').'" id="checked_value" value="'.$def['checked_value'] .'"/>'
+				 . $this->get_translation('checked_value') .'
+			 	</div>';
+			 	
+		// Value when Unchecked			 	
+		$out .= '<div class="'.self::wrapper_css_class .'" id="unchecked_value_wrapper">
+				 <label for="unchecked_value" class="formgenerator_label formgenerator_text_label" id="unchecked_value_label">'
+					. __('Value when Unchecked', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <input type="text" name="unchecked_value" size="8" class="'.$this->get_field_class('unchecked_value','text').'" id="unchecked_value" value="'.$def['unchecked_value'] .'"/>'
+				 . $this->get_translation('unchecked_value') .'
+			 	</div>';
+		// Is Checked by Default?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="checked_by_default_wrapper">
+				 <label for="checked_by_default" class="formgenerator_label formgenerator_checkbox_label" id="checked_by_default_label">'
+					. __('Checked by default?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="checked_by_default" class="'.$this->get_field_class('checked_by_default','checkbox').'" id="checked_by_default" value="1" '. $is_checked.'/> <span>'.$this->descriptions['checked_by_default'].'</span>
+			 	</div>';
+		// Extra
+		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
+			 		<label for="extra" class="'.self::label_css_class.'">'
+			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 			.htmlentities(stripslashes($def['extra'])).'"/>
+			 	' . $this->get_translation('extra').'
+			 	</div>';
 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
-		 		<input type="checkbox" name="checked_by_default" class="'.$this->get_field_class('checked_by_default','checkbox').'" id="checked_by_default" value="1" '. $is_checked.'/>
-			 	<label for="checked_by_default" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_checked_by_default">'.__('Checked by default', CCTM_TXTDOMAIN) .'</label>
-			 	' . $this->get_description('checked_by_default') .'
-			 </div>
-			 
-			 <div class="formgenerator_element_wrapper" id="custom_field_wrapper_5">
-			 	<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">'.__('Description', CCTM_TXTDOMAIN) .'</label>
+		// Class
+		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
+			 	<label for="class" class="'.self::label_css_class.'">'
+			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 			.strip_tags(stripslashes($def['class'])).'"/>
+			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		// Description	 
+		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
+			 	<label for="description" class="'.self::label_css_class.'">'
+			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
-			 	' . $this->get_description('description') .'
-			 </div>
-			 
-			 
-			 ';
+			 	' . $this->get_translation('description').'
+			 	</div>';
+		return $out;
 	}
-
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Here we do some smoothing of the checkbox warts... normally if the box is not
+	 * checked, no value is sent in the $_POST array.  But that's a pain in the ass
+	 * when it comes time to read from the database, so here we toggle between 
+	 * 'checked_value' and 'unchecked_value' to force a value under all circumstances.
+	 *
+	 * See parent function for full documentation.
+	 *
+	 * @param mixed   	$posted_data  $_POST data
+	 * @param string	$field_name: the unique name for this instance of the field
+	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
+	 */
+	public function save_post_filter($posted_data, $field_name) {
+		if ( isset($posted_data[ FormElement::post_name_prefix . $field_name ]) ) {
+			return $this->checked_value;
+		}
+		else {
+			return $this->unchecked_value;
+		}
+	}
 }
-
-
 /*EOF*/

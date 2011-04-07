@@ -583,8 +583,8 @@ class CCTM {
 			}
 
 		}
-		// this should change to get_edit_field_form() if it's an edit.
-		$fields = $FieldObj->get_create_field_form();
+		// this should change to get_edit_field_definition() if it's an edit.
+		$fields = $FieldObj->get_create_field_definition();
 
 		$submit_link = $tpl = sprintf(
 			'?page=%s&%s=9&%s=%s&type=%s'
@@ -628,8 +628,8 @@ class CCTM {
 					$field_data = $def; // Data object we will save
 				}
 			}
-			# $custom_fields_array = array_keys($data[$post_type]['custom_fields']);
 		}
+		
 		if ( !in_array($field_name, $custom_fields_array) ) {
 			$msg = '<p>'. __('Invalid custom field.', CCTM_TXTDOMAIN)
 				. '</p>';
@@ -662,8 +662,11 @@ class CCTM {
 		$field_type_name = self::FormElement_classname_prefix.$field_type;
 		$FieldObj = new $field_type_name(); // Instantiate the field element
 		//
-		$FieldObj->props 	= $field_data;  // This is how we populate data
-		$FieldObj->original_name = $field_name; // THIS is what keys us off to the fact that we're EDITING a field: ensures we don't overwrite other names
+		$FieldObj->props 	= $field_data;  
+		// THIS is what keys us off to the fact that we're EDITING a field: 
+		// the logic in FormElement->save_field_filter() ensures we don't overwrite other fields.
+		// This attribute is nuked by the time we get down to line 691 or so.
+		$FieldObj->original_name = $field_name; 
 		
 		// Save if submitted...
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
@@ -675,7 +678,7 @@ class CCTM {
 			$field_data 		= $FieldObj->save_field_filter($_POST, $post_type);
 			$field_data['type'] = $field_type; // same effect as adding a hidden field
 			
-			$FieldObj->props 	= $field_data;  // This is how we repopulate data in the create forms
+			$FieldObj->props 	= $field_data;
 
 			// Any errors?
 			if ( !empty($FieldObj->errors) ) {
@@ -683,8 +686,11 @@ class CCTM {
 			}
 			// Save;
 			else {
-				$field_name = $field_data['name']; 
-				self::$data[$post_type]['custom_fields'][$field_name] = $field_data;
+				// Unset the old field if the name changed ($field_name is passed via $_GET)
+				if ($field_name != $field_data['name']) {
+					unset(self::$data[$post_type]['custom_fields'][$field_name]);
+				}
+				self::$data[$post_type]['custom_fields'][ $field_data['name'] ] = $field_data;
 				update_option( self::db_key, self::$data );
 				unset($_POST);
 				self::set_flash($success_msg);
@@ -693,8 +699,8 @@ class CCTM {
 			}
 
 		}
-		// this should change to get_edit_field_form() if it's an edit.
-		$fields = $FieldObj->get_create_field_form();
+
+		$fields = $FieldObj->get_edit_field_definition($field_data);
 
 		$submit_link = $tpl = sprintf(
 			'?page=%s&%s=9&%s=%s&type=%s'
@@ -704,8 +710,6 @@ class CCTM {
 			, $post_type
 			, $field_type
 		);
-		
-		$icon = $FieldObj->get_icon();
 		
 		include 'pages/custom_field.php';
 	}
@@ -847,54 +851,6 @@ class CCTM {
 		include 'pages/basic_form.php';
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	Manager Page -- called by page_main_controller()
-	Deletes all custom field definitions for a given post_type.
-	 * @param string $post_type
-	 */
-	private static function _page_reset_all_custom_fields($post_type) {
-		// We can't delete built-in post types
-		if (!self::_is_existing_post_type($post_type, true ) ) {
-			self::_page_display_error();
-			return;
-		}
-
-		// Variables for our template
-		$style   = '';
-		$page_header = sprintf( __('Reset custom field definitions for post type %s', CCTM_TXTDOMAIN), $post_type );
-		$fields   		= '';
-		$action_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
-		$nonce_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
-		$submit   		= __('Reset', CCTM_TXTDOMAIN);
-
-		// If properly submitted, Proceed with deleting the post type
-		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-
-			unset(self::$data[$post_type]['custom_fields']); // <-- Delete this node of the data structure
-			update_option( self::db_key, self::$data );
-			$msg = '<div class="updated"><p>'
-				.sprintf( __('All custom field definitions for the %s post type have been deleted', CCTM_TXTDOMAIN), "<em>$post_type</em>")
-				. '</p></div>';
-			self::set_flash($msg);
-			self::_page_show_custom_fields($post_type, true);
-			return;
-		}
-
-		$msg = '<div class="error">
-			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
-			<p>'
-			. sprintf( __('You are about to delete all custom field definitions for the %s post type. This will not delete any data from the wp_postmeta table, but it will make any custom fields invisible to WordPress users on the front and back end.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
-			.'</p>'
-			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'</p></div>';
-
-		// The URL nec. to take the "Cancel" button back to this page.
-		$cancel_target_url = '?page='.self::admin_menu_slug . '&'.self::action_param .'=4&'.self::post_type_param.'='.$post_type;
-		
-		include 'pages/basic_form.php';
-
-	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1111,122 +1067,133 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Manager Page -- called by page_main_controller()
-	 * Manage custom fields for any post type, built-in or custom.
+	Manager Page -- called by page_main_controller()
+	Deletes all custom field definitions for a given post_type.
 	 * @param string $post_type
-	 * @param boolen $reset true only if we've just reset all custom fields
 	 */
-	private static function _page_show_custom_fields($post_type, $reset=false) {
-		// Validate post type
-		if (!self::_is_existing_post_type($post_type) ) {
+	private static function _page_reset_all_custom_fields($post_type) {
+		// We can't delete built-in post types
+		if (!self::_is_existing_post_type($post_type, true ) ) {
 			self::_page_display_error();
 			return;
 		}
 
-		$action_name = 'cctm_custom_save_sort_order';
-		$nonce_name = 'cctm_custom_save_sort_order_nonce';
-		$msg = self::get_flash();
+		// Variables for our template
+		$style   = '';
+		$page_header = sprintf( __('Reset custom field definitions for post type %s', CCTM_TXTDOMAIN), $post_type );
+		$fields   		= '';
+		$action_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
+		$nonce_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
+		$submit   		= __('Reset', CCTM_TXTDOMAIN);
 
+		// If properly submitted, Proceed with deleting the post type
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 
-		// Validate/Save data if it was properly submitted
-		if ( !$reset && !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-			$sanitized = array();
-			foreach ( self::$data[$post_type]['custom_fields'] as $def_i => &$cf ) {
-				$name = $cf['name'];
-				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
-			}
-			# print_r($data); exit;
+			unset(self::$data[$post_type]['custom_fields']); // <-- Delete this node of the data structure
 			update_option( self::db_key, self::$data );
-			$x = sprintf( __('Sort order has been saved.', CCTM_TXTDOMAIN) );
-			$msg .= sprintf('<div class="updated"><p>%s</p></div>', $x);
+			$msg = '<div class="updated"><p>'
+				.sprintf( __('All custom field definitions for the %s post type have been deleted', CCTM_TXTDOMAIN), "<em>$post_type</em>")
+				. '</p></div>';
+			self::set_flash($msg);
+			self::_page_show_custom_fields($post_type, true);
+			return;
 		}
 
-		// We want to extract a $def for only THIS content_type's custom_fields
-		$def = array();
-		if ( isset(self::$data[$post_type]['custom_fields']) ) {
-			$def = self::$data[$post_type]['custom_fields'];
-		}
+		$msg = '<div class="error">
+			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
+			<p>'
+			. sprintf( __('You are about to delete all custom field definitions for the %s post type. This will not delete any data from the wp_postmeta table, but it will make any custom fields invisible to WordPress users on the front and back end.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
+			.'</p>'
+			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'</p></div>';
 
-		$def_cnt = count($def);
+		// The URL nec. to take the "Cancel" button back to this page.
+		$cancel_target_url = '?page='.self::admin_menu_slug . '&'.self::action_param .'=4&'.self::post_type_param.'='.$post_type;
+		
+		include 'pages/basic_form.php';
 
-		if (!$reset && !$def_cnt ) {
-			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
-				, "<em>$post_type</em>" );
-			$y = __('Click one of the buttons below to add a custom field.', CCTM_TXTDOMAIN );
-			$msg .= sprintf('<div class="updated"><p>%s %s</p></div>', $x, $y);
-		}
-
-		$tpl = '';
-		$tpl_file = CCTM_PATH.'/tpls/settings/custom_field_tr.tpl';
-		if ( file_exists($tpl_file) ) {
-			$tpl = file_get_contents($tpl_file);
-		}
-		// Sort by sort_param column: (1st input is by reference)
-		usort($def, CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
-		// Sorting kills the array key, so we have to restore it
-		foreach ( $def as $def_id => $d ) {
-			$k = $d['name'];
-			$def[$k] = $d;
-			if ( is_int($def_id) || empty($def_id) ) {
-				unset($def[$def_id]); // remove the integer version
-			}
-		}
-
-		$fields = '';
-
-		foreach ($def as $def_i => $d) {
-			# print_r($d); exit;
-			$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
-
-			if (!@fclose(@fopen($icon_src, 'r'))) {
-				$icon_src = self::get_custom_icons_src_dir() . 'default.png';
-			}
-
-			$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $icon_src);
-
-			
-			$d['edit'] = __('Edit');
-			$d['delete'] = __('Delete');
-			$d['edit_field_link'] = sprintf(
-				'<a href="?page=%s&%s=11&%s=%s&field=%s&_wpnonce=%s" title="%s">%s</a>'
-				, self::admin_menu_slug
-				, self::action_param
-				, self::post_type_param
-				, $post_type
-				, $d['name']
-				, wp_create_nonce('cctm_edit_field')
-				, __('Edit this custom field', CCTM_TXTDOMAIN)
-				, __('Edit', CCTM_TXTDOMAIN)
-			);
-			$d['delete_field_link'] = sprintf(
-				'<a href="?page=%s&%s=10&%s=%s&field=%s&_wpnonce=%s" title="%s">%s</a>'
-				, self::admin_menu_slug
-				, self::action_param
-				, self::post_type_param
-				, $post_type
-				, $d['name']
-				, wp_create_nonce('cctm_delete_field')
-				, __('Delete this custom field', CCTM_TXTDOMAIN)
-				, __('Delete', CCTM_TXTDOMAIN)
-			);
-
-			$fields .= FormGenerator::parse($tpl, $d);
-		}
-
-		// Gets a form definition ready for use inside of a JS variable
-		// $new_field_def_js = self::_get_javascript_field_defs();
-		//  print $new_field_def_js; exit;
-		$action_link = sprintf(
-			'?page=%s&%s=4&%s=%s'
-			, self::admin_menu_slug
-			, self::action_param
-			, self::post_type_param
-			, $post_type
-		);
-		include 'pages/sortable-list.php';
-		//  include('pages/manage_custom_fields.php');
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Manager Page -- called by page_main_controller()
+	 * List all post types (default page)
+	 */
+	private static function _page_show_all_post_types() {
+		$msg = self::get_flash();
+
+		$customized_post_types =  array();
+		$displayable_types = array();
+		$displayable_types = array();
+
+		if ( !empty(self::$data) ) {
+			$customized_post_types =  array_keys(self::$data);
+		}
+		$displayable_types = array_merge(self::$built_in_post_types , $customized_post_types);
+		$displayable_types = array_unique($displayable_types);
+
+		$row_data = '';
+		$tpl = file_get_contents(CCTM_PATH.'/tpls/settings/post_type_tr.tpl');
+		foreach ( $displayable_types as $post_type ) {
+			$hash = array(); // populated for the tpl
+			$hash['post_type'] = $post_type;
+
+			// Get our links
+			$deactivate    = self::_link_deactivate($post_type);
+			$edit_link     = self::_link_edit($post_type);
+			$manage_custom_fields  = self::_link_manage_custom_fields($post_type);
+			$view_templates   = self::_link_view_sample_templates($post_type);
+
+
+			$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates;
+
+			if ( isset(self::$data[$post_type]['is_active']) && !empty(self::$data[$post_type]['is_active']) ) {
+				$hash['class'] = 'active';
+				$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
+				$is_active = true;
+			}
+			else {
+				$hash['class'] = 'inactive';
+				$hash['activate_deactivate_delete_links'] = '<span class="activate">'
+					. self::_link_activate($post_type) . ' | </span>'
+					. '<span class="delete">'. self::_link_delete($post_type).'</span>';
+				$is_active = false;
+			}
+
+			// Built-in post types use a canned description and override a few other behaviors
+			if ( in_array($post_type, self::$built_in_post_types) ) {
+				$hash['description']  = __('Built-in post type.', CCTM_TXTDOMAIN);
+				$hash['edit_manage_view_links'] = $manage_custom_fields . ' | ' . $view_templates;
+				if (!$is_active) {
+					$hash['activate_deactivate_delete_links'] = '<span class="activate">'
+						. self::_link_activate($post_type) . '</span>';
+				}
+			}
+			// Whereas users define the description for custom post types
+			else {
+				$hash['description']  = self::_get_value(self::$data[$post_type], 'description');
+			}
+
+			// Images
+			$hash['icon'] = '';
+			switch ($post_type) {
+			case 'post':
+				$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/post.png' . '" width="15" height="15"/>';
+				break;
+			case 'page':
+				$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/page.png' . '" width="14" height="16"/>';
+				break;
+			default:
+				//print_r($data[$post_type]); exit;
+				if ( !empty(self::$data[$post_type]['menu_icon']) && !self::$data[$post_type]['use_default_menu_icon'] ) {
+					$hash['icon'] = '<img src="'. self::$data[$post_type]['menu_icon'] . '" />';
+				}
+				break;
+			}
+			$row_data .= FormGenerator::parse($tpl, $hash);
+		}
+
+		include 'pages/default.php';
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1433,84 +1400,122 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * Manager Page -- called by page_main_controller()
-	 * List all post types (default page)
+	 * Manage custom fields for any post type, built-in or custom.
+	 * @param string $post_type
+	 * @param boolen $reset true only if we've just reset all custom fields
 	 */
-	private static function _page_show_all_post_types() {
+	private static function _page_show_custom_fields($post_type, $reset=false) {
+		// Validate post type
+		if (!self::_is_existing_post_type($post_type) ) {
+			self::_page_display_error();
+			return;
+		}
+
+		$action_name = 'cctm_custom_save_sort_order';
+		$nonce_name = 'cctm_custom_save_sort_order_nonce';
 		$msg = self::get_flash();
 
-		$customized_post_types =  array();
-		$displayable_types = array();
-		$displayable_types = array();
 
-		if ( !empty(self::$data) ) {
-			$customized_post_types =  array_keys(self::$data);
-		}
-		$displayable_types = array_merge(self::$built_in_post_types , $customized_post_types);
-		$displayable_types = array_unique($displayable_types);
-
-		$row_data = '';
-		$tpl = file_get_contents(CCTM_PATH.'/tpls/settings/post_type_tr.tpl');
-		foreach ( $displayable_types as $post_type ) {
-			$hash = array(); // populated for the tpl
-			$hash['post_type'] = $post_type;
-
-			// Get our links
-			$deactivate    = self::_link_deactivate($post_type);
-			$edit_link     = self::_link_edit($post_type);
-			$manage_custom_fields  = self::_link_manage_custom_fields($post_type);
-			$view_templates   = self::_link_view_sample_templates($post_type);
-
-
-			$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates;
-
-			if ( isset(self::$data[$post_type]['is_active']) && !empty(self::$data[$post_type]['is_active']) ) {
-				$hash['class'] = 'active';
-				$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
-				$is_active = true;
+		// Validate/Save data if it was properly submitted
+		if ( !$reset && !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+			$sanitized = array();
+			foreach ( self::$data[$post_type]['custom_fields'] as $def_i => &$cf ) {
+				$name = $cf['name'];
+				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
 			}
-			else {
-				$hash['class'] = 'inactive';
-				$hash['activate_deactivate_delete_links'] = '<span class="activate">'
-					. self::_link_activate($post_type) . ' | </span>'
-					. '<span class="delete">'. self::_link_delete($post_type).'</span>';
-				$is_active = false;
-			}
-
-			// Built-in post types use a canned description and override a few other behaviors
-			if ( in_array($post_type, self::$built_in_post_types) ) {
-				$hash['description']  = __('Built-in post type.', CCTM_TXTDOMAIN);
-				$hash['edit_manage_view_links'] = $manage_custom_fields . ' | ' . $view_templates;
-				if (!$is_active) {
-					$hash['activate_deactivate_delete_links'] = '<span class="activate">'
-						. self::_link_activate($post_type) . '</span>';
-				}
-			}
-			// Whereas users define the description for custom post types
-			else {
-				$hash['description']  = self::_get_value(self::$data[$post_type], 'description');
-			}
-
-			// Images
-			$hash['icon'] = '';
-			switch ($post_type) {
-			case 'post':
-				$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/post.png' . '" width="15" height="15"/>';
-				break;
-			case 'page':
-				$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/page.png' . '" width="14" height="16"/>';
-				break;
-			default:
-				//print_r($data[$post_type]); exit;
-				if ( !empty(self::$data[$post_type]['menu_icon']) && !self::$data[$post_type]['use_default_menu_icon'] ) {
-					$hash['icon'] = '<img src="'. self::$data[$post_type]['menu_icon'] . '" />';
-				}
-				break;
-			}
-			$row_data .= FormGenerator::parse($tpl, $hash);
+			# print_r($data); exit;
+			update_option( self::db_key, self::$data );
+			$x = sprintf( __('Sort order has been saved.', CCTM_TXTDOMAIN) );
+			$msg .= sprintf('<div class="updated"><p>%s</p></div>', $x);
 		}
 
-		include 'pages/default.php';
+		// We want to extract a $def for only THIS content_type's custom_fields
+		$def = array();
+		if ( isset(self::$data[$post_type]['custom_fields']) ) {
+			$def = self::$data[$post_type]['custom_fields'];
+		}
+
+		$def_cnt = count($def);
+
+		if (!$reset && !$def_cnt ) {
+			$x = sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
+				, "<em>$post_type</em>" );
+			$y = __('Click one of the buttons below to add a custom field.', CCTM_TXTDOMAIN );
+			$msg .= sprintf('<div class="updated"><p>%s %s</p></div>', $x, $y);
+		}
+
+		$tpl = '';
+		$tpl_file = CCTM_PATH.'/tpls/settings/custom_field_tr.tpl';
+		if ( file_exists($tpl_file) ) {
+			$tpl = file_get_contents($tpl_file);
+		}
+		// Sort by sort_param column: (1st input is by reference)
+		usort($def, CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
+		// Sorting kills the array key, so we have to restore it
+		foreach ( $def as $def_id => $d ) {
+			$k = $d['name'];
+			$def[$k] = $d;
+			if ( is_int($def_id) || empty($def_id) ) {
+				unset($def[$def_id]); // remove the integer version
+			}
+		}
+
+		$fields = '';
+
+		foreach ($def as $def_i => $d) {
+			# print_r($d); exit;
+			$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
+
+			if (!@fclose(@fopen($icon_src, 'r'))) {
+				$icon_src = self::get_custom_icons_src_dir() . 'default.png';
+			}
+
+			$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $icon_src);
+
+			
+			$d['edit'] = __('Edit');
+			$d['delete'] = __('Delete');
+			$d['edit_field_link'] = sprintf(
+				'<a href="?page=%s&%s=11&%s=%s&field=%s&_wpnonce=%s" title="%s">%s</a>'
+				, self::admin_menu_slug
+				, self::action_param
+				, self::post_type_param
+				, $post_type
+				, $d['name']
+				, wp_create_nonce('cctm_edit_field')
+				, __('Edit this custom field', CCTM_TXTDOMAIN)
+				, __('Edit', CCTM_TXTDOMAIN)
+			);
+			$d['delete_field_link'] = sprintf(
+				'<a href="?page=%s&%s=10&%s=%s&field=%s&_wpnonce=%s" title="%s">%s</a>'
+				, self::admin_menu_slug
+				, self::action_param
+				, self::post_type_param
+				, $post_type
+				, $d['name']
+				, wp_create_nonce('cctm_delete_field')
+				, __('Delete this custom field', CCTM_TXTDOMAIN)
+				, __('Delete', CCTM_TXTDOMAIN)
+			);
+
+			$fields .= FormGenerator::parse($tpl, $d);
+		}
+
+		// Gets a form definition ready for use inside of a JS variable
+		// $new_field_def_js = self::_get_javascript_field_defs();
+		//  print $new_field_def_js; exit;
+		$action_link = sprintf(
+			'?page=%s&%s=4&%s=%s'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+			, $post_type
+		);
+		include 'pages/sortable-list.php';
+		//  include('pages/manage_custom_fields.php');
 	}
+
+
 
 
 	//------------------------------------------------------------------------------
@@ -1979,7 +1984,23 @@ class CCTM {
 		return $links;
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Create custom post-type menu
+	 */
+	public static function create_admin_menu() {
+		add_menu_page(
+			'Custom Content Types',    		// page title
+			'Custom Content Types',     	// menu title
+			'manage_options',       		// capability
+			self::admin_menu_slug,      	// menu-slug (should be unique)
+			'CCTM::page_main_controller',   // callback function
+			CCTM_URL .'/images/gear.png',   // Icon
+			71								// menu position
+		);
+	}
+	
+	
 	//------------------------------------------------------------------------------
 	/**
 	 *  Defines the diretory for this plugin.
@@ -1990,6 +2011,16 @@ class CCTM {
 		return dirname(dirname(__FILE__));
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Returns a path with trailing slash.
+	 *
+	 * @return string
+	 */
+	public static function get_custom_icons_src_dir() {
+		self::$custom_field_icons_dir = CCTM_URL.'/images/custom-fields/';
+		return self::$custom_field_icons_dir;
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -2006,34 +2037,6 @@ class CCTM {
 		}
 		unset( $_SESSION[self::db_key] );
 		return $output;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Returns a path with trailing slash.
-	 *
-	 * @return string
-	 */
-	public static function get_custom_icons_src_dir() {
-		self::$custom_field_icons_dir = CCTM_URL.'/images/custom-fields/';
-		return self::$custom_field_icons_dir;
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Create custom post-type menu
-	 */
-	public static function create_admin_menu() {
-		add_menu_page(
-			'Custom Content Types',    		// page title
-			'Custom Content Types',     	// menu title
-			'manage_options',       		// capability
-			self::admin_menu_slug,      	// menu-slug (should be unique)
-			'CCTM::page_main_controller',   // callback function
-			CCTM_URL .'/images/gear.png',   // Icon
-			71								// menu position
-		);
 	}
 
 	//------------------------------------------------------------------------------
@@ -2150,7 +2153,32 @@ class CCTM {
 		}
 	}
 
-
+	/*------------------------------------------------------------------------------
+	SYNOPSIS: a simple parsing function for basic templating.
+	INPUT:
+		$tpl (str): a string containing [+placeholders+]
+		$hash (array): an associative array('key' => 'value');
+	OUTPUT
+		string; placeholders corresponding to the keys of the hash will be replaced
+		with the values and the string will be returned.
+	------------------------------------------------------------------------------*/
+	public static function parse($tpl, $hash) 
+	{
+	
+	    foreach ($hash as $key => $value) 
+	    {
+	    	if ( !is_array($value) )
+	    	{
+	        	$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+	        }
+	    }
+	    
+	    // Remove any unparsed [+placeholders+]
+	    $tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
+	    
+	    return $tpl;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Print errors if they were thrown by the tests. Currently this is triggered as

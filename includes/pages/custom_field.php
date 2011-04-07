@@ -18,8 +18,21 @@ $back_link = sprintf(
 
 	<?php print $msg; ?>
 
-	<?php print $icon; ?>
-	
+	<table class="custom_field_info">
+		<tr>
+			<td colspan="2">
+				<h3 class="field_type_name"><?php print $FieldObj->get_name(); ?></h3>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<span class="custom_field_icon"><?php print $FieldObj->get_icon(); ?></span>
+			</td>
+			<td>
+				<span class="custom_field_description"><?php print htmlentities($FieldObj->get_description()); ?></span>
+			</td>
+		</tr>
+	</table>
 	<?php wp_nonce_field($action_name, $nonce_name); ?>
 	
 	<?php print $fields; ?>

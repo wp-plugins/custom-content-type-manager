@@ -31,28 +31,12 @@ class CCTM_text extends FormElement
 		'label' => '',
 		'name' => '',
 		'description' => '',
-		'value'	=> '',
 		'class' => '',
 		'extra'	=> '',
 		'default_value' => '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
 	);
-
-
-	/**
-	 * Tie into the parent constructor. Add additional items if necessary, e.g. localizations of
-	 * the $props, e.g. 
-	 *
-	 * 	public function __construct() {
-	 *		parent::__construct();
-	 *		$this->props['special_stuff'] = __('Translate me');
-	 *	}
-	 * 	
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -99,10 +83,10 @@ class CCTM_text extends FormElement
 	//------------------------------------------------------------------------------
 	/**
 	 *
-	 * @param mixed $def	contains all settings for this type of field.
+	 * @param mixed $current_value	current value for this field.
 	 * @return string	
 	 */
-	public function get_edit_post_form($def) {
+	public function get_edit_field_instance($current_value) {
 		# print_r($this->props); exit;
 		$output = sprintf('
 			%s 
@@ -112,8 +96,8 @@ class CCTM_text extends FormElement
 			, $this->get_field_name()
 			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
 			, $this->get_field_id()
-			, stripslashes($def['extra'])
-			, $def['value']
+			, stripslashes($this->extra)
+			, $current_value
 		);
 		
 		return $this->wrap_outer($output);
@@ -124,7 +108,7 @@ class CCTM_text extends FormElement
 	 *
 	 * @param mixed $def	field definition; see the $props array
 	 */
-	public function get_edit_field_form($def) {
+	public function get_edit_field_definition($def) {
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'

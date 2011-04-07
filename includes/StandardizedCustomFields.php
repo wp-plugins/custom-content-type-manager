@@ -163,16 +163,14 @@ class StandardizedCustomFields
 			$field_type_name = CCTM::FormElement_classname_prefix.$field_def['type'];
 			$FieldObj = new $field_type_name(); // Instantiate the field element
 			
-			if ( self::_is_new_post() )
-			{	
+			if ( self::_is_new_post() ) {	
 				$FieldObj->props = $field_def;
-				$output_this_field = $FieldObj->get_create_post_form();
+				$output_this_field = $FieldObj->get_create_field_instance();
 			}
-			else
-			{
-				$field_def['value'] = htmlspecialchars( get_post_meta( $post->ID, $field_def['name'], true ) );
+			else {
+				$current_value = htmlspecialchars( get_post_meta( $post->ID, $field_def['name'], true ) );
 				$FieldObj->props = $field_def;
-				$output_this_field =  $FieldObj->get_edit_post_form($field_def);
+				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}
 						
 			$output .= $output_this_field;
@@ -229,32 +227,15 @@ class StandardizedCustomFields
 		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
 			
-			//! TODO: implement the save_post_filter() function
-			foreach ( $custom_fields as $field ) {
-				if ( isset( $_POST[ FormElement::post_name_prefix . $field['name'] ] ) )
-				{
-					$field_type = CCTM::$data[$post->post_type]['custom_fields'][ $field['name'] ]['type'];
-					CCTM::include_form_element_class($field_type); // This will die on errors
-		
-					$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
-					$FieldObj = new $field_type_name(); // Instantiate the field element
-
-					$value = $FieldObj->save_post_filter($_POST, $field['name']);
-/*
-					$value = trim($_POST[ FormElement::post_name_prefix . $field['name'] ]);
-					// Auto-paragraphs for any WYSIWYG
-					if ( $field['type'] == 'wysiwyg' ) 
-					{
-						$value = wpautop( $value );
-					}
-*/
-					update_post_meta( $post_id, $field['name'], $value );
-				}
-				// if not set, then it's an unchecked checkbox, so blank out the value.
-				else 
-				{
-					update_post_meta( $post_id, $field['name'], '' );
-				}
+			foreach ( $custom_fields as $field_name => $field_def ) {
+				$field_type = CCTM::$data[$post->post_type]['custom_fields'][$field_name]['type'];
+				CCTM::include_form_element_class($field_type); // This will die on errors
+	
+				$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+				$FieldObj = new $field_type_name(); // Instantiate the field element
+				$FieldObj->props = CCTM::$data[$post->post_type]['custom_fields'][$field_name];
+				$value = $FieldObj->save_post_filter($_POST, $field_name);
+				update_post_meta( $post_id, $field_name, $value );
 			}
 			
 		}

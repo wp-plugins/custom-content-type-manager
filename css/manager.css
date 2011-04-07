@@ -118,3 +118,18 @@ input.cctm_error {
 	background: #fed; 
 	border: 1px solid red;
 }
+
+table.custom_field_info {
+	padding: 5px;
+	background: #f0f0f0;
+	border: dashed;
+}
+span.custom_field_description {
+	padding-left: 10px;
+	padding-right: 10px;
+	display: block;
+}
+
+span.custom_field_icon {
+	padding: 10px;
+}

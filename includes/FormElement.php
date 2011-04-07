@@ -79,9 +79,16 @@ abstract class FormElement {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 *	 
-	 */
-	public function __construct() {
+	 * Add additional items if necessary, e.g. localizations of the $props by 
+	 * tying into the parent constructor, e.g.  
+	 *
+	 * 	public function __construct() {
+	 *		parent::__construct();
+	 *		$this->props['special_stuff'] = __('Translate me');
+	 *	}
+	 * 	
+	 */	
+	 public function __construct() {
 				
 		// Run-time Localization
 		$this->descriptions['class'] = __('Add a CSS class to instances of this field. Use this to customize styling in the WP manager.', CCTM_TXTDOMAIN);
@@ -91,8 +98,9 @@ abstract class FormElement {
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
-		$this->descriptions['value_when_checked'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
-		$this->descriptions['value_when_unchecked'] =  __('What value should be stored in the database when this checkbox is unchecked? Normally, checkboxes do not store a value when not checked, but you have the option to store a value when the checkbox is not checked. This makes it behave more like a dropdown or radio button.', CCTM_TXTDOMAIN);
+		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
+		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);
+		$this->descriptions['checked_by_default'] =  __('Should this field be checked by default?', CCTM_TXTDOMAIN);
 	}
 
 
@@ -184,10 +192,13 @@ abstract class FormElement {
 	
 	//------------------------------------------------------------------------------
 	/**
+	 * get_create_field_instance
+	 * 
 	 * This generates the field elements when a user creates a new post that uses a 
 	 * field of this type.  In most cases, the form elements generated for a new post
-	 * are identical to the form elements generated when editing a post, so you can 
-	 * hand off to the get_edit_post_form() function like this:
+	 * are identical to the form elements generated when editing a post, so the default
+	 * behavior is to set the current value to the default value and hand this off to 
+	 * the get_edit_field_instance() function.
 	 *
 	 * Override this function in the rare cases when you need behavior that is specific 
 	 * to when you first create a post (e.g. to specify a special default value). 
@@ -195,38 +206,42 @@ abstract class FormElement {
 	 *
 	 * @return string HTML field(s)
 	 */
-	public function get_create_post_form() {
-		$this->value = $this->default_value; // Set $this->value to your desired default value
-		return $this->get_edit_post_form($this->props); 
+	public function get_create_field_instance() {
+		return $this->get_edit_field_instance($this->default_value); 
 	}
 
 	/**
-	 * get_edit_post_form
+	 * get_edit_field_instance
 	 *
 	 * The form returned is what is displayed when a user is creating a post that contains
 	 * an instance of this field type.
-	 * @param	mixed	$def is the definition for the field, including a $def['value'] which contains
-	 * 					the current value of the field instance.
+	 * @param	string	$current_value is the current value for the field, as stored in the 
+	 *					wp_postmeta table for the post being edited.
 	 * @return	string	HTML element.
 	 */
-	abstract public function get_edit_post_form($def);
+	abstract public function get_edit_field_instance($current_value);
 
 	//------------------------------------------------------------------------------
 	/**
-	 * This should return (not print) form elements that handle all the controls required to define this
-	 * type of field.  The default properties correspond to this class's public variables,
-	 * e.g. name, label, etc. The form elements you create should have names that correspond
-	 * with the public $props variable. A populated array of $props will be stored alongside 
-	 * the custom-field data for the containing post-type.
+	 * This should return (not print) form elements that handle all the controls 
+	 * required to define this type of field.  The default properties correspond to 
+	 * this class's public variables, e.g. name, label, etc. The form elements you 
+	 * create should have names that correspond to the public $props variable. A 
+	 * populated array of $props will be stored alongside the custom-field data for 
+	 * the parent post-type. (See notes on the CCTM data structure).
 	 * 
 	 * Override this function in the rare cases when you need behavior that is specific 
 	 * to when you first define a field definition. Most of the time, the create/edit 
-	 * functions are nearly identical.
+	 * functions are nearly identical. When you create a field definition, the
+	 * current values are the values hard-coded into the $props array at the top
+	 * of the child FieldElement class; when editing a field definition, the current
+	 * values are read from the database (the array should be the same structure as 
+	 * the $props array, but the values may differ).
 	 *
 	 * @return	string	HTML input fields
 	 */
-	public function get_create_field_form() {
-		return $this->get_edit_field_form( $this->props );
+	public function get_create_field_definition() {
+		return $this->get_edit_field_definition( $this->props );
 	}
 
 	//------------------------------------------------------------------------------
@@ -240,7 +255,7 @@ abstract class FormElement {
 	 * @param mixed   $current_values should be an associative array.
 	 * @return	string	HTML input fields
 	 */
-	abstract public function get_edit_field_form($current_values);
+	abstract public function get_edit_field_definition($current_values);
 
 
 
@@ -289,13 +304,13 @@ abstract class FormElement {
 		$backtrace = debug_backtrace();
 		$calling_function = $backtrace[1]['function'];
 		switch ($calling_function) {
-			case 'get_create_post_form':
-			case 'get_edit_post_form':
+			case 'get_create_field_instance':
+			case 'get_edit_field_instance':
 			case 'wrap_label':
 				return self::css_id_prefix . $this->name;
 				break;
-			case 'get_edit_field_form':
-			case 'get_create_field_form':
+			case 'get_edit_field_definition':
+			case 'get_create_field_definition':
 			default: 
 				return $this->name;
 		}
@@ -319,13 +334,13 @@ abstract class FormElement {
 		$calling_function = $backtrace[1]['function'];
 		
 		switch ($calling_function) {
-			case 'get_create_post_form':
-			case 'get_edit_post_form':
+			case 'get_create_field_instance':
+			case 'get_edit_field_instance':
 			case 'wrap_label':
 				return self::post_name_prefix . $this->name;
 				break;
-			case 'get_edit_field_form':
-			case 'get_create_field_form':
+			case 'get_edit_field_definition':
+			case 'get_create_field_definition':
 			default: 
 				return $this->name;
 		}
@@ -440,6 +455,7 @@ abstract class FormElement {
 		return sprintf('<img src="%s"/>', $icon_src);
 	}
 	
+	
 	//------------------------------------------------------------------------------
 	/**
 	* A little clearing house for getting wrapped translations for various components
@@ -538,8 +554,17 @@ abstract class FormElement {
 			}
 		}
 		
+		
+		// You may need to do this for any textarea fields
+		if ( !empty($posted_data['description']) ) {
+			$posted_data['description'] = stripslashes(htmlentities($posted_data['description']));
+		}
 		if ( empty($posted_data['label']) ) {
 			$this->errors['label'][] = __('Label is required.', CCTM_TXTDOMAIN);
+		}
+		else {
+			// print 'aqui' ; exit;
+			$posted_data['label'] = stripslashes(htmlentities($posted_data['label']));
 		}
 					
 		return $posted_data; // filtered data
