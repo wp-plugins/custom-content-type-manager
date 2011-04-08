@@ -3,14 +3,14 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.0.5
+Tested up to: 3.1.1
 Stable tag: 0.8.6
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
 == Description ==
 
-The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each content type, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
+The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
 One of the problems with WordPress' custom fields is that they are not standardized: users must add them one at a time each time they create a new post. Furthermore, by default, WordPress' custom fields supports only text fields. This plugin lets users define a list of custom fields for each content type so that the same custom fields appear on each new post in a uniform way. 
 
@@ -18,17 +18,17 @@ For example, you can define a custom content type for "movie", then add a textar
 
 Custom content types get their own link in the admin menus and their own URL structure.
 
-Note that this plugin is still in development. Please file bugs at http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
+Please note that this plugin is still in development and I won't consider it stable until version 1.0!!! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*: only when I'm under contract can I afford to guarantee functionality.  Please be willing to file bugs at http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
 
 == Installation ==
 
 1. Upload this plugin's folder to the `/wp-content/plugins/` directory or install it using the traditional WordPress plugin installation.
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
-1. Under the "Settings" menu, click the newly created "Custom Content Types" link, or click this plugin's "Settings" link on the Plugins page.
-1. After clicking the Settings link, you'll see a list of content types -- there are two built-in types listed: post and page. To test this plugin, try adding a new content type named "movie" by clicking the "Add Custom Content Type" button at the top of the page.
-1. There are a *lot* of options when setting up a new content type, but pay attention to the "Name", "Show Admin User Interface", and "Public" settings. "Show Admin User Interface" *must* be checked in order for you to be able to create or edit new instances of your custom content type. 
+1. Upon activation you can adjust the plugin settings by clicking the newly created "Custom Content Types" menu item, or click this plugin's "Settings" link on the Plugins page.
+1. After clicking the Settings link, you will see a list of content types -- there are two built-in types listed: post and page. To test this plugin, try adding a new content type named "movie" by clicking the "Add Custom Content Type" button at the top of the page.
+1. There are a *lot* of options when setting up a new content type, but all the necessary ones are shown on the first page.  Pay attention to the "Name", "Show Admin User Interface", and "Public" settings. "Show Admin User Interface" *must* be checked in order for you to be able to create or edit new instances of your custom content type. 
 1. Save the new content by clicking the "Create New Content Type" button.
-1. Your content type should now be listed under on the Custom Content Types Manager settings page. Activate your new content type by clicking the blue "Activate" link.
+1. Your content type should now be listed under on the main Custom Content Types Manager settings page. Activate your new content type by clicking the blue "Activate" link.
 1. Once you have activated the content type, you should see a new menu item in the left-hand admin menu. E.g. "Movies" in our example.
 1. Try adding some custom fields to your new content type by clicking on the "Manage Custom Fields" link on the settings page.
 1. You can add as many custom fields as you want by clicking the "Add Custom Field" button at the top of the page, e.g. try adding a "plot_summary" field using a "textarea" input type, and try adding a "rating" dropdown. 
@@ -40,69 +40,8 @@ Note that this plugin is still in development. Please file bugs at http://code.g
 
 == Frequently Asked Questions ==
 
-= What does activating a custom content type do? =
+Please see the online [FAQ](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/FAQ) for the most current information. 
 
-When you activate a custom content type, you ensure that it gets registered with WordPress. Once the content type is registered, a menu item will get created (so long as you checked the "Show Admin User Interface" box) and you ensure that its custom fields become standardized. If the "Public" box was checked for this content type, then the general public can access posts created under this content type using the URL structure defined by the "Permalink Action" and "Query Var" settings, e.g. http://site.com/?post_type=book&p=39
-
-"Activating" a built-in post-type (i.e. pages or posts) will force their custom fields to be standardized. If you do not intend to standardize the custom fields for pages or posts, then there is no reason for you to activate them. 
-
-= What does deactivating a custom content type do? =
-
-If you deactivate a custom content type, its settings remain in the database, but every other trace of it vanishes: any published posts under this content type will not be visible to the outside world, and the WordPress manager will no longer generate a link in the admin menu for you to create or edit posts in this content type.
-
-Deactivating a built-in post-type (a.k.a. content type) merely stops standardizing the custom fields; deactivating a built-in post-type has no other affect.
-
-= What types of custom fields are supported? =
-
-* Text fields
-* textarea
-* WYSIWYG
-* dropdowns (with customizable options)
-* checkboxes 
-* image fields
-* media fields (which allow the user to select an image, video, or audio clip)
-* relation fields (which allow the user to select another post of any type to be related to).
-
-More field types coming...
-
-= How do I add images or video into a custom field? =
-
-The media-related custom fields tie into WordPress' "attachment" posts, so if you have already uploaded images or video using the Media menu, they will show up for selection when edit a post using a custom image or media field.  You can also choose "Add New Image" when you browse existing images.
-
-= How do I make my custom field values show up in my templates? =
-
-Content and templates must go hand in hand. If you have defined custom fields, you have to modify your theme files to accommodate them.  There are two included theme functions intended to help you with this task:
-
-* get_custom_field() -- gets the value
-* print_custom_field() -- prints the value
-
-In this plugin's settings area, each content-type has a link to "View Sample Templates" -- this page gives you a fully customized example showing demonstrating a custom theme file for your custom content type.
-
-See the wiki page on [Template Functions](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions) for more information (and more functions).
-
-= How do I use a Custom Image Field =
-
-The trick here is that the custom field stores a numeric foreign key, which points to the wp_posts table where the post_type is an "attachment". Assuming your custom field is named 'my_image_field':
-
-`<?php print get_custom_image('my_image_field'); ?>`
-
-This is the same as using the more verbose process:
-
-`<?php $image_id = get_custom_field('my_image_field'); ?>`
-`<?php print wp_get_attachment_image($image_id, 'full'); ?>`
-
-
-See the wiki pages about [Creating an Image Field](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreateImageField) or about [Template Functions](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions).
-
-
-= How can I use this plugin to support an eCommerce site? =
-
-There are many ways to structure a site depending on what you are selling. For an example, let's say you are selling T-shirts. You could create a "shirt" content type, then you could define custom fields for size, color, and perhaps several image fields. Once you had defined the custom content type, you could simply create several "shirt" posts for each shirt design that you are selling.
-
-== Known Bugs ==
-
-* Prior to WordPress 3.0.4 you cannot add menu items to navigation menus when this plugin is enabled (under Appearance --> Menus). The Ajax call to wp-admin/admin-ajax.php encounters a 403 error: "Are you sure you want to do this?".
-* Don't use the same name for a taxonomy and a content-type (post-type) -- this isn't a bug per se, it's just good advice. Saving a content-type now checks names against registered taxonomies, but nothing prevents you from using another plugin to register other taxonomies with names that conflict with existing post-types.
 
 == Screenshots ==
 
@@ -123,7 +62,7 @@ You can always checkout the most recent version of the code by going to your wp-
 
 * More CRUD-like interface for creating and editing custom fields one at a time.
 * Object-Oriented class structure implemented for custom fields in accordance with future plans for more field types
-* Drag and Drop interface added for Custom Fields
+* Drag and Drop interface added for Custom Fields to change sort order
 * Added support for built-in taxonomies (Categories and Tags).
 * Fixed unreported bugs affecting custom tpls. 
 * Fixed bug causing popup thickbox to load incorrectly: [Issue 17](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1)
@@ -136,7 +75,7 @@ You can always checkout the most recent version of the code by going to your wp-
 ** *get_custom_field_meta()*
 ** *print_custom_field_meta()*
 ** *get_custom_field_def()*
-See [Template Functsion](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions) in the wiki.
+See [Template Functions](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/TemplateFunctions) in the wiki.
 
 
 = 0.8.7 =
@@ -185,22 +124,22 @@ These requirements are tested during WordPress initialization; the plugin will n
 
 == About ==
 
-This plugin was written in part for a forthcoming book on WordPress Plugin Development published by Packt. It was inspired by the [Custom-Post Type UI](http://wordpress.org/extend/plugins/custom-post-type-ui/) plugin written by Brad Williams. The Custom-Post Type UI plugin offers some of the same features, but I felt that its architecture was flawed: it stores data as taxonomical terms, which is conceptually awkward at a development level, and more importantly, it limits the each custom field to 200 characters of data, making it impossible to store certain types of custom content.
+This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.amazon.com/WordPress-3-Plugin-Development-Essentials/dp/184951352X/ref=sr_1_2?ie=UTF8&s=books&qid=1302098332&sr=1-2) published by Packt. It was inspired by the [Custom-Post Type UI](http://wordpress.org/extend/plugins/custom-post-type-ui/) plugin written by Brad Williams. The Custom-Post Type UI plugin offers some of the same features, but I felt that its architecture was flawed: it stores data as taxonomical terms, which is conceptually awkward at a development level, and more importantly, it limits the each custom field to 200 characters of data, making it impossible to store certain types of custom content.
 
 On the surface, this plugin is similar, but this plugin "correctly" stores custom field data as post meta data, which allows allows for different input types (e.g. checkboxes, dropdowns, and images) and the custom fields offered by this plugin can support data of virtually unlimited size. For example, you could define a WYSIWYG custom field for your custom content type and it could hold many pages of data.
 
-The architecture for this plugin was also inspired by [MODx](http://modxcms.com/). WordPress is making progress as a viable content management system, but even after the thousands of lines of code in this plugin, it still does not support all the features in a system like MODx. WordPress templates are particularly limited by comparison. WordPress is great system for many scenarios, but if you're feeling that WordPress is starting to tear apart at the seams when it comes to custom content, it may be worth a look at another plugin or some of the other available systems.
+The architecture for this plugin was also inspired by [MODx](http://modx.com/). WordPress is making progress as a viable content management system, but even after the thousands of lines of code in this plugin, it still does not support all the features in a system like MODx. WordPress templates are particularly limited by comparison. WordPress is great system for many scenarios, but if you're feeling that WordPress is starting to tear apart at the seams when it comes to custom content, it may be worth a look at another plugin or some of the other available systems.
 
 == Future TO-DO == 
 
 If you are eager to see one of these features implemented in a future release, please share your feedback at the official Issues page: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
 
-And if you REALLY want some of these features implemented, you can hire me as your developer by making a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
+And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
 
 = 0.8.8 =
-Improved administration interface, new template functions, lots bug fixes; this is a big release.  If you are upgrading to 0.8.8 from a previous version, it is recommended that you *uninstall* the plugin, then *re-install*.  This will ensure that the data-structure in the database is updated appropriately.
+Improved administration interface, new template functions, lots bug fixes; this is a big release.  If you are upgrading to 0.8.8 from a previous version, you should *uninstall* the plugin, then *re-install*.  This will ensure that the data-structure in the database is updated appropriately.
 
 = 0.8.7 =
 Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).
