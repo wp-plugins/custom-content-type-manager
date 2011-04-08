@@ -75,7 +75,7 @@ class CCTM_relation extends FormElement
 	* @return	string 	e.g. http://www.yoursite.com/some/page.html
 	*/
 	public function get_url() {
-		return '';
+		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Relation';
 	}
 	
 

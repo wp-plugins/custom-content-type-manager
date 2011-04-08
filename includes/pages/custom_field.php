@@ -29,7 +29,12 @@ $back_link = sprintf(
 				<span class="custom_field_icon"><?php print $FieldObj->get_icon(); ?></span>
 			</td>
 			<td>
-				<span class="custom_field_description"><?php print htmlentities($FieldObj->get_description()); ?></span>
+				<span class="custom_field_description"><?php print htmlentities($FieldObj->get_description()); ?>
+				<br />
+				<a href="<?php print $FieldObj->get_url();?>" target="_blank"><?php _e('More Information', CCTM_TXTDOMAIN); ?></a>
+				</span>
+				
+				
 			</td>
 		</tr>
 	</table>

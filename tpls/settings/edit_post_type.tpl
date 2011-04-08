@@ -44,6 +44,10 @@
 	}
 </script>
 
+<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType" title="Creating a Content Type" target="_blank">
+		<img src="[+CCTM_URL+]/images/question-mark.gif" width="16" height="16" />
+</a>
+
 <div id="tabs">
 	<ul>
 		<li><a href="#basic-tab">Basic</a></li>
@@ -237,6 +241,9 @@
 	
 	<!-- ================================================================================================ -->	
 	<div id="fields-tab">
+		<p>Your post type must have <em>at least</em> the title or content boxes checked; otherwise WordPress will
+		revert to the default behavior and include the title and the content fields.</p>
+		
 		<!--!Supports -->
 		
 		[+supports_title+]

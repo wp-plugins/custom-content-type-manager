@@ -11,8 +11,7 @@ for the official documentation.
 /**
 Scour the custom field definitions for any fields
 of the type specified.  This is useful e.g. if you want to return all images 
-attached to a post. Perhaps this would be more useful if I included a "prefix"
-argument so you could retrieve all values from fields named with that prefix.
+attached to a post.
 
 Must be used when there is an active post.
 
@@ -29,7 +28,7 @@ A $def looks something like this:
 @param	string	$type is one of the defined field types , currently:
 	'checkbox','dropdown','media','relation','text','textarea','wysiwyg'
 @param	string	$prefix	string identifying the beginning of the name of each field.
-@return	array	List of values from each field of the type specified. 
+@return	array	List of names for each field of the type specified. 
 */
 function get_all_fields_of_type($type, $prefix='')
 {

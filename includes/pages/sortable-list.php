@@ -26,10 +26,11 @@ jQuery(function() {
 <div class="wrap">
 	<h2>
 	<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>"><img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="summarize-posts-logo" width="88" height="55" /></a>
-	<?php _e('Content Type', CCTM_TXTDOMAIN);?> <strong><?php print $post_type; ?></strong> : <?php _e('Custom Fields', CCTM_TXTDOMAIN);?> <input type="submit" 
-		class="button-primary" 
-		onclick="javascript:save_order();" value="<?php _e('Save Field Order', CCTM_TXTDOMAIN ); ?>" />
+	<?php _e('Content Type', CCTM_TXTDOMAIN);?> <strong><?php print $post_type; ?></strong> : <?php _e('Custom Fields', CCTM_TXTDOMAIN);?> 
 		<a href="?page=<?php print self::admin_menu_slug;?>" title="<?php _e('Back'); ?>" class="button"><?php _e('Back'); ?></a> 
+		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/ManageCustomFields" title="Managing custom fields" target="_blank">
+			<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
+		</a>
 		
 		</h2>
 
@@ -72,7 +73,13 @@ jQuery(function() {
 </tbody>
 </table>
 
-</form>
-<br/>
+<br />
+
+<input type="submit" 
+		class="button-primary" 
+		onclick="javascript:save_order();" value="<?php _e('Save Field Order', CCTM_TXTDOMAIN ); ?>" />
+
 <?php print self::_link_reset_all_custom_fields($post_type); ?>
+
+</form>
 </div>

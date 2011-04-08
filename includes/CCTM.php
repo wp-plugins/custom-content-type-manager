@@ -837,6 +837,7 @@ class CCTM {
 			$msg .= '<p>'
 				. sprintf( __('Deactivation does not delete anything, but it does make %s posts unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), "<strong>$post_type</strong>", "<strong>$post_type</strong>" )
 				.'</p>';
+
 		}
 
 		$post_cnt_obj = wp_count_posts($post_type);
@@ -845,7 +846,11 @@ class CCTM {
 				, CCTM_TXTDOMAIN), '<strong>'.$post_cnt_obj->publish.'</strong>'
 			, "<strong>$post_type</strong>")
 			.'</p>';
-		$msg .= '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'</p>
+		$msg .= '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
+				<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeactivatePostType" title="deactivating a content type" target="_blank">
+					<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
+				</a>
+				</p>
 			</div>';
 
 		include 'pages/basic_form.php';
@@ -956,7 +961,11 @@ class CCTM {
 			<p>'
 			. sprintf( __('You are about to delete the %s post type. This will remove all of its settings from the database, but this will NOT delete any rows from the wp_posts table. However, without a custom post type defined for those rows, they will be essentially invisible to WordPress.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 			.'</p>'
-			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'</p></div>';
+			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
+			<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType" title="Deleting a content type" target="_blank">
+			<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
+		</a>
+			</p></div>';
 
 		include 'pages/basic_form.php';
 
@@ -1777,9 +1786,10 @@ class CCTM {
 		#print_r($raw); exit;
 		$sanitized = array();
 
-		// This will be empty if none of the "supports" items are checked.
+		// This will be empty if no "supports" items are checked.
 		if (!empty($raw['supports']) ) {
 			$sanitized['supports'] = $raw['supports'];
+			unset($raw['supports']);
 		}
 		else {
 			$sanitized['supports'] = array();
@@ -1793,17 +1803,14 @@ class CCTM {
 			$sanitized['taxonomies'] = array();
 		}
 		// You gotta unset these if you want the arrays to passed unmolested.
-		unset($raw['supports']);
 		unset($raw['taxonomies']);
 
 		// Temporary thing...
 		unset($sanitized['rewrite_slug']);
 		unset($sanitized['rewrite_with_front']);
 
-
-
 		// The main event
-		// We grab everything, then override specific $keys as needed.
+		// We grab everything except stuff that begins with '_', then override specific $keys as needed.
 		foreach ($raw as $key => $value ) {
 			if ( !preg_match('/^_.*/', $key) ) {
 				$sanitized[$key] = self::_get_value($raw, $key);
@@ -1844,6 +1851,42 @@ class CCTM {
 		if (empty($sanitized['query_var'])) {
 			$sanitized['query_var'] = false;
 		}
+
+		// Cleaning up the labels
+		if ( empty($sanitized['label']) ) {
+			$sanitized['label'] = $sanitized['post_type'];
+		}
+		if ( empty($sanitized['labels']['singular_name']) ) {
+			$sanitized['labels']['singular_name'] = $sanitized['post_type'];
+		}
+		if ( empty($sanitized['labels']['add_new']) ) {
+			$sanitized['labels']['add_new'] = __('Add New');
+		}
+		if ( empty($sanitized['labels']['add_new_item']) ) {
+			$sanitized['labels']['add_new_item'] = __('Add New') . ' ' .$sanitized['post_type'];
+		}
+		if ( empty($sanitized['labels']['edit_item']) ) {
+			$sanitized['labels']['edit_item'] = __('Edit'). ' ' .$sanitized['post_type'];
+		}
+		if ( empty($sanitized['labels']['new_item']) ) {
+			$sanitized['labels']['new_item'] = __('New'). ' ' .$sanitized['post_type'];
+		}
+		if ( empty($sanitized['labels']['view_item']) ) {
+			$sanitized['labels']['view_item'] = __('View'). ' ' .$sanitized['post_type'];
+		}
+		if ( empty($sanitized['labels']['search_items']) ) {
+			$sanitized['labels']['search_items'] = __('Search'). ' ' .$sanitized['labels']['menu_name'];
+		}
+		if ( empty($sanitized['labels']['not_found']) ) {
+			$sanitized['labels']['not_found'] = sprintf( __('No %s found', CCTM_TXTDOMAIN), strtolower($raw['labels']['menu_name']) );
+		}		
+		if ( empty($sanitized['labels']['not_found_in_trash']) ) {
+			$sanitized['labels']['not_found_in_trash'] = sprintf( __('No %s found in trash', CCTM_TXTDOMAIN), strtolower($raw['labels']['menu_name']) );
+		}
+		if ( empty($sanitized['labels']['parent_item_colon']) ) {
+			$sanitized['labels']['parent_item_colon'] = __('Parent Page');
+		}
+
 
 		// Rewrites. TODO: make this work like the built-in post-type permalinks
 		switch ($sanitized['permalink_action']) {

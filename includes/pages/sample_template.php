@@ -19,7 +19,10 @@
 
 	<textarea cols="80" rows="10" class="sample_code_textarea" style="border: 1px solid black;"><?php print $single_page_sample_code; ?></textarea>
 
-
+<?php
+/* I sorta killed these with the new OO approach to custom fields... they'll come back online in the future. */
+?>
+<!--
 	<h3 class="cctm_subheading"><?php _e('CSS for Manager Pages', CCTM_TXTDOMAIN); ?></h3>
 	<p>
 		<?php print $manager_page_css_msg; ?>
@@ -34,5 +37,5 @@
 		<?php print $manager_page_html_msg; ?>
 	</p>	
 	<textarea cols="80" rows="10" class="sample_code_textarea" style="border: 1px solid black;"><?php print $manager_page_sample_html; ?></textarea>
-		
+-->		
 </div>
