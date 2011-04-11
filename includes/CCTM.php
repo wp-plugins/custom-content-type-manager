@@ -2318,6 +2318,10 @@ class CCTM {
 					//}
 				}
 			}
+			// Added per issue 50
+			// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=50
+			global $wp_rewrite;
+			$wp_rewrite->flush_rules();
 		}
 
 	}

@@ -10,8 +10,6 @@ Create custom content types (aka post types), standardize custom fields for each
 
 == Description ==
 
-http://www.youtube.com/watch?v=J2ualshshGo
-
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
 One of the problems with WordPress' custom fields is that they are not standardized: users must add them one at a time each time they create a new post. Furthermore, by default, WordPress' custom fields supports only text fields. This plugin lets users define a list of custom fields for each content type so that the same custom fields appear on each new post in a uniform way. 
@@ -21,6 +19,13 @@ For example, you can define a custom content type for "movie", then add a textar
 Custom content types get their own link in the admin menus and their own URL structure.
 
 Please note that this plugin is still in development and I won't consider it stable until version 1.0!!! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*: only when I'm under contract can I afford to guarantee functionality.  Please be willing to file bugs at http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
+
+I'm pretty fed up with WordPress' lack of support or functionality for integrated bug tracking and forums, so please use the following links for support and discussion:
+
+* Please sign up for our Mailing List here: http://eepurl.com/dlfHg 
+* Please direct discussion to the forum here: http://cctm.freeforums.org/index.php
+* Bug reports should be filed here: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
+* Official documentation is here: http://code.google.com/p/wordpress-custom-content-type-manager/
 
 == Installation ==
 
@@ -60,9 +65,10 @@ You can always checkout the most recent version of the code by going to your wp-
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 	
-= In Development (in the trunk) =
+= 0.8.9 (in development) =
 
-* pending...
+* Permalink functionality fixed by flushing rewrite rules after register_post_type()
+
 
 = 0.8.8 =
 
@@ -182,3 +188,4 @@ http://xplus3.net/2010/08/08/archives-for-custom-post-types-in-wordpress/
 http://net.tutsplus.com/tutorials/wordpress/introducing-wordpress-3-custom-taxonomies/
 * Editing Attachments
 http://xplus3.net/2008/11/17/custom-thumbnails-wordpress-plugin/
+
