@@ -22,7 +22,7 @@ Please note that this plugin is still in development and I won't consider it sta
 
 I'm pretty fed up with WordPress' lack of support or functionality for integrated bug tracking and forums, so please use the following links for support and discussion:
 
-* Please sign up for our Mailing List here: http://eepurl.com/dlfHg 
+* Please sign up for our Mailing List here: http://eepurl.com/dlfHg
 * Please direct discussion to the forum here: http://cctm.freeforums.org/index.php
 * Bug reports should be filed here: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
 * Official documentation is here: http://code.google.com/p/wordpress-custom-content-type-manager/

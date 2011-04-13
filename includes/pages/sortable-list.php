@@ -36,7 +36,7 @@ jQuery(function() {
 
 	<?php print $msg; ?>
 	<br />
-	<?php print self::_link_create_custom_field($post_type); ?>
+	<?php print self::_get_available_custom_field_types($post_type); ?>
 	<?php 
 	// The page ends here if there are no custom fields defined.
 	if (!$def_cnt) { return; } 

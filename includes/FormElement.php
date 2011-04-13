@@ -96,6 +96,7 @@ abstract class FormElement {
 		$this->descriptions['default_option'] = __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
 		$this->descriptions['default_value'] = __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
+				$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
@@ -452,7 +453,7 @@ abstract class FormElement {
 			$icon_src = CCTM_URL.'/images/custom-fields/default.png';
 		}
 
-		return sprintf('<img src="%s"/>', $icon_src);
+		return sprintf('<img src="%s" class="cctm-field-icon" id="cctm-field-icon-%s"/>', $icon_src, $field_type);
 	}
 	
 	
