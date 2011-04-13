@@ -20,7 +20,16 @@ For example, you can define a custom content type for "movie", then add a textar
 
 Custom content types get their own link in the admin menus and their own URL structure.
 
-Please note that this plugin is still in development and I won't consider it stable until version 1.0!!! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*: only when I'm under contract can I afford to guarantee functionality.  Please be willing to file bugs at http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
+Please note that this plugin is still in development and I won't consider it stable until version 1.0! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)!
+
+= Links =
+
+I'm pretty fed up with WordPress' lack of support or functionality for integrated bug tracking and forums, so please use the following links for support and discussion:
+
+* Please sign up for the CCTM [Mailing List](http://eepurl.com/dlfHg)
+* Participate in the [Forum](http://cctm.freeforums.org/index.php)
+* File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)
+* Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
 
 == Installation ==
 
