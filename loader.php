@@ -5,7 +5,6 @@
 * plugins available and so many potential conflicts out there, I've attempted to 
 * avoid the headaches caused from name pollution as much as possible.
 */
-session_start(); // Used for flash messages.
 
 // Required Files
 include_once('includes/constants.php');

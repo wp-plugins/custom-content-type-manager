@@ -2039,14 +2039,25 @@ class CCTM {
 	 * Create custom post-type menu
 	 */
 	public static function create_admin_menu() {
+		// Main menu item
 		add_menu_page(
-			'Custom Content Types',    		// page title
+			'Manage Custom Content Types',  // page title
 			'Custom Content Types',     	// menu title
 			'manage_options',       		// capability
 			self::admin_menu_slug,      	// menu-slug (should be unique)
 			'CCTM::page_main_controller',   // callback function
 			CCTM_URL .'/images/gear.png',   // Icon
 			71								// menu position
+		);
+		
+		
+		add_submenu_page( 
+			self::admin_menu_slug, 					// parent slug (menu-slug from add_menu_page call)
+			__('Import/Export', CCTM_TXTDOMAIN), 	// page title
+			__('Import/Export', CCTM_TXTDOMAIN), 	// menu title
+			'manage_options', 						// capability
+			$menu_slug, 							// menu_slug
+			'CCTM::page_import_export' 				// callback function
 		);
 	}
 	
@@ -2082,10 +2093,10 @@ class CCTM {
 	 */
 	public static function get_flash() {
 		$output = '';
-		if ( isset($_SESSION[self::db_key]) ) {
-			$output = $_SESSION[self::db_key];
+		if ( isset($_COOKIE[self::db_key]) ) {
+			$output = $_COOKIE[self::db_key];
 		}
-		unset( $_SESSION[self::db_key] );
+		unset( $_COOKIE[self::db_key] );
 		return $output;
 	}
 
@@ -2141,7 +2152,14 @@ class CCTM {
 		}
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	* 
+	*/
+	public static function page_import_export() {
+		include('pages/import_export.php');
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This is the grand poobah of functions for the admin pages: it routes requests 
@@ -2341,7 +2359,7 @@ class CCTM {
 	 * @param string $msg text or html message
 	 */
 	public static function set_flash($msg) {
-		$_SESSION[ self::db_key ] = $msg;
+		$_COOKIE[ self::db_key ]= $msg;
 	}
 
 

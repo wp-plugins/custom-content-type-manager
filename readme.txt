@@ -10,6 +10,8 @@ Create custom content types (aka post types), standardize custom fields for each
 
 == Description ==
 
+http://www.youtube.com/watch?v=J2ualshshGo
+
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
 One of the problems with WordPress' custom fields is that they are not standardized: users must add them one at a time each time they create a new post. Furthermore, by default, WordPress' custom fields supports only text fields. This plugin lets users define a list of custom fields for each content type so that the same custom fields appear on each new post in a uniform way. 
@@ -18,14 +20,16 @@ For example, you can define a custom content type for "movie", then add a textar
 
 Custom content types get their own link in the admin menus and their own URL structure.
 
-Please note that this plugin is still in development and I won't consider it stable until version 1.0!!! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*: only when I'm under contract can I afford to guarantee functionality.  Please be willing to file bugs at http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
+Please note that this plugin is still in development and I won't consider it stable until version 1.0! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)!
+
+= Links =
 
 I'm pretty fed up with WordPress' lack of support or functionality for integrated bug tracking and forums, so please use the following links for support and discussion:
 
-* Please sign up for our Mailing List here: http://eepurl.com/dlfHg
-* Please direct discussion to the forum here: http://cctm.freeforums.org/index.php
-* Bug reports should be filed here: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
-* Official documentation is here: http://code.google.com/p/wordpress-custom-content-type-manager/
+* Please sign up for the CCTM [Mailing List](http://eepurl.com/dlfHg)
+* Participate in the [Forum](http://cctm.freeforums.org/index.php)
+* File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)
+* Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
 
 == Installation ==
 
@@ -68,7 +72,8 @@ You can always checkout the most recent version of the code by going to your wp-
 = 0.8.9 (in development) =
 
 * Permalink functionality fixed by flushing rewrite rules after register_post_type()
-
+* Flash messages are now stored in $_COOKIE instead of $_SESSION to be in keeping with WordPress' simplistic "stateless" parlance.
+* Date field added. 
 
 = 0.8.8 =
 
