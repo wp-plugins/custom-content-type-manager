@@ -189,8 +189,8 @@ class PostSelector
 
 		if (preg_match('/^image.*/', $r['post_mime_type']) ) {
 			list($src, $w, $h) = wp_get_attachment_image_src( $r['post_id'], 'thumbnail');
-			
-			if (!@fclose(@fopen($src, 'r'))) {
+
+			if ( !CCTM::is_valid_img($src) ) {
 				$src = CCTM_URL.'/images/broken_image.png';
 			}
 			

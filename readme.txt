@@ -72,8 +72,10 @@ You can always checkout the most recent version of the code by going to your wp-
 = 0.8.9 (in development) =
 
 * Permalink functionality fixed by flushing rewrite rules after register_post_type()
-* Flash messages are now stored in $_COOKIE instead of $_SESSION to be in keeping with WordPress' simplistic "stateless" parlance.
+* Flash messages are now stored in the $_COOKIE array instead of $_SESSION to be in keeping with WordPress' simplistic "stateless" parlance.
 * Date field added. 
+* Import/Export options added.
+* Checking of valid image icons was disabled due to problems with segfault in some server configurations [see Issue 60](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=60) 
 
 = 0.8.8 =
 

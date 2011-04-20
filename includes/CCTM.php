@@ -1276,7 +1276,7 @@ class CCTM {
 			# print_r($d); exit;
 			$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
 
-			if (!@fclose(@fopen($icon_src, 'r'))) {
+			if ( !CCTM::is_valid_img($icon_src) ) {
 				$icon_src = self::get_custom_icons_src_dir() . 'default.png';
 			}
 
@@ -2145,6 +2145,52 @@ class CCTM {
 	 */
 	public static function is_active_post_type($post_type) {
 		if ( isset(self::$data[$post_type]['is_active']) && self::$data[$post_type]['is_active'] == 1 ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Using something like the following:
+	 *	if (!@fclose(@fopen($src, 'r'))) {
+	 *		$src = CCTM_URL.'/images/custom-fields/default.png';
+	 *	}
+	 * caused segfaults in some server configurations (see issue 60):
+	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=60
+	 * So in order to check whether an image path is broken or not, we translate the 
+	 * $src URL into a local path so we can use humble file_exists() instead.
+	 *
+	 * @param	string	$src a path to an image ON THIS SERVER, e.g. '/wp-content/uploads/img.jpg'
+	 *					or 'http://mysite.com/some/img.jpg'
+	 * @return	boolean	true if the img is valid, false if the img link is broken
+	 */
+	public static function is_valid_img($src) {
+	
+		$info = parse_url($src);
+		
+		// Bail on malformed URLs
+		if (!$info) {
+			return false;
+		}		
+		// Is this image hosted on another server? (currently that's not allowed)
+		if ( isset($info['scheme']) ) {
+			$this_site_info = parse_url( get_site_url() );
+			if ( $this_site_info['scheme'] != $info['scheme'] 
+				|| $this_site_info['host'] != $info['host'] 
+				|| $this_site_info['port'] != $info['port']) {
+				
+				return false;
+			}
+		}
+
+		// ABSPATH contains a trailing slash; 
+		// we must filter a beginning slash from $info['path']
+		$path = ABSPATH . preg_replace('#^/#','', $info['path']);
+		// print_r($path); die();
+		if ( file_exists($path) ) {
 			return true;
 		}
 		else {

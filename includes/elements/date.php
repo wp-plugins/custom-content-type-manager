@@ -87,6 +87,11 @@ class CCTM_date extends FormElement
 	 *
 	 * @param mixed $current_value	current value for this field.
 	 * @return string	
+	 
+	 date_default_timezone_set('America/Los_Angeles');
+	$x = "date('Y-m-d');";
+	$y = eval($y = $x);
+	print $y; 
 	 */
 	public function get_edit_field_instance($current_value) {
 		#print_r($this->props); exit;

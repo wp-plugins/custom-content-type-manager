@@ -449,7 +449,7 @@ abstract class FormElement {
 		$icon_src = $dir . $field_type .'.png';
 
 		// Use the default image if necessary
-		if (!@fclose(@fopen($icon_src, 'r'))) {
+		if ( !CCTM::is_valid_img($icon_src) ) {
 			$icon_src = CCTM_URL.'/images/custom-fields/default.png';
 		}
 
