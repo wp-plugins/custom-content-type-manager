@@ -167,21 +167,29 @@ class CCTM_dropdown extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Note that the HTML in $option_html should match the JavaScript version of 
+	 * the same HTML in js/manager.js (see the append_dropdown_option() function).
+	 * I couldn't think of a clean way to do this, but the fundamental problem is 
+	 * that both PHP and JS need to draw the same HTML into this form:
+	 * PHP draws it when an existing definition is *edited*, whereas JS draws it
+	 * when you dynamically *create* new dropdown options.
 	 *
-	 *
-	 * @param unknown $current_values
+
 			<style>
 			input.cctm_error { 
 				background: #fed; border: 1px solid red;
 			}
 			</style>
+	 * @param mixed $def	nested array of existing definition.
 	 */
 	public function get_edit_field_definition($def) {
 	
 		// Used when adding simple options
+/*
 		$option_tpl = '<div id="dropdown_option_[+i+]">
 					<input type="text" name="options[]" value="[+value+]"/> <span class="button" onclick="javascript:remove_html(\'dropdown_option_[+i+]\');">[+delete_label+]</span>
 				</div>';
+*/
 
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
@@ -227,29 +235,54 @@ class CCTM_dropdown extends FormElement
 			 	</div>';
 			
 		// OPTIONS
+
+		$option_cnt = 0;
+		if (isset($def['options'])) {
+			$option_cnt = count($def['options']);
+		}
+
+		$hash = array();
+		$hash['option_cnt'] 	= $option_cnt;
+		$hash['delete'] 		= __('Delete');
+		$hash['options'] 		= __('Options', CCTM_TXTDOMAIN);
+		$hash['add_option'] 	= __('Add Option',CCTM_TXTDOMAIN);
+		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
+		
+		$tpl = '
+			<div class="formgenerator_element_wrapper" id="dropdown_options">
+				<label for="options" class="formgenerator_label formgenerator_select_label" id="formgenerator_label_options">[+options+] <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
+				</label>
+				<br />';
+		$out .= CCTM::parse($tpl, $hash);
+/*
+		$out .= '
+			<div class="formgenerator_element_wrapper" id="dropdown_options">
+				<label for="options" class="formgenerator_label formgenerator_select_label" id="formgenerator_label_options">'.__('Options', CCTM_TXTDOMAIN) .' <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\''.__('Delete').'\',\''.$option_cnt.'\');">'.__('Add Option',CCTM_TXTDOMAIN).'</span>
+				</label>
+				<br />';
+*/
+		
 		// this html should match up with the js html in manager.js
 		$option_html = '
 			<div id="%s">
-				<input type="text" name="options[]" value="%s"/> <span class="button" onclick="javascript:remove_html(\'%s\');">%s</span>
+				<input type="text" name="options[]" id="option_%s" value="%s"/> 
+				<span class="button" onclick="javascript:remove_html(\'%s\');">%s</span>
+				<span class="button" onclick="javascript:set_as_default(\'option_%s\');">%s</span>
 			</div>';
 
-		$cnt_options = 0;
-		if (isset($def['options'])) {
-			$cnt_options = count($def['options']);
-		}
-		
-		$out .= '
-			<div class="formgenerator_element_wrapper" id="dropdown_options">
-				<label for="options" class="formgenerator_label formgenerator_select_label" id="formgenerator_label_options">'.__('Options', CCTM_TXTDOMAIN) .' <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\''.__('Delete').'\',\''.$cnt_options.'\');">'.__('Add Option',CCTM_TXTDOMAIN).'</span>
-				</label>
-				<br />';
-		
+
 		$i = 0; // used to uniquely ID options.
 		if ( !empty($def['options']) ) {
 		
 			foreach ($def['options'] as $opt_val) {
 				$option_css_id = 'cctm_dropdown_option'.$i;
-				$out .= sprintf($option_html, $option_css_id, $opt_val, $option_css_id, __('Delete') );
+				$out .= sprintf($option_html
+					, $option_css_id
+					, $i
+					, $opt_val
+					, $option_css_id, __('Delete') 
+					, $i, __('Set as Default') 
+				);
 				$i = $i + 1;
 			}
 		}
