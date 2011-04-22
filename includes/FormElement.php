@@ -47,8 +47,6 @@ abstract class FormElement {
 	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
 	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
 	*/
-	public $props = array();
-
 	public $element_i = 0; // used to increment CSS ids as we wrap multiple elements
 	
 	// Contains reusable localized descriptions of common field definition elements, e.g. 'label'
@@ -56,6 +54,14 @@ abstract class FormElement {
 	
 	// Stores any errors with fields.  The format here is array( 'field_name' => array('Error msg1','Error msg2') )
 	public $errors = array();
+
+	// the magic __set and __get are mapped to keys in this array.
+	public $props = array();
+
+	// Any extension of this class can list zero or many function names from the OutputFilters class
+	// This determines which (if any) output filters are available. 'none' (i.e. straight input==>output) 
+	// is always available.
+	public $supported_output_filters = array();
 
 	// Definition vars from $props that you don't want any dev in a child class to change
 	// during runtime.
@@ -102,6 +108,8 @@ abstract class FormElement {
 		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
 		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_by_default'] =  __('Should this field be checked by default?', CCTM_TXTDOMAIN);
+		$this->descriptions['output_filter'] =  __('How should values be displayed in your them files?', CCTM_TXTDOMAIN);
+		
 	}
 
 
@@ -434,6 +442,40 @@ abstract class FormElement {
 	
 	//------------------------------------------------------------------------------
 	/**
+	 * Generate select dropdown for listing and selecting the active output filter.
+	 * @param mixed	$def is the existing field definition
+	 */
+	public function get_available_output_filters($def) {
+	
+		include_once('OutputFilters.php');
+		$OutputFilters = new OutputFilters();
+		
+		$out .= '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
+			 	<label for="output_filter" class="cctm_label cctm_select_label" id="output_filter_label">'
+			 		.__('Output Filter', CCTM_TXTDOMAIN) .'
+			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
+			 		</label>';
+		
+		$out .= '<select name="output_filter" class="'
+				.$this->get_field_class($this->name, 'select') . ' ' . $this->class.'" id="'.$this->get_field_id().'">
+				<option value="">'.__('None').'</option>
+				';
+			foreach ($this->supported_output_filters as $opt) {
+				$is_selected = '';
+				if ( $def['output_filter'] == $opt ) {
+					$is_selected = 'selected="selected"';
+				}
+				$out .= '<option value="'.$opt.'" '.$is_selected.'>'.$OutputFilters->descriptions[$opt] .'</option>';
+			}
+		$out .= '</select>
+			' . $this->get_translation('output_filter') 
+			  .'</div>';
+
+		return $out;
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	 * Get the full image tag for this field-type's icon.  The icon should be 48x48.
 	 * Default behavior is to look inside the images/custom-fields directory
 	 *
@@ -482,6 +524,43 @@ abstract class FormElement {
  		$html = trim($html);
  	}
  	
+	//------------------------------------------------------------------------------
+	/**
+	 * This function acts as a per-fieldtype filter for the front-end for any given
+	 * FormElement so that any type of custom field can convert whatever value is stored
+	 * in the datbase into a value that's appropriate for the front-end. 
+	 * This function is called from the theme function: get_custom_field()
+	 *
+	 * The output of this function should be a string.  If you need more complex outputs,
+	 * utilize the $extra parameters and set its values directly. It's passed by reference,
+	 *  so any edits to $extra will be visible to the caller.
+	 *
+	 * Example of custom handling per field type:
+	 * $img_atts = array();
+	 * $img_html = get_custom_field('my_img_field', $img_atts);
+	 * print $img_html; // prints <img src="/path/to/image.jpg" />
+	 * print_r($img_atts); // prints Array('src'=>'/path/to/image.jpg', 'h'=>'100', 'w' => '50')
+	 *
+	 * Override this function to provide special output filtering on a
+	 *  field-type basis.
+	 *
+	 * @param string  $value is whatever was stored in the database for this field for the current post
+	 * @param mixed $options (reference)
+	 * @return string
+	 */
+	public function output_filter($value, $options) {
+
+		if ( !empty($this->supported_output_filters) && !empty($this->props['output_filter']) ) {
+			include_once('OutputFilters.php');
+			$OutputFilters = new OutputFilters();
+			$filter = $this->props['output_filter']; 		
+			return $OutputFilters->$filter($value,$options);
+		}
+		else
+		{
+			return $value;
+		}	
+	}
 
 
 	//------------------------------------------------------------------------------
@@ -578,33 +657,6 @@ abstract class FormElement {
 		return $posted_data; // filtered data
 	}
 
-	//------------------------------------------------------------------------------
-	/**
-	 * This function acts as a per-fieldtype filter for the front-end for any given
-	 * FormElement so that any type of custom field can convert whatever value is stored
-	 * in the datbase into a value that's appropriate for the front-end. 
-	 * This function is called from the theme function: get_custom_field()
-	 *
-	 * The output of this function should be a string.  If you need more complex outputs,
-	 * utilize the $extra parameters and set its values directly. It's passed by reference,
-	 *  so any edits to $extra will be visible to the caller.
-	 *
-	 * Example of custom handling per field type:
-	 * $img_atts = array();
-	 * $img_html = get_custom_field('my_img_field', $img_atts);
-	 * print $img_html; // prints <img src="/path/to/image.jpg" />
-	 * print_r($img_atts); // prints Array('src'=>'/path/to/image.jpg', 'h'=>'100', 'w' => '50')
-	 *
-	 * Override this function to provide special output filtering on a
-	 *  field-type basis.
-	 *
-	 * @param string  $value is whatever was stored in the database for this field for the current post
-	 * @param mixed $extra (reference)
-	 * @return string
-	 */
-	public function value_filter($value, &$extra) {
-		return $value;
-	}
 
 }
 /*EOF FormElement.php */

@@ -82,9 +82,9 @@ class CCTM_dropdown extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
-	 * <div class="formgenerator_element_wrapper" id="custom_field_wrapper_address1">
-	 * <label for="custom_content_address1" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_custom_content_address1">Address</label>
-	 * <input type="text" name="custom_content_address1" class="formgenerator_text" id="custom_content_address1" value="3835 Cross Creek Road"/>
+	 * <div class="cctm_element_wrapper" id="custom_field_wrapper_address1">
+	 * <label for="custom_content_address1" class="cctm_label cctm_text_label" id="cctm_label_custom_content_address1">Address</label>
+	 * <input type="text" name="custom_content_address1" class="cctm_text" id="custom_content_address1" value="3835 Cross Creek Road"/>
 	 * </div>
 	 *
 	 * @param string $def
@@ -101,8 +101,8 @@ class CCTM_dropdown extends FormElement
 		}
 		
 		$tpl = '
-			<label for="[+name+]" class="formgenerator_label" id="formgenerator_label_[+name+]">[+label+]</label>
-				<select name="[+name+]" class="formgenerator_dropdown formgenerator_dropdown_label" id="[+name+]"[+extra+]>
+			<label for="[+name+]" class="cctm_label" id="cctm_label_[+name+]">[+label+]</label>
+				<select name="[+name+]" class="cctm_dropdown cctm_dropdown_label" id="[+name+]"[+extra+]>
 					[+options+]  
 				</select>
 				[+special+]';
@@ -200,7 +200,7 @@ class CCTM_dropdown extends FormElement
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
@@ -209,7 +209,7 @@ class CCTM_dropdown extends FormElement
 			 	
 		// Default Value
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="default_value_label">'
+			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
 			 		.'"/>
@@ -250,8 +250,8 @@ class CCTM_dropdown extends FormElement
 		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
 		
 		$tpl = '
-			<div class="formgenerator_element_wrapper" id="dropdown_options">
-				<label for="options" class="formgenerator_label formgenerator_select_label" id="formgenerator_label_options">[+options+] <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
+			<div class="cctm_element_wrapper" id="dropdown_options">
+				<label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+options+] <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
 				</label>
 				<br />';
 		$out .= CCTM::parse($tpl, $hash);

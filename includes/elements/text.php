@@ -34,9 +34,12 @@ class CCTM_text extends FormElement
 		'class' => '',
 		'extra'	=> '',
 		'default_value' => '',
+		'output_filter'	=> '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
 	);
+
+	public $supported_output_filters = array('email');
 
 	//------------------------------------------------------------------------------
 	/**
@@ -118,7 +121,7 @@ class CCTM_text extends FormElement
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
@@ -127,7 +130,7 @@ class CCTM_text extends FormElement
 			 	
 		// Default Value
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="default_value_label">'
+			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
 			 		.'"/>
@@ -159,6 +162,12 @@ class CCTM_text extends FormElement
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
+			 	
+		// Output Filter
+		if ( !empty($this->supported_output_filters) ) { 
+			$out .= $this->get_available_output_filters($def);
+		}
+			 	
 		return $out;
 	}
 

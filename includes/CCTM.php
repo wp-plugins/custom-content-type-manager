@@ -931,7 +931,8 @@ class CCTM {
 				}
 			}
 		}
-		
+//		$field_data = self::$data[$post_type]['custom_fields'][$field_name];
+				
 		if ( !in_array($field_name, $custom_fields_array) ) {
 			$msg = '<p>'. __('Invalid custom field.', CCTM_TXTDOMAIN)
 				. '</p>';
@@ -950,7 +951,7 @@ class CCTM {
 		$field_type = $field_data['type'];
 		
 		// Page variables
-		$heading = __('Create Field', CCTM_TXTDOMAIN);
+		$heading = __('Edit Field', CCTM_TXTDOMAIN);
 		
 		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
 		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';

@@ -85,8 +85,8 @@ class CCTM_textarea extends FormElement
 	 *
 	 * @param string $current_value	current value for this field.
 	 * @return string	
-	 <label for="[+name+]" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_[+name+]">[+label+]</label>
-			<textarea name="[+name+]" class="formgenerator_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
+	 <label for="[+name+]" class="cctm_label cctm_textarea_label" id="cctm_label_[+name+]">[+label+]</label>
+			<textarea name="[+name+]" class="cctm_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
 	 */
 	public function get_edit_field_instance($current_value) {
 		# print_r($this->props); exit;
@@ -120,7 +120,7 @@ class CCTM_textarea extends FormElement
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
@@ -129,7 +129,7 @@ class CCTM_textarea extends FormElement
 			 	
 		// Default Value
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="default_value_label">'
+			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
 			 		.'"/>

@@ -106,8 +106,8 @@ class CCTM_checkbox extends FormElement
 	 *
 	 * @param string $current_value
 	 * @return string
-	 			<input type="checkbox" name="[+name+]" class="formgenerator_checkbox" id="[+id+]" value="[+checked_value+]" [+is_checked+] [+extra+]/> 
-			<label for="[+id+]" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_[+name+]">[+label+]</label>';
+	 			<input type="checkbox" name="[+name+]" class="cctm_checkbox" id="[+id+]" value="[+checked_value+]" [+is_checked+] [+extra+]/> 
+			<label for="[+id+]" class="cctm_label cctm_checkbox_label" id="cctm_label_[+name+]">[+label+]</label>';
 
 
 		$output = sprintf('
@@ -177,7 +177,7 @@ class CCTM_checkbox extends FormElement
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
@@ -186,7 +186,7 @@ class CCTM_checkbox extends FormElement
 
 		// Value when Checked			 	
 		$out .= '<div class="'.self::wrapper_css_class .'" id="checked_value_wrapper">
-				 <label for="checked_value" class="formgenerator_label formgenerator_text_label" id="checked_value_label">'
+				 <label for="checked_value" class="cctm_label cctm_text_label" id="checked_value_label">'
 					. __('Value when checked', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="checked_value" size="8" class="'.$this->get_field_class('checked_value','text').'" id="checked_value" value="'.$def['checked_value'] .'"/>'
@@ -195,7 +195,7 @@ class CCTM_checkbox extends FormElement
 			 	
 		// Value when Unchecked			 	
 		$out .= '<div class="'.self::wrapper_css_class .'" id="unchecked_value_wrapper">
-				 <label for="unchecked_value" class="formgenerator_label formgenerator_text_label" id="unchecked_value_label">'
+				 <label for="unchecked_value" class="cctm_label cctm_text_label" id="unchecked_value_label">'
 					. __('Value when Unchecked', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="unchecked_value" size="8" class="'.$this->get_field_class('unchecked_value','text').'" id="unchecked_value" value="'.$def['unchecked_value'] .'"/>'
@@ -203,7 +203,7 @@ class CCTM_checkbox extends FormElement
 			 	</div>';
 		// Is Checked by Default?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="checked_by_default_wrapper">
-				 <label for="checked_by_default" class="formgenerator_label formgenerator_checkbox_label" id="checked_by_default_label">'
+				 <label for="checked_by_default" class="cctm_label cctm_checkbox_label" id="checked_by_default_label">'
 					. __('Checked by default?', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />

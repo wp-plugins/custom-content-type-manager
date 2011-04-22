@@ -73,13 +73,16 @@ You can always checkout the most recent version of the code by going to your wp-
 
 * Permalink functionality fixed by flushing rewrite rules after register_post_type()
 * Flash messages are now stored in the $_COOKIE array instead of $_SESSION to be in keeping with WordPress' simplistic "stateless" parlance.
-* Date field added. 
+* Date field added, including support for PHP eval of default value.
+* CSS rules updated.
 * Import/Export options added.
 * Checking of valid image icons was disabled due to problems with segfault in some server configurations [see Issue 60](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=60) 
 * Default values for dropdowns now settable via Javascript to reduce typos
 * Bug with page-attributes fixed.
 * Support for Post Formats added.
-
+* Support for [Output Filters](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters) was added.
+* Template functions `get_custom_image()` and `print_custom_image` were removed in favor of using Output Filters.
+* FormGenerator class removed in favor of simpler PHP pages.
 
 = 0.8.8 =
 

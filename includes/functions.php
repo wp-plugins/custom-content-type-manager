@@ -77,7 +77,7 @@ associated with the current post. See get_post_meta() for more details.
 INPUT: 
 	$fieldname (str) the name of the custom field as defined inside the 
 		Manage Custom Fields area for a particular content type.
-	$extra	(mixed) optional input. Can be used to set additional arguments.
+	$options mixed can be used to specify additional arguments
 	
 OUTPUT:
 	The contents of that custom field for the current post.
@@ -85,12 +85,12 @@ OUTPUT:
 See also 	
 http://codex.wordpress.org/Function_Reference/get_post_custom_values
 */
-function get_custom_field($fieldname, &$extra=null)
+function get_custom_field($fieldname, $options=null)
 {
 	// print_r(CCTM::$data); exit;
 	
 	global $post;
-
+	// print_r(CCTM::$data[$post->post_type]['custom_fields']); exit;
 	if ( !isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]) ) {
 		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname );
 	}
@@ -100,10 +100,11 @@ function get_custom_field($fieldname, &$extra=null)
 		
 	$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
 	$FieldObj = new $field_type_name(); // Instantiate the field element
-	
+	$FieldObj->props = CCTM::$data[$post->post_type]['custom_fields'][$fieldname];
+
 	$value = get_post_meta($post->ID, $fieldname, true);
-	
-	return $FieldObj->value_filter($value, &$extra);
+
+	return $FieldObj->output_filter($value, $options);
 }
 
 //------------------------------------------------------------------------------
@@ -391,19 +392,6 @@ function print_custom_field($fieldname, &$extra=null)
 function print_custom_field_meta($fieldname, $item, $post_type=null)
 {
 	print get_custom_field_meta($fieldname, $item, $post_type);
-}
-
-//------------------------------------------------------------------------------
-/**
-* Prints the custom image referenced by the custom field $fieldname. 
-* Relies on the WordPress wp_get_attachment_image() function.
-*
-* @param	string	$fieldname name of the custom field
-* @return	none	Prints the results of get_custom_image()
-*/
-function print_custom_image($fieldname)
-{
-	print get_custom_image($fieldname);
 }
 
 /*EOF*/

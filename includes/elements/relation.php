@@ -140,7 +140,7 @@ class CCTM_relation extends FormElement
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
@@ -157,16 +157,16 @@ class CCTM_relation extends FormElement
 		if ( !empty($def['default_value']) ) {
 			$preview_html = wp_get_attachment_image( $def['default_value'], 'thumbnail', true );
 			$attachment_obj = get_post($def['default_value']);
-			//$def['preview_html'] .= '<span class="formgenerator_label">'.$attachment_obj->post_title.'</span><br />';
+			//$def['preview_html'] .= '<span class="cctm_label">'.$attachment_obj->post_title.'</span><br />';
 			// Wrap it
-			$preview_html .= '<span class="formgenerator_label">'.$attachment_obj->post_title.' <span class="formgenerator_id_label">('.$def['default_value'].')</span></span><br />';
+			$preview_html .= '<span class="cctm_label">'.$attachment_obj->post_title.' <span class="cctm_id_label">('.$def['default_value'].')</span></span><br />';
 			
 		}
 
 		// Default Value 			
 		$out .= '
-			<div class="formgenerator_element_wrapper" id="custom_field_wrapper_2">
-				<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a></span> 
+			<div class="cctm_element_wrapper" id="custom_field_wrapper_2">
+				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a></span> 
 				<input type="hidden" id="default_value" name="default_value" value="'.$def['default_value'].'" /><br />
 				<div id="default_value_media">'.$preview_html.'</div>
 				

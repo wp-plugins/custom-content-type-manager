@@ -8,5 +8,5 @@ Used at the footer of many admin pagers
 		<span class="cctm-link"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/potion.png" height="31" width="22" alt="bug"/><a href="http://code.google.com/p/wordpress-custom-content-type-manager/"><?php _e('Documentation', CCTM_TXTDOMAIN); ?></a></span>
 		<span class="cctm-link"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/> <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/list"><?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a></span>
 		<span class="cctm-link"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/> <a href="http://eepurl.com/dlfHg"><?php _e('Get eMail Updates', CCTM_TXTDOMAIN); ?></a></span>
-		<span class="cctm-link"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/> <a href="http://cctm.freeforums.org/index.php"><?php _e('Forum', CCTM_TXTDOMAIN); ?></a></span>		
+		<span class="cctm-link"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/> <a href="http://wordpress.org/tags/custom-content-type-manager?forum_id=10"><?php _e('Forum', CCTM_TXTDOMAIN); ?></a></span>		
 	</p>
