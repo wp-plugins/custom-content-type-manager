@@ -241,6 +241,7 @@ class CCTM_dropdown extends FormElement
 			$option_cnt = count($def['options']);
 		}
 
+		// using the parse function because this got too crazy with escaping single quotes
 		$hash = array();
 		$hash['option_cnt'] 	= $option_cnt;
 		$hash['delete'] 		= __('Delete');
@@ -254,13 +255,6 @@ class CCTM_dropdown extends FormElement
 				</label>
 				<br />';
 		$out .= CCTM::parse($tpl, $hash);
-/*
-		$out .= '
-			<div class="formgenerator_element_wrapper" id="dropdown_options">
-				<label for="options" class="formgenerator_label formgenerator_select_label" id="formgenerator_label_options">'.__('Options', CCTM_TXTDOMAIN) .' <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\''.__('Delete').'\',\''.$option_cnt.'\');">'.__('Add Option',CCTM_TXTDOMAIN).'</span>
-				</label>
-				<br />';
-*/
 		
 		// this html should match up with the js html in manager.js
 		$option_html = '

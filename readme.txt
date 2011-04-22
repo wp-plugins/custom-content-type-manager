@@ -76,6 +76,10 @@ You can always checkout the most recent version of the code by going to your wp-
 * Date field added. 
 * Import/Export options added.
 * Checking of valid image icons was disabled due to problems with segfault in some server configurations [see Issue 60](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=60) 
+* Default values for dropdowns now settable via Javascript to reduce typos
+* Bug with page-attributes fixed.
+* Support for Post Formats added.
+
 
 = 0.8.8 =
 

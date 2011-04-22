@@ -4,31 +4,31 @@ Primarily, it styles the automatically generated forms, but it also contains
 rules to style the various manager pages.
 ------------------------------------------------------------------------------*/
 /* Used by all automatically generated labels */
-.formgenerator_label {
+.cctm_label {
 	display:block;
 	font-weight:bold;
 }
 
 /* Used to wrap the post id's, in relation/media fields that provide a link
 to the wp_posts table e.g. the '(4)' in 'Preview HTML (4)'*/
-.formgenerator_id_label {
+.cctm_id_label {
 
 }
 
-.formgenerator_description {
+.cctm_description {
 	display:block;
 	font-style:italic;
 }
 
-.formgenerator_checkbox_label {
+.cctm_checkbox_label {
 	display: inline;
 }
-.formgenerator_checkbox
+.cctm_checkbox
 {
 	width: auto;
 }
 
-.formgenerator_element_wrapper {
+.cctm_element_wrapper {
 	margin-top: 10px;
 }
 

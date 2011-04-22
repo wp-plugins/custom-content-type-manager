@@ -68,13 +68,13 @@ abstract class FormElement {
 
 	
 	/* Always include this CSS class in generated input labels, e.g. 
-	<label for="xyz" class="formgenerator_label formgenerator_text_label" id="xyz_label">
+	<label for="xyz" class="cctm_label cctm_text_label" id="xyz_label">
 		Address</label>
 	*/
-	const wrapper_css_class 		= 'formgenerator_element_wrapper';
-	const label_css_class 			= 'formgenerator_label';
-	const label_css_id_prefix 		= 'formgenerator_label_';
-	const css_class_description 	= 'formgenerator_description';
+	const wrapper_css_class 		= 'cctm_element_wrapper';
+	const label_css_class 			= 'cctm_label';
+	const label_css_id_prefix 		= 'cctm_label_';
+	const css_class_description 	= 'cctm_description';
 	const error_css 				= 'cctm_error'; // used for validation errors
 	
 	//------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ abstract class FormElement {
 	 *
 	 */
 	protected function get_field_class( $id, $input_type='text' ) {
-		// formgenerator_text
+		// cctm_text
 		// TODO!!! 
 		$css_arr = array();
 		# in_array(mixed needle, array haystack [, bool strict])
@@ -357,7 +357,7 @@ abstract class FormElement {
 	*/
 	protected function wrap_element($html, $class='') {
 		$wrapper = '
-		<div class="formgenerator_element_wrapper %s" id="custom_field_wrapper_%s">
+		<div class="cctm_element_wrapper %s" id="custom_field_wrapper_%s">
 		%s
 		</div>';
 		$this->element_i = $this->element_i + 1;
@@ -370,7 +370,7 @@ abstract class FormElement {
 	 * of this element.
 	 * I added some carriage returns here for readability in the generated HTML
 	 *
-<label for="description" class="formgenerator_label formgenerator_textarea_label" id="formgenerator_label_description">Description</label>	 
+<label for="description" class="cctm_label cctm_textarea_label" id="cctm_label_description">Description</label>	 
 	 * @param	string $additional_class any extra CSS class(es) you want to pass to this label
 	 * @return string	HTML representing the label for this field.
 	 */
@@ -398,7 +398,7 @@ abstract class FormElement {
 	 */
 	protected function wrap_outer($input) {
 		$wrapper = '
-		<div class="formgenerator_element_wrapper" id="custom_field_%s">
+		<div class="cctm_element_wrapper" id="custom_field_%s">
 		%s
 		</div>';
 		return sprintf($wrapper, $this->props['name'], $input);
@@ -465,7 +465,7 @@ abstract class FormElement {
 	* @return	string	HTML localized description
 	*/
 	public function get_translation($item) {
-		$tpl = '<span class="formgenerator_description">%s</span>';		 
+		$tpl = '<span class="cctm_description">%s</span>';		 
 		 return sprintf($tpl, $this->descriptions[$item]);
 	}
  
@@ -510,7 +510,14 @@ abstract class FormElement {
 	/**
 	 * Validate and sanitize any submitted data. Used when editing the definition for 
 	 * this type of element. Default behavior here is require only a unique name and 
-	 * label. Override this if customized validation is required.
+	 * label. Override this if customized validation is required: usually you'll want
+	 * to override and still reference the parent:
+	 * 		public function save_field_filter($posted_data, $post_type) {
+	 *			$posted_data = parent::save_field_filter($posted_data, $post_type);
+	 *			// your code here...
+	 *			return $posted_data;
+	 *		}
+	 *
 	 *
 	 * @param	array	$posted_data = $_POST data
 	 * @param	string	$post_type the string defining this post_type

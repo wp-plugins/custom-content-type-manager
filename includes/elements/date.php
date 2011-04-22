@@ -84,14 +84,22 @@ class CCTM_date extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	* Optionally evals the default value
+	*/
+	public function get_create_field_instance() {
+		if( $this->props['evaluate_default_value'] ) {			
+			$default_value = stripslashes(html_entity_decode($this->default_value));
+			$this->default_value = eval("return $default_value;"); 
+		}
+		return $this->get_edit_field_instance($this->default_value); 
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
 	 *
 	 * @param mixed $current_value	current value for this field.
-	 * @return string	
-	 
-	 date_default_timezone_set('America/Los_Angeles');
-	$x = "date('Y-m-d');";
-	$y = eval($y = $x);
-	print $y; 
+	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
 		#print_r($this->props); exit;
@@ -163,7 +171,7 @@ class CCTM_date extends FormElement
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="formgenerator_label formgenerator_text_label" id="name_label">'
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
@@ -172,7 +180,7 @@ class CCTM_date extends FormElement
 			 	
 		// Default Value
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-			 	<label for="default_value" class="formgenerator_label formgenerator_text_label" id="default_value_label">'
+			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
 			 		.'"/>
@@ -180,7 +188,7 @@ class CCTM_date extends FormElement
 			 	</div>';
 		// Evaluate Default Value (use PHP eval)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="evaluate_default_value_wrapper">
-				 <label for="evaluate_default_value" class="formgenerator_label formgenerator_checkbox_label" id="evaluate_default_value_label">'
+				 <label for="evaluate_default_value" class="cctm_label cctm_checkbox_label" id="evaluate_default_value_label">'
 					. __('Use PHP eval to calculate the default value?', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
@@ -231,7 +239,16 @@ class CCTM_date extends FormElement
 			 	</div>';
 		return $out;
 	}
-
+	
+	//------------------------------------------------------------------------------
+	/**
+	* Make sure quotes are not escaped in the default_value
+	*/
+	public function save_field_filter($posted_data, $post_type) {
+		$posted_data = parent::save_field_filter($posted_data, $post_type);
+		$posted_data['default_value'] = stripslashes(htmlentities($posted_data['default_value']));
+		return $posted_data;
+	}
 }
 
 

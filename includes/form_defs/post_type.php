@@ -261,7 +261,7 @@ $def['supports_revisions']['sort_param']	= 28;
 
 $def['supports_page-attributes']['name']			= 'supports[]';
 $def['supports_page-attributes']['id']				= 'supports_page-attributes';
-$def['supports_page-attributes']['label']			= __('Menu Order and Page Attributes', CCTM_TXTDOMAIN);
+$def['supports_page-attributes']['label']			= __('Page Attributes', CCTM_TXTDOMAIN);
 $def['supports_page-attributes']['value']			= '';
 $def['supports_page-attributes']['checked_value'] 	= 'page-attributes';
 $def['supports_page-attributes']['extra']			= '';

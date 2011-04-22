@@ -263,7 +263,7 @@
 				name="[+supports_page-attributes.name+]" 
 				class="formgenerator_checkbox" 
 				id="[+supports_page-attributes.id+]" 
-				value="[+supports_page-attributes.value+]" 
+				value="[+supports_page-attributes.checked_value+]" 
 				onclick="javascript:toggle_div('[+supports_page-attributes.id+]', 'extended_page_attributes', '[+supports_page-attributes.value+]');" [+supports_page-attributes.is_checked+] />
 			<label for="[+supports_page-attributes.id+]" class="formgenerator_label formgenerator_checkbox_label" id="formgenerator_label_[+supports_page-attributes.id+]">
 				[+supports_page-attributes.label+]
