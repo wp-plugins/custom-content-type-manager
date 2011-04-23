@@ -38,6 +38,8 @@ class CCTM_relation extends FormElement
 		// 'sort_param' => '', // handled automatically
 	);
 
+	public $supported_output_filters = array('to_link','to_link_href');
+	
 	//------------------------------------------------------------------------------
 	/**
 	* This function provides a name for this type of field. This should return plain
@@ -181,7 +183,11 @@ class CCTM_relation extends FormElement
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
-			 
+			 	
+		// Output Filter
+		if ( !empty($this->supported_output_filters) ) { 
+			$out .= $this->get_available_output_filters($def);
+		}		 
 			 return $out;
 	}
 

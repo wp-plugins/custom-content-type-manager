@@ -2055,7 +2055,7 @@ class CCTM {
 			__('Import/Export', CCTM_TXTDOMAIN), 	// page title
 			__('Import/Export', CCTM_TXTDOMAIN), 	// menu title
 			'manage_options', 						// capability
-			$menu_slug, 							// menu_slug
+			self::admin_menu_slug . '_ie', 			// menu_slug
 			'CCTM::page_import_export' 				// callback function
 		);
 	}

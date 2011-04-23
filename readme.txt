@@ -24,10 +24,10 @@ Please note that this plugin is still in development and I won't consider it sta
 
 = Links =
 
-I'm pretty fed up with WordPress' lack of support or functionality for integrated bug tracking and forums, so please use the following links for support and discussion:
+Please use the following links for support and discussion:
 
 * Please sign up for the CCTM [Mailing List](http://eepurl.com/dlfHg)
-* Participate in the [Forum](http://cctm.freeforums.org/index.php)
+* Participate in the [Forum](http://wordpress.org/tags/custom-content-type-manager?forum_id=10)
 * File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)
 * Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
 
@@ -164,8 +164,11 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 == Upgrade Notice ==
 
+= 0.8.9 =
+Import/Export functionality added, Date fields, and complex Dropdowns. If you are upgrading to 0.8.9 from a version prior to 0.8.8, you must *completely uninstall* the plugin, then *re-install* [See bug](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=62&can=1). 
+
 = 0.8.8 =
-Improved administration interface, new template functions, lots bug fixes; this is a big release.  If you are upgrading to 0.8.8 from a previous version, you should *uninstall* the plugin, then *re-install*.  This will ensure that the data-structure in the database is updated appropriately.
+Improved administration interface, new template functions, lots bug fixes; this is a big release.  If you are upgrading to 0.8.8 from a previous version, you should *completely uninstall* the plugin, then *re-install*.  This will ensure that the data-structure in the database is updated appropriately.
 
 = 0.8.7 =
 Adds HTML head and body tags back to the tpls/post_selector/main.tpl to correct issue 17 (http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=17&can=1).

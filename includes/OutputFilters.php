@@ -70,11 +70,16 @@ class OutputFilters {
 
 	/**
 	 * Returns a full anchor tag (<a>) the post_id passed in as a value.
+	 * @param	integer	post ID
+	 * @param	string	optionally include the text to be displayed in the link
 	 */
-	public function to_link($value) {
+	public function to_link($value, $option=null) {
 		$post = get_post($value);
-		
-		return sprintf('<a href="%s">%s</a>', $post->guid, $post->post_title);
+		$link_text = $this->post_title;
+		if (!empty($option)) {
+			$link_text = $option;
+		}
+		return sprintf('<a href="%s">%s</a>', $post->guid, $link_text);
 	}
 	
 	/**
