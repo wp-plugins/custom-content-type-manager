@@ -12,6 +12,8 @@ Create custom content types (aka post types), standardize custom fields for each
 
 http://www.youtube.com/watch?v=J2ualshshGo
 
+This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book), published by Packt.
+
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
 One of the problems with WordPress' custom fields is that they are not standardized: users must add them one at a time each time they create a new post. Furthermore, by default, WordPress' custom fields supports only text fields. This plugin lets users define a list of custom fields for each content type so that the same custom fields appear on each new post in a uniform way. 
@@ -150,7 +152,7 @@ These requirements are tested during WordPress initialization; the plugin will n
 
 == About ==
 
-This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.amazon.com/WordPress-3-Plugin-Development-Essentials/dp/184951352X/ref=sr_1_2?ie=UTF8&s=books&qid=1302098332&sr=1-2) published by Packt. It was inspired by the [Custom-Post Type UI](http://wordpress.org/extend/plugins/custom-post-type-ui/) plugin written by Brad Williams. The Custom-Post Type UI plugin offers some of the same features, but I felt that its architecture was flawed: it stores data as taxonomical terms, which is conceptually awkward at a development level, and more importantly, it limits the each custom field to 200 characters of data, making it impossible to store certain types of custom content.
+This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book) published by Packt. It was inspired by the [Custom-Post Type UI](http://wordpress.org/extend/plugins/custom-post-type-ui/) plugin written by Brad Williams. The Custom-Post Type UI plugin offers some of the same features, but I felt that its architecture was flawed: it stores data as taxonomical terms, which is conceptually awkward at a development level, and more importantly, it limits the each custom field to 200 characters of data, making it impossible to store certain types of custom content.
 
 On the surface, this plugin is similar, but this plugin "correctly" stores custom field data as post meta data, which allows allows for different input types (e.g. checkboxes, dropdowns, and images) and the custom fields offered by this plugin can support data of virtually unlimited size. For example, you could define a WYSIWYG custom field for your custom content type and it could hold many pages of data.
 

@@ -72,6 +72,13 @@ img.cctm-img {
 	margin: 5px;
 }
 
+/* Used when importing content type defs */
+div.cctm_def_preview {
+	border: 1px solid black;
+	padding: 10px 20px 10px 20px;
+	background-color: lightyellow;
+}
+
 /* http://jcornelius.com/articles/polaroidizing-photos-with-css/ */
 /*img.polaroid {
 	margin:-5px 0 0px -5px !important;

@@ -13,6 +13,7 @@ if ( defined('WP_UNINSTALL_PLUGIN'))
 {
 	include_once('includes/CCTM.php');
 	delete_option( CCTM::db_key );
+	delete_option( CCTM::db_key_settings );
 	global $wp_rewrite;
 	$wp_rewrite->flush_rules();
 }

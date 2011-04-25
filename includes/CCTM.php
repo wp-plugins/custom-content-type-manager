@@ -14,18 +14,27 @@ http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-
 class CCTM {
 	// Name of this plugin
 	const name   = 'Custom Content Type Manager';
+	const version = '0.8.9';
 	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.0.1';
 	const php_req_ver  = '5.2.6';
 	const mysql_req_ver = '4.1.2';
 
-	// Used to uniquely identify an option_name in the wp_options table
-	// ALL data describing the post types and their custom fields lives there.
-	// DELETE FROM `wp_options` WHERE option_name='custom_content_types_mgr_data';
-	// would clean out everything this plugin knows.
+	/**
+	 * The following constants identify the option_name in the wp_optoins table
+	 * where this plugin stores various data.
+	 *
+	 * db_key : the primary key: the option_value contains a serialized
+	 * definition of all defined post types and their custom fields.
+	 *
+	 * db_key_settings : a secondary key that stores settings particular to the 
+	 * current site.
+	 */
+	 
 	const db_key  = 'custom_content_types_mgr_data';
 
+	const db_key_settings = 'custom_content_types_mgr_settings';
 
 	// Used to uniquely identify this plugin's menu page in the WP manager
 	const admin_menu_slug = 'cctm';
@@ -35,8 +44,27 @@ class CCTM {
 	const action_param    = 'a';
 	const post_type_param   = 'pt';
 
+	// Each class that extends the FormElement class must prefix this to its class name.
 	const FormElement_classname_prefix = 'CCTM_';
+
+	// used to control the uploading of the .cctm.json files
+	const max_def_file_size = 524288; // in bytes
 	
+	// Directory relative to wp-content/uploads where we can store def files
+	// Omit the trailing slash.
+	const base_storage_dir = 'cctm';
+	
+	// Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
+	// the .cctm.json definition files. Omit the trailing slash.
+	const def_dir = 'defs';
+
+	// Default permissions for dirs/files created in the base_storage_dir.
+	// These cannot be more permissive thant the system's settings: the system
+	// will automatically shave them down. E.g. if the system has a global setting
+	// of 0755, a local setting here of 0770 gets bumped down to 0750.
+	const new_dir_perms = 0770;
+	const new_file_perms = 0660;
+			
 	// Data object stored in the wp_options table representing all primary data
 	// for post_types and custom fields
 	public static $data = array();
@@ -106,7 +134,7 @@ class CCTM {
 	// FUTURE: List any other reserved prefixes here (if any)
 	public static $reserved_prefixes = array('wp_');
 
-	public static $Errors; // used to store WP_Error object (FUTURE TODO)
+	public static $errors; // used to store validation errors
 
 	/*------------------------------------------------------------------------------
 	This var stores the big definition for the forms that allow users to define
@@ -139,6 +167,35 @@ class CCTM {
 
 	//! Private Functions
 
+	//------------------------------------------------------------------------------
+	/**
+	 * This formats any errors registered in the class $errors array. The errors 
+	 * take this format: self::$errors['field_name'] = 'Description of error';
+	 * 
+	 * @return	string	(empty string if no errors)
+	 */
+	private static function _format_errors() {
+		$error_str = '';
+		if ( empty ( self::$errors ) ) {
+			return '';
+		}
+		
+		foreach ( self::$errors as $e ) {
+			$error_str .= '<li>'.$e.'</li>
+			';	
+		}
+
+		return sprintf('<div class="error">
+			<p><strong>%1$s</strong></p>
+			<ul style="margin-left:30px">
+				%2$s
+			</ul>
+			</div>'
+			, __('Please correct the following errors:', CCTM_TXTDOMAIN)
+			, $error_str
+		);
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This prints out a list (including icons) of all available custom field types.
@@ -192,6 +249,22 @@ class CCTM {
 		return $output . '</ul>';
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * This allows us to dynamically change the field classes in our forms.
+	 * Normally, the output is only 'cctm_text', but if there is an error 
+	 * in self::$errors[$fieldname], then the class becomes 
+	 * 'cctm_text cctm_error'.
+	 */
+	private static function _get_class($fieldname, $fieldtype='text') {
+		if ( isset(self::$errors[$fieldname]) ) {
+			return "cctm_$fieldtype cctm_error";
+		}
+		else {
+			return "cctm_$fieldtype";
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	* Geared to be backwards compatible with CCTM versions prior to 0.8.8 where
@@ -920,6 +993,11 @@ class CCTM {
 			return;
 		}
 		
+		$nonce = self::_get_value($_GET, '_wpnonce');
+		if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
+			die( __('Invalid request.', CCTM_TXTDOMAIN ) );
+		}
+				
 		$field_data = array(); // Data object we will save
 		// For compatibility with versions prior to 0.8.8, we iterate through
 		if ( !empty(self::$data[$post_type]['custom_fields']) ) {
@@ -1771,7 +1849,159 @@ class CCTM {
 		return; // no errors
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Sanitize posted data for a clean export
+	 * @param	mixed	$raw = $_POST data
+	 * @return	mixed	sanitized post data
+	 */
+	private static function _sanitize_export_params($raw) {
+		$sanitized = array();
+		// title
+		if ( empty($raw['title'])) {
+			self::$errors['title'] = __('Title is required.', CCTM_TXTDOMAIN);
+		}
+		elseif ( preg_match('/[^a-z\s\-_0-9]/i', $raw['title']) ) {
+			self::$errors['title'] = __('Only basic text characters are allowed.', CCTM_TXTDOMAIN);
+		}
+		elseif ( strlen($raw['title'] > 64) ) {
+			self::$errors['title'] = __('The title cannot exceed 64 characters.', CCTM_TXTDOMAIN);
+		}
+		
+		// author
+		if ( empty($raw['author'])) {
+			self::$errors['author'] = __('Author is required.', CCTM_TXTDOMAIN);
+		}
+		elseif ( preg_match('/[^a-z\s\-_0-9]/i', $raw['author']) ) {
+			self::$errors['author'] = __('Only basic text characters are allowed.', CCTM_TXTDOMAIN);
+		}
+		elseif ( strlen($raw['author'] > 64) ) {
+			self::$errors['author'] = __('The author name cannot exceed 32 characters.', CCTM_TXTDOMAIN);
+		}
+		
+		if ( empty($raw['url'])) {
+			$raw['url'] = site_url(); // defaults to this site
+		}
+		elseif ( !preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $raw['url']) ) {
+			self::$errors['url'] = __('The URL must be in a standard format, e.g. http://yoursite.com.', CCTM_TXTDOMAIN);
+		}
+		elseif ( strlen($raw['url'] > 255) ) {
+			self::$errors['url'] = __('The URL cannot exceed 255 characters.', CCTM_TXTDOMAIN);
+		}
+		
+		if ( empty($raw['description'])) {
+			self::$errors['description'] = __('Description is required.', CCTM_TXTDOMAIN);
+		}
+		elseif ( strlen($raw['description'] > 1024) ) {
+			self::$errors['description'] = __('The description cannot exceed 1024 characters.', CCTM_TXTDOMAIN);
+		}
 
+		$sanitized['title'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['title']) ), 0, 64) );
+		$sanitized['author'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['author']) ), 0, 64) );
+		$sanitized['url'] = htmlentities( substr( trim($raw['url']), 0, 255) );
+		$sanitized['description'] = htmlentities( substr( strip_tags( trim($raw['description']) ), 0, 1024) );
+		
+		return $sanitized;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This is a hodgepodge gauntlet of validations for uploaded def files.
+	 *
+	 * On success, this will upload the .cctm.json def file and move it into the 
+	 * library folder inside wp-content/uploads/cctm/defs, then it will load up 
+	 * the definition into the self::db_key_settings option, specifically into
+	 * the $settings['candidate'] key.  This is so future page views can preview
+	 * what's on-deck by poking through $settings['candidate']['export_info'],
+	 * and if desired, import the payload @ $settings['candidate']['payload']
+	 *
+	 * On failure, false is returned. 
+	 *
+	 * Depending on where the error occurs determines how severe it is: you might
+	 * still get 'true' for success and have a couple errors set in self::$errors.
+	 * The most important thing here is that the newly uploaded definition gets
+	 * uploaded into the $settings database option.
+	 *
+	 * @return	boolean 	true on success, false on failure
+	 */
+	private static function _sanitize_import_params() {
+		
+		if ( empty($_FILES) || empty($_FILES['cctm_settings_file']['tmp_name'])) {
+			self::$errors['cctm_settings_file'] = sprintf( 
+				__('No file selected', CCTM_TXTDOMAIN)
+				, CCTM::max_def_file_size 
+			); 
+			return;
+		}
+		
+		if ($_FILES['cctm_settings_file']['size'] > CCTM::max_def_file_size ) {
+			self::$errors['cctm_settings_file'] = sprintf( 
+				__('The definition filesize must not exceed %s bytes.', CCTM_TXTDOMAIN)
+				, CCTM::max_def_file_size 
+			); 
+		}
+		// Let's make sure this file is a .cctm.json file
+		$raw_file_contents = file_get_contents($_FILES['cctm_settings_file']['tmp_name']);
+		$data = json_decode( $raw_file_contents, true);
+		
+		// Let's check that this thing is legit
+		$format_error_flag = false;
+		if ( !is_array($data) ) {
+			self::$errors['format'] = __('1 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);
+		}
+		elseif ( !isset($data['export_info'])) {
+			self::$errors['format'] = __('2 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		elseif ( !isset($data['export_info']['_timestamp_export'])) {
+			self::$errors['format'] = __('3 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}		
+		elseif ( !isset($data['export_info']['_source_site'])) {
+			self::$errors['format'] = __('4 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		elseif ( !isset($data['export_info']['_charset'])) {
+			self::$errors['format'] = __('5 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		elseif ( !isset($data['export_info']['_language'])) {
+			self::$errors['format'] = __('6 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		elseif ( !isset($data['export_info']['_wp_version'])) {
+			self::$errors['format'] = __('7 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		elseif ( !isset($data['export_info']['_cctm_version'])) {
+			self::$errors['format'] = __('8 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		elseif ( !isset($data['payload'])) {
+			self::$errors['format'] = __('9 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
+		}
+		
+		// If we made it this far without errors, we can continue
+		if ( !empty(self::$errors) ) {
+			return false;
+		}
+		
+		
+		// create_verify_storage_directories will set errors, and we add another error here
+		// to let the user know that we can't interface with the library dir 
+		$basename = basename($_FILES['cctm_settings_file']['name']);
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
+
+		if ( !self::create_verify_storage_directories() ) {
+			self::$errors['library'] = __('We could not upload the definition file to your library.', CCTM_TXTDOMAIN);	
+		} 
+		elseif ( !move_uploaded_file($_FILES['cctm_settings_file']['tmp_name'], $dir.'/'.$basename )) {
+			self::$errors['library'] = __('We could not upload the definition file to your library.', CCTM_TXTDOMAIN);	
+		}
+		
+		$settings = get_option(self::db_key_settings, array() );
+		$settings['candidate'] = $data;
+		update_option(self::db_key_settings, $settings);
+		
+		return true; // success!
+	}
+	
+	
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Every form element when creating a new post type must be filtered here.
@@ -2036,12 +2266,19 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * Create custom post-type menu
+	 * To avoid having the 1st submenu page be a duplicate of the parent item,
+	 * make the menu_slug equal to the parent menu_slug; however then all incoming 
+	 * links are then identified by the same $_GET param. For some reason, this 
+	 * causes all my admin pages to print twice.
+	 *
+	 * See http://codex.wordpress.org/Administration_Menus	 
 	 */
 	public static function create_admin_menu() {
+
 		// Main menu item
 		add_menu_page(
-			'Manage Custom Content Types',  // page title
-			'Custom Content Types',     	// menu title
+			__('Manage Custom Content Types', CCTM_TXTDOMAIN),  // page title
+			__('Custom Content Types', CCTM_TXTDOMAIN),     	// menu title
 			'manage_options',       		// capability
 			self::admin_menu_slug,      	// menu-slug (should be unique)
 			'CCTM::page_main_controller',   // callback function
@@ -2049,18 +2286,52 @@ class CCTM {
 			71								// menu position
 		);
 		
-		
+		// returns value something like: custom-content-types_page_cctm_ie
 		add_submenu_page( 
 			self::admin_menu_slug, 					// parent slug (menu-slug from add_menu_page call)
-			__('Import/Export', CCTM_TXTDOMAIN), 	// page title
-			__('Import/Export', CCTM_TXTDOMAIN), 	// menu title
+			__('Import Content Type Definition', CCTM_TXTDOMAIN), 	// page title
+			__('Import', CCTM_TXTDOMAIN), 			// menu title
 			'manage_options', 						// capability
-			self::admin_menu_slug . '_ie', 			// menu_slug
-			'CCTM::page_import_export' 				// callback function
+			self::admin_menu_slug .'_i', 			// menu_slug
+			'CCTM::page_import' 				// callback function
 		);
+
+		add_submenu_page( 
+			self::admin_menu_slug, 					// parent slug (menu-slug from add_menu_page call)
+			__('Export Content Type Definition', CCTM_TXTDOMAIN), 	// page title
+			__('Export', CCTM_TXTDOMAIN), 			// menu title
+			'manage_options', 						// capability
+			self::admin_menu_slug .'_e', 			// menu_slug
+			'CCTM::page_export' 				// callback function
+		);
+
+
 	}
 	
-	
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Handles creation of any directories this plugin writes to the webserver 
+	 * file system.
+	 * @return 	boolean true if everything is Ok, false if there were errors
+	 */
+	public static function create_verify_storage_directories() {
+		
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
+
+		if ( file_exists($dir) && is_dir($dir) ) {
+			return true;
+		}
+		
+		if ( !mkdir ( $dir, self::new_dir_perms, true) ) {
+			self::$errors['mkdir'] = '<p>Failed to create the CCTM base storage directory: <code>'.$dir.'</code></p>
+				<p><a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Permissions" target="_blank">Click here</a> for more information about correcting permissions errors on your server.</p>';
+			return false;
+		}
+		return true;
+	}
+		
 	//------------------------------------------------------------------------------
 	/**
 	 *  Defines the diretory for this plugin.
@@ -2235,10 +2506,96 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
+	* This admin menu page handles exporting of the CCTM definition data. 
+	*/
+	public static function page_export() {
+
+		$settings = get_option(CCTM::db_key_settings, array() );
+		$settings['export_info'] = self::_get_value($settings, 'export_info', array() );
+		$action_name  = 'custom_content_type_mgr_export_def';
+		$nonce_name  = 'custom_content_type_mgr_export_def_nonce';
+		$msg = '';
+					
+		// Save if submitted...
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+			// A little cleanup before we sanitize
+			unset($_POST[ $nonce_name ]);
+			unset($_POST['_wp_http_referer']);
+
+			$posted_data = self::_sanitize_export_params($_POST);
+			$settings['export_info'] = $posted_data; // prep for saving.
+			
+			// Any errors?
+			if ( !empty(self::$errors) ) {
+				$msg = self::_format_errors();
+			}
+			// Save;
+			else {
+				$title = 'cctm_def';
+				if ( !empty($posted_data['title']) ) {
+					$title = $posted_data['title'];
+					$title = strtolower($title);
+					$title = preg_replace('/\s+/', '_', $title); 
+					$title = preg_replace('/[^a-z_]/', '', $title); 
+				}
+				$nonce = wp_create_nonce('cctm_download_definition');
+				$msg = sprintf('<div class="updated"><p>%s</p></div>'
+				, sprintf(__('Your Custom Content Type definition %s should begin downloading shortly. If the download does not begin, %s', CCTM_TXTDOMAIN)
+				, '<storng>'.$title.'.cctm.json</strong>'
+				, '<a href="'.CCTM_URL.'/download.php?_wpnonce='.$nonce.'">click here</a>'));
+
+				// Save the options: anything that's in the form is considered a valid "info" key.
+				update_option( self::db_key_settings, $settings );
+
+				// Fire off a request to download the file:
+				$msg .= sprintf('
+					<script type="text/javascript">
+						jQuery(document).ready(function() {
+							window.location.replace("%s?_wpnonce=%s");
+						});
+					</script>'
+					, CCTM_URL.'/download.php'
+					, $nonce );
+			}
+		}
+	
+		include(CCTM_PATH.'/includes/pages/export.php');
+	}
+
+	//------------------------------------------------------------------------------
+	/**
 	* 
 	*/
-	public static function page_import_export() {
-		include('pages/import_export.php');
+	public static function page_import() {
+	
+		$settings = get_option(CCTM::db_key_settings, array() );
+		$settings['export_info'] = self::_get_value($settings, 'export_info', array() );
+		$action_name  = 'custom_content_type_mgr_import_def';
+		$nonce_name  = 'custom_content_type_mgr_import_def_nonce';
+		$msg = '';
+		
+		
+		// Save if submitted...
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+			// A little cleanup before we sanitize
+			unset($_POST[ $nonce_name ]);
+			unset($_POST['_wp_http_referer']);
+
+			// This will set error
+			self::_sanitize_import_params();
+			
+			
+			// Any errors?
+			if ( !empty(self::$errors) ) {
+				$msg = self::_format_errors();
+			}
+			// Save;
+			else {
+				
+			}
+		}
+
+		include_once(CCTM_PATH.'/includes/pages/import.php');
 	}
 	
 	//------------------------------------------------------------------------------
