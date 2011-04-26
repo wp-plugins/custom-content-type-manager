@@ -33,6 +33,7 @@ Please use the following links for support and discussion:
 
 == Installation ==
 1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
+1. If you are upgrading from 0.8.8 or before, note that the print_custom_image() fields are deprecated!  You can achieve the same result by using [Output Filters](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters)
 1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
 1. Upon activation you can adjust the plugin settings by clicking the newly created "Custom Content Types" menu item, or click this plugin's "Settings" link on the Plugins page.
