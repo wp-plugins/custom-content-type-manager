@@ -108,7 +108,7 @@ abstract class FormElement {
 		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
 		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_by_default'] =  __('Should this field be checked by default?', CCTM_TXTDOMAIN);
-		$this->descriptions['output_filter'] =  __('How should values be displayed in your them files?', CCTM_TXTDOMAIN);
+		$this->descriptions['output_filter'] =  __('How should values be displayed in your theme files?', CCTM_TXTDOMAIN);
 		
 	}
 
@@ -458,7 +458,7 @@ abstract class FormElement {
 		
 		$out .= '<select name="output_filter" class="'
 				.$this->get_field_class($this->name, 'select') . ' ' . $this->class.'" id="'.$this->get_field_id().'">
-				<option value="">'.__('None').'</option>
+				<option value="">'.__('None (raw)').'</option>
 				';
 			foreach ($this->supported_output_filters as $opt) {
 				$is_selected = '';

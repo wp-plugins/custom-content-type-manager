@@ -107,25 +107,6 @@ class StandardizedCustomFields
 
 
 	/*------------------------------------------------------------------------------
-	SYNOPSIS: a simple parsing function for basic templating.
-	INPUT:
-		$tpl (str): a string containing [+placeholders+]
-		$hash (array): an associative array('key' => 'value');
-	OUTPUT
-		string; placeholders corresponding to the keys of the hash will be replaced
-		with the values and the string will be returned.
-	------------------------------------------------------------------------------*/
-	public static function parse($tpl, $hash) {
-	
-	    foreach ($hash as $key => $value) 
-	    {
-	        $tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-	    }
-	    return $tpl;
-	}
-
-
-	/*------------------------------------------------------------------------------
 	Display the new Custom Fields meta box
 	INPUT:
 	@param object $post passed to this callback function by WP. 

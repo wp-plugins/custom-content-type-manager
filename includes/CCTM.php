@@ -4,9 +4,13 @@ CCTM = Custom Content Type Manager
 
 This is the main class for the Custom Content Type Manager plugin.
 
+Homepage:
+http://code.google.com/p/wordpress-custom-content-type-manager/
+
+It is largely static classes 
+
 This class handles the creation and management of custom post-types (also
-referred to as 'content-types').  It requires the FormGenerator.php,
-StandardizedCustomFields.php, and the CCTMtests.php files/classes to work.
+referred to as 'content-types'). 
 
 Post Thumbnails support is post-type specific:
 http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-images/
@@ -241,7 +245,7 @@ class CCTM {
 			$hash['label'] = ucfirst($field_type);
 			$hash['title'] = sprintf( __('Create a %s custom field', CCTM_TXTDOMAIN), $field_type );
 
-			$output .= FormGenerator::parse($tpl, $hash);
+			$output .= self::parse($tpl, $hash);
 
 		}
 
@@ -320,9 +324,7 @@ class CCTM {
 	        )
 
 	)
-
-	OUTPUT: An HTML form, length depends on the # of field defs.
-	 * @return unknown
+	 * @return string	An HTML form, length depends on the # of field defs.
 	 */
 	private static function _get_field_type_icons() {
 
@@ -343,7 +345,7 @@ class CCTM {
 
 		}
 		foreach ( $icons as $img ) {
-			$output .= FormGenerator::parse($tpl, array('title'=> $img, 'src'=> CCTM_URL.'/images/icons/default/'.$img) );
+			$output .= self::parse($tpl, array('title'=> $img, 'src'=> CCTM_URL.'/images/icons/default/'.$img) );
 		}
 
 		return $output;
@@ -811,7 +813,7 @@ class CCTM {
 				return;
 			}
 			else {
-				// clean up
+				// clean up... menu labels in particular can get gunked up. :(
 				$def  = $sanitized_vals;
 				$def['labels']['singular_name'] = '';
 				$def['label'] = '';
@@ -1209,11 +1211,12 @@ class CCTM {
 				return;
 			}
 			else {
-				// This is for repopulating the form
-				$def = self::_populate_form_def_from_data($def, $sanitized_vals);
+				// clean up... menu labels in particular can get gunked up. :(
+				$def  = $sanitized_vals;
+				$def['labels']['singular_name'] = '';
+				$def['label'] = '';
 				$msg = "<div class='error'>$error_msg</div>";
-			}
-		}
+			}		}
 
 		include 'pages/post_type.php';
 	}
@@ -1547,7 +1550,7 @@ class CCTM {
 			$def = self::$data[$post_type]['custom_fields'];
 		}
 
-		// built-in content types don't verbosely display what they display
+		// built-in content types don't verbosely display what fields they display
 		/* Array
 (
     [product] => Array
@@ -1608,292 +1611,9 @@ class CCTM {
 		$hash['custom_fields'] = $custom_fields_str;
 		$hash['comments'] = $comments_str;
 
-		$single_page_sample_code = StandardizedCustomFields::parse($tpl, $hash);
-
-		// Manager Page Sample CSS
-		$manager_page_css_msg = '';
-		$manager_page_sample_css = '';
-		$manager_page_css_msg .= sprintf( __('You can customize the forms in the manager by adding the following CSS declarations to your in your theme\'s %s file.', CCTM_TXTDOMAIN)
-			, '<strong>editor-style.css</strong>' );
-		$manager_page_css_msg .= sprintf( __('You can override the style definitions in %s', CCTM_TXTDOMAIN)
-			, '<strong>'.CCTM_PATH.'/css/posts.css</strong>');
-
-		// or in your theme's editor-style.css file.
-		// FormGenerator::element_wrapper_id_prefix
-		foreach ( $def as $d ) {
-			$manager_page_sample_css .= sprintf("/* The div that wraps the %s field */\n#%s%s {\n\n}\n\n/* Style the input for the %s field */\n#%s%s {\n\n}\n\n"
-				, $d['name']
-				, FormGenerator::element_wrapper_id_prefix
-				, $d['name']
-				, $d['name']
-				, StandardizedCustomFields::field_name_prefix
-				, $d['name']
-			);
-		}
-
-		// Manager Page HTML examples;
-		// post-new.php?post_type=%s
-		$manager_page_html_msg = '';
-		$manager_page_sample_html = '';
-		/*
-		<div class="formgenerator_element_wrapper" id="custom_field_id_sample_img">
-			<span class="formgenerator_label formgenerator_media_label" id="formgenerator_label_custom_content_sample_img">Sample Image (sample_img)</span>
-			<input type="hidden" id="custom_content_sample_img" name="custom_content_sample_img" />
-		</div>
-
-		A <div> wraps each custom field. Its class is "formgenerator_element_wrapper" and its id is the field name prefixed by "custom_field_id_"
-		Labels for each field are wrapped with their own <span>. Each <span> uses 2 classes: a general one for all generated labels, and another specific to the field type (text, checkbox, etc).
-		*/
-		$manager_page_html_msg .= __('You can create custom manager templates for the users who will be creating new content.', CCTM_TXTDOMAIN) . ' ';
-		$manager_page_html_msg .= sprintf( __('Create a file named %s in the %s directory.', CCTM_TXTDOMAIN)
-			, '<strong>'.$post_type.'.tpl</strong>'
-			, '<strong>'.CCTM_PATH.'/tpls/manager/</strong>'
-		);
-		foreach ( $def as $d ) {
-			unset($d['default_value']); // this should not be publicly available.
-			$manager_page_sample_html .= sprintf( "<!-- Sample HTML for %s field-->\n", $d['name']);
-			$manager_page_sample_html .= "<!-- [+".$d['name']."+] will generate field in its entirety -->\n";
-			$manager_page_sample_html .= "<!-- Individual placeholders follow: -->\n";
-			foreach ($d as $k => $v) {
-				$manager_page_sample_html .= '[+'.$d['name'].'.'.$k.'+]'. "\n";
-			}
-			$manager_page_sample_html .= "\n";
-
-			//! FUTURE: TODO: Give more complete examples.
-			/*
-			switch ( $d['type'] )
-			{
-				case 'checkbox':
-					$output_this_field .= self::_get_checkbox_element($field_def);
-					break;
-				case 'dropdown':
-					$output_this_field .= self::_get_dropdown_element($field_def);
-					break;
-				case 'media':
-					$output_this_field .= self::_get_media_element($field_def);
-					break;
-				case 'readonly':
-					$output_this_field .= self::_get_readonly_element($field_def);
-					break;
-				case 'relation':
-					$output_this_field .= self::_get_relation_element($field_def);
-					break;
-				case 'textarea':
-					$output_this_field .= self::_get_textarea_element($field_def);
-					break;
-				case 'wysiwyg':
-					$output_this_field .= self::_get_wysiwyg_element($field_def);
-					break;
-				case 'text':
-				default:
-					$output_this_field .= self::_get_text_element($field_def);
-					break;
-			}
-*/
-
-		}
-
-		if ( empty($def) ) {
-			$manager_page_sample_css = sprintf( '/* %s %s */'
-				, __('There are no custom fields defined this post type.', CCTM_TXTDOMAIN)
-				, "($post_type)"
-			);
-			$manager_page_sample_html = sprintf( '<!-- %s %s -->'
-				, __('There are no custom fields defined this post type.', CCTM_TXTDOMAIN)
-				, "($post_type)"
-			);
-		}
-
-
+		$single_page_sample_code = self::parse($tpl, $hash);
 
 		include 'pages/sample_template.php';
-	}
-
-
-
-
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Data is stored in the database (and submitted in the $_POST array) in a format
-	 * that matches what's required by the register_post_type() function... but
-	 * the FormGenerator requires a more-flat data-structure, so here's where we
-	 * flatten it out for compatibility with the FormGenerator.
-	 * 
-	 * The $pt_data (i.e. post-type data) should contain only information about
-	 * a single post_type; do not pass this function the entire contents of the
-	 * get_option().
-	 *
-	 * This whole function is necessary because the form generator definition needs
-	 * to know where to find values for its fields -- the $def is an empty template,
-	 * so we need to populate it with values by splicing the $def together with the
-	 * $pt_data.  Some of this complication is due to the fact that we need to update
-	 * the field names to acommodate arrays, e.g.
-	 *	<input type="text" name="some[2][name]" />
-	 * 
-	 * See http://codex.wordpress.org/Function_Reference/register_post_type
-	 *
-	 *
-	 *
-	 * @param array		$def form definition
-	 * @param array 	$pt_data -- data for a single post type
-	 * @return array	$def updated with values
-	 */
-	private static function _populate_form_def_from_data($def, $pt_data) {
-		$labels_array = array(
-			'singular_label' => 'singular_name',
-			'add_new_label'  => 'add_new',
-			'add_new_item_label' => 'add_new_item',
-			'edit_item_label' => 'edit_item',
-			'new_item_label' => 'new_item',
-			'view_item_label' => 'view_item',
-			'search_items_label' => 'search_items',
-			'not_found_label' => 'not_found',
-			'not_found_in_trash_label' => 'not_found_in_trash',
-			'parent_item_colon_label' => 'parent_item_colon',
-			'menu_name_label' => 'menu_name'
-		);
-
-
-		foreach ($def as $node_id => $tmp) {
-			if ( $node_id == 'supports_title' ) {
-				if ( !empty($pt_data['supports']) && in_array('title', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'title';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_editor' ) {
-				if ( !empty($pt_data['supports']) && in_array('editor', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'editor';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_author' ) {
-				if ( !empty($pt_data['supports']) && in_array('author', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'author';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_excerpt' ) {
-				if ( !empty($pt_data['supports']) && in_array('excerpt', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'excerpt';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_thumbnail' ) {
-				if ( !empty($pt_data['supports']) && in_array('thumbnail', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'thumbnail';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_trackbacks' ) {
-				if ( !empty($pt_data['supports']) && in_array('trackbacks', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'trackbacks';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_custom-fields' ) {
-				if ( !empty($pt_data['supports']) && in_array('custom-fields', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'custom-fields';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_comments' ) {
-				if ( !empty($pt_data['supports']) && in_array('comments', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'comments';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_revisions' ) {
-				if ( !empty($pt_data['supports']) && in_array('revisions', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'revisions';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'supports_page-attributes' ) {
-				if ( !empty($pt_data['supports']) && in_array('page-attributes', $pt_data['supports']) ) {
-					$def[$node_id]['value'] = 'page-attributes';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'rewrite_slug' ) {
-				if ( !empty($pt_data['rewrite']['slug']) ) {
-					$def[$node_id]['value'] = $pt_data['rewrite']['slug'];
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'rewrite_with_front' ) {
-				if ( !empty($pt_data['rewrite']['with_front']) ) {
-					$def[$node_id]['value'] = $pt_data['rewrite']['with_front'];
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-
-			elseif ( $node_id == 'taxonomy_categories' ) {
-				//print $node_id; exit;
-
-				if ( !empty($pt_data['taxonomies']) && is_array($pt_data['taxonomies']) && in_array('category', $pt_data['taxonomies']) ) {
-					$def[$node_id]['value'] = 'category';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-			elseif ( $node_id == 'taxonomy_tags' ) {
-				//print $node_id; exit;
-
-				if ( !empty($pt_data['taxonomies']) && is_array($pt_data['taxonomies']) && in_array('post_tag', $pt_data['taxonomies']) ) {
-					$def[$node_id]['value'] = 'post_tag';
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-
-			// Labels: Handles all arguments to the $labels_array
-			elseif ( array_key_exists($node_id, $labels_array) ) {
-				$v = $labels_array[$node_id];
-				if ( !empty($pt_data['labels'][$v]) ) {
-					$def[$node_id]['value'] = $pt_data['labels'][$v];
-				}
-				else {
-					$def[$node_id]['value'] = '';
-				}
-			}
-
-			else {
-				$field_name = $def[$node_id]['name'];
-				$def[$node_id]['value'] = self::_get_value($pt_data, $field_name);
-			}
-		}
-
-		return $def;
-
 	}
 
 

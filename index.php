@@ -5,21 +5,20 @@ Description: Allows users to create custom content types (also known as post typ
 Author: Everett Griffiths
 Version: 0.8.8
 Author URI: http://www.fireproofsocks.com/
-Plugin URI: http://tipsfor.us/plugins/custom-content-type-manager/
+Plugin URI: http://code.google.com/p/wordpress-custom-content-type-manager/
 
-See also:
-http://www.marcocimmino.net/cimy-wordpress-plugins/
-Icons from: http://www.axialis.com/free/icons/
+See also Related plugins listed here:
+http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SeeAlso
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
-CONFIGURATION: 
+CONFIGURATION (for the developer): 
 
 Define the names of functions and classes used by this plugin so we can test 
 for conflicts prior to loading the plugin and message the WP admins if there are
 any conflicts.
 
-$function_names_used -- add any function names that this plugin declares in the 
+$function_names_used -- add any functions declared by this plugin in the 
 	main namespace (e.g. utility functions or theme functions).
 
 $class_names_used -- add any class names that are declared by this plugin.
@@ -27,14 +26,15 @@ $class_names_used -- add any class names that are declared by this plugin.
 Warning: the text-domain for the __() localization functions is hardcoded.
 ------------------------------------------------------------------------------*/
 $function_names_used = array('get_custom_field','get_custom_field_meta','get_custom_field_def'
-	,'get_custom_image'
 	,'get_all_fields_of_type','get_post_complete','get_posts_sharing_custom_field_value'
 	,'get_relation','get_unique_values_this_custom_field','print_custom_field','print_custom_field_meta'
-	,'print_custom_image','uninstall_cctm');
-$class_names_used = array('CCTM','FormGenerator'
-	,'StandardizedCustomFields','CCTMtests','MediaSelector');
+	,'uninstall_cctm');
+$class_names_used = array('CCTM', 'ImportExport'
+	,'StandardizedCustomFields','CCTMtests','PostSelector');
+// Not class constants: constants declared via define():
 $constants_used = array('CCTM_PATH','CCTM_URL');
 
+// Used to store errors
 $error_items = '';
 
 // No point in localizing this, because we haven't loaded the textdomain yet.
@@ -91,9 +91,9 @@ if ($error_items)
 	$error_items = '<ul>'.$error_items.'</ul>';
 	add_action('admin_notices', 'custom_content_type_manager_cannot_load');
 }
+// CLEARED FOR LAUNCH!!! ---> Load the plugin
 else
 {
-	// Load the plugin
 	include_once('loader.php');
 }
 

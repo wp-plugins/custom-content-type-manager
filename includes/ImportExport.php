@@ -45,14 +45,27 @@ class ImportExport {
 		$save_me['export_info']['_cctm_version'] = CCTM::version;
 		// And finally, the main event				
 		$payload = get_option( CCTM::db_key, array() );
-		// Filter out any absolute paths used for menu icons.
+		
+		// 1. Filter out any absolute paths used for menu icons.
+		// 2. Zero out any default values for referential fields 
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=66
 		if (is_array($payload) ) {
 			foreach ( $payload as $post_type => $def ) {
 				if ( isset($payload[$post_type]['menu_icon']) && !empty($payload[$post_type]['menu_icon']) ) {
 					$payload[$post_type]['menu_icon'] = self::make_img_path_rel($payload[$post_type]['menu_icon']);
 				}
+				if ( isset($def['custom_fields']) && is_array($def['custom_fields']) ) {
+					foreach ( $def['custom_fields'] as $field => $field_def ) {
+						if ( in_array($field_def['type'], array('image','relation','media') ) ) {
+							$payload[$post_type]['custom_fields'][$field]['default_value'] = '';
+						}
+					}
+				}
 			}
 		}
+		
+		
+		
 		// This cleans up a couple things that crept into $_POST in earlier versions
 		unset($payload['custom_content_type_mgr_create_new_content_type_nonce']);
 		unset($payload['custom_content_type_mgr_edit_content_type_nonce']);
