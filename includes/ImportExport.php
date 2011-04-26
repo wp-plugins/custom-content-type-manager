@@ -219,7 +219,7 @@ class ImportExport {
 		// and issue 64:http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=64
 		foreach ( $new_data as $post_type => $def ) {
 			if ( isset($new_data[$post_type]['menu_icon']) && !empty($new_data[$post_type]['menu_icon']) ) {
-				$new_data[$post_type]['menu_icon'] = self::make_img_paths_abs($new_data[$post_type]['menu_icon']);
+				$new_data[$post_type]['menu_icon'] = self::make_img_path_abs($new_data[$post_type]['menu_icon']);
 			}
 		}
 		update_option( CCTM::db_key, $new_data );
@@ -245,7 +245,7 @@ class ImportExport {
 	 * @param	string	URL representing an image.
 	 * @param	string	Absolute URL
 	 */
-	public static function make_img_paths_abs($src) {
+	public static function make_img_path_abs($src) {
 		$parts = parse_url($src);
 		if (isset($parts['host']) ) {
 			return $src; // <-- path is already absolute
