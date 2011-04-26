@@ -379,40 +379,6 @@ class CCTM {
 		return $output;
 	}
 
-
-	/*------------------------------------------------------------------------------
-	Designed to safely retrieve scalar elements out of a hash. Don't use this
-	if you have a more deeply nested object (e.g. an array of arrays).
-	INPUT:
-		$hash : an associative array, e.g. array('animal' => 'Cat');
-		$key : the key to search for in that array, e.g. 'animal'
-		$default (optional) : value to return if the value is not set. Default=''
-	OUTPUT: either safely escaped value from the hash or the default value
-	------------------------------------------------------------------------------*/
-
-	/**
-	 *
-	 *
-	 * @param unknown $hash
-	 * @param unknown $key
-	 * @param unknown $default (optional)
-	 * @return unknown
-	 */
-	private static function _get_value($hash, $key, $default='') {
-		if ( !isset($hash[$key]) ) {
-			return $default;
-		}
-		else {
-			if ( is_array($hash[$key]) ) {
-				return $hash[$key];
-			}
-			// Warning: stripslashes was added to avoid some weird behavior
-			else {
-				return esc_html(stripslashes($hash[$key]));
-			}
-		}
-	}
-
 	//------------------------------------------------------------------------------
 	/**
 	SYNOPSIS: checks the custom content data array to see if $post_type exists.
@@ -636,10 +602,11 @@ class CCTM {
 	 */
 	private static function _page_activate_imported_def() {
 	
-		// Validate
+		// Validate...
 		$settings = get_option(self::db_key_settings, array() );
 		$candidate = self::_get_value($settings, 'candidate');
 		$new_data = self::_get_value($candidate, 'payload');
+		
 		if ( empty($candidate) || empty($new_data)) {
 			self::_page_display_error('no_cttm_def_available');
 			return;
@@ -659,8 +626,11 @@ class CCTM {
 
 		// If properly submitted, Proceed with deleting the post type
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-
-			update_option( self::db_key, $new_data );
+		
+			require_once('ImportExport.php');
+			
+			ImportExport::import_from_preview();
+			
 			$msg = '<div class="updated"><p>'
 				.sprintf( __('The definition %s has been Imported! Welcome to your new site structure!', CCTM_TXTDOMAIN), "<strong><em>$title</em></strong>")
 				. '</p></div>';
@@ -679,7 +649,7 @@ class CCTM {
 		$msg = '<div class="error">
 			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
 			<p>'
-			. sprintf( __('Activating the %s definition will overwrite all your existing custom content type definitions, and this can radically change nearly every aspect of your site. This is generally only done when you first set up a site.', CCTM_TXTDOMAIN), $title )
+			. sprintf( __('Activating the %s definition will overwrite all your existing custom content type definitions. This does not overwrite any of your content, but this can radically change nearly every other aspect of your site. This is generally only done when you first set up a site.', CCTM_TXTDOMAIN), $title )
 			.'</p>'
 			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
 			<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Import" title="Import a CCTM Definition" target="_blank">
@@ -2405,6 +2375,31 @@ class CCTM {
 		unset( $settings['flash'] );
 		update_option(self::db_key_settings, $settings);
 		return html_entity_decode($output);
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Designed to safely retrieve scalar elements out of a hash. Don't use this
+	 * if you have a more deeply nested object (e.g. an array of arrays).
+	 *
+	 * @param array $hash an associative array, e.g. array('animal' => 'Cat');
+	 * @param string $key the key to search for in that array, e.g. 'animal'
+	 * @param mixed $default (optional) : value to return if the value is not set. Default=''
+	 * @return mixed
+	 */
+	public static function _get_value($hash, $key, $default='') {
+		if ( !isset($hash[$key]) ) {
+			return $default;
+		}
+		else {
+			if ( is_array($hash[$key]) ) {
+				return $hash[$key];
+			}
+			// Warning: stripslashes was added to avoid some weird behavior
+			else {
+				return esc_html(stripslashes($hash[$key]));
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------

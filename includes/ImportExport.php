@@ -206,10 +206,23 @@ class ImportExport {
 
 
 	/**
-	 *
+	 * The preview data object is stored nextdoor in a neighboring option:
+	 
 	 */
-	public static function import_from_local_webserver() {
+	public static function import_from_preview() {
+	
+		$settings = get_option(CCTM::db_key_settings, array() );
+		$candidate = CCTM::_get_value($settings, 'candidate');
+		$new_data = CCTM::_get_value($candidate, 'payload');
 
+		// Clean up icon URLs: make them absolute again. See the ImportExport::export_to_desktop function
+		// and issue 64:http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=64
+		foreach ( $new_data as $post_type => $def ) {
+			if ( isset($new_data[$post_type]['menu_icon']) && !empty($new_data[$post_type]['menu_icon']) ) {
+				$new_data[$post_type]['menu_icon'] = self::make_img_paths_abs($new_data[$post_type]['menu_icon']);
+			}
+		}
+		update_option( CCTM::db_key, $new_data );
 	}
 
 
