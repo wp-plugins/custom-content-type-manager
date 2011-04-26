@@ -42,6 +42,8 @@ $info = self::_get_value($candidate, 'export_info');
 			</thead>
 <?php
 //------------------------------------------------------------------------------
+// Loop over definitions
+//------------------------------------------------------------------------------
 		if (!CCTM::create_verify_storage_directories()) {
 			print '<tr><td class="cctm_msg" colspan="2">'.__('Library directory does not exist.', CCTM_TXTDOMAIN) . '</td></tr>';
 		}
@@ -55,17 +57,20 @@ $info = self::_get_value($candidate, 'export_info');
 			$class = '';
 			if ($handle = opendir($dir)) {
 				while (false !== ($file = readdir($handle))) {
-					if ( !preg_match('/^\./', $file) && preg_match('/\.cctm\.json$/i', $file) ) {
+					// Some files look like "your_def.cctm (1).json"
+					if ( !preg_match('/^\./', $file) && preg_match('/.json$/i', $file) ) {
 						if ( $i & 1) {
 							$class = 'cctm_evenrow';	
 						}
 						else {
 							$class = 'cctm_oddrow';						
 						}
-						printf('<tr class="%s"><td>%s</td><td><span>Preview</span></td></tr>
+						printf('<tr class="%s"><td>%s</td><td><a href="%s" class="button">%s</a></td></tr>
 						'
 							, $class
 							, $file
+							, self::_link_preview_def().'&file='.$file
+							, __('Preview')
 						);
 						$i = $i + 1;
 					}
@@ -102,17 +107,35 @@ $info = self::_get_value($candidate, 'export_info');
 	<!-- Column 2 -->
 	<h2>Preview</h2>
 	<div class="cctm_def_preview">
-	<?php if ( !empty($info) ): ?>
+<?php 
+//------------------------------------------------------------------------------
+if ( !empty($info) ): 
+//------------------------------------------------------------------------------
+?>
 		<h3><?php print self::_get_value($info, 'title'); ?></h3>
 		<table>
 			<tr><td>Author:</td><td><?php print self::_get_value($info, 'author'); ?></td></tr>
 			<tr><td>URL:</td><td><a href="<?php print self::_get_value($info, 'url'); ?>"><?php print self::_get_value($info, 'url'); ?></a></td></tr>
 			<tr><td>Description:</td><td><p><?php print self::_get_value($info, 'description'); ?></p></td></tr>
 		</table>
-		
-
-		<input type="submit" class="button" value="Activate"/>
-	<?php endif; ?>
+<?php 
+//------------------------------------------------------------------------------
+endif; 
+//------------------------------------------------------------------------------
+// Check whether the candidate is equivalent to the currently loaded def.
+if ($candidate['payload'] == CCTM::$data):
+//------------------------------------------------------------------------------
+?>
+		<div class="cctm_def_active"><?php _e('Definition Active', CCTM_TXTDOMAIN); ?></div>
+<?php
+else:
+?>		
+		<a href="<?php print self::_link_activate_imported_def(); ?>" class="button"><?php _e('Activate', CCTM_TXTDOMAIN); ?></a>
+<?php 
+//------------------------------------------------------------------------------
+endif; 
+//------------------------------------------------------------------------------
+?>
 	</div>		
 			</td>
 		</tr>

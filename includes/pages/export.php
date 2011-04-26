@@ -18,7 +18,7 @@
 	<h2>Export</h2>
 
 
-		<p><?php _e('Before exporting, please add a bit more information to your package. Your settings will be preserved.', CCTM_TXTDOMAIN); ?></p>
+		<p><?php _e('Before exporting, please add a bit more information to your current setup. Your settings will be preserved.', CCTM_TXTDOMAIN); ?></p>
 		
 		<form id="cctm_export_form"  method="post">
 			<?php wp_nonce_field($action_name, $nonce_name); ?>

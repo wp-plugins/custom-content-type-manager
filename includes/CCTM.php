@@ -62,8 +62,8 @@ class CCTM {
 	// These cannot be more permissive thant the system's settings: the system
 	// will automatically shave them down. E.g. if the system has a global setting
 	// of 0755, a local setting here of 0770 gets bumped down to 0750.
-	const new_dir_perms = 0770;
-	const new_file_perms = 0660;
+	const new_dir_perms = 0777;
+	const new_file_perms = 0666;
 			
 	// Data object stored in the wp_options table representing all primary data
 	// for post_types and custom fields
@@ -480,6 +480,21 @@ class CCTM {
 			, __('Activate', CCTM_TXTDOMAIN)
 		);
 	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Used when you want to activate an imported cctm definition
+	 *
+	 * @return string	the href target
+	 */
+	private static function _link_activate_imported_def() {
+		return sprintf(
+			'?page=%s&%s=13'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+		);
+	}	
 
 	//------------------------------------------------------------------------------
 	/**
@@ -520,7 +535,21 @@ class CCTM {
 		);
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Used when you want to preview an imported def
+	 *
+	 * @return string	the href target
+	 */
+	private static function _link_preview_def() {
+		return sprintf(
+			'?page=%s&%s=14'
+			, self::admin_menu_slug
+			, self::action_param
+			, self::post_type_param
+		);
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Delete all custom fields for the given post_type
@@ -601,6 +630,67 @@ class CCTM {
 
 
 	//! Pages
+	//------------------------------------------------------------------------------
+	/**
+	 * Moves the definition stored in $settings['candidate'] into the active CCTM::$data
+	 */
+	private static function _page_activate_imported_def() {
+	
+		// Validate
+		$settings = get_option(self::db_key_settings, array() );
+		$candidate = self::_get_value($settings, 'candidate');
+		$new_data = self::_get_value($candidate, 'payload');
+		if ( empty($candidate) || empty($new_data)) {
+			self::_page_display_error('no_cttm_def_available');
+			return;
+		}
+		
+		// yes, it *was* export data, now it's being *imported*
+		$import_data = self::_get_value($candidate, 'export_info'); 
+		$title = self::_get_value($import_data, 'title');
+		
+		// Variables for our template
+		$style   = '';
+		$page_header = sprintf( __('Import Definition: %s', CCTM_TXTDOMAIN), $title );
+		$fields   = '';
+		$action_name = 'custom_content_type_mgr_import_def';
+		$nonce_name = 'custom_content_type_mgr_import_def_nonce';
+		$submit   = __('Activate', CCTM_TXTDOMAIN);
+
+		// If properly submitted, Proceed with deleting the post type
+		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
+
+			update_option( self::db_key, $new_data );
+			$msg = '<div class="updated"><p>'
+				.sprintf( __('The definition %s has been Imported! Welcome to your new site structure!', CCTM_TXTDOMAIN), "<strong><em>$title</em></strong>")
+				. '</p></div>';
+	
+			self::set_flash($msg);
+			
+			// We gotta do a JS redirect here to force the page to refresh
+			print '
+			<script type="text/javascript">
+				window.location.replace("?page='.self::admin_menu_slug.'");
+			</script>';
+			return;
+			
+		}
+
+		$msg = '<div class="error">
+			<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
+			<p>'
+			. sprintf( __('Activating the %s definition will overwrite all your existing custom content type definitions, and this can radically change nearly every aspect of your site. This is generally only done when you first set up a site.', CCTM_TXTDOMAIN), $title )
+			.'</p>'
+			. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
+			<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Import" title="Import a CCTM Definition" target="_blank">
+			<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
+		</a>
+			</p></div>';
+
+		include 'pages/basic_form.php';
+
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Manager Page -- called by page_main_controller()
@@ -856,7 +946,7 @@ class CCTM {
 		}
 
 		$custom_fields_array = array();
-		#print_r($data[$post_type]['custom_fields']); exit;
+
 		// For compatibility with versions prior to 0.8.8, we iterate through
 		if ( !empty(self::$data[$post_type]['custom_fields']) ) {
 			foreach (self::$data[$post_type]['custom_fields'] as $k => $def )
@@ -969,6 +1059,11 @@ class CCTM {
 				$msg = '<p>'. __('Invalid field name.', CCTM_TXTDOMAIN)
 					. '</p><a class="button" href="?page='
 					.self::admin_menu_slug.'">'. __('Back', CCTM_TXTDOMAIN). '</a>';
+				break;
+			case 'no_cttm_def_available':
+				$msg = '<p>'. __('There is no definition that is ready for importing, or the definition that you are trying to import is empty.', CCTM_TXTDOMAIN)
+					. '</p><a class="button" href="?page='
+					.self::admin_menu_slug.'_i">'. __('Import Definition', CCTM_TXTDOMAIN). '</a>';
 				break;
 			default:
 				$msg = '<p>'. __('Invalid post type.', CCTM_TXTDOMAIN)
@@ -1124,7 +1219,7 @@ class CCTM {
 		// Save data if it was properly submitted
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 			$sanitized_vals = self::_sanitize_post_type_def($_POST);
-			//print_r($sanitized_vals); exit;
+
 			$error_msg = self::_post_type_name_has_errors($sanitized_vals);
 
 			if ( empty($error_msg) ) {
@@ -1153,7 +1248,49 @@ class CCTM {
 		include 'pages/post_type.php';
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * @param	string	local name of the uploaded file 
+	 *					(stored in wp-content/uploads/cctm/defs)
+	 */
+	private static function _page_preview_def($file) {
+		require_once('ImportExport.php');
+		// Validate: check file name
+		if ( !ImportExport::is_valid_basename($file) ) {
+			$msg = '<div class="error"><p>'
+				. sprintf( 
+					__('Bad filename: %s. No special characters or spaces allowed.', CCTM_TXTDOMAIN)
+					, '<strong>'.htmlentities($filename).'</strong>'
+					)
+				.'</p></div>';
+			self::set_flash($msg);
+			return self::page_import();
+		}
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
+		
+		$data_raw = file_get_contents($dir.'/'.$file);
+		$data = json_decode($data_raw, true);
 
+		// Check the contents of the array
+		if ( !ImportExport::is_valid_upload_structure($data) ) {
+			$msg = '<div class="error"><p>'
+				. sprintf( __('%s contained an incompatible data structure.', CCTM_TXTDOMAIN)
+					, '<strong>'.htmlentities($file).'</strong>'
+					)
+				. '</p></div>';
+			self::set_flash($msg);
+			return self::page_import();
+		}
+
+		$settings = get_option(CCTM::db_key_settings, array() );
+		$settings['candidate'] = $data;
+		update_option(CCTM::db_key_settings, $settings );
+		
+		return self::page_import();
+	}
+	
+	
 	//------------------------------------------------------------------------------
 	/**
 	Manager Page -- called by page_main_controller()
@@ -1169,7 +1306,7 @@ class CCTM {
 
 		// Variables for our template
 		$style   = '';
-		$page_header = sprintf( __('Reset custom field definitions for post type %s', CCTM_TXTDOMAIN), $post_type );
+		$page_header = __('Reset custom field definitions', CCTM_TXTDOMAIN);
 		$fields   		= '';
 		$action_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
 		$nonce_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
@@ -1209,7 +1346,7 @@ class CCTM {
 	 */
 	private static function _page_show_all_post_types() {
 		$msg = self::get_flash();
-
+		//print $msg; exit; // EHG
 		$customized_post_types =  array();
 		$displayable_types = array();
 		$displayable_types = array();
@@ -1272,7 +1409,6 @@ class CCTM {
 				$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/default/page.png' . '" width="14" height="16"/>';
 				break;
 			default:
-				//print_r($data[$post_type]); exit;
 				if ( !empty(self::$data[$post_type]['menu_icon']) && !self::$data[$post_type]['use_default_menu_icon'] ) {
 					$hash['icon'] = '<img src="'. self::$data[$post_type]['menu_icon'] . '" />';
 				}
@@ -1310,7 +1446,7 @@ class CCTM {
 				$name = $cf['name'];
 				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
 			}
-			# print_r($data); exit;
+
 			update_option( self::db_key, self::$data );
 			$x = sprintf( __('Sort order has been saved.', CCTM_TXTDOMAIN) );
 			$msg .= sprintf('<div class="updated"><p>%s</p></div>', $x);
@@ -1350,7 +1486,6 @@ class CCTM {
 		$fields = '';
 
 		foreach ($def as $def_i => $d) {
-			# print_r($d); exit;
 			$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
 
 			if ( !CCTM::is_valid_img($icon_src) ) {
@@ -1441,7 +1576,7 @@ class CCTM {
 		if ( isset(self::$data[$post_type]['custom_fields']) ) {
 			$def = self::$data[$post_type]['custom_fields'];
 		}
-		//print_r($data[$post_type]); exit;
+
 		// built-in content types don't verbosely display what they display
 		/* Array
 (
@@ -1458,7 +1593,7 @@ class CCTM {
                     [6] => custom-fields
                 )
 */
-		//  print_r($data); exit;
+
 		// Check the TYPE of custom field to handle image and relation custom fields.
 		// title, author, thumbnail, excerpt
 		$custom_fields_str = '';
@@ -1650,7 +1785,7 @@ class CCTM {
 			'menu_name_label' => 'menu_name'
 		);
 
-		//print_r($pt_data); exit;
+
 		foreach ($def as $node_id => $tmp) {
 			if ( $node_id == 'supports_title' ) {
 				if ( !empty($pt_data['supports']) && in_array('title', $pt_data['supports']) ) {
@@ -1751,7 +1886,7 @@ class CCTM {
 
 			elseif ( $node_id == 'taxonomy_categories' ) {
 				//print $node_id; exit;
-				//print_r($pt_data['taxonomies']); exit;
+
 				if ( !empty($pt_data['taxonomies']) && is_array($pt_data['taxonomies']) && in_array('category', $pt_data['taxonomies']) ) {
 					$def[$node_id]['value'] = 'category';
 				}
@@ -1761,7 +1896,7 @@ class CCTM {
 			}
 			elseif ( $node_id == 'taxonomy_tags' ) {
 				//print $node_id; exit;
-				//print_r($pt_data['taxonomies']); exit;
+
 				if ( !empty($pt_data['taxonomies']) && is_array($pt_data['taxonomies']) && in_array('post_tag', $pt_data['taxonomies']) ) {
 					$def[$node_id]['value'] = 'post_tag';
 				}
@@ -1804,7 +1939,6 @@ class CCTM {
 	private static function _post_type_name_has_errors($data, $new=false) {
 		$errors = null;
 
-		// print_r($data); exit;
 		$taxonomy_names_array = get_taxonomies('', 'names');
 
 		if ( empty($data['post_type']) ) {
@@ -1903,104 +2037,6 @@ class CCTM {
 		
 		return $sanitized;
 	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This is a hodgepodge gauntlet of validations for uploaded def files.
-	 *
-	 * On success, this will upload the .cctm.json def file and move it into the 
-	 * library folder inside wp-content/uploads/cctm/defs, then it will load up 
-	 * the definition into the self::db_key_settings option, specifically into
-	 * the $settings['candidate'] key.  This is so future page views can preview
-	 * what's on-deck by poking through $settings['candidate']['export_info'],
-	 * and if desired, import the payload @ $settings['candidate']['payload']
-	 *
-	 * On failure, false is returned. 
-	 *
-	 * Depending on where the error occurs determines how severe it is: you might
-	 * still get 'true' for success and have a couple errors set in self::$errors.
-	 * The most important thing here is that the newly uploaded definition gets
-	 * uploaded into the $settings database option.
-	 *
-	 * @return	boolean 	true on success, false on failure
-	 */
-	private static function _sanitize_import_params() {
-		
-		if ( empty($_FILES) || empty($_FILES['cctm_settings_file']['tmp_name'])) {
-			self::$errors['cctm_settings_file'] = sprintf( 
-				__('No file selected', CCTM_TXTDOMAIN)
-				, CCTM::max_def_file_size 
-			); 
-			return;
-		}
-		
-		if ($_FILES['cctm_settings_file']['size'] > CCTM::max_def_file_size ) {
-			self::$errors['cctm_settings_file'] = sprintf( 
-				__('The definition filesize must not exceed %s bytes.', CCTM_TXTDOMAIN)
-				, CCTM::max_def_file_size 
-			); 
-		}
-		// Let's make sure this file is a .cctm.json file
-		$raw_file_contents = file_get_contents($_FILES['cctm_settings_file']['tmp_name']);
-		$data = json_decode( $raw_file_contents, true);
-		
-		// Let's check that this thing is legit
-		$format_error_flag = false;
-		if ( !is_array($data) ) {
-			self::$errors['format'] = __('1 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);
-		}
-		elseif ( !isset($data['export_info'])) {
-			self::$errors['format'] = __('2 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		elseif ( !isset($data['export_info']['_timestamp_export'])) {
-			self::$errors['format'] = __('3 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}		
-		elseif ( !isset($data['export_info']['_source_site'])) {
-			self::$errors['format'] = __('4 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		elseif ( !isset($data['export_info']['_charset'])) {
-			self::$errors['format'] = __('5 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		elseif ( !isset($data['export_info']['_language'])) {
-			self::$errors['format'] = __('6 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		elseif ( !isset($data['export_info']['_wp_version'])) {
-			self::$errors['format'] = __('7 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		elseif ( !isset($data['export_info']['_cctm_version'])) {
-			self::$errors['format'] = __('8 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		elseif ( !isset($data['payload'])) {
-			self::$errors['format'] = __('9 The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);	
-		}
-		
-		// If we made it this far without errors, we can continue
-		if ( !empty(self::$errors) ) {
-			return false;
-		}
-		
-		
-		// create_verify_storage_directories will set errors, and we add another error here
-		// to let the user know that we can't interface with the library dir 
-		$basename = basename($_FILES['cctm_settings_file']['name']);
-		$upload_dir = wp_upload_dir();
-		$dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
-
-		if ( !self::create_verify_storage_directories() ) {
-			self::$errors['library'] = __('We could not upload the definition file to your library.', CCTM_TXTDOMAIN);	
-		} 
-		elseif ( !move_uploaded_file($_FILES['cctm_settings_file']['tmp_name'], $dir.'/'.$basename )) {
-			self::$errors['library'] = __('We could not upload the definition file to your library.', CCTM_TXTDOMAIN);	
-		}
-		
-		$settings = get_option(self::db_key_settings, array() );
-		$settings['candidate'] = $data;
-		update_option(self::db_key_settings, $settings);
-		
-		return true; // success!
-	}
-	
-	
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -2017,7 +2053,10 @@ class CCTM {
 	 * @return mixed filtered $_POST data (only white-listed are passed thru to output)
 	 */
 	private static function _sanitize_post_type_def($raw) {
-		//print_r($raw); exit;
+
+		unset($raw['custom_content_type_mgr_create_new_content_type_nonce']);
+		unset($raw['custom_content_type_mgr_edit_content_type_nonce']);
+		
 		$sanitized = array();
 
 		// This will be empty if no "supports" items are checked.
@@ -2135,7 +2174,7 @@ class CCTM {
 		default:
 			$sanitized['rewrite'] = false;
 		}
-		//print_r($sanitized); exit;
+
 		return $sanitized;
 	}
 
@@ -2212,7 +2251,6 @@ class CCTM {
 	 * of default scripts bundled with WordPress
 	 */
 	public static function admin_init() {
-
 
 		load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
 
@@ -2362,12 +2400,11 @@ class CCTM {
 	 * @return message
 	 */
 	public static function get_flash() {
-		$output = '';
-		if ( isset($_COOKIE[self::db_key]) ) {
-			$output = $_COOKIE[self::db_key];
-		}
-		unset( $_COOKIE[self::db_key] );
-		return $output;
+		$settings = get_option(self::db_key_settings, array() );
+		$output = self::_get_value($settings, 'flash');
+		unset( $settings['flash'] );
+		update_option(self::db_key_settings, $settings);
+		return html_entity_decode($output);
 	}
 
 	//------------------------------------------------------------------------------
@@ -2495,7 +2532,7 @@ class CCTM {
 		// ABSPATH contains a trailing slash; 
 		// we must filter a beginning slash from $info['path']
 		$path = ABSPATH . preg_replace('#^/#','', $info['path']);
-		// print_r($path); die();
+
 		if ( file_exists($path) ) {
 			return true;
 		}
@@ -2524,7 +2561,7 @@ class CCTM {
 
 			$posted_data = self::_sanitize_export_params($_POST);
 			$settings['export_info'] = $posted_data; // prep for saving.
-			
+
 			// Any errors?
 			if ( !empty(self::$errors) ) {
 				$msg = self::_format_errors();
@@ -2564,35 +2601,87 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	* 
+	* Ugh... the structure here sucks... tiered validation is messy
 	*/
 	public static function page_import() {
-	
+		require_once('ImportExport.php');
+
 		$settings = get_option(CCTM::db_key_settings, array() );
 		$settings['export_info'] = self::_get_value($settings, 'export_info', array() );
 		$action_name  = 'custom_content_type_mgr_import_def';
 		$nonce_name  = 'custom_content_type_mgr_import_def_nonce';
-		$msg = '';
+		$msg = self::get_flash();
 		
 		
-		// Save if submitted...
+		// Save if submitted... this is tricky because validation comes in tiers here.
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 			// A little cleanup before we sanitize
 			unset($_POST[ $nonce_name ]);
 			unset($_POST['_wp_http_referer']);
 
-			// This will set error
-			self::_sanitize_import_params();
+			// Start Checking stuff....
+			// Big no-no #1: no file 
+			if ( empty($_FILES) || empty($_FILES['cctm_settings_file']['tmp_name'])) {
+				self::$errors['cctm_settings_file'] = sprintf( 
+					__('No file selected', CCTM_TXTDOMAIN)
+					, CCTM::max_def_file_size 
+				); 
+				$msg = self::_format_errors();
+				include_once(CCTM_PATH.'/includes/pages/import.php');
+				return;
+			}
+			// Big no-no #2: file is too  big
+			if ($_FILES['cctm_settings_file']['size'] > CCTM::max_def_file_size ) {
+				self::$errors['cctm_settings_file'] = sprintf( 
+					__('The definition filesize must not exceed %s bytes.', CCTM_TXTDOMAIN)
+					, CCTM::max_def_file_size 
+				); 
+				$msg = self::_format_errors();
+				include_once(CCTM_PATH.'/includes/pages/import.php');
+				return;
+			}
 			
+			// Big no-no #3: bad data structure
+			$raw_file_contents = file_get_contents($_FILES['cctm_settings_file']['tmp_name']);
+			$data = json_decode( $raw_file_contents, true);
+
+			// Let's check that this thing is legit
+			if ( !ImportExport::is_valid_upload_structure($data) ) {
+				self::$errors['format'] = __('The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);
+				$msg = self::_format_errors();
+				include_once(CCTM_PATH.'/includes/pages/import.php');
+				return;
+			}
 			
-			// Any errors?
+			// create_verify_storage_directories will set errors, and we add another error here
+			// to let the user know that we can't interface with the library dir 
+			$basename = basename($_FILES['cctm_settings_file']['name']);
+			// Sometimes you can get filenames that look lie "your_def.cctm (1).json"
+			if ( !ImportExport::is_valid_basename($basename) ) {
+				// grab anything left of the first period, then re-create the .cctm.json extension
+				list($basename) = explode('.', $basename);
+				$basename .= ImportExport::extension;
+			}
+			$upload_dir = wp_upload_dir();
+			$dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
+	
+			if ( !self::create_verify_storage_directories() ) {
+				self::$errors['library'] = __('We could not upload the definition file to your library.', CCTM_TXTDOMAIN);	
+			} 
+			elseif ( !move_uploaded_file($_FILES['cctm_settings_file']['tmp_name'], $dir.'/'.$basename )) {
+				self::$errors['library'] = __('We could not upload the definition file to your library.', CCTM_TXTDOMAIN);	
+			}
+		
+			// Any errors?  At this point, they aren't deal-breakers.
 			if ( !empty(self::$errors) ) {
 				$msg = self::_format_errors();
 			}
-			// Save;
-			else {
-				
-			}
+
+			// Save
+			$settings = get_option(self::db_key_settings, array() );
+			$settings['candidate'] = $data;
+			update_option(self::db_key_settings, $settings);			
+
 		}
 
 		include_once(CCTM_PATH.'/includes/pages/import.php');
@@ -2653,6 +2742,13 @@ class CCTM {
 			break;
 		case 12: // Reset all custom fields from this post_type
 			self::_page_reset_all_custom_fields($post_type);
+			break;
+		case 13: // Activate the imported post type def
+			self::_page_activate_imported_def();
+			break;
+		case 14: // Preview an uploaded  post type def
+			$file = self::_get_value($_GET, 'file');
+			self::_page_preview_def($file);
 			break;
 		default: // Default: List all post types
 			self::_page_show_all_post_types();
@@ -2771,7 +2867,7 @@ class CCTM {
 				if ( isset($def['is_active'])
 					&& !empty($def['is_active'])
 					&& !in_array($post_type, self::$built_in_post_types)) {
-					//print_r($def); exit;
+
 					register_post_type( $post_type, $def );
 					// TODO: make global setting that asks whether or not the user wants us to do this automatically
 					//if ( is_array($def['supports']) && in_array('thumbnail', $def['supports']) )
@@ -2795,11 +2891,16 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * Sets a flash message that's viewable only for the next page view (for the current user)
-	 *
+	 * $_SESSION doesn't work b/c WP doesn't natively support them = lots of confused users.
+	 * setcookie() won't work b/c WP has already sent header info.
+	 * So instead, we store this stuff in the database. Sigh.
+	 * 
 	 * @param string $msg text or html message
 	 */
 	public static function set_flash($msg) {
-		$_COOKIE[ self::db_key ]= $msg;
+		$settings = get_option(self::db_key_settings, array() );
+		$settings['flash'] = $msg;
+		update_option(self::db_key_settings, $settings);
 	}
 
 

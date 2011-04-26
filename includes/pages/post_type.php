@@ -111,7 +111,7 @@ if ( !isset($cancel_target_url) ) {
 				<p><strong>post_type:</strong> movie</p>
 				<input type="hidden" name="post_type" class="cctm_readonly" id="post_type" value="<?php print $post_type; ?>"/>			
 			<?php endif; ?>
-			<span class="cctm_description">This name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-<?php print $post_type; ?>.php</>.</span>
+			<span class="cctm_description">This name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-<?php print $post_type; ?>.php</code>.</span>
 		</div>
 		
 		<!-- menu_name_label -->
