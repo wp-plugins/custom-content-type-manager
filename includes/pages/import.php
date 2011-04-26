@@ -123,7 +123,7 @@ if ( !empty($info) ):
 endif; 
 //------------------------------------------------------------------------------
 // Check whether the candidate is equivalent to the currently loaded def.
-if ($candidate['payload'] == CCTM::$data):
+if ( ImportExport::defs_are_equal($candidate['payload'], CCTM::$data) ):
 //------------------------------------------------------------------------------
 ?>
 		<div class="cctm_def_active"><?php _e('Definition Active', CCTM_TXTDOMAIN); ?></div>

@@ -16,11 +16,9 @@ This plugin was written in part for the book [WordPress 3 Plugin Development Ess
 
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
-One of the problems with WordPress' custom fields is that they are not standardized: users must add them one at a time each time they create a new post. Furthermore, by default, WordPress' custom fields supports only text fields. This plugin lets users define a list of custom fields for each content type so that the same custom fields appear on each new post in a uniform way. 
+This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
 
-For example, you can define a custom content type for "movie", then add a textarea field for "Plot Summary", an image field for "Poster Image", and a dropdown field for "Rating". All of these fields are available in the template's `single-movie.php` template file by using the included print_custom_field() function, e.g. `<?php print_custom_field('rating'); ?>`
-
-Custom content types get their own link in the admin menus and their own URL structure.
+Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 
 Please note that this plugin is still in development and I won't consider it stable until version 1.0! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)!
 
@@ -34,8 +32,8 @@ Please use the following links for support and discussion:
 * Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
 
 == Installation ==
-
-1. Upload this plugin's folder to the `/wp-content/plugins/` directory or install it using the traditional WordPress plugin installation.
+1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
+1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
 1. Upon activation you can adjust the plugin settings by clicking the newly created "Custom Content Types" menu item, or click this plugin's "Settings" link on the Plugins page.
 1. After clicking the Settings link, you will see a list of content types -- there are two built-in types listed: post and page. To test this plugin, try adding a new content type named "movie" by clicking the "Add Custom Content Type" button at the top of the page.
@@ -71,20 +69,20 @@ You can always checkout the most recent version of the code by going to your wp-
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 	
-= 0.8.9 (in development) =
+= 0.8.9 =
 
 * Permalink functionality fixed by flushing rewrite rules after register_post_type()
 * Flash messages are now stored in the $_COOKIE array instead of $_SESSION to be in keeping with WordPress' simplistic "stateless" parlance.
 * Date field added, including support for PHP eval of default value.
-* CSS rules updated.
-* Import/Export options added.
+* CSS classes and ids updated (all instances of "formgenerator" were replaced with "cctm").
+* Import/Export functionality added.
 * Checking of valid image icons was disabled due to problems with segfault in some server configurations [see Issue 60](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=60) 
 * Default values for dropdowns now settable via Javascript to reduce typos
-* Bug with page-attributes fixed.
+* Bug with page-attributes fixed: you can now correctly enable page attributes for custom content types.
 * Support for Post Formats added.
 * Support for [Output Filters](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters) was added.
 * Template functions `get_custom_image()` and `print_custom_image` were removed in favor of using Output Filters.
-* FormGenerator class removed in favor of simpler PHP pages.
+* The FormGenerator class removed in favor of simpler PHP pages.
 
 = 0.8.8 =
 
@@ -160,14 +158,16 @@ The architecture for this plugin was also inspired by [MODx](http://modx.com/). 
 
 == Future TO-DO == 
 
-If you are eager to see one of these features implemented in a future release, please share your feedback at the official Issues page: http://code.google.com/p/wordpress-custom-content-type-manager/issues/list
+Please see the [Issues page](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) for the most current list of on-going feature development.
+
+If you are eager to see a particular feature implemented in a future release, please share your feedback at the official [Issues page](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)
 
 And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
 
 = 0.8.9 =
-Import/Export functionality added, Date fields, and complex Dropdowns. If you are upgrading to 0.8.9 from a version prior to 0.8.8, you must *completely uninstall* the plugin, then *re-install* [See bug](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=62&can=1). 
+Includes import/export functionality, support for date fields, and various bug fixes. If you are upgrading to 0.8.9 from version 0.8.7 or older, you must *completely uninstall* the plugin, then *re-install* [See bug](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=62&can=1). 
 
 = 0.8.8 =
 Improved administration interface, new template functions, lots bug fixes; this is a big release.  If you are upgrading to 0.8.8 from a previous version, you should *completely uninstall* the plugin, then *re-install*.  This will ensure that the data-structure in the database is updated appropriately.

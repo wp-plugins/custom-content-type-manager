@@ -16,6 +16,40 @@ class ImportExport {
 	const pastebin_endpoint = '';
 	const extension = '.cctm.json';
 	
+	
+	/**
+	 * We can't just compare them because the menu_icon bits will be different: the candidate
+	 * will have a relative URL, the live one will have an absolute URL.
+	 *
+	 * @param	mixed	CCTM definition data structure
+	 * @param	mixed	CCTM definition data structure
+	 * @return	boolean	true if they are equal, false if not	 
+	 */
+	public static function defs_are_equal($def1,$def2) {
+		if (is_array($def1) ) {
+			foreach ( $def1 as $post_type => $def ) {
+				if ( isset($def1[$post_type]['menu_icon']) && !empty($def1[$post_type]['menu_icon']) ) {
+					$def1[$post_type]['menu_icon'] = self::make_img_path_rel($def1[$post_type]['menu_icon']);
+				}
+			}
+		}
+		if (is_array($def2) ) {
+			foreach ( $def2 as $post_type => $def ) {
+				if ( isset($def2[$post_type]['menu_icon']) && !empty($def2[$post_type]['menu_icon']) ) {
+					$def2[$post_type]['menu_icon'] = self::make_img_path_rel($def2[$post_type]['menu_icon']);
+				}
+			}
+		}
+		
+		if ( $def1 == $def2 ) {
+			return true;
+		}		
+		else
+		{
+			return false;
+		}
+	}
+	
 	/**
 	 * Initiates a download: prints headers with payload
 	 * or an error.
