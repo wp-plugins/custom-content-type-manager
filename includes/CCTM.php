@@ -2229,6 +2229,8 @@ class CCTM {
 	 * So in order to check whether an image path is broken or not, we translate the 
 	 * $src URL into a local path so we can use humble file_exists() instead.
 	 *
+	 * This must also be able to handle when WP is installed in a sub directory.
+	 *
 	 * @param	string	$src a path to an image ON THIS SERVER, e.g. '/wp-content/uploads/img.jpg'
 	 *					or 'http://mysite.com/some/img.jpg'
 	 * @return	boolean	true if the img is valid, false if the img link is broken
@@ -2251,10 +2253,24 @@ class CCTM {
 				return false;
 			}
 		}
+		
+		// Gives us something like "/home/user/public_html/blog"
+		$ABSPATH_no_trailing_slash = preg_replace('#/$#','', ABSPATH);
+		
+		// This will tell us whether WP is installed in a subdirectory
+		$wp_info = parse_url(site_url());
 
-		// ABSPATH contains a trailing slash; 
-		// we must filter a beginning slash from $info['path']
-		$path = ABSPATH . preg_replace('#^/#','', $info['path']);
+		// This works when WP is installed @ the root of the site
+		if ( !isset($wp_info['path']) ) {
+			$path = $ABSPATH_no_trailing_slash . $info['path'];
+		}
+		// But if WP is installed in a sub dir...
+		else {
+			$path_to_site_root = preg_replace('#'.preg_quote($wp_info['path']).'$#'
+				,''
+				, $ABSPATH_no_trailing_slash);
+			$path = $path_to_site_root . $info['path'];
+		}
 
 		if ( file_exists($path) ) {
 			return true;
