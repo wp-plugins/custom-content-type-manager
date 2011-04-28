@@ -127,9 +127,7 @@ class CCTM_checkbox extends FormElement
 	 
 	 */
 	public function get_edit_field_instance($current_value) {
-#		print $current_value; exit;
-#		print_r($this->props); exit;
-		#print_r($def); exit;
+
 		$is_checked = '';
 		if ($current_value == $this->checked_value) {
 			$is_checked = 'checked="checked"';
@@ -172,7 +170,7 @@ class CCTM_checkbox extends FormElement
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
@@ -180,7 +178,7 @@ class CCTM_checkbox extends FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 
@@ -189,7 +187,7 @@ class CCTM_checkbox extends FormElement
 				 <label for="checked_value" class="cctm_label cctm_text_label" id="checked_value_label">'
 					. __('Value when checked', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="checked_value" size="8" class="'.$this->get_field_class('checked_value','text').'" id="checked_value" value="'.$def['checked_value'] .'"/>'
+				 <input type="text" name="checked_value" size="8" class="'.$this->get_field_class('checked_value','text').'" id="checked_value" value="'.htmlspecialchars($def['checked_value']) .'"/>'
 				 . $this->get_translation('checked_value') .'
 			 	</div>';
 			 	
@@ -198,7 +196,7 @@ class CCTM_checkbox extends FormElement
 				 <label for="unchecked_value" class="cctm_label cctm_text_label" id="unchecked_value_label">'
 					. __('Value when Unchecked', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="unchecked_value" size="8" class="'.$this->get_field_class('unchecked_value','text').'" id="unchecked_value" value="'.$def['unchecked_value'] .'"/>'
+				 <input type="text" name="unchecked_value" size="8" class="'.$this->get_field_class('unchecked_value','text').'" id="unchecked_value" value="'.htmlspecialchars($def['unchecked_value']) .'"/>'
 				 . $this->get_translation('unchecked_value') .'
 			 	</div>';
 		// Is Checked by Default?
@@ -214,7 +212,7 @@ class CCTM_checkbox extends FormElement
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
-			 			.htmlentities(stripslashes($def['extra'])).'"/>
+			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
@@ -223,7 +221,7 @@ class CCTM_checkbox extends FormElement
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
-			 			.strip_tags(stripslashes($def['class'])).'"/>
+			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
 
@@ -231,7 +229,9 @@ class CCTM_checkbox extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 		. htmlentities($def['description'])
+			 	.'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 		return $out;

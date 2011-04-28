@@ -62,7 +62,7 @@ abstract class FormElement {
 	// This determines which (if any) output filters are available. 'none' (i.e. straight input==>output) 
 	// is always available.
 	public $supported_output_filters = array();
-
+	
 	// Definition vars from $props that you don't want any dev in a child class to change
 	// during runtime.
 	private $protected_instance_vars = array('sort_param', 'name');
@@ -102,7 +102,9 @@ abstract class FormElement {
 		$this->descriptions['default_option'] = __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
 		$this->descriptions['default_value'] = __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
-				$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
+		$this->descriptions['description'] .= __('The following html tags are allowed:')
+			. '<code>'.htmlentities($this->allowed_html_tags).'</code>';
+		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
@@ -562,7 +564,7 @@ abstract class FormElement {
 		}	
 	}
 
-
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This function allows for custom handling of submitted post/page data just before
@@ -591,8 +593,8 @@ abstract class FormElement {
 	 * this type of element. Default behavior here is require only a unique name and 
 	 * label. Override this if customized validation is required: usually you'll want
 	 * to override and still reference the parent:
-	 * 		public function save_field_filter($posted_data, $post_type) {
-	 *			$posted_data = parent::save_field_filter($posted_data, $post_type);
+	 * 		public function save_definition_filter($posted_data, $post_type) {
+	 *			$posted_data = parent::save_definition_filter($posted_data, $post_type);
 	 *			// your code here...
 	 *			return $posted_data;
 	 *		}
@@ -603,7 +605,7 @@ abstract class FormElement {
 	 * @return	array	filtered field_data that can be saved OR can be safely repopulated
 	 *					into the field values.
 	 */
-	public function save_field_filter($posted_data, $post_type) {
+	public function save_definition_filter($posted_data, $post_type) {
 	
 		if ( empty($posted_data['name']) ) {
 			$this->errors['name'][] = __('Name is required.', CCTM_TXTDOMAIN);
@@ -642,17 +644,26 @@ abstract class FormElement {
 		}
 		
 		
-		// You may need to do this for any textarea fields
+		// You may need to do this for any textarea fields. Saving a '</textarea>' tag
+		// in your description field can wreak everything.
 		if ( !empty($posted_data['description']) ) {
-			$posted_data['description'] = stripslashes(htmlentities($posted_data['description']));
+			$posted_data['description'] = strip_tags($posted_data['description'], CCTM::$allowed_html_tags);
 		}
+
+		$posted_data = CCTM::striptags_deep($posted_data);
+		if ( get_magic_quotes_gpc() ) {
+			$posted_data = CCTM::stripslashes_deep($posted_data);
+		}
+
+/*
 		if ( empty($posted_data['label']) ) {
 			$this->errors['label'][] = __('Label is required.', CCTM_TXTDOMAIN);
 		}
 		else {
 			// print 'aqui' ; exit;
-			$posted_data['label'] = stripslashes(htmlentities($posted_data['label']));
+			$posted_data['label'] = stripslashes($posted_data['label']);
 		}
+*/
 					
 		return $posted_data; // filtered data
 	}

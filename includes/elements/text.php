@@ -99,7 +99,7 @@ class CCTM_text extends FormElement
 			, $this->get_field_name()
 			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
 			, $this->get_field_id()
-			, stripslashes($this->extra)
+			, $this->extra
 			, $current_value
 		);
 		
@@ -112,11 +112,12 @@ class CCTM_text extends FormElement
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
+		//print_r($def); exit;
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
@@ -124,7 +125,7 @@ class CCTM_text extends FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -132,7 +133,7 @@ class CCTM_text extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
+			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -142,7 +143,7 @@ class CCTM_text extends FormElement
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
-			 			.htmlentities(stripslashes($def['extra'])).'"/>
+			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
@@ -151,7 +152,7 @@ class CCTM_text extends FormElement
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
-			 			.strip_tags(stripslashes($def['class'])).'"/>
+			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
 
@@ -159,7 +160,7 @@ class CCTM_text extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'. htmlentities($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 			 	

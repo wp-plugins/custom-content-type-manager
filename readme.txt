@@ -69,6 +69,11 @@ You can always checkout the most recent version of the code by going to your wp-
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 	
+= 0.9.0 =
+* Fixed JV mistake in escaping quotes in post_type definitions and custom field definitions.
+
+
+	
 = 0.8.9 =
 
 * Permalink functionality fixed by flushing rewrite rules after register_post_type()

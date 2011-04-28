@@ -82,62 +82,13 @@ class CCTM_dropdown extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
-	 * <div class="cctm_element_wrapper" id="custom_field_wrapper_address1">
-	 * <label for="custom_content_address1" class="cctm_label cctm_text_label" id="cctm_label_custom_content_address1">Address</label>
-	 * <input type="text" name="custom_content_address1" class="cctm_text" id="custom_content_address1" value="3835 Cross Creek Road"/>
-	 * </div>
 	 *
-	 * @param string $def
+	 * @param string $current_value of the field for the current post
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
-	
-		//print_r($data); 
-/*
-		// Some error messaging.
-		if ( !isset($data['options']) || !is_array($data['options']) )
-		{
-			return '<p><strong>Custom Content Error:</strong> No options supplied for '.$data['name'].'</p>';
-		}
-		
-		$tpl = '
-			<label for="[+name+]" class="cctm_label" id="cctm_label_[+name+]">[+label+]</label>
-				<select name="[+name+]" class="cctm_dropdown cctm_dropdown_label" id="[+name+]"[+extra+]>
-					[+options+]  
-				</select>
-				[+special+]';
-		
-		$option_str = '';
-		foreach ( $data['options'] as $option )
-		{
-			if ( empty($option) )
-			{
-				$option_str .= '<option value="">Pick One</option>' . "\n";
-			}
-			else
-			{
-				$option = htmlspecialchars($option); // Filter the values
-				$is_selected = '';
-				if ( isset($data['value']) && $data['value'] == $option )
-				{
-					$is_selected = 'selected="selected"';
-				}
-				$option_str .= '<option value="'.$option.'" '.$is_selected.'>'.$option.'</option>' . "\n";
-			}
-		}
-		
-		if ( isset($data['special']) && is_array($data['special']) )
-		{
-			
-			$data['special'] = self::_get_special($data);
-		}
-		
-		$data['options'] = $option_str; // overwrite the array with the string.
-		
-		return self::parse($tpl, $data);
-		
-*/
-		// Some error messaging.
+
+		// Some error messaging: the options thing is enforced at time of def creation too
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
 				, __('Custom Content Error', CCTM_TXTDOMAIN)
@@ -184,18 +135,11 @@ class CCTM_dropdown extends FormElement
 	 */
 	public function get_edit_field_definition($def) {
 	
-		// Used when adding simple options
-/*
-		$option_tpl = '<div id="dropdown_option_[+i+]">
-					<input type="text" name="options[]" value="[+value+]"/> <span class="button" onclick="javascript:remove_html(\'dropdown_option_[+i+]\');">[+delete_label+]</span>
-				</div>';
-*/
-
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
@@ -203,7 +147,7 @@ class CCTM_dropdown extends FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -211,7 +155,7 @@ class CCTM_dropdown extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. $def['default_value']
+			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -221,7 +165,7 @@ class CCTM_dropdown extends FormElement
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
-			 			.htmlentities(stripslashes($def['extra'])).'"/>
+			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
@@ -230,7 +174,7 @@ class CCTM_dropdown extends FormElement
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
-			 			.strip_tags(stripslashes($def['class'])).'"/>
+			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
 			
@@ -266,14 +210,14 @@ class CCTM_dropdown extends FormElement
 
 
 		$i = 0; // used to uniquely ID options.
-		if ( !empty($def['options']) ) {
+		if ( !empty($def['options']) && is_array($def['options']) ) {
 		
 			foreach ($def['options'] as $opt_val) {
 				$option_css_id = 'cctm_dropdown_option'.$i;
 				$out .= sprintf($option_html
 					, $option_css_id
 					, $i
-					, $opt_val
+					, htmlspecialchars($opt_val)
 					, $option_css_id, __('Delete') 
 					, $i, __('Set as Default') 
 				);
@@ -287,7 +231,9 @@ class CCTM_dropdown extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 		.htmlentities($def['description'])
+			 		.'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 		 
@@ -305,9 +251,8 @@ class CCTM_dropdown extends FormElement
 	 * @return	array	filtered field_data that can be saved OR can be safely repopulated
 	 *					into the field values.
 	 */
-	public function save_field_filter($posted_data, $post_type) {
-		$posted_data = parent::save_field_filter($posted_data, $post_type);
-		
+	public function save_definition_filter($posted_data, $post_type) {
+		$posted_data = parent::save_definition_filter($posted_data, $post_type);		
 		if ( empty($posted_data['options']) ) {
 			$this->errors['options'][] = __('At least one option is required.', CCTM_TXTDOMAIN);
 		}

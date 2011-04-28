@@ -15,6 +15,9 @@ This is the massive page that is used to create and edit post_type definitions.
 Note that the $def array contains some extra keys for controlling UX and validation:
 use_default_menu_icon	-- checkbox for controlling
 permalink_action
+
+I'm using some *probably* unnecessary instances of htmlspecialchars(), but I 
+just want to make sure that the form is presented uncorrupted.
 ------------------------------------------------------------------------------*/
 if ( !isset($cancel_target_url) ) {
 	$cancel_target_url = '?page='.self::admin_menu_slug;
@@ -106,12 +109,12 @@ if ( !isset($cancel_target_url) ) {
 			<?php if ( $action == 'create' ): ?>
 				<label for="post_type" class="cctm_label cctm_text_label" id="cctm_label_post_type">
 				post_type* </label>
-				<input type="text" name="post_type" class="cctm_text" id="post_type" value="<?php print $post_type; ?>"/>						
+				<input type="text" name="post_type" class="cctm_text" id="post_type" value="<?php print htmlspecialchars($post_type); ?>"/>
 			<?php else: ?>
 				<p><strong>post_type:</strong> movie</p>
 				<input type="hidden" name="post_type" class="cctm_readonly" id="post_type" value="<?php print $post_type; ?>"/>			
 			<?php endif; ?>
-			<span class="cctm_description">This name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-<?php print $post_type; ?>.php</code>.</span>
+			<span class="cctm_description">This name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-<?php print htmlspecialchars($post_type); ?>.php</code>.</span>
 		</div>
 		
 		<!-- menu_name_label -->
@@ -123,7 +126,7 @@ if ( !isset($cancel_target_url) ) {
 				</a>
 			</label>
 
-			<input type="text" name="labels[menu_name]" class="cctm_text" id="menu_name_label" value="<?php print $def['labels']['menu_name'];?>"/>
+			<input type="text" name="labels[menu_name]" class="cctm_text" id="menu_name_label" value="<?php print htmlspecialchars($def['labels']['menu_name']);?>"/>
 			<span class="cctm_description">The menu name text. This string is the name to give menu items. Defaults to value of name</span>
 		</div>
 		
@@ -132,7 +135,7 @@ if ( !isset($cancel_target_url) ) {
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_description">
 					
 			<label for="description" class="cctm_label cctm_textarea_label" id="cctm_label_description">Description</label>
-			<textarea name="description" class="cctm_textarea" id="description" rows="4" cols="60"><?php print $def['description']; ?></textarea>
+			<textarea name="description" class="cctm_textarea" id="description" rows="4" cols="60"><?php print htmlentities($def['description']); ?></textarea>
 		</div>
 		
 		<!--!Show UI -->
@@ -160,7 +163,7 @@ if ( !isset($cancel_target_url) ) {
 			<!--!Menu Icon -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_icon">		
 				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon">Menu Icon</label>
-				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php print $def['menu_icon']; ?>" size="80"/>
+				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php print htmlspecialchars($def['menu_icon']); ?>" size="80"/>
 						<span class="cctm_description">Menu icon URL.</span>
 			</div>
 		
@@ -180,14 +183,14 @@ if ( !isset($cancel_target_url) ) {
 		<!--singular_label -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_singular_label">			
 			<label for="labels[singular_name]" class="cctm_label cctm_text_label" id="cctm_label_labels[singular_name]">Singular</label>
-			<input type="text" name="labels[singular_name]" class="cctm_text" id="labels[singular_name]" value="<?php print $def['labels']['singular_name']; ?>"/>
+			<input type="text" name="labels[singular_name]" class="cctm_text" id="labels[singular_name]" value="<?php print htmlspecialchars($def['labels']['singular_name']); ?>"/>
 					<span class="cctm_description">Human readable single instance of this content type, e.g. "Post"</span>
 		</div>
 		
 		<!--!Plural Label (Main Label)-->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_label">					
 			<label for="label" class="cctm_label cctm_text_label" id="cctm_label_label">Main Menu Label (Plural)</label>
-			<input type="text" name="label" class="cctm_text" id="label" value="<?php print $def['label']; ?>"/>
+			<input type="text" name="label" class="cctm_text" id="label" value="<?php print htmlspecialchars($def['label']); ?>"/>
 					<span class="cctm_description">Plural name used in the admin menu, e.g. "Posts"</span>
 		</div>
 
@@ -199,7 +202,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[add_new]" class="cctm_text" id="add_new_label" value="<?php print $def['labels']['add_new']; ?>"/>
+			<input type="text" name="labels[add_new]" class="cctm_text" id="add_new_label" value="<?php print htmlspecialchars($def['labels']['add_new']); ?>"/>
 			<span class="cctm_description">The add new text. The default is Add New for both hierarchical and non-hierarchical types.</span>
 		</div>
 		
@@ -211,7 +214,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[add_new_item]" class="cctm_text" id="add_new_item_label" value="<?php print $def['labels']['add_new_item']; ?>"/>
+			<input type="text" name="labels[add_new_item]" class="cctm_text" id="add_new_item_label" value="<?php print htmlspecialchars($def['labels']['add_new_item']); ?>"/>
 			<span class="cctm_description">The add new item text. Default is Add New Post/Add New Page</span>
 		</div>
 		
@@ -223,7 +226,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[edit_item]" class="cctm_text" id="edit_item_label" value="<?php print $def['labels']['edit_item']; ?>"/>
+			<input type="text" name="labels[edit_item]" class="cctm_text" id="edit_item_label" value="<?php print htmlspecialchars($def['labels']['edit_item']); ?>"/>
 			<span class="cctm_description">The edit item text. Default is Edit Post/Edit Page</span>
 		</div>	
 		
@@ -235,7 +238,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[new_item]" class="cctm_text" id="new_item_label" value="<?php print $def['labels']['new_item']; ?>"/>
+			<input type="text" name="labels[new_item]" class="cctm_text" id="new_item_label" value="<?php print htmlspecialchars($def['labels']['new_item']); ?>"/>
 			<span class="cctm_description">The new item text. Default is New Post/New Page</span>
 
 		</div>
@@ -249,7 +252,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[view_item]" class="cctm_text" id="view_item_label" value="<?php print $def['labels']['edit_item']; ?>"/>
+			<input type="text" name="labels[view_item]" class="cctm_text" id="view_item_label" value="<?php print htmlspecialchars($def['labels']['edit_item']); ?>"/>
 			<span class="cctm_description">The view item text. Default is View Post/View Page</span>
 		</div>
 
@@ -263,7 +266,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[search_items]" class="cctm_text" id="search_items_label" value="<?php print $def['labels']['search_items']; ?>"/>
+			<input type="text" name="labels[search_items]" class="cctm_text" id="search_items_label" value="<?php print htmlspecialchars($def['labels']['search_items']); ?>"/>
 			<span class="cctm_description">The search items text. Default is Search Posts/Search Pages</span>
 		</div>
 		
@@ -275,7 +278,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[not_found]" class="cctm_text" id="not_found_label" value="<?php print $def['labels']['not_found']; ?>"/>
+			<input type="text" name="labels[not_found]" class="cctm_text" id="not_found_label" value="<?php print htmlspecialchars($def['labels']['not_found']); ?>"/>
 			<span class="cctm_description">The not found text. Default is No posts found/No pages found</span>
 		</div>
 
@@ -288,7 +291,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[not_found_in_trash]" class="cctm_text" id="not_found_in_trash_label" value="<?php print $def['labels']['not_found_in_trash']; ?>"/>
+			<input type="text" name="labels[not_found_in_trash]" class="cctm_text" id="not_found_in_trash_label" value="<?php print htmlspecialchars($def['labels']['not_found_in_trash']); ?>"/>
 			<span class="cctm_description">The not found in trash text. Default is No posts found in Trash/No pages found in Trash</span>
 		</div>
 
@@ -296,7 +299,7 @@ if ( !isset($cancel_target_url) ) {
 		<!-- parent_item_colon_label -->		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_parent_item_colon_label">			
 			<label for="labels[parent_item_colon]" class="cctm_label cctm_text_label" id="cctm_label_labels[parent_item_colon]">Parent Item Colon</label>
-			<input type="text" name="labels[parent_item_colon]" class="cctm_text" id="labels[parent_item_colon]" value="<?php print $def['labels']['parent_item_colon']; ?>"/>
+			<input type="text" name="labels[parent_item_colon]" class="cctm_text" id="labels[parent_item_colon]" value="<?php print htmlspecialchars($def['labels']['parent_item_colon']); ?>"/>
 					<span class="cctm_description">The parent text (used only on hierarchical types). Default is <em>Parent Page</em></span>
 		</div>
 		
@@ -385,7 +388,7 @@ if ( !isset($cancel_target_url) ) {
 		<!--!Menu Position-->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_position">
 			<label for="menu_position" class="cctm_label cctm_text_label" id="cctm_label_menu_position">Menu Position</label>
-			<input type="text" name="menu_position" class="cctm_text" id="menu_position" value="<?php print $def['menu_position']; ?>"/>
+			<input type="text" name="menu_position" class="cctm_text" id="menu_position" value="<?php print htmlspecialchars($def['menu_position']); ?>"/>
 			<span class="cctm_description">This setting determines where this post type should appear in the left-hand admin menu. Default: null (below Comments) 
 				<ul style="margin-left:40px;">
 					<li><strong>5</strong> - below Posts</li>
@@ -425,7 +428,7 @@ if ( !isset($cancel_target_url) ) {
 			<span class="cctm_description">Use permalink rewrites for this post_type? Default: Off
 				<ul style="margin-left:20px;">
 					<li><strong>Off</strong> - URLs for custom post_types will always look like: http://site.com/?post_type=book&p=39 even if the rest of the site is using a different permalink structure.</li>
-					<li><strong>/%postname%/</strong> - Currently, you must use this custom permalink structure. Other formats are <strong>not</strong> supported.  Your URLs will look like http://site.com/<?php print $post_type; ?>/your-title/</li>
+					<li><strong>/%postname%/</strong> - Currently, you must use this custom permalink structure. Other formats are <strong>not</strong> supported.  Your URLs will look like http://site.com/<?php print htmlentities($post_type); ?>/your-title/</li>
 					<li><strong>Custom</strong> - Evaluate the contents of slug</li>
 				<ul>
 			</span>
@@ -434,7 +437,7 @@ if ( !isset($cancel_target_url) ) {
 		<!--!Rewrite Slug -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_rewrite_slug">			
 			<label for="rewrite_slug" class="cctm_label cctm_text_label" id="cctm_label_rewrite_slug">Rewrite Slug</label>
-			<input type="text" name="rewrite_slug" class="cctm_text" id="rewrite_slug" value="<?php print $def['rewrite_slug']; ?>"/>
+			<input type="text" name="rewrite_slug" class="cctm_text" id="rewrite_slug" value="<?php print htmlspecialchars($def['rewrite_slug']); ?>"/>
 			<span class="cctm_description">Prepend posts with this slug - defaults to post type's name</span>
 		</div>
 		
@@ -444,7 +447,7 @@ if ( !isset($cancel_target_url) ) {
 		<!--!Query Var -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_query_var">
 			<label for="query_var" class="cctm_label cctm_text_label" id="cctm_label_query_var">Query Variable</label>
-			<input type="text" name="query_var" class="cctm_text" id="query_var" value="<?php print $def['query_var']; ?>"/>
+			<input type="text" name="query_var" class="cctm_text" id="query_var" value="<?php print htmlspecialchars($def['query_var']); ?>"/>
 			<span class="cctm_description">(optional) Name of the query var to use for this post type. E.g. "<?php print $post_type; ?>" would make for URLs like http://site.com/?<?php print $post_type; ?>=your-title. If blank, the default structure is http://site.com/?post_type=<?php print $post_type; ?>&p=18</span>
 
 		</div>
@@ -456,7 +459,7 @@ if ( !isset($cancel_target_url) ) {
 		<!-- Capability Type -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_capability_type">			
 			<label for="capability_type" class="cctm_label cctm_text_label" id="cctm_label_capability_type">Capability Type</label>
-			<input type="text" name="capability_type" class="cctm_text" id="capability_type" value="<?php print $def['capability_type']; ?>"/>
+			<input type="text" name="capability_type" class="cctm_text" id="capability_type" value="<?php print htmlspecialchars($def['capability_type']); ?>"/>
 			<span class="cctm_description">The post type to use for checking read, edit, and delete capabilities. Default: "post"</span>
 		</div>
 		

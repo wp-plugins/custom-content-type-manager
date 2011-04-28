@@ -137,7 +137,7 @@ class CCTM_relation extends FormElement
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.$def['label'] .'"/>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
@@ -145,7 +145,7 @@ class CCTM_relation extends FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.$def['name'] .'"/>'
+				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			
@@ -161,7 +161,7 @@ class CCTM_relation extends FormElement
 			$attachment_obj = get_post($def['default_value']);
 			//$def['preview_html'] .= '<span class="cctm_label">'.$attachment_obj->post_title.'</span><br />';
 			// Wrap it
-			$preview_html .= '<span class="cctm_label">'.$attachment_obj->post_title.' <span class="cctm_id_label">('.$def['default_value'].')</span></span><br />';
+			$preview_html .= '<span class="cctm_label">'.$attachment_obj->post_title.' <span class="cctm_id_label">('.htmlspecialchars($def['default_value']).')</span></span><br />';
 			
 		}
 
@@ -169,7 +169,8 @@ class CCTM_relation extends FormElement
 		$out .= '
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_2">
 				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a></span> 
-				<input type="hidden" id="default_value" name="default_value" value="'.$def['default_value'].'" /><br />
+				<input type="hidden" id="default_value" name="default_value" value="'
+				.htmlspecialchars($def['default_value']).'" /><br />
 				<div id="default_value_media">'.$preview_html.'</div>
 				
 				<br />
@@ -180,7 +181,8 @@ class CCTM_relation extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.$def['description'].'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 		. htmlentities($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 			 	

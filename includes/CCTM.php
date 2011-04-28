@@ -18,7 +18,7 @@ http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-
 class CCTM {
 	// Name of this plugin
 	const name   = 'Custom Content Type Manager';
-	const version = '0.8.9';
+	const version = '0.9.0';
 	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.0.1';
@@ -68,7 +68,10 @@ class CCTM {
 	// of 0755, a local setting here of 0770 gets bumped down to 0750.
 	const new_dir_perms = 0777;
 	const new_file_perms = 0666;
-			
+
+	// Used to filter inputs (e.g. descriptions)
+	public static $allowed_html_tags = '<a><strong><em><code><style>';
+		
 	// Data object stored in the wp_options table representing all primary data
 	// for post_types and custom fields
 	public static $data = array();
@@ -203,11 +206,6 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * This prints out a list (including icons) of all available custom field types.
-	 * $tpl = sprintf(
-	 * '<li><a href="?page=%s&%s=9&%s=%s&type=[+field_type+]" title="[+title+]">
-	 * <img src="[+icon_src+]" class="cctm-field-icon" id="cctm-field-icon-[+field_type+]"/>
-	 * <br/>[+label+]</a>
-	 * </li>'
 	 *
 	 * @param string $post_type
 	 * @return unknown
@@ -216,6 +214,7 @@ class CCTM {
 		// TODO: move this into another option
 		$available_custom_field_types = array('checkbox','date','dropdown','image','media','relation','text','textarea','wysiwyg', );
 		
+		// Aha... why have %s AND [+placeholders+].  Good question.
 		$output = '<ul id="cctm-field-type-selector">';
 		$tpl = sprintf(
 			'<li><a href="?page=%s&%s=9&%s=%s&type=[+field_type+]" title="[+title+]">
@@ -731,12 +730,12 @@ class CCTM {
 		
 		// Save if submitted...
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-			// A little cleanup before we handoff to save_field_filter
+			// A little cleanup before we handoff to save_definition_filter
 			unset($_POST[ $nonce_name ]);
 			unset($_POST['_wp_http_referer']);
 
 			// Validate and sanitize any submitted data
-			$field_data 		= $FieldObj->save_field_filter($_POST, $post_type);
+			$field_data 		= $FieldObj->save_definition_filter($_POST, $post_type);
 			$field_data['type'] = $field_type; // same effect as adding a hidden field
 			
 			$FieldObj->props 	= $field_data;  // This is how we repopulate data in the create forms
@@ -1112,18 +1111,18 @@ class CCTM {
 		//
 		$FieldObj->props 	= $field_data;  
 		// THIS is what keys us off to the fact that we're EDITING a field: 
-		// the logic in FormElement->save_field_filter() ensures we don't overwrite other fields.
+		// the logic in FormElement->save_definition_filter() ensures we don't overwrite other fields.
 		// This attribute is nuked by the time we get down to line 691 or so.
 		$FieldObj->original_name = $field_name; 
 		
 		// Save if submitted...
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
-			// A little cleanup before we handoff to save_field_filter
+			// A little cleanup before we handoff to save_definition_filter
 			unset($_POST[ $nonce_name ]);
 			unset($_POST['_wp_http_referer']);
 
 			// Validate and sanitize any submitted data
-			$field_data 		= $FieldObj->save_field_filter($_POST, $post_type);
+			$field_data 		= $FieldObj->save_definition_filter($_POST, $post_type);
 			$field_data['type'] = $field_type; // same effect as adding a hidden field
 			
 			$FieldObj->props 	= $field_data;
@@ -1395,8 +1394,8 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Manager Page -- called by page_main_controller()
-	 * Manage custom fields for any post type, built-in or custom.
+	 * Manage custom fields for the given $post_type.
+	 *
 	 * @param string $post_type
 	 * @param boolen $reset true only if we've just reset all custom fields
 	 */
@@ -1675,7 +1674,9 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Sanitize posted data for a clean export
+	 * Sanitize posted data for a clean export.  This just ensures that the user 
+	 * has entered some info about what they are about to export.
+	 *
 	 * @param	mixed	$raw = $_POST data
 	 * @return	mixed	sanitized post data
 	 */
@@ -1746,6 +1747,13 @@ class CCTM {
 
 		unset($raw['custom_content_type_mgr_create_new_content_type_nonce']);
 		unset($raw['custom_content_type_mgr_edit_content_type_nonce']);
+		
+		
+		$raw = CCTM::stripalltags_deep(($raw));
+//		$raw = CCTM::striptags_deep(($raw));
+		if ( get_magic_quotes_gpc() ) {
+			$raw = CCTM::stripslashes_deep(($raw));
+		}
 		
 		$sanitized = array();
 
@@ -2630,6 +2638,62 @@ class CCTM {
 	public static function sort_custom_fields($field, $sortfunc) {
 		return create_function('$var1, $var2', 'return '.$sortfunc.'($var1["'.$field.'"], $var2["'.$field.'"]);');
 	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Recursively removes all quotes from $_POSTED data if magic quotes are on
+	 * http://algorytmy.pl/doc/php/function.stripslashes.php
+	 *
+	 * @param	array	possibly nested 
+	 * @return	array	clensed of slashes
+	 */
+	public static function stripslashes_deep($value)
+	{
+		if ( is_array($value) ) {
+			$value = array_map( 'CCTM::'. __FUNCTION__, $value);    
+		}
+		else {
+			$value = stripslashes($value);
+		}
+	   return $value;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Recursively strips ALL tags from all inputs, including nested ones.
+	 *
+	 * @param	array	usually the $_POST array or a copy of it
+	 * @return	array	the input array, with tags stripped out of each value.
+	 */
+	public static function stripalltags_deep($value)
+	{
+		if ( is_array($value) ) {
+			$value = array_map('CCTM::'. __FUNCTION__, $value);    
+		}
+		else {
+			$value = strip_tags($value);
+		}
+	   return $value;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Recursively strips tags from all inputs, including nested ones.
+	 *
+	 * @param	array	usually the $_POST array or a copy of it
+	 * @return	array	the input array, with tags stripped out of each value.
+	 */
+	public static function striptags_deep($value)
+	{
+		if ( is_array($value) ) {
+			$value = array_map('CCTM::'. __FUNCTION__, $value);    
+		}
+		else {
+			$value = strip_tags($value, self::$allowed_html_tags);
+		}
+	   return $value;
+	}
+		
 }
 
 /*EOF CCTM.php*/

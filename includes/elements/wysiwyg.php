@@ -151,7 +151,7 @@ class CCTM_wysiwyg extends FormElement
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
-			 			.htmlentities(stripslashes($def['extra'])).'"/>
+			 			.$def['extra'].'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
@@ -160,7 +160,7 @@ class CCTM_wysiwyg extends FormElement
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
-			 			.strip_tags(stripslashes($def['class'])).'"/>
+			 			.$def['class'].'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
 

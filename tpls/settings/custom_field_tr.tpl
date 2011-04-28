@@ -1,4 +1,5 @@
 <!-- 
+Ties into built-in WP styling use for displaying plugins
 Placeholders are mostly:
 
     [2] => Array
@@ -19,8 +20,8 @@ Placeholders are mostly:
 		<strong>[+label+]</strong> ([+name+])
 	</td>
 	<td class="column-description desc">
-		<div class='plugin-description'><p>[+description+]</p></div>
-		<div class='active second plugin-version-author-uri'>
+		<div class="plugin-description"><p>[+description+]</p></div>
+		<div class="active second plugin-version-author-uri">
 			<input name="[+name+][sort_param]" type="hidden" class="store_me" />
 			[+edit_field_link+] | [+delete_field_link+]</div>
 
