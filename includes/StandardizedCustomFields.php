@@ -58,6 +58,7 @@ class StandardizedCustomFields
 	private static function _get_custom_fields($post_type) {
 		if (isset(CCTM::$data[$post_type]['custom_fields']))
 		{
+			usort(CCTM::$data[$post_type]['custom_fields'], CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
 			return CCTM::$data[$post_type]['custom_fields'];
 		}
 		else

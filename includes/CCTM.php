@@ -1410,13 +1410,13 @@ class CCTM {
 		$nonce_name = 'cctm_custom_save_sort_order_nonce';
 		$msg = self::get_flash();
 
-
+		// Save sort order
 		// Validate/Save data if it was properly submitted
 		if ( !$reset && !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 			$sanitized = array();
-			foreach ( self::$data[$post_type]['custom_fields'] as $def_i => &$cf ) {
+			foreach ( self::$data[$post_type]['custom_fields'] as $def_i => $cf ) {
 				$name = $cf['name'];
-				$cf['sort_param'] = (int) $_POST[$name]['sort_param'];
+				self::$data[$post_type]['custom_fields'][$def_i]['sort_param'] = (int) $_POST[$name]['sort_param'];
 			}
 
 			update_option( self::db_key, self::$data );
@@ -1949,14 +1949,9 @@ class CCTM {
 	 * of default scripts bundled with WordPress
 	 */
 	public static function admin_init() {
-
+//		print_r(self::$data); exit;
 		load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
-
-		// Set our form defs in this, our makeshift constructor.
-		//self::_set_post_type_form_definition();
-		// self::_set_custom_field_def_template();
-
-		// TODO: $E = new WP_Error();
+		
 		wp_register_style('CCTM_css'
 			, CCTM_URL . '/css/manager.css');
 		wp_enqueue_style('CCTM_css');
