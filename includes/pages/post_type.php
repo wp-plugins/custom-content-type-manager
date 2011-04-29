@@ -389,17 +389,19 @@ if ( !isset($cancel_target_url) ) {
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_position">
 			<label for="menu_position" class="cctm_label cctm_text_label" id="cctm_label_menu_position">Menu Position</label>
 			<input type="text" name="menu_position" class="cctm_text" id="menu_position" value="<?php print htmlspecialchars($def['menu_position']); ?>"/>
-			<span class="cctm_description">This setting determines where this post type should appear in the left-hand admin menu. Default: null (below Comments) 
+			<span class="cctm_description">This setting determines where this post type should appear in the left-hand admin menu. Default: null (below Comments). E.g. "21" would cause this content type to display below Pages and above Comments. 
 				<ul style="margin-left:40px;">
 					<li><strong>5</strong> - below Posts</li>
 					<li><strong>10</strong> - below Media</li>
-					<li><strong>20</strong> - below Links</li>
-					<li><strong>25</strong> - below Pages</li>
-					<li><strong>60</strong> - below Comments</li>
-					<li><strong>65</strong> - below first separator</li>
-					<li><strong>75</strong> - below Plugins</li>
-					<li><strong>80</strong> - below Users</li>
-					<li><strong>100</strong> - below Tools</li>
+					<li><strong>15</strong> - below Links</li>
+					<li><strong>20</strong> - below Pages</li>
+					<li><strong>25</strong> - below Comments</li>
+					<li><strong>60</strong> - below first separator</li>
+					<li><strong>65</strong> - below Plugins</li>
+					<li><strong>70</strong> - below Users</li>
+					<li><strong>75</strong> - below Tools</li>
+					<li><strong>80</strong> - below Settings</li>
+					<li><strong>100</strong> - below second separator</li>
 				</ul>
 			</span>
 		</div>

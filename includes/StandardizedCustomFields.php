@@ -58,7 +58,13 @@ class StandardizedCustomFields
 	private static function _get_custom_fields($post_type) {
 		if (isset(CCTM::$data[$post_type]['custom_fields']))
 		{
+			// Sorting blows away the field_name key, so you have to walk back through the array and re-establish the key
 			usort(CCTM::$data[$post_type]['custom_fields'], CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
+			foreach ( CCTM::$data[$post_type]['custom_fields'] as $i => $def ) {
+				$field_name = CCTM::$data[$post_type]['custom_fields'][$i]['name'];
+				CCTM::$data[$post_type]['custom_fields'][$field_name] = $def; // re-establish the key version.
+				unset(CCTM::$data[$post_type]['custom_fields'][$i]); // kill the integer version
+			} 
 			return CCTM::$data[$post_type]['custom_fields'];
 		}
 		else
@@ -108,7 +114,7 @@ class StandardizedCustomFields
 
 
 	/*------------------------------------------------------------------------------
-	Display the new Custom Fields meta box
+	Display the new Custom Fields meta box inside the WP manager.
 	INPUT:
 	@param object $post passed to this callback function by WP. 
 	@param object $callback_args will always have a copy of this object passed (I'm not sure why),
@@ -208,7 +214,6 @@ class StandardizedCustomFields
 		// The 2nd arg here is important because there are multiple nonces on the page
 		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
-			
 			foreach ( $custom_fields as $field_name => $field_def ) {
 				$field_type = CCTM::$data[$post->post_type]['custom_fields'][$field_name]['type'];
 				CCTM::include_form_element_class($field_type); // This will die on errors

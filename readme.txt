@@ -70,8 +70,9 @@ You can always checkout the most recent version of the code by going to your wp-
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 	
 = 0.9.0 =
-* Fixed JV mistake in escaping quotes in post_type definitions and custom field definitions.
-
+* Fixed mistake in escaping quotes in post_type definitions and custom field definitions.
+* Fixed bug in sorting custom fields [Issue 70](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=70&can=1).
+* Added support for Color Selector/Color Picker fields.
 
 	
 = 0.8.9 =

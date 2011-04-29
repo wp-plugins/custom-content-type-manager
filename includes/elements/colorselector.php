@@ -2,10 +2,11 @@
 /**
 * CCTM_wysiwyg
 *
-* Implements an WYSIWYG textarea input (a textarea with formatting controls).
+* Implements a color selector input (a text field with special javascript attached).
+* http://blog.meta100.com/post/600571131/mcolorpicker
 *
 */
-class CCTM_wysiwyg extends FormElement
+class CCTM_colorselector extends FormElement
 {
 
 	/** 
@@ -45,7 +46,7 @@ class CCTM_wysiwyg extends FormElement
 	* @return	string
 	*/
 	public function get_name() {
-		return __('Text',CCTM_TXTDOMAIN);	
+		return __('Color Picker',CCTM_TXTDOMAIN);	
 	}
 	
 	//------------------------------------------------------------------------------
@@ -64,8 +65,7 @@ class CCTM_wysiwyg extends FormElement
 	* @return	string text description
 	*/
 	public function get_description() {
-		return __('WYSIWYG fields implement a <textarea> element with formatting controls. 
-			"Extra" parameters, e.g. "cols" can be specified in the definition, however a minimum size is required to make room for the formatting controls.',CCTM_TXTDOMAIN);
+		return __('Color Picker fields implement a <input type="color"> element with a special Javascript color selection popup.',CCTM_TXTDOMAIN);
 	}
 	
 	//------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ class CCTM_wysiwyg extends FormElement
 	* @return	string 	e.g. http://www.yoursite.com/some/page.html
 	*/
 	public function get_url() {
-		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/WYSIWYG';
+		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/ColorSelector';
 	}
 	
 
@@ -92,24 +92,14 @@ class CCTM_wysiwyg extends FormElement
 		# print_r($this->props); exit;
 		$output = sprintf('
 			%s
-			<textarea name="%s" class="%s" id="%s" %s>%s</textarea>
-			<script type="text/javascript">
-				jQuery( document ).ready( function() {
-					jQuery( "%s" ).addClass( "mceEditor" );
-					if ( typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" ) {
-						tinyMCE.execCommand( "mceAddControl", false, "%s" );
-					}
-				});
-			</script>
+			<input type="color" name="%s" class="%s" id="%s" value="%s" data-hex="true" %s/>
 			'
 			, $this->wrap_label()
 			, $this->get_field_name()
 			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
 			, $this->get_field_id()
-			, $this->extra
 			, $current_value
-			, $this->get_field_name()
-			, $this->get_field_name()
+			, $this->extra
 		);
 		
 		return $this->wrap_outer($output);
@@ -121,6 +111,7 @@ class CCTM_wysiwyg extends FormElement
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
+		
 		
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
@@ -142,8 +133,8 @@ class CCTM_wysiwyg extends FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
-			 		.'"/>
+			 		<input type="color" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		.'" data-hex="true"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
 
@@ -174,30 +165,6 @@ class CCTM_wysiwyg extends FormElement
 			 	</div>';
 		return $out;
 	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This function allows for custom handling of submitted post/page data just before
-	 * it is saved to the database. Data validation and filtering should happen here,
-	 * although it's difficult to enforce any validation errors.
-	 *
-	 * Note that the field name in the $_POST array is prefixed by FormElement::post_name_prefix,
-	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
-	 * (where FormElement::post_name_prefix = 'cctm_').
-	 *
-	 * Output should be whatever string value you want to store in the wp_postmeta table
-	 * for the post in question. This function will be called after the post/page has
-	 * been submitted: this can be loosely thought of as the "on save" event
-	 *
-	 * @param mixed   	$posted_data  $_POST data
-	 * @param string	$field_name: the unique name for this instance of the field
-	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
-	 */
-	public function save_post_filter($posted_data, $field_name) {
-		$value = trim($posted_data[ FormElement::post_name_prefix . $field_name ]);
-		return wpautop( $value ); // Auto-paragraphs for any WYSIWYG
-	}
-
 }
 
 

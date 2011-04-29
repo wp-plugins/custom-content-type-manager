@@ -212,7 +212,7 @@ class CCTM {
 	 */
 	private static function _get_available_custom_field_types($post_type) {
 		// TODO: move this into another option
-		$available_custom_field_types = array('checkbox','date','dropdown','image','media','relation','text','textarea','wysiwyg', );
+		$available_custom_field_types = array('checkbox','colorselector','date','dropdown','image','media','relation','text','textarea','wysiwyg', );
 		
 		// Aha... why have %s AND [+placeholders+].  Good question.
 		$output = '<ul id="cctm-field-type-selector">';
@@ -1445,6 +1445,7 @@ class CCTM {
 			$tpl = file_get_contents($tpl_file);
 		}
 		// Sort by sort_param column: (1st input is by reference)
+		// Sorting this way destroys the field_name key, so we have to re-establish it.
 		usort($def, CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
 		// Sorting kills the array key, so we have to restore it
 		foreach ( $def as $def_id => $d ) {
@@ -1964,7 +1965,7 @@ class CCTM {
 		wp_enqueue_script( 'jquery-ui-tabs');
 		wp_enqueue_script( 'jquery-ui-sortable');
 		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
-		
+		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
 		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
 	}
 
