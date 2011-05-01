@@ -379,7 +379,7 @@ INPUT:
 OUTPUT:
 	The contents of that custom field for the current post.
 */
-function print_custom_field($fieldname, &$extra=null)
+function print_custom_field($fieldname, $extra=null)
 {
 	print get_custom_field($fieldname, $extra);
 }

@@ -2705,7 +2705,30 @@ class CCTM {
 		}
 	   return $value;
 	}
-		
+
 }
+/*
+
+	//http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page
+	function multi_status_dropdown_pages( $output ) {
+		print_r($output); exit;
+		global $wpdb, $post;
+		if( preg_match('/name="(parent_id|post_parent)"/', $output) && $post->post_type="articles" ) {
+			$post_statuses = array('pending','publish');
+			$post_exclude = is_numeric($_GET['post']) ? ' AND ID!='.$_GET['post']:'';
+			$query = "SELECT * FROM ".$wpdb->posts." WHERE (post_type = 'page' AND (post_status='".implode("' OR post_status='",$post_statuses)."') AND $post_exclude ) ORDER BY menu_order, post_title ASC";
+			$pages = $wpdb->get_results($query);
+			$output = '';
+			if ( ! empty($pages) ) {
+				$output = "<select name=\"parent_id\" id=\"\">\n";
+				$output .= "\t<option value=\"\">".__('(no parent)')."</option>\n";
+				$output .= walk_page_dropdown_tree($pages, 0);
+				$output .= "</select>\n";
+			}
+		}
+		return $output;
+	}
+	add_filter('wp_dropdown_pages','multi_status_dropdown_pages', 100, 1);
+*/
 
 /*EOF CCTM.php*/

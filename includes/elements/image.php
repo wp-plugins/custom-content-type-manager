@@ -191,7 +191,8 @@ class CCTM_image extends FormElement
 		if ( !empty($this->supported_output_filters) ) { 
 			$out .= $this->get_available_output_filters($def);
 		}	 
-			 return $out;
+
+		return $out;
 	}
 
 }

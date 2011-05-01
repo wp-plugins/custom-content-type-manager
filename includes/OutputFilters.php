@@ -52,16 +52,21 @@ class OutputFilters {
 	 * Translate a json-formatted array into an actual array
 	 */
 	public function formatted_list($value, $opts) {
+
 		$array = $this->to_array($value);
 		if ( !empty($opts) && is_array($opts) ) {
-			$out = $value;
+			$out = '';
 			// format each value
 			if ( isset($opts[0]) ) {
 				foreach ( $array as $v ) {
 					$hash['value'] = $v;
-					$out .= CCTM::parse($opts[0], $v);		
+					$out .= CCTM::parse($opts[0], $hash);
 				}
 			}
+			else {
+				// ???
+			}
+			
 			// wrap the output
 			if ( isset($opts[1]) ) {
 				$hash['content'] = $out;
@@ -72,7 +77,7 @@ class OutputFilters {
 			return implode($opts, $array);
 		}
 		else{
-			return __('Formatted List Output Filter: Second parameter must not be empty', CCTM_TXTDOMAIN );
+			return __('Formatted List Output Filter: Second parameter must not be empty. <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters">Info</a>', CCTM_TXTDOMAIN );
 		}
 	}
 

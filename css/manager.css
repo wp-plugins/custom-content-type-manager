@@ -26,9 +26,14 @@ label.cctm_checkbox {
 label.cctm_muticheckbox {
 	display: inline;
 }
+div.cctm_muticheckbox_wrapper {
+	margin-left: 20px;
+}
+/*
 input.cctm_muticheckbox {
 	margin: 2px 0px 2px 20px;
 }
+*/
 
 
 .cctm_checkbox
