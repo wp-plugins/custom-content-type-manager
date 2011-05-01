@@ -26,7 +26,7 @@ class CCTM {
 	const mysql_req_ver = '4.1.2';
 
 	/**
-	 * The following constants identify the option_name in the wp_optoins table
+	 * The following constants identify the option_name in the wp_options table
 	 * where this plugin stores various data.
 	 *
 	 * db_key : the primary key: the option_value contains a serialized
@@ -212,7 +212,7 @@ class CCTM {
 	 */
 	private static function _get_available_custom_field_types($post_type) {
 		// TODO: move this into another option
-		$available_custom_field_types = array('checkbox','colorselector','date','dropdown','image','media','relation','text','textarea','wysiwyg', );
+		$available_custom_field_types = array('checkbox','colorselector','date','dropdown','image','media','multiselect','relation','text','textarea','wysiwyg', );
 		
 		// Aha... why have %s AND [+placeholders+].  Good question.
 		$output = '<ul id="cctm-field-type-selector">';

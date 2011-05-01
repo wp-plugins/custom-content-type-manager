@@ -4,7 +4,7 @@ Primarily, it styles the automatically generated forms, but it also contains
 rules to style the various manager pages.
 ------------------------------------------------------------------------------*/
 /* Used by all automatically generated labels */
-.cctm_label {
+label.cctm_label {
 	display:block;
 	font-weight:bold;
 }
@@ -20,9 +20,17 @@ to the wp_posts table e.g. the '(4)' in 'Preview HTML (4)'*/
 	font-style:italic;
 }
 
-.cctm_checkbox_label {
+label.cctm_checkbox {
 	display: inline;
 }
+label.cctm_muticheckbox {
+	display: inline;
+}
+input.cctm_muticheckbox {
+	margin: 2px 0px 2px 20px;
+}
+
+
 .cctm_checkbox
 {
 	width: auto;

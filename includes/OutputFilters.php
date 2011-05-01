@@ -17,6 +17,8 @@ class OutputFilters {
 	public function __construct() {
 		$this->descriptions['convert_date_format'] = __('Convert Date Format', CCTM_TXTDOMAIN );
 		$this->descriptions['email'] = __('Encode Email Address', CCTM_TXTDOMAIN );
+		$this->descriptions['formatted_list'] = __('Formatted List', CCTM_TXTDOMAIN );
+		$this->descriptions['to_array'] = __('Array', CCTM_TXTDOMAIN );
 		$this->descriptions['to_image_src'] = __('Image src', CCTM_TXTDOMAIN );
 		$this->descriptions['to_image_tag'] = __('Full &lt;img&gt; tag', CCTM_TXTDOMAIN );
 		$this->descriptions['to_image_array'] = __('Array of image src, width, height', CCTM_TXTDOMAIN );
@@ -46,6 +48,43 @@ class OutputFilters {
 		return $output;
 	}
 
+	/**
+	 * Translate a json-formatted array into an actual array
+	 */
+	public function formatted_list($value, $opts) {
+		$array = $this->to_array($value);
+		if ( !empty($opts) && is_array($opts) ) {
+			$out = $value;
+			// format each value
+			if ( isset($opts[0]) ) {
+				foreach ( $array as $v ) {
+					$hash['value'] = $v;
+					$out .= CCTM::parse($opts[0], $v);		
+				}
+			}
+			// wrap the output
+			if ( isset($opts[1]) ) {
+				$hash['content'] = $out;
+				return CCTM::parse($opts[1], $hash);		
+			}			
+		}
+		elseif (!empty($opts) && !is_array($opts) ) {
+			return implode($opts, $array);
+		}
+		else{
+			return __('Formatted List Output Filter: Second parameter must not be empty', CCTM_TXTDOMAIN );
+		}
+	}
+
+
+	/**
+	 * Translate a json-formatted array into an actual array
+	 */
+	public function to_array($value) {
+		return json_decode($value, true);
+	}
+	
+	
 	/**
 	 * Translate a post_id to the src for the image represented by the 
 	 */

@@ -100,7 +100,7 @@ class CCTM_dropdown extends FormElement
 
 		$output = $this->wrap_label();
 		$output .= '<select name="'.$this->get_field_name().'" class="'
-				.$this->get_field_class($this->name, 'text') . ' ' . $this->class.'" id="'.$this->get_field_id().'">
+				.$this->get_field_class($this->name, 'dropdown') . ' ' . $this->class.'" id="'.$this->get_field_id().'" '.$this->extra.'>
 				<!-- option value="">'.__('Pick One').'</option -->
 				';
 			foreach ($this->options as $opt) {

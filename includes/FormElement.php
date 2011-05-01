@@ -392,7 +392,7 @@ abstract class FormElement {
 		';
 		return sprintf($wrapper
 			, $this->get_field_id()
-			, self::label_css_class . ' ' . self::css_class_prefix . $this->props['name'] . $additional_class
+			, trim(self::label_css_class . ' ' . self::css_class_prefix . $this->props['type'] . ' '.$additional_class)
 			, self::label_css_id_prefix . $this->props['name']
 			, $this->props['label']
 		);  # TODO: __('label', ????) localized
