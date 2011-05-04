@@ -1960,7 +1960,7 @@ class CCTM {
 	 * of default scripts bundled with WordPress
 	 */
 	public static function admin_init() {
-//		print_r(self::$data); exit;
+
 		load_plugin_textdomain( CCTM_TXTDOMAIN, '', CCTM_PATH );
 		
 		wp_register_style('CCTM_css'
