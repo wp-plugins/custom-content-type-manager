@@ -103,7 +103,10 @@ function get_custom_field($fieldname, $options=null)
 	$FieldObj->props = CCTM::$data[$post->post_type]['custom_fields'][$fieldname];
 
 	$value = get_post_meta($post->ID, $fieldname, true);
-
+	
+	if ( empty($value) && isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value']) ) {
+		$value = CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value'];
+	}
 	return $FieldObj->output_filter($value, $options);
 }
 
@@ -133,61 +136,10 @@ function get_custom_field_meta($fieldname, $item, $post_type=null)
 
 	$data = get_option( CCTM::db_key, array() );
 	
-	if ( $data[$post_type]['custom_fields'] )
-	{
-		// Go through the custom field defs
-		foreach ( $data[$post_type]['custom_fields'] as $i => $def_array )
-		{
-			if ( $def_array['name'] == $fieldname )
-			{
-				if ( isset($def_array[$item]) )
-				{
-					return $def_array[$item];
-				}
-				else
-				{
-					return sprintf( __('%$1s is an invalid item for the %$2s field.',CCTM_TXTDOMAIN), $item, $fieldname );
-				}
-			}
-		}
-		
-		return sprintf( __('Invalid field name: %s', CCTM_TXTDOMAIN), $fieldname );
+	if ( $data[$post_type]['custom_fields'][$fieldname] ) {
+		return $data[$post_type]['custom_fields'][$fieldname];
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-* Gets the definition array for the fieldname specified.
-*
-* @param	string	Name of the custom field.
-* @return	array	Associative array containing all definition items for the custom 
-*				field indicated by the $fieldname.
-*/
-function get_custom_field_def($fieldname, $post_type=null)
-{
-	if (!$post_type)
-	{
-		global $post;
-		$post_type = $post->post_type;
-		if (!$post_type)
-		{
-			return __('Could not determine the post_type.',CCTM_TXTDOMAIN);
-		}
-	}
-	
-	$data = get_option( CCTM::db_key, array() );
-	
-	if ( $data[$post_type]['custom_fields'] )
-	{
-		// Go through the custom field defs
-		foreach ( $data[$post_type]['custom_fields'] as $i => $def_array )
-		{
-			if ( $def_array['name'] == $fieldname )
-			{
-				return $def_array;
-			}
-		}
-	
+	else {
 		return sprintf( __('Invalid field name: %s', CCTM_TXTDOMAIN), $fieldname );
 	}
 }
