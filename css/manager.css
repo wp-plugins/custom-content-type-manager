@@ -41,6 +41,11 @@ input.cctm_muticheckbox {
 	width: auto;
 }
 
+label.cctm_checkbox_label
+{
+	display: inline;
+}
+
 .cctm_element_wrapper {
 	margin-top: 10px;
 }

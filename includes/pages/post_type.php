@@ -42,12 +42,15 @@ if ( !isset($cancel_target_url) ) {
 	jQuery(document).ready(function(){
 		toggle_image_detail();
 		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
+		toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');
 	});
 	
+	/* Drives the tab layout for this page. */
 	jQuery(function() {
 		jQuery( "#tabs" ).tabs();
 	});
 	
+	/* Used to show additional menu icons if the "use default" is deselected. */
 	function toggle_image_detail()
 	{
 
@@ -78,6 +81,7 @@ if ( !isset($cancel_target_url) ) {
 
 	}
 	
+	/* Used to send a full img path to the id="menu_icon" field */
 	function send_to_menu_icon(src)
 	{
 		jQuery('#menu_icon').val(src);
@@ -373,10 +377,54 @@ if ( !isset($cancel_target_url) ) {
 			
 			<!-- hierarchical -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_hierarchical">
-				<input type="checkbox" name="hierarchical" class="cctm_checkbox" id="hierarchical" value="1" <?php print CCTM::is_checked($def['hierarchical']); ?> /> 
+				<input type="checkbox" name="hierarchical" class="cctm_checkbox" id="hierarchical" value="1" <?php print CCTM::is_checked($def['hierarchical']); ?>/> 
 				<label for="hierarchical" class="cctm_label cctm_checkbox_label" id="cctm_label_hierarchical">Hierarchical</label>
 				<span class="cctm_description">Allows parent to be specified.</span>
 			</div>
+
+			<div class="cctm_element_wrapper" id="custom_field_wrapper_hierarchical">
+				<input type="checkbox" name="cctm_hierarchical_custom" class="cctm_checkbox" id="cctm_hierarchical_custom" value="1" <?php print CCTM::is_checked($def['cctm_hierarchical_custom']); ?> 
+					onclick="javascript:toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');"/> 
+				<label for="cctm_hierarchical_custom" class="cctm_label cctm_checkbox_label" id="cctm_label_hierarchical">Use Custom Hierarchy</label>
+				<span class="cctm_description">Allows custom hierarchies to be specified.</span>
+
+				
+			<!-- Working : Custom hierarchy-->
+				<div id="custom_field_wrapper_custom_hierarchy" style="border: 1px solid black; background-color:#C0C0C0; padding: 10px;">
+					<h3>Custom Hierarchies</h3>
+					<p>Warning: this feature is experimental. See <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=9" target="_blank">Issue 9</a> in the bugtracker.</p>
+				
+					<div class="cctm_element_wrapper" id="custom_field_wrapper_include_drafts">
+						<input type="checkbox" name="cctm_hierarchical_includes_drafts" class="cctm_checkbox" id="cctm_hierarchical_includes_drafts" value="1" <?php print CCTM::is_checked($def['cctm_hierarchical_includes_drafts'], '1'); ?> /> 
+						<label for="cctm_hierarchical_includes_drafts" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_hierarchical_includes_drafts">Include Drafts?</label>
+						<span class="cctm_description">By default, WordPress only allows you to use published pages in your hierarchy. Select this option to override that behavior.</span>
+					</div>
+
+					<h3>Parent Post Types</h3>
+					<span class="cctm_description">By default, WordPress only allows you to use posts of the same post-type in your hierarchy. Select which post types should be available as parents.</span>
+<?php
+				// checkbox_id, css_id, checked_value
+				/* Handle custom hierarchical stuff */
+				$i = 0;
+				$args = array('public' => true );
+				$post_types = get_post_types($args);
+				//print_r($post_types); exit;
+				foreach ( $post_types as $pt => $v ) {
+
+					$is_checked = '';
+					if ( is_array($def['cctm_hierarchical_post_types']) && in_array( $pt, $def['cctm_hierarchical_post_types']) ) {
+						$is_checked = 'checked="checked"';
+					}
+					//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
+					print '<span style="margin-left:20px;"><input type="checkbox" name="cctm_hierarchical_post_types[]" class="cctm_multiselect" id="cctm_hierarchical_post_types'.$i.'" value="'.$pt.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="cctm_hierarchical_post_types'.$i.'">'.htmlspecialchars($pt).'</label></span><br/>';
+					$i = $i + 1;					
+				}
+?>
+				</div><!-- end custom hierarchical options -->
+				
+			</div>
+			
+			
 			
 		</div>
 		

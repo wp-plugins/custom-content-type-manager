@@ -112,6 +112,69 @@ class StandardizedCustomFields
 		}
 	}
 
+	/**
+	 * WP only allows users to select PUBLISHED pages of the same post_type in their hierarchical
+	 * menus.  And there are no filters for this whole thing save at the end to filter the HTML.
+	 * Arrgh... this is grossly inefficient, but here we optionally pimp out the HTML to offer 
+	 * users sensible choices.
+	 *
+	 * @param	string	incoming html element for selecting a parent page, e.g.
+	 *						<select name="parent_id" id="parent_id">
+	 *					        <option value="">(no parent)</option>
+	 *					        <option class="level-0" value="706">Post1</option>
+	 *						</select>	
+	 *
+	 * See http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page
+	 
+	 
+		if( preg_match('/name="(parent_id|post_parent)"/', $output) && $post->post_type="articles" ) {
+			$post_statuses = array('pending','publish');
+			$post_exclude = is_numeric($_GET['post']) ? ' AND ID!='.$_GET['post']:'';
+			$query = "SELECT * FROM ".$wpdb->posts." WHERE (post_type = 'page' AND (post_status='".implode("' OR post_status='",$post_statuses)."') AND $post_exclude ) ORDER BY menu_order, post_title ASC";
+			$pages = $wpdb->get_results($query);
+			$output = '';
+			if ( ! empty($pages) ) {
+				$output = "<select name=\"parent_id\" id=\"\">\n";
+				$output .= "\t<option value=\"\">".__('(no parent)')."</option>\n";
+				$output .= walk_page_dropdown_tree($pages, 0);
+				$output .= "</select>\n";
+			}
+		}
+	 
+	 	CCTM::$data[$post_type]['cctm_hierarchical_post_types'] = array()
+	 	CCTM::$data[$post_type]['cctm_hierarchical_post_status'] = array()
+	 
+	 */
+	public static function customized_hierarchical_post_types( $html ) {
+		global $wpdb, $post;
+		$post_type = $post->post_type;
+		
+		// customize if selected
+		if (CCTM::$data[$post_type]['hierarchical'] && CCTM::$data[$post_type]['cctm_hierarchical_custom']) {
+			// filter by additional parameters
+			if ( CCTM::$data[$post_type]['cctm_hierarchical_includes_drafts'] ) {
+				$args['post_status'] = 'publish,draft,pending';	
+			}
+			else {
+				$args['post_status'] = 'publish';
+			}
+			
+			$args['post_type'] = CCTM::$data[$post_type]['cctm_hierarchical_post_types'];
+			$posts = get_posts($args);
+			$html = '<select name="parent_id" id="parent_id">
+				<option value="">(no parent)</option>
+			';
+			foreach ( $posts as $p ) {
+				$is_selected = '';
+				if ( $p->ID == $post->post_parent ) {
+					$is_selected = ' selected="selected"';	
+				}
+				$html .= sprintf('<option class="level-0" value="%s"%s>%s (%s)</option>', $p->ID, $is_selected, $p->post_title, $p->post_type);
+			}
+			$html .= '</select>';
+		}
+		return $html;
+	}
 
 	/*------------------------------------------------------------------------------
 	Display the new Custom Fields meta box inside the WP manager.

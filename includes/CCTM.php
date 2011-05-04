@@ -1757,7 +1757,17 @@ class CCTM {
 		}
 		
 		$sanitized = array();
-
+		// Handle unchecked checkboxes
+		if ( empty($raw['cctm_hierarchical_custom'])) {
+			$sanitized['cctm_hierarchical_custom'] = '';
+		}
+		if ( empty($raw['cctm_hierarchical_includes_drafts'])) {
+			$sanitized['cctm_hierarchical_includes_drafts'] = '';
+		}
+		if ( empty($raw['cctm_hierarchical_post_types'])) {
+			$sanitized['cctm_hierarchical_post_types'] = array();
+		}
+		
 		// This will be empty if no "supports" items are checked.
 		if (!empty($raw['supports']) ) {
 			$sanitized['supports'] = $raw['supports'];
@@ -2707,10 +2717,48 @@ class CCTM {
 	}
 
 }
-/*
 
 	//http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page
+	/*
+	$output contains something like this:
+	<select name="parent_id" id="parent_id">
+        <option value="">(no parent)</option>
+        <option class="level-0" value="706">Post1</option>
+	</select>
+
+	In wp-admin/edit-form-advanced.php we see this code:
+	
+		add_meta_box('pageparentdiv', 'page' == $post_type ? __('Page Attributes') : __('Attributes'), 'page_attributes_meta_box', $post_type, 'side', 'core');
+
+	which takes us here:
+	wp-admin/includes/template.php
+			
+		 * @param string $id String for use in the 'id' attribute of tags.
+		 * @param string $title Title of the meta box.
+		 * @param string $callback Function that fills the box with the desired content. The function should echo its output.
+		 * @param string $page The type of edit page on which to show the box (post, page, link).
+		 * @param string $context The context within the page where the boxes should show ('normal', 'advanced').
+		 * @param string $priority The priority within the context where the boxes should show ('high', 'low').
+		 
+		function add_meta_box($id, $title, $callback, $page, $context = 'advanced', $priority = 'default', $callback_args=null) {
+
+	which takes us here:
+	/includes/meta-boxes.php
+	
+	function page_attributes_meta_box
+
+	See /wp-includes/post-template.php
+	
+	
+	*/
+/*
+	// The wp_dropdown_pages filter really is the best way to do this... WP isn't defining any additional filters
+	// or actions during the course of that whole thing.
+	// add_filter('wp_dropdown_pages','multi_status_dropdown_pages', 100, 1);
 	function multi_status_dropdown_pages( $output ) {
+		$f = fopen('/tmp/test.txt','a+');
+		fwrite($f, print_r($output, true) );
+		
 		print_r($output); exit;
 		global $wpdb, $post;
 		if( preg_match('/name="(parent_id|post_parent)"/', $output) && $post->post_type="articles" ) {

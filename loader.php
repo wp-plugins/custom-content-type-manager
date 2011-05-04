@@ -29,10 +29,10 @@ if ( empty(CCTMtests::$errors) )
 	// Load up the CCTM data from wp_options
 	CCTM::$data = get_option( CCTM::db_key, array() );
 
-	add_action( 'admin_init', 'CCTM::admin_init');	
+	add_action('admin_init', 'CCTM::admin_init');	
 	
 	// Register any custom post-types (a.k.a. content types)
-	add_action( 'init', 'CCTM::register_custom_post_types', 0 );
+	add_action('init', 'CCTM::register_custom_post_types', 0 );
 	
 	// Create custom plugin settings menu
 	add_action('admin_menu', 'CCTM::create_admin_menu');
@@ -40,9 +40,12 @@ if ( empty(CCTMtests::$errors) )
 	
 	
 	// Standardize Fields
-	add_action( 'do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
-	add_action( 'admin_menu', 'StandardizedCustomFields::create_meta_box' );
-	add_action( 'save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 );
+	add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
+	add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
+	add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 );
+	
+	// Customize the page-attribute box
+	add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
 	
 }
 
