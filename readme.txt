@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.1.2
-Stable tag: 0.9.0
+Stable tag: 0.8.9
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -32,6 +32,9 @@ Please use the following links for support and discussion:
 * Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
 
 == Installation ==
+
+This plugin uses the standard installation procedure, but here is a typical use-case verbosely for the record:
+
 1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
 1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
@@ -68,15 +71,18 @@ Please see the online [FAQ](http://code.google.com/p/wordpress-custom-content-ty
 You can always checkout the most recent version of the code by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.1 =
+
+* Handled nebulous case with default value [Issue 45](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=45)
 	
 = 0.9.0 =
+
 * Added custom field: Multi-select
 * Added custom field: Color selector
 * Added support for customized hierarchical post-types [Issue 9](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=9)
 * Fixed mistake in escaping quotes in post_type definitions and custom field definitions.
 * Fixed bug in sorting custom fields [Issue 70](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=70&can=1).
-* Added support for Color Selector/Color Picker fields.
-
 	
 = 0.8.9 =
 
@@ -171,9 +177,12 @@ Please see the [Issues page](http://code.google.com/p/wordpress-custom-content-t
 
 If you are eager to see a particular feature implemented in a future release, please share your feedback at the official [Issues page](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)
 
-And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
+And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N).  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
+
+= 0.9.0 =
+Fixed bug in custom-fields and post-type forms that caused errors with foreign characters and quotes. Implements color-pickers and multi-select custom fields.
 
 = 0.8.9 =
 Includes import/export functionality, support for date fields, and various bug fixes. If you are upgrading to 0.8.9 from version 0.8.7 or older, you must *completely uninstall* the plugin, then *re-install* [See bug](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=62&can=1). 
@@ -216,4 +225,5 @@ http://xplus3.net/2010/08/08/archives-for-custom-post-types-in-wordpress/
 http://net.tutsplus.com/tutorials/wordpress/introducing-wordpress-3-custom-taxonomies/
 * Editing Attachments
 http://xplus3.net/2008/11/17/custom-thumbnails-wordpress-plugin/
+
 
