@@ -3,14 +3,14 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.1.1
+Tested up to: 3.1.2
 Stable tag: 0.8.9
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
 == Description ==
 
-http://www.youtube.com/watch?v=J2ualshshGo
+http://www.youtube.com/watch?v=rDPPfO69BxU
 
 This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book), published by Packt.
 
