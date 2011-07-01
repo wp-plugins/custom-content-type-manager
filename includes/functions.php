@@ -107,11 +107,22 @@ function get_custom_field($fieldname, $options=null)
 	$FieldObj->props = CCTM::$data[$post->post_type]['custom_fields'][$fieldname];
 
 	$value = get_post_meta($post->ID, $fieldname, true);
-	
-	if ( empty($value) && isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value']) ) {
-		$value = CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value'];
+
+ 	// This is what will push out the default value if the value is not set.
+ 	// but it breaks if you actually want NO value (e.g. no image)
+	//if ( empty($value) && isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value']) ) {
+	//	$value = CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value'];
+	//}
+
+	$value = $FieldObj->output_filter($value, $options);
+
+	if ( empty($value) ) {
+		return '';
 	}
-	return $FieldObj->output_filter($value, $options);
+	else {
+		return $value;
+	}
+	
 }
 
 //------------------------------------------------------------------------------

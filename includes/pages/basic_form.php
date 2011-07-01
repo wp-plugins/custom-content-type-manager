@@ -17,7 +17,7 @@ if ( !isset($cancel_target_url) ) {
 }
 
 ?>
-<?php print $style; ?>
+<?php if (isset($style)) { print $style; } ?>
 <div class="wrap">
 
 	<h2>

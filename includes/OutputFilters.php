@@ -144,8 +144,13 @@ class OutputFilters {
 	 * Retrieves the GUID for the post_id passed in as a value.
 	 */
 	public function to_link_href($value) {
-		$post = get_post($value);
-		return $post->guid;
+		if ($value) {
+			$post = get_post($value);
+			return $post->guid;
+		}
+		else {
+			return '';
+		}
 	}
 
 	/**

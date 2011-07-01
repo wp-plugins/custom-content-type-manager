@@ -93,8 +93,11 @@ class CCTM_multiselect extends FormElement
 	public function get_edit_field_instance($current_value) {
 
 		$current_values_arr = json_decode(html_entity_decode($current_value), true );
-		foreach ( $current_values_arr as $i => $v ) {
-			$current_values_arr[$i] = utf8_decode($v);
+		
+		if ( $current_values_arr and is_array($current_values_arr) ) {
+			foreach ( $current_values_arr as $i => $v ) {
+				$current_values_arr[$i] = utf8_decode($v);
+			}
 		}
 // print_r($current_values_arr);
 		// Some error messaging: the options thing is enforced at time of def creation too

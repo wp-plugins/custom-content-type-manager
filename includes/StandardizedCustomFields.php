@@ -151,7 +151,9 @@ class StandardizedCustomFields
 		$post_type = $post->post_type;
 		
 		// customize if selected
-		if (CCTM::$data[$post_type]['hierarchical'] && CCTM::$data[$post_type]['cctm_hierarchical_custom']) {
+		if (isset(CCTM::$data[$post_type]['hierarchical'])
+			&& CCTM::$data[$post_type]['hierarchical'] 
+			&& CCTM::$data[$post_type]['cctm_hierarchical_custom']) {
 			// filter by additional parameters
 			if ( CCTM::$data[$post_type]['cctm_hierarchical_includes_drafts'] ) {
 				$args['post_status'] = 'publish,draft,pending';	
@@ -275,6 +277,11 @@ class StandardizedCustomFields
 			return;
 		}
 		
+		// See issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=80
+		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ){
+			return $post_id;
+		}
+				
 		// The 2nd arg here is important because there are multiple nonces on the page
 		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
