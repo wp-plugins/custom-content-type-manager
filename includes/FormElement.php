@@ -595,7 +595,12 @@ abstract class FormElement {
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		return trim($posted_data[ FormElement::post_name_prefix . $field_name ]);
+		if ( isset($posted_data[ FormElement::post_name_prefix . $field_name ]) ) {
+			return trim($posted_data[ FormElement::post_name_prefix . $field_name ]);
+		}
+		else {
+			return '';
+		}
 	}
 	
 	//------------------------------------------------------------------------------
