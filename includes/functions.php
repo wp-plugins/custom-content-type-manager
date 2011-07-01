@@ -71,8 +71,12 @@ function get_all_fields_of_type($type, $prefix='')
 SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
 where you need to print out the value of a specific custom field.
 
-This prints the 1st instance of the meta_key identified by $fieldname 
-associated with the current post. See get_post_meta() for more details.
+WordPress allows for multiple rows in wp_postmeta to share the same meta_key for 
+a single post; the CCTM plugin expects all meta_key's for a given post_id to be 
+unique.  To deal with the possibility that the user has created multiple custom 
+fields that share the same name for a single post (e.g. created manually with the 
+CCTM plugin disabled), this prints the 1st instance of the meta_key identified by 
+$fieldname associated with the current post. See get_post_meta() for more details.
 
 INPUT: 
 	$fieldname (str) the name of the custom field as defined inside the 

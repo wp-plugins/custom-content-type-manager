@@ -24,7 +24,7 @@ if ( !isset($cancel_target_url) ) {
 }
 
 ?>
-<?php print $style; ?>
+
 <div class="wrap">
 
 	<h2>
@@ -110,15 +110,15 @@ if ( !isset($cancel_target_url) ) {
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_post_type">
 					
 			
-			<?php if ( $action == 'create' ): ?>
+			<?php if ( isset($action) && $action == 'create' ): ?>
 				<label for="post_type" class="cctm_label cctm_text_label" id="cctm_label_post_type">
 				post_type* </label>
 				<input type="text" name="post_type" class="cctm_text" id="post_type" value="<?php print htmlspecialchars($post_type); ?>"/>
 			<?php else: ?>
-				<p><strong>post_type:</strong> movie</p>
+				<p><strong>post_type:</strong> <?php print $post_type; ?></p>
 				<input type="hidden" name="post_type" class="cctm_readonly" id="post_type" value="<?php print $post_type; ?>"/>			
 			<?php endif; ?>
-			<span class="cctm_description">This name may show up in your URLs, e.g. ?movie=star-wars. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-<?php print htmlspecialchars($post_type); ?>.php</code>.</span>
+			<span class="cctm_description">This name may show up in your URLs, e.g. ?<?php print $post_type; ?>=my-<?php print $post_type; ?>. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-<?php print htmlspecialchars($post_type); ?>.php</code>.</span>
 		</div>
 		
 		<!-- menu_name_label -->
@@ -316,39 +316,39 @@ if ( !isset($cancel_target_url) ) {
 		<!--!Supports -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_title">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_title" value="title" <?php print CCTM::is_checked($def['supports'], 'title'); ?> /> 
-			<label for="supports_title" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Title</label>
+			<label for="supports_title" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_title_label">Title</label>
 			<span class="cctm_description">Post Title</span>
 		</div>
 			
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_editor">		
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_editor" value="editor" <?php print CCTM::is_checked($def['supports'], 'editor'); ?> /> 
-			<label for="supports_editor" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Content</label>
+			<label for="supports_editor" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_content_label">Content</label>
 					<span class="cctm_description">Main content block.</span>
 		</div>
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_author">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_author" value="author"  /<?php print CCTM::is_checked($def['supports'], 'author'); ?> > 
-			<label for="supports_author" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Author</label>
+			<label for="supports_author" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_author_label">Author</label>
 			<span class="cctm_description">Track the author.</span>
 		</div>
 					
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_excerpt">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_excerpt" value="excerpt"  <?php print CCTM::is_checked($def['supports'], 'excerpt'); ?>/> 
-			<label for="supports_excerpt" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Excerpt</label>
+			<label for="supports_excerpt" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_excerpt_label">Excerpt</label>
 			<span class="cctm_description">Small summary field.</span>
 		</div>
 		
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_custom-fields">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_custom-fields" value="custom-fields" <?php print CCTM::is_checked($def['supports'], 'custom-fields'); ?> /> 
-			<label for="supports_custom-fields" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Supports Custom Fields</label>
+			<label for="supports_custom-fields" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_custom_fields_label">Supports Custom Fields</label>
 			<span class="cctm_description">Currently, this functionality is overridden by any custom fields you have defined for this content type.</span>
 		</div>
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_post-formats">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_post-formats" value="post-formats" <?php print CCTM::is_checked($def['supports'], 'post-formats'); ?> /> 
-			<label for="supports_post-formats" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Post Formats</label>
+			<label for="supports_post-formats" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_post_formats_label">Post Formats</label>
 			<span class="cctm_description">A Post Format is a piece of meta information that can be used by a theme to customize its presentation of a post.</span>
 		</div>
 		
@@ -371,7 +371,7 @@ if ( !isset($cancel_target_url) ) {
 			<!-- supports_thumbnail -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_thumbnail">
 				<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_thumbnail" value="thumbnail" <?php print CCTM::is_checked($def['supports'], 'thumbnail'); ?> /> 
-				<label for="supports_thumbnail" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Thumbnail</label>
+				<label for="supports_thumbnail" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_thumbnail_label">Thumbnail</label>
 				<span class="cctm_description">Featured image. The active theme must also support post-thumbnails. Include the following line in your theme's functions.php file: <br/><code>add_theme_support( 'post-thumbnails', array( '<?php print $post_type; ?>' ) );</code></span>
 			</div>
 			
@@ -533,20 +533,26 @@ if ( !isset($cancel_target_url) ) {
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_trackbacks">
 					
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_trackbacks" value="trackbacks" <?php print CCTM::is_checked($def['supports'], 'trackbacks'); ?> /> 
-			<label for="supports_trackbacks" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Trackbacks</label>
+			<label for="supports_trackbacks" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_trackbacks_label">Trackbacks</label>
 		</div>
 		
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_comments">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_comments" value="comments"  <?php print CCTM::is_checked($def['supports'], 'comments'); ?>/> 
-			<label for="supports_comments" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Enable Comments</label>
+			<label for="supports_comments" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_comments_label">Enable Comments</label>
 		</div>
 		
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_revisions">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_revisions" value="revisions" <?php print CCTM::is_checked($def['supports'], 'revisions'); ?> /> 
-			<label for="supports_revisions" class="cctm_label cctm_checkbox_label" id="cctm_label_supports[]">Store Revisions</label>
+			<label for="supports_revisions" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_revisions_label">Store Revisions</label>
 					<span class="cctm_description">Revisions are useful if you ever need to go back to an older version of a document.</span>
+		</div>
+
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_archive">			
+			<input type="checkbox" name="has_archive" class="cctm_checkbox" id="has_archive" value=""/> 
+			<label for="supports_has_archive" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_archives_label">Supports Archives</label>
+					<span class="cctm_description">Archives</span>
 		</div>
 	
 		<hr />

@@ -28,6 +28,7 @@ class CCTM_image extends FormElement
 	*/
 	public $props = array(
 		'label' => '',
+		'button_label' => '',
 		'name' => '',
 		'description' => '',
 		'class' => '',
@@ -95,9 +96,12 @@ class CCTM_image extends FormElement
 		#$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
 		$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=image';
 		$click_label = __('Choose Image');
+		if ($this->props['button_label']) {
+			$click_label = $this->props['button_label'];
+		}
+		$remove_label = __('Remove');
 		
 		// It has a value
-		//! TODO: Thickbox this.
 		if ( !empty($current_value) )
 		{
 			$attachment_post = get_post($current_value, ARRAY_A);
@@ -116,8 +120,11 @@ class CCTM_image extends FormElement
 			<div id="'.$this->get_field_id().'_media">'.$preview_html.'</div>
 			<br class="clear" />
 			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="thickbox button">'
-			.$click_label.'</a>
+			.$click_label.'</a> 
+			<span class="button" onclick="javascript:remove_relation(\''.$this->get_field_id().'\',\''.$this->get_field_id().'_media\')">'.$remove_label.'</span>
 			<br class="clear" /><br />';
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 
@@ -153,6 +160,7 @@ class CCTM_image extends FormElement
 		// Initialize / defaults
 		$preview_html = '';
 		$click_label = __('Choose Image');
+		$remove_label = __('Remove');
 		$label = __('Default Image', CCTM_TXTDOMAIN);
 		$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=image';
 			
@@ -165,10 +173,22 @@ class CCTM_image extends FormElement
 			
 		}
 
+
+		// Button Label
+		$out .= '<div class="'.self::wrapper_css_class .'" id="button_label_wrapper">
+			 		<label for="button_label" class="'.self::label_css_class.'">'
+			 			.__('Button Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="button_label" class="'.self::css_class_prefix.'text" id="button_label" value="'.htmlspecialchars($def['button_label']) .'"/>
+			 		' . $this->get_translation('button_label').'
+			 	</div>';
+			 	
 		// Default Value 			
 		$out .= '
 			<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="'.$label.'" class="thickbox button">'.$click_label.'</a></span> 
+				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="'.$label.'" class="thickbox button">'.$click_label.'</a>
+				<span class="button" onclick="javascript:remove_relation(\'default_value\',\'default_value_media\');">'.$remove_label.'</span>
+				</span> 
+				
 				<input type="hidden" id="default_value" name="default_value" value="'
 					.htmlspecialchars($def['default_value']).'" /><br />
 				<div id="default_value_media">'.$preview_html.'</div>

@@ -145,6 +145,8 @@ class CCTM_checkbox extends FormElement
 		);
 
 		$output .= $this->wrap_label();
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 

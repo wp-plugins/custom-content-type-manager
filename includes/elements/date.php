@@ -91,6 +91,9 @@ class CCTM_date extends FormElement
 			$default_value = $this->default_value;
 			$this->default_value = eval("return $default_value;"); 
 		}
+		
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->get_edit_field_instance($this->default_value); 
 	}
 

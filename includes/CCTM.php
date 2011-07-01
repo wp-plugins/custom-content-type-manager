@@ -143,37 +143,8 @@ class CCTM {
 
 	public static $errors; // used to store validation errors
 
-	/*------------------------------------------------------------------------------
-	This var stores the big definition for the forms that allow users to define
-	custom post-types. The form is generated in a way so that when it is posted, it
-	can be easily passed to WP's register_post_type() function.
-
-	We populate the value via the setter function, _set_post_type_form_definition(),
-	but we do not have a getter. Since we are lazy, and PHP doesn't require
-	getters/setters, we would have forgone the setter function if possible, but we
-	had to use a setter simply to avoid the PHP syntax errors that would have
-	errupted had we tried something like this:
-
-		public $myvar = array( 'val' => __('somevalue') );
-
-	That fails because we can't use the __() function nakedly when declaring a class
-	variable. :(
-	------------------------------------------------------------------------------*/
-	public static $post_type_form_definition = array();
-
-	/*------------------------------------------------------------------------------
-	This array defines the form used for all new custom field definitions.
-	The variable is populated via a setter: _set_custom_field_def_template() for
-	the same reason as the $post_type_form_definition var above (see above).
-
-	See the _page_manage_custom_fields() function for when and how these forms
-	are used and handled.
-	------------------------------------------------------------------------------*/
-	public static $custom_field_def_template = array();
-
 
 	//! Private Functions
-
 	//------------------------------------------------------------------------------
 	/**
 	 * This formats any errors registered in the class $errors array. The errors 
@@ -618,7 +589,6 @@ class CCTM {
 		$title = self::_get_value($import_data, 'title');
 		
 		// Variables for our template
-		$style   = '';
 		$page_header = sprintf( __('Import Definition: %s', CCTM_TXTDOMAIN), $title );
 		$fields   = '';
 		$action_name = 'custom_content_type_mgr_import_def';
@@ -714,7 +684,7 @@ class CCTM {
 		
 		// Page variables
 		$heading = __('Create Field', CCTM_TXTDOMAIN);
-		
+		$msg = '';
 		$action_name  = 'custom_content_type_mgr_create_new_custom_field';
 		$nonce_name  = 'custom_content_type_mgr_create_new_custom_field_nonce';
 		$success_msg = sprintf('<div class="updated"><p>%s</p></div>'
@@ -737,6 +707,8 @@ class CCTM {
 			// Validate and sanitize any submitted data
 			$field_data 		= $FieldObj->save_definition_filter($_POST, $post_type);
 			$field_data['type'] = $field_type; // same effect as adding a hidden field
+			
+			$field_data['sort_param'] = 0; // default: up top
 			
 			$FieldObj->props 	= $field_data;  // This is how we repopulate data in the create forms
 
@@ -785,12 +757,13 @@ class CCTM {
 		// Variables for our template
 		$page_header  = __('Create Custom Content Type', CCTM_TXTDOMAIN);
 		$fields   = '';
+
 		$action_name  = 'custom_content_type_mgr_create_new_content_type';
 		$nonce_name  = 'custom_content_type_mgr_create_new_content_type_nonce';
 		$submit   = __('Create New Content Type', CCTM_TXTDOMAIN);
 		$action = 'create';
 		$msg    = '';
-
+		$post_type = ''; // as default
 		$def = self::$default_post_type_def;
 //		$def = self::$post_type_form_definition;
 
@@ -844,7 +817,6 @@ class CCTM {
 			return;
 		}
 		// Variables for our template
-		$style   = '';
 		$page_header  = sprintf( __('Deactivate Content Type %s', CCTM_TXTDOMAIN), $post_type );
 		$fields   = '';
 		$action_name  = 'custom_content_type_mgr_deactivate_content_type';
@@ -982,7 +954,6 @@ class CCTM {
 		}
 
 		// Variables for our template
-		$style   = '';
 		$page_header = sprintf( __('Delete Content Type: %s', CCTM_TXTDOMAIN), $post_type );
 		$fields   = '';
 		$action_name = 'custom_content_type_mgr_delete_content_type';
@@ -1058,6 +1029,7 @@ class CCTM {
 			self::_page_display_error();
 			return;
 		}
+		$msg = '';
 		
 		$nonce = self::_get_value($_GET, '_wpnonce');
 		if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
@@ -1124,7 +1096,7 @@ class CCTM {
 			// Validate and sanitize any submitted data
 			$field_data 		= $FieldObj->save_definition_filter($_POST, $post_type);
 			$field_data['type'] = $field_type; // same effect as adding a hidden field
-			
+			$field_data['sort_param'] = self::$data[$post_type]['custom_fields'][$field_name]['sort_param'];
 			$FieldObj->props 	= $field_data;
 
 			// Any errors?
@@ -1177,7 +1149,6 @@ class CCTM {
 		}
 
 		// Variables for our template
-		$style   = '';
 		$page_header  = __('Edit Content Type: ') . $post_type;
 		$fields   = '';
 		$action_name = 'custom_content_type_mgr_edit_content_type';
@@ -1277,7 +1248,6 @@ class CCTM {
 		}
 
 		// Variables for our template
-		$style   = '';
 		$page_header = __('Reset custom field definitions', CCTM_TXTDOMAIN);
 		$fields   		= '';
 		$action_name 	= 'custom_content_type_mgr_delete_all_custom_fields';
@@ -1597,9 +1567,6 @@ class CCTM {
 		// Custom fields
 		foreach ( $def as $d ) {
 			switch ($d['type']) {
-			case 'media':
-				$custom_fields_str .= "\t\t<?php /* http://codex.wordpress.org/Function_Reference/wp_get_attachment_image */ ?>\n";
-				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print wp_get_attachment_image( get_custom_field('%s'), 'full'); ?><br />\n", $d['label'], $d['name']);
 			case 'text':
 			default:
 				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n", $d['label'], $d['name']);
@@ -1913,27 +1880,6 @@ class CCTM {
 
 		update_option( self::db_key, self::$data );
 	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This defines the form required to define a custom field. Note that names imply
-	 * arrays, e.g. name="custom_fields[3][label]".
-	 * This is intentional: since all custom field definitions are stored as a serialized
-	 * array in the wp_options table, we have to treat all defs as a kind of recordset
-	 * (i.e. an array of similar hashes).
-	 * 
-	 * [+def_i+] gets used by Javascript for on-the-fly adding of form fields (where
-	 * def_i is a Javascript variable indicating the definition number (or i for integer).
-	 * 
-	 *
-	 */
-	private static function _set_custom_field_def_template() {
-		include 'form_defs/custom_field.php';
-
-		self::$custom_field_def_template = $def;
-	}
-
 
 	//------------------------------------------------------------------------------
 	/**
@@ -2717,66 +2663,5 @@ class CCTM {
 	}
 
 }
-
-	//http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page
-	/*
-	$output contains something like this:
-	<select name="parent_id" id="parent_id">
-        <option value="">(no parent)</option>
-        <option class="level-0" value="706">Post1</option>
-	</select>
-
-	In wp-admin/edit-form-advanced.php we see this code:
-	
-		add_meta_box('pageparentdiv', 'page' == $post_type ? __('Page Attributes') : __('Attributes'), 'page_attributes_meta_box', $post_type, 'side', 'core');
-
-	which takes us here:
-	wp-admin/includes/template.php
-			
-		 * @param string $id String for use in the 'id' attribute of tags.
-		 * @param string $title Title of the meta box.
-		 * @param string $callback Function that fills the box with the desired content. The function should echo its output.
-		 * @param string $page The type of edit page on which to show the box (post, page, link).
-		 * @param string $context The context within the page where the boxes should show ('normal', 'advanced').
-		 * @param string $priority The priority within the context where the boxes should show ('high', 'low').
-		 
-		function add_meta_box($id, $title, $callback, $page, $context = 'advanced', $priority = 'default', $callback_args=null) {
-
-	which takes us here:
-	/includes/meta-boxes.php
-	
-	function page_attributes_meta_box
-
-	See /wp-includes/post-template.php
-	
-	
-	*/
-/*
-	// The wp_dropdown_pages filter really is the best way to do this... WP isn't defining any additional filters
-	// or actions during the course of that whole thing.
-	// add_filter('wp_dropdown_pages','multi_status_dropdown_pages', 100, 1);
-	function multi_status_dropdown_pages( $output ) {
-		$f = fopen('/tmp/test.txt','a+');
-		fwrite($f, print_r($output, true) );
-		
-		print_r($output); exit;
-		global $wpdb, $post;
-		if( preg_match('/name="(parent_id|post_parent)"/', $output) && $post->post_type="articles" ) {
-			$post_statuses = array('pending','publish');
-			$post_exclude = is_numeric($_GET['post']) ? ' AND ID!='.$_GET['post']:'';
-			$query = "SELECT * FROM ".$wpdb->posts." WHERE (post_type = 'page' AND (post_status='".implode("' OR post_status='",$post_statuses)."') AND $post_exclude ) ORDER BY menu_order, post_title ASC";
-			$pages = $wpdb->get_results($query);
-			$output = '';
-			if ( ! empty($pages) ) {
-				$output = "<select name=\"parent_id\" id=\"\">\n";
-				$output .= "\t<option value=\"\">".__('(no parent)')."</option>\n";
-				$output .= walk_page_dropdown_tree($pages, 0);
-				$output .= "</select>\n";
-			}
-		}
-		return $output;
-	}
-	add_filter('wp_dropdown_pages','multi_status_dropdown_pages', 100, 1);
-*/
 
 /*EOF CCTM.php*/

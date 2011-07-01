@@ -102,6 +102,8 @@ class CCTM_textarea extends FormElement
 			, $current_value
 		);
 		
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 

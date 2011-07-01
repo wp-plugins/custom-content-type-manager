@@ -97,13 +97,15 @@ abstract class FormElement {
 	 public function __construct() {
 				
 		// Run-time Localization
+		
+		$this->descriptions['button_label'] = __('How should the button be labeled?', CCTM_TXTDOMAIN);
 		$this->descriptions['class'] = __('Add a CSS class to instances of this field. Use this to customize styling in the WP manager.', CCTM_TXTDOMAIN);
 		$this->descriptions['extra'] = __('Any extra attributes for this text field, e.g. <code>size="10"</code>', CCTM_TXTDOMAIN);
 		$this->descriptions['default_option'] = __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
 		$this->descriptions['default_value'] = __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
 		$this->descriptions['description'] .= __('The following html tags are allowed:')
-			. '<code>'.htmlentities($this->allowed_html_tags).'</code>';
+			. '<code>'.htmlentities(CCTM::$allowed_html_tags).'</code>';
 		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
@@ -226,6 +228,7 @@ abstract class FormElement {
 	 *
 	 * The form returned is what is displayed when a user is creating a post that contains
 	 * an instance of this field type.
+	 *
 	 * @param	string	$current_value is the current value for the field, as stored in the 
 	 *					wp_postmeta table for the post being edited.
 	 * @return	string	HTML element.
@@ -359,12 +362,20 @@ abstract class FormElement {
 	
 	//------------------------------------------------------------------------------
 	/**
-	* Use this function to wrap the HTML for a single form element in a div.
-	* @param	string	$html	The HTML that generates the info for a particular element,
-	*							typically an HTML <input> and its <label>
-	* @param	string	$class	Optional CSS class to further define the wrapper <div>
-	* @return	string	The input $html wrapped in a div.
-	*/
+	 * Wraps a description with a unified bit of styling.
+	 */
+	protected function wrap_description($str) {
+		return sprintf('<span class="cctm_description">%s</span>', $str);
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Use this function to wrap the HTML for a single form element in a div.
+	 * @param	string	$html	The HTML that generates the info for a particular element,
+	 *							typically an HTML <input> and its <label>
+	 * @param	string	$class	Optional CSS class to further define the wrapper <div>
+	 * @return	string	The input $html wrapped in a div.
+	 */
 	protected function wrap_element($html, $class='') {
 		$wrapper = '
 		<div class="cctm_element_wrapper %s" id="custom_field_wrapper_%s">
@@ -452,7 +463,7 @@ abstract class FormElement {
 		include_once('OutputFilters.php');
 		$OutputFilters = new OutputFilters();
 		
-		$out .= '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
+		$out = '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
 			 	<label for="output_filter" class="cctm_label cctm_select_label" id="output_filter_label">'
 			 		.__('Output Filter', CCTM_TXTDOMAIN) .'
 			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
@@ -612,7 +623,7 @@ abstract class FormElement {
 		}
 		else {
 			// Are there any invalid characters? 1st char. must be a letter (req'd for valid prop/func names)
-			if ( preg_match('/^[^a-z]{1}[^a-z_0-9]*/i', $posted_data['name'])) {
+			if ( !preg_match('/^[a-z]{1}[a-z_0-9]*$/i', $posted_data['name'])) {
 				$this->errors['name'][] = sprintf(
 					__('%s contains invalid characters. The name may only contain letters, numbers, and underscores, and it must begin with a letter.', CCTM_TXTDOMAIN)
 					, '<strong>'.$posted_data['name'].'</strong>');

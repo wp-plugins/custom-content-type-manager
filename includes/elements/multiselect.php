@@ -93,7 +93,10 @@ class CCTM_multiselect extends FormElement
 	public function get_edit_field_instance($current_value) {
 
 		$current_values_arr = json_decode(html_entity_decode($current_value), true );
-
+		foreach ( $current_values_arr as $i => $v ) {
+			$current_values_arr[$i] = utf8_decode($v);
+		}
+// print_r($current_values_arr);
 		// Some error messaging: the options thing is enforced at time of def creation too
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
@@ -121,6 +124,7 @@ class CCTM_multiselect extends FormElement
 			}
 		$output .= '</select>';
 */
+
 		// Multiple Checkboxes
 		$output = $this->wrap_label('cctm_multiselect_checkbox') . '<br/>';
 		
@@ -135,9 +139,12 @@ class CCTM_multiselect extends FormElement
 				$is_checked = 'checked="checked"';
 			}
 			//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
-			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.$opt.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.htmlspecialchars($opt).'</label></div><br/>';
+			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.htmlspecialchars(utf8_encode($opt)).'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.htmlspecialchars($opt).'</label></div><br/>';
 			$i = $i + 1;
 		}
+		
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 
@@ -204,7 +211,6 @@ class CCTM_multiselect extends FormElement
 			 	</div>';
 			
 		// OPTIONS
-
 		$option_cnt = 0;
 		if (isset($def['options'])) {
 			$option_cnt = count($def['options']);
@@ -308,9 +314,14 @@ class CCTM_multiselect extends FormElement
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		return json_encode($posted_data[ FormElement::post_name_prefix . $field_name ]);
+		// print_r($posted_data[ FormElement::post_name_prefix . $field_name ]); exit;
+		if ( isset($posted_data[ FormElement::post_name_prefix . $field_name ]) ) {
+			return json_encode($posted_data[ FormElement::post_name_prefix . $field_name ]);		
+		}
+		else {
+			return '';
+		}
 	}
-
 }
 
 

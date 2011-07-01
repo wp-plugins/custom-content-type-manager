@@ -29,6 +29,7 @@ class CCTM_relation extends FormElement
 	*/
 	public $props = array(
 		'label' => '',
+		'button_label' => '',
 		'name' => '',
 		'description' => '',
 		'class' => '',
@@ -94,7 +95,12 @@ class CCTM_relation extends FormElement
 		$preview_html = '';
 		#$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
 		$controller_url = CCTM_URL.'/post-selector.php?post_mime_type=';
+
 		$click_label = __('Choose Relation');
+		if ($this->props['button_label']) {
+			$click_label = $this->props['button_label'];
+		}
+		$remove_label = __('Remove');
 		
 		// It has a value
 		if ( !empty($current_value) )
@@ -116,7 +122,11 @@ class CCTM_relation extends FormElement
 			<br class="clear" />
 			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="thickbox button">'
 			.$click_label.'</a>
+			<span class="button" onclick="javascript:remove_relation(\''.$this->get_field_id().'\',\''.$this->get_field_id().'_media\')">'.$remove_label.'</span>
 			<br class="clear" /><br />';
+			
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 
@@ -153,6 +163,7 @@ class CCTM_relation extends FormElement
 		$preview_html = '';
 		$click_label = __('Choose Relation');
 		$label = __('Default Value', CCTM_TXTDOMAIN);
+		$remove_label = __('Remove');
 		$controller_url = CCTM_URL.'/post-selector.php?';
 			
 		// Handle the display of the Default Image thumbnail
@@ -165,10 +176,20 @@ class CCTM_relation extends FormElement
 			
 		}
 
+		// Button Label
+		$out .= '<div class="'.self::wrapper_css_class .'" id="button_label_wrapper">
+			 		<label for="button_label" class="'.self::label_css_class.'">'
+			 			.__('Button Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="button_label" class="'.self::css_class_prefix.'text" id="button_label" value="'.htmlspecialchars($def['button_label']) .'"/>
+			 		' . $this->get_translation('button_label').'
+			 	</div>';
+
 		// Default Value 			
 		$out .= '
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_2">
-				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a></span> 
+				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a>
+					<span class="button" onclick="javascript:remove_relation(\'default_value\',\'default_value_media\');">'.$remove_label.'</span>
+				</span> 
 				<input type="hidden" id="default_value" name="default_value" value="'
 				.htmlspecialchars($def['default_value']).'" /><br />
 				<div id="default_value_media">'.$preview_html.'</div>

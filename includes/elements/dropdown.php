@@ -113,6 +113,8 @@ class CCTM_dropdown extends FormElement
 			}
 		$output .= '</select>';
 		
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 

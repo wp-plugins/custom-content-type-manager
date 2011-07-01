@@ -112,6 +112,8 @@ class CCTM_wysiwyg extends FormElement
 			, $this->get_field_name()
 		);
 		
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 

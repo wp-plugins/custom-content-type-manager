@@ -5,6 +5,7 @@
  * instance. These functions must take one input (the value stored in the database),
  * and they can optionally take a 2nd input (additional options).
  */
+ 
 class OutputFilters {
 
 	/**
@@ -24,6 +25,7 @@ class OutputFilters {
 		$this->descriptions['to_image_array'] = __('Array of image src, width, height', CCTM_TXTDOMAIN );
 		$this->descriptions['to_link'] = __('Full link &lt;a&gt; tag', CCTM_TXTDOMAIN );
 		$this->descriptions['to_link_href'] = __('Link href only', CCTM_TXTDOMAIN );
+		$this->descriptions['to_src'] = __('Source of referenced item', CCTM_TXTDOMAIN );
 	}
 
 	/**
@@ -50,10 +52,18 @@ class OutputFilters {
 
 	/**
 	 * Translate a json-formatted array into an actual array
+	 *
+	 * See issue #88:
+	 *	http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
+	 * @param	string	the value stored in the database
+	 * @param	mixed	a string separator (e.g. a comma), or an array containing
+	 *					a template for each item, and a template for the output wrapper.
 	 */
 	public function formatted_list($value, $opts) {
 
-		$array = $this->to_array($value);
+//		$array = $this->to_array($value);
+		$array = json_decode(html_entity_decode($value), true );
+		
 		if ( !empty($opts) && is_array($opts) ) {
 			$out = '';
 			// format each value
@@ -73,7 +83,11 @@ class OutputFilters {
 				return CCTM::parse($opts[1], $hash);		
 			}			
 		}
+		// Simple string separator 
 		elseif (!empty($opts) && !is_array($opts) ) {
+			foreach ( $array as $i => $item ) {
+				$array[$i] = htmlspecialchars($item);
+			}
 			return implode($opts, $array);
 		}
 		else{
@@ -91,7 +105,7 @@ class OutputFilters {
 	
 	
 	/**
-	 * Translate a post_id to the src for the image represented by the 
+	 * Translate a post_id to the src for the referenced image.
 	 */
 	public function to_image_src($value) {
 		return $this->to_link_href($value);
@@ -134,6 +148,12 @@ class OutputFilters {
 		return $post->guid;
 	}
 
+	/**
+	 * Translate a post_id to the src for the referenced item.
+	 */
+	public function to_src($value) {
+		return $this->to_link_href($value);
+	}
 
 }
 /*EOF*/

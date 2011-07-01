@@ -78,7 +78,7 @@
   };
 
   $.fn.mColorPicker.defaults = {
-    imageFolder: '../wp-content/plugins/custom-content-type-mgr/js/images/',
+    imageFolder: '../wp-content/plugins/custom-content-type-manager/js/images/',
     swatches: [
       "#ffffff",
       "#ffff00",

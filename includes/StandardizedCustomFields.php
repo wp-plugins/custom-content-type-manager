@@ -114,9 +114,10 @@ class StandardizedCustomFields
 
 	/**
 	 * WP only allows users to select PUBLISHED pages of the same post_type in their hierarchical
-	 * menus.  And there are no filters for this whole thing save at the end to filter the HTML.
-	 * Arrgh... this is grossly inefficient, but here we optionally pimp out the HTML to offer 
-	 * users sensible choices.
+	 * menus.  And there are no filters for this whole thing save at the end to filter the generated 
+	 * HTML before it is sent to the browser. Arrgh... this is grossly inefficient!!
+	 * It's inefficient, but here we optionally pimp out the HTML to offer users sensible choices for
+	 * hierarchical parents.
 	 *
 	 * @param	string	incoming html element for selecting a parent page, e.g.
 	 *						<select name="parent_id" id="parent_id">

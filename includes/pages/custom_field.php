@@ -9,7 +9,7 @@ $back_link = sprintf(
 		);
 ?>
 
-<form id="custom_post_type_manager_basic_form" method="post" action="<?php print $action_link;?>">
+<form id="custom_post_type_manager_basic_form" method="post" action="<?php print $submit_link;?>">
 
 <div class="wrap">
 	<h2>

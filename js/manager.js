@@ -28,6 +28,7 @@ function set_as_default(source_id)
 	new_default_value = jQuery('#'+source_id).val();
 	jQuery('#default_value').val(new_default_value);
 }
+
 /*------------------------------------------------------------------------------
 Remove the HTML identified by the target_id
 ------------------------------------------------------------------------------*/
@@ -36,3 +37,15 @@ function remove_html( target_id )
 	jQuery('#'+target_id).remove();	
 }
 	
+/*------------------------------------------------------------------------------
+Remove the associated image, media, or relation item.  This means the hidden 
+field that stores the actual value must be set to null and the preview hmtl
+must be cleared.
+@param 	string	target_id is the hidden field id that needs to be nulled
+@param	string	target_html is the id of the div whose html needs to be cleared
+------------------------------------------------------------------------------*/
+function remove_relation( target_id, target_html )
+{
+	jQuery('#'+target_id).val('');
+	jQuery('#'+target_html).html('');	
+}

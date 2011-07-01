@@ -102,6 +102,8 @@ class CCTM_colorselector extends FormElement
 			, $this->extra
 		);
 		
+		$output .= $this->wrap_description($this->props['description']);
+		
 		return $this->wrap_outer($output);
 	}
 
