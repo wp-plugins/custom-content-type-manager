@@ -114,7 +114,9 @@ class CCTM {
 		    'can_export' => 1,
 		    'use_default_menu_icon' => 1,
 		    'hierarchical' => 0,
-		    'rewrite' => ''
+		    'rewrite' => '',
+			'has_archive_enabled' => 0,
+		    'has_archive' => ''
 		);
 
 
@@ -1782,6 +1784,15 @@ class CCTM {
 		$sanitized['use_default_menu_icon'] = (bool) self::_get_value($raw, 'use_default_menu_icon');
 		$sanitized['hierarchical']    = (bool) self::_get_value($raw, 'hierarchical');
 
+		if ( empty($sanitized['has_archive']) ) {
+			$sanitized['has_archive'] = false;
+		}
+		else {
+			$sanitized['has_archive'] = strtolower($sanitized['has_archive']);
+			$sanitized['has_archive'] = preg_replace('/[^a-z|_]/', '_', $sanitized['has_archive']);
+			$sanitized['has_archive'] = substr($sanitized['has_archive'], 0, 20);
+		}
+		
 		// *facepalm*... Special handling req'd here for menu_position because 0
 		// is handled differently than a literal null.
 		if ( (int) self::_get_value($raw, 'menu_position') ) {
@@ -2019,7 +2030,37 @@ class CCTM {
 		}
 		return true;
 	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Custom manipulation of the WHERE clause used by the wp_get_archives() function.
+	 * WP deliberately omits custom post types from archive results.
+	 *
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
+	 */		
+	public static function get_archives_where_filter( $where , $r ) {
+	
+		// Get only public, custom post types
+		$args = array( 'public' => true, '_builtin' => false ); 		
+		$public_post_types = get_post_types( $args );
 		
+		// Only posts get archives... not pages.
+		$search_me_post_types = array('post');
+		
+		// check which have 'has_archive' enabled.
+		foreach (self::$data as $post_type => $def) {
+			if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
+					$search_me_post_types[] = $post_type;
+			} 
+		}
+		
+		$post_types = "'" . implode( "' , '" , $search_me_post_types ) . "'";
+		
+		return str_replace( "post_type = 'post'" , "post_type IN ( $post_types )" , $where );
+	}
+
+
 	//------------------------------------------------------------------------------
 	/**
 	 *  Defines the diretory for this plugin.
@@ -2578,6 +2619,22 @@ class CCTM {
 
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * See issue 13 for full archive suport:
+	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
+	 * and http://bajada.net/2010/08/31/custom-post-types-in-the-loop-using-request-instead-of-pre_get_posts
+	 */
+	public static function request_filter( $query ) {
+		// Preview does not like having post_type set; feed is my personal preference.
+		if ( empty( $query['preview'] ) && empty( $query['feed'] ) ) {
+			if ( empty( $query['post_type'] ) ) {
+				$query['post_type'] = 'any'; // this should be only posts + archive-enabled post types
+			}
+		}
+		
+		return $query;
+	}
 
 	//------------------------------------------------------------------------------
 	/**

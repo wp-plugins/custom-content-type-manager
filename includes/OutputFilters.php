@@ -33,9 +33,10 @@ class OutputFilters {
 	 * in your templates to the end users.
 	 */
 	public function convert_date_format($value, $new_format=null) {
-	
+		//!TODO
 	}
 
+	//------------------------------------------------------------------------------
 	/**
 	 * Simple way to encode an email address.  
 	 * See http://davidwalsh.name/php-email-encode-prevent-spam
@@ -50,6 +51,7 @@ class OutputFilters {
 		return $output;
 	}
 
+	//------------------------------------------------------------------------------
 	/**
 	 * Translate a json-formatted array into an actual array
 	 *
@@ -95,7 +97,7 @@ class OutputFilters {
 		}
 	}
 
-
+	//------------------------------------------------------------------------------
 	/**
 	 * Translate a json-formatted array into an actual array
 	 */
@@ -103,7 +105,7 @@ class OutputFilters {
 		return json_decode($value, true);
 	}
 	
-	
+	//------------------------------------------------------------------------------
 	/**
 	 * Translate a post_id to the src for the referenced image.
 	 */
@@ -111,6 +113,7 @@ class OutputFilters {
 		return $this->to_link_href($value);
 	}
 
+	//------------------------------------------------------------------------------
 	/**
 	 * Translate a post_id to a full image tag.
 	 */
@@ -118,6 +121,7 @@ class OutputFilters {
 		return wp_get_attachment_image($value, $options);
 	}
 	
+	//------------------------------------------------------------------------------
 	/**
 	 * Returns an array of an image's src, width, and height
 	 * @ return 	array of an image's src, width, and height
@@ -126,6 +130,7 @@ class OutputFilters {
 		return wp_get_attachment_image_src( $value, $options, true);
 	}
 
+	//------------------------------------------------------------------------------
 	/**
 	 * Returns a full anchor tag (<a>) the post_id passed in as a value.
 	 * @param	integer	post ID
@@ -140,10 +145,12 @@ class OutputFilters {
 		return sprintf('<a href="%s">%s</a>', $post->guid, $link_text);
 	}
 	
+	//------------------------------------------------------------------------------
 	/**
 	 * Retrieves the GUID for the post_id passed in as a value.
 	 */
 	public function to_link_href($value) {
+		// we do this b/c default behavior is to return THIS post's guid if the $value is empty
 		if ($value) {
 			$post = get_post($value);
 			return $post->guid;
@@ -153,6 +160,7 @@ class OutputFilters {
 		}
 	}
 
+	//------------------------------------------------------------------------------
 	/**
 	 * Translate a post_id to the src for the referenced item.
 	 */

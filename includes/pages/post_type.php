@@ -39,6 +39,7 @@ if ( !isset($cancel_target_url) ) {
 	
 
 <script>
+	/* Hide some of the divs by default */
 	jQuery(document).ready(function(){
 		toggle_image_detail();
 		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
@@ -549,10 +550,16 @@ if ( !isset($cancel_target_url) ) {
 					<span class="cctm_description">Revisions are useful if you ever need to go back to an older version of a document.</span>
 		</div>
 
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_archive">			
-			<input type="checkbox" name="has_archive" class="cctm_checkbox" id="has_archive" value=""/> 
-			<label for="supports_has_archive" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_archives_label">Supports Archives</label>
-					<span class="cctm_description">Archives</span>
+		<div class="cctm_element_wrapper" id="extended_archive_info">
+				<!-- archive slug -->
+				<div class="cctm_element_wrapper" id="custom_field_wrapper_has_archive">
+					<label for="has_archive" class="cctm_label cctm_text_label" id="cctm_label_has_archive_label">
+						Enable Archives
+					</label>
+					<input type="text" name="has_archive" class="cctm_text" id="has_archive" value="<?php print htmlspecialchars($def['has_archive']); ?>"/>
+					<span class="cctm_description">Use string as archive slug. Will generate the proper rewrite rules if rewrite is enabled. To disable, leave blank.</span>
+
+				</div>	
 		</div>
 	
 		<hr />

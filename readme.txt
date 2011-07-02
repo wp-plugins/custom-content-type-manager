@@ -3,7 +3,7 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.1.3
+Tested up to: 3.1.4
 Stable tag: 0.9.1
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
@@ -35,7 +35,7 @@ Please use the following links for support and discussion:
 
 This plugin uses the standard installation procedure, but here is a typical use-case verbosely for the record:
 
-1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
+1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall and remove the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
 1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
 1. Upon activation you can adjust the plugin settings by clicking the newly created "Custom Content Types" menu item, or click this plugin's "Settings" link on the Plugins page.
