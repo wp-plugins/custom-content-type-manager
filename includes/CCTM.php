@@ -2621,6 +2621,8 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * This filters the basic page lookup so URLs like http://mysite.com/archives/date/2010/11
+	 * will return custom post types.
 	 * See issue 13 for full archive suport:
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
 	 * and http://bajada.net/2010/08/31/custom-post-types-in-the-loop-using-request-instead-of-pre_get_posts
@@ -2629,7 +2631,22 @@ class CCTM {
 		// Preview does not like having post_type set; feed is my personal preference.
 		if ( empty( $query['preview'] ) && empty( $query['feed'] ) ) {
 			if ( empty( $query['post_type'] ) ) {
-				$query['post_type'] = 'any'; // this should be only posts + archive-enabled post types
+
+				// Get only public, custom post types
+				$args = array( 'public' => true, '_builtin' => false ); 		
+				$public_post_types = get_post_types( $args );
+
+				// Only posts get archives... not pages.
+				$search_me_post_types = array('post');
+				
+				// check which have 'has_archive' enabled.
+				foreach (self::$data as $post_type => $def) {
+					if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
+							$search_me_post_types[] = $post_type;
+					} 
+				}
+
+				$query['post_type'] = $search_me_post_types;
 			}
 		}
 		
