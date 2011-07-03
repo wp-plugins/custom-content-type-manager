@@ -48,8 +48,8 @@ if ( empty(CCTMtests::$errors) )
 	add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
 	
 	// Enable archives for custom post types
-	add_filter( 'getarchives_where' , 'CCTM::get_archives_where_filter' , 10 , 2 );
-	add_filter( 'request' , 'CCTM::request_filter' );
+	add_filter('getarchives_where', 'CCTM::get_archives_where_filter' , 10 , 2);
+	add_filter('request', 'CCTM::request_filter');
 }
 
 /*EOF*/

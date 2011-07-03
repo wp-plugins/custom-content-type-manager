@@ -115,8 +115,7 @@ class CCTM {
 		    'use_default_menu_icon' => 1,
 		    'hierarchical' => 0,
 		    'rewrite' => '',
-			'has_archive_enabled' => 0,
-		    'has_archive' => ''
+		    'has_archive' => 0
 		);
 
 
@@ -1788,9 +1787,7 @@ class CCTM {
 			$sanitized['has_archive'] = false;
 		}
 		else {
-			$sanitized['has_archive'] = strtolower($sanitized['has_archive']);
-			$sanitized['has_archive'] = preg_replace('/[^a-z|_]/', '_', $sanitized['has_archive']);
-			$sanitized['has_archive'] = substr($sanitized['has_archive'], 0, 20);
+			$sanitized['has_archive'] = true;
 		}
 		
 		// *facepalm*... Special handling req'd here for menu_position because 0
