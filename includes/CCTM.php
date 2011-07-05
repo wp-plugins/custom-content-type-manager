@@ -2625,27 +2625,38 @@ class CCTM {
 	 * and http://bajada.net/2010/08/31/custom-post-types-in-the-loop-using-request-instead-of-pre_get_posts
 	 */
 	public static function request_filter( $query ) {
-		// Preview does not like having post_type set; feed is my personal preference.
-		if ( empty( $query['preview'] ) && empty( $query['feed'] ) ) {
-			if ( empty( $query['post_type'] ) ) {
 
-				// Get only public, custom post types
-				$args = array( 'public' => true, '_builtin' => false ); 		
-				$public_post_types = get_post_types( $args );
-
-				// Only posts get archives... not pages.
-				$search_me_post_types = array('post');
-				
-				// check which have 'has_archive' enabled.
-				foreach (self::$data as $post_type => $def) {
-					if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
-							$search_me_post_types[] = $post_type;
-					} 
-				}
-
-				$query['post_type'] = $search_me_post_types;
-			}
+		// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=108
+		if ( isset($query['pagename']) || isset($query['preview']) || isset($query['feed']) || !empty($query['post_type']) ) {
+			return $query;
 		}
+
+		// Get only public, custom post types
+		$args = array( 'public' => true, '_builtin' => false ); 		
+		$public_post_types = get_post_types( $args );
+
+
+		// Categories can apply to posts and pages
+		$search_me_post_types = array('post','page');		
+		if ( isset($query['category_name']) ) {
+			foreach ($public_post_types as $pt => $tmp) {
+				$search_me_post_types[] = $pt;
+			}
+			$query['post_type'] = $search_me_post_types;
+			return $query;
+		}
+		
+		// Only posts get archives... not pages.
+		$search_me_post_types = array('post');		
+		
+		// check which have 'has_archive' enabled.
+		foreach (self::$data as $post_type => $def) {
+			if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
+					$search_me_post_types[] = $post_type;
+			} 
+		}
+
+		$query['post_type'] = $search_me_post_types;
 		
 		return $query;
 	}
