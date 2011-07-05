@@ -2627,7 +2627,12 @@ class CCTM {
 	public static function request_filter( $query ) {
 
 		// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=108
-		if ( isset($query['pagename']) || isset($query['preview']) || isset($query['feed']) || !empty($query['post_type']) ) {
+		// and http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
+		if ( empty($query) 
+			|| isset($query['pagename']) 
+			|| isset($query['preview']) 
+			|| isset($query['feed']) 
+			|| !empty($query['post_type']) ) {
 			return $query;
 		}
 
