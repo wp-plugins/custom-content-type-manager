@@ -2626,13 +2626,18 @@ class CCTM {
 	 */
 	public static function request_filter( $query ) {
 
+		// This is a troublesome little query... we need to monkey with it so WP will play nice with
+		// custom post types, but if you breathe on it wrong, chaos ensues.
 		// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=108
 		// and http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
+		// and http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112
 		if ( empty($query) 
 			|| isset($query['pagename']) 
 			|| isset($query['preview']) 
 			|| isset($query['feed']) 
+			|| isset($query['page_id'])
 			|| !empty($query['post_type']) ) {
+			
 			return $query;
 		}
 
