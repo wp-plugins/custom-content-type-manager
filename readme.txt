@@ -3,7 +3,7 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.2
+Tested up to: 3.2.1
 Stable tag: 0.9.3.3
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
@@ -71,6 +71,9 @@ Please see the online [FAQ](http://code.google.com/p/wordpress-custom-content-ty
 You can always checkout the most recent version of the code by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.4 =
+* Fixed [Issue 114](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114) where custom hierarchies were limited to only 5 items.
 	
 = 0.9.3.3 =
 * Fixed [Issue 112](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112) custom page templates were being ignored.
@@ -202,6 +205,9 @@ If you are eager to see a particular feature implemented in a future release, pl
 And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N).  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
+
+= 0.9.4 =
+Corrects issue with custom hierarchies.
 
 = 0.9.3.3 =
 Corrects yet another glitch where custom page templates were being ignored.

@@ -6,6 +6,14 @@
 * avoid the headaches caused from name pollution as much as possible.
 */
 
+/*
+I manually encoded the characters to Special HTML Characters, and created a field containing those characters. Next I headed to /includes/elements/multiselect.php and on line 145 and changed htmlspecialchars($opt) to htmlspecialchars_decode($opt). On my template file I uncluded the field with the following code: $g = get_custom_field('genre', ', '); echo htmlspecialchars_decode($g); and it worked.
+
+I know it's not a very good idea to encode to HTML Characters, but it's the only way to avoid problems with UTF-8 encoding. I believe it's possible to encode the field characters to HTML Characters before they go into database (though I couldn't find where it's done). The problem lies in including the field on the template file, because  get/print_custom_field is not a part of the plugin, but I'm sure it's possible to work this around.
+
+Run tests only upon activation
+http://codex.wordpress.org/Function_Reference/register_activation_hook
+*/
 // Required Files
 include_once('includes/constants.php');
 include_once('includes/CCTM.php');

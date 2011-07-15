@@ -551,7 +551,7 @@ if ( !isset($cancel_target_url) ) {
 		</div>
 
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_has_archive">
-			<input type="checkbox" name="has_archive" class="cctm_checkbox" id="has_archive" value="1" <?php print CCTM::is_checked($def['has_archive']); ?>/>
+			<input type="checkbox" name="has_archive" class="cctm_checkbox" id="has_archive" value="1" <?php if (isset($def['has_archive']) ) { print CCTM::is_checked($def['has_archive']); } ?>/>
 			<label for="has_archive" class="cctm_label cctm_checkbox_label" id="cctm_label_has_archive_label">
 				Enable Archives
 			</label>

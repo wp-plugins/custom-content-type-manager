@@ -163,7 +163,12 @@ class StandardizedCustomFields
 			}
 			
 			$args['post_type'] = CCTM::$data[$post_type]['cctm_hierarchical_post_types'];
+			// We gotta ensure ALL posts are returned.
+			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114
+			$args['numberposts'] = -1;
+
 			$posts = get_posts($args);
+
 			$html = '<select name="parent_id" id="parent_id">
 				<option value="">(no parent)</option>
 			';
