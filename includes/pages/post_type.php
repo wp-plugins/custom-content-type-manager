@@ -257,7 +257,7 @@ if ( !isset($cancel_target_url) ) {
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
 			</label>
-			<input type="text" name="labels[view_item]" class="cctm_text" id="view_item_label" value="<?php print htmlspecialchars($def['labels']['edit_item']); ?>"/>
+			<input type="text" name="labels[view_item]" class="cctm_text" id="view_item_label" value="<?php print htmlspecialchars($def['labels']['view_item']); ?>"/>
 			<span class="cctm_description">The view item text. Default is View Post/View Page</span>
 		</div>
 

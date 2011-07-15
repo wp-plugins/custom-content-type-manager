@@ -74,6 +74,7 @@ You can always checkout the most recent version of the code by going to your wp-
 
 = 0.9.4 =
 * Fixed [Issue 114](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114) where custom hierarchies were limited to only 5 items.
+* Fixed [Issue 115](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=115) where the "View Item" label was receiving incorrect values.
 	
 = 0.9.3.3 =
 * Fixed [Issue 112](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112) custom page templates were being ignored.
