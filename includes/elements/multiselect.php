@@ -92,14 +92,16 @@ class CCTM_multiselect extends FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
+		// die($current_value); 
+		// print CCTM::charset_decode_utf_8('€ª'); exit;
 		$current_values_arr = json_decode(html_entity_decode($current_value), true );
 		
 		if ( $current_values_arr and is_array($current_values_arr) ) {
 			foreach ( $current_values_arr as $i => $v ) {
-				$current_values_arr[$i] = utf8_decode($v);
+				$current_values_arr[$i] = CCTM::charset_decode_utf_8($v);
 			}
 		}
-// print_r($current_values_arr);
+		// print_r($current_values_arr); die;
 		// Some error messaging: the options thing is enforced at time of def creation too
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
@@ -135,14 +137,17 @@ class CCTM_multiselect extends FormElement
 		$name = $this->get_field_name();
 		$id = $this->get_field_id();
 		$class = $this->get_field_class($this->name, 'muticheckbox');
-		
+		//print_r($current_values_arr); exit;
 		foreach ($this->options as $opt) {
 			$is_checked = '';
-			if ( is_array($current_values_arr) && in_array( $opt, $current_values_arr) ) {
+			$utf_opt = CCTM::charset_decode_utf_8($opt);
+			//die($utf_opt); 
+			// print $utf_opt; exit;
+			if ( is_array($current_values_arr) && in_array( $utf_opt, $current_values_arr) ) {
 				$is_checked = 'checked="checked"';
 			}
 			//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
-			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.$opt.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.$opt.'</label></div><br/>';
+			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.$utf_opt.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.$opt.'</label></div><br/>';
 			$i = $i + 1;
 		}
 		
@@ -317,7 +322,7 @@ class CCTM_multiselect extends FormElement
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		print_r($posted_data[ FormElement::post_name_prefix . $field_name ]); exit;
+		// print_r($posted_data[ FormElement::post_name_prefix . $field_name ]); exit;
 		if ( isset($posted_data[ FormElement::post_name_prefix . $field_name ]) ) {
 			return json_encode($posted_data[ FormElement::post_name_prefix . $field_name ]);		
 		}

@@ -1966,14 +1966,14 @@ class CCTM {
 	 *
 	 * 		print 'ę'; // prints Ä™
 	 *
-	 * But this solves it:
+	 * But this solves it: 
 	 *
 	 * 		print charset_decode_utf_8('ę');
 	 *
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
 	 * Solution from Squirrelmail, see http://pa2.php.net/manual/en/function.utf8-decode.php
 	 */
-	public static function charset_decode_utf_8 ($string) { 
+	public static function charset_decode_utf_8($string) { 
 		/* Only do the slow convert if there are 8-bit characters */ 
 		/* avoid using 0xA0 (\240) in ereg ranges. RH73 does not like that */ 
 		if (! ereg("[\200-\237]", $string) and ! ereg("[\241-\377]", $string)) {

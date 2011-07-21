@@ -102,7 +102,14 @@ class OutputFilters {
 	 * Translate a json-formatted array into an actual array
 	 */
 	public function to_array($value) {
-		return json_decode($value, true);
+		$output = json_decode($value, true);
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
+		if ( !is_array($output) ) {
+			return array($output);
+		}
+		else {
+			return $output;
+		}
 	}
 	
 	//------------------------------------------------------------------------------

@@ -68,13 +68,18 @@ Please see the online [FAQ](http://code.google.com/p/wordpress-custom-content-ty
 
 == Changelog ==
 
-You can always checkout the most recent version of the code by going to your wp-content/plugins directory and executing the following command from the command-line:
+You can always checkout the most recent version of the code at 
+
+	http://wpcctm.com/cctm-dev.zip 
+	
+or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
 = 0.9.4 =
 * Fixed [Issue 114](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114) where custom hierarchies were limited to only 5 items.
 * Fixed [Issue 115](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=115) where the "View Item" label was receiving incorrect values.
+* Fixed [Issue 121](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121) where Array output filters returned empty string if no options were checked.
 	
 = 0.9.3.3 =
 * Fixed [Issue 112](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112) custom page templates were being ignored.
