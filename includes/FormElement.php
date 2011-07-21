@@ -635,9 +635,9 @@ abstract class FormElement {
 				$posted_data['name'] = preg_replace('/[^a-z_0-9]/', '', $posted_data['name']);
 			}
 			// Is the name too long?
-			if ( strlen($posted_data['name']) > 20 ) {
-				$posted_data['name'] = substr($posted_data['name'], 0 , 20);
-				$this->errors['name'][] = __('The name is too long. Names must not exceed 20 characters.', CCTM_TXTDOMAIN);
+			if ( strlen($posted_data['name']) > 255 ) {
+				$posted_data['name'] = substr($posted_data['name'], 0 , 255);
+				$this->errors['name'][] = __('The name is too long. Names must not exceed 255 characters.', CCTM_TXTDOMAIN);
 			}
 			// Run into any reserved words?
 			if ( in_array($posted_data['name'], CCTM::$reserved_field_names ) ) {

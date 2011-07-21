@@ -18,7 +18,7 @@ http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-
 class CCTM {
 	// Name of this plugin
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.0';
+	const version = '0.9.4';
 	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.0.1';
