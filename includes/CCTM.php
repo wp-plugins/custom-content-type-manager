@@ -636,6 +636,15 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * Manager Page -- called by page_main_controller()
+	 * Is shown after a user clicks "Report a Bug"
+	 */
+	private static function _page_bug_report() {
+		include 'pages/bug_report_info.php';
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Manager Page -- called by page_main_controller()
 	 * Activating a post type will cause it to show up in the WP menus and its custom
 	 * fields will be managed.
 	 * @param string $post_type
@@ -2508,6 +2517,9 @@ class CCTM {
 		case 14: // Preview an uploaded  post type def
 			$file = self::_get_value($_GET, 'file');
 			self::_page_preview_def($file);
+			break;
+		case 15: // bug-reporting page
+			self::_page_bug_report();
 			break;
 		default: // Default: List all post types
 			self::_page_show_all_post_types();

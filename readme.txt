@@ -12,15 +12,15 @@ Create custom content types (aka post types), standardize custom fields for each
 
 http://www.youtube.com/watch?v=rDPPfO69BxU
 
-This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book), published by Packt.
-
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
 This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
 
 Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 
-Please note that this plugin is still in development and I won't consider it stable until version 1.0! I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)!
+*PLEASE NOTE*: this plugin is still in development and I won't consider it stable until version 1.0! I have used it on numerous sites, but I still consider this BETA code. I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) and follow up on them when I ask for more details!
+
+This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book), published by Packt.
 
 = Links =
 
@@ -77,6 +77,7 @@ or by going to your wp-content/plugins directory and executing the following com
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
 = 0.9.4 =
+* Implemented [Feature 126](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=126) so that bug reporting is easier: system info is generated for you to cut and paste into the bug report.
 * Fixed [Issue 114](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114) where custom hierarchies were limited to only 5 items.
 * Fixed [Issue 115](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=115) where the "View Item" label was receiving incorrect values.
 * Fixed [Issue 121](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121) where Array output filters returned empty string if no options were checked.
