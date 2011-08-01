@@ -52,7 +52,7 @@ if ( empty(CCTMtests::$errors) )
 	add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
 	add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 );
 	
-	// Customize the page-attribute box
+	// Customize the page-attribute box for custom page hierarchies
 	add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
 	
 	// Enable archives for custom post types

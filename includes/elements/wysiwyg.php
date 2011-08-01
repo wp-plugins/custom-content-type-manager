@@ -90,9 +90,21 @@ class CCTM_wysiwyg extends FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 		# print_r($this->props); exit;
-		$output = sprintf('
+		// See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138
+		// See http://keighl.com/2010/04/switching-visualhtml-modes-with-tinymce/
+		ob_start();
+		wp_tiny_mce(false, // true makes the editor "teeny"
+		    array(
+		    "editor_selector" => $this->get_field_name(),
+		    "height" => 150
+		    )
+		  );
+		$output = ob_get_contents();
+		ob_end_clean();
+
+		$output .= sprintf('
 			%s
-			<textarea name="%s" class="%s" id="%s" %s>%s</textarea>
+			<textarea name="%s" class="%s " id="%s" %s>%s</textarea>
 			<script type="text/javascript">
 				jQuery( document ).ready( function() {
 					jQuery( "%s" ).addClass( "mceEditor" );

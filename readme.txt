@@ -28,15 +28,17 @@ Please use the following links for support and discussion:
 
 * Please sign up for the CCTM [Mailing List](http://eepurl.com/dlfHg)
 * Participate in the [Forum](http://wordpress.org/tags/custom-content-type-manager?forum_id=10)
-* File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list)
+* File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) or make feature requests.
 * Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
 
 == Installation ==
 
-This plugin uses the standard installation procedure, but here is a typical use-case verbosely for the record:
+This plugin uses the standard installation procedure: install the plugin's folder inside of `wp-content/plugins` (make sure the folder is named *custom-content-type-manager*).
+
+Here is a typical use-case verbosely for the record:
 
 1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall and remove the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
-1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory.
+1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory (ensure that the directory is named *custom-content-type-manager*).
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
 1. Upon activation you can adjust the plugin settings by clicking the newly created "Custom Content Types" menu item, or click this plugin's "Settings" link on the Plugins page.
 1. After clicking the Settings link, you will see a list of content types -- there are two built-in types listed: post and page. To test this plugin, try adding a new content type named "movie" by clicking the "Add Custom Content Type" button at the top of the page.
@@ -77,6 +79,8 @@ or by going to your wp-content/plugins directory and executing the following com
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
 = 0.9.4 =
+* Fixed [Issue 139](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=139) that affected editing the names of custom fields -- a new field was created if the name was changed.
+* Fixed [Issue 138](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138) that affected WYSIWYG custom fields that failed if a content type's main Content block was not active.
 * Implemented [Feature 126](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=126) so that bug reporting is easier: system info is generated for you to cut and paste into the bug report.
 * Fixed [Issue 114](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114) where custom hierarchies were limited to only 5 items.
 * Fixed [Issue 115](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=115) where the "View Item" label was receiving incorrect values.

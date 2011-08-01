@@ -19,6 +19,7 @@ class CCTM {
 	// Name of this plugin
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.4';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.0.1';
@@ -34,12 +35,16 @@ class CCTM {
 	 *
 	 * db_key_settings : a secondary key that stores settings particular to the 
 	 * current site.
+	 *
+	 * db_opt: revised single data structure.
 	 */
 	 
 	const db_key  = 'custom_content_types_mgr_data';
 
 	const db_key_settings = 'custom_content_types_mgr_settings';
 
+	const db_opt = 'cctm_data';
+	
 	// Used to uniquely identify this plugin's menu page in the WP manager
 	const admin_menu_slug = 'cctm';
 
@@ -1060,7 +1065,7 @@ class CCTM {
 //		$field_data = self::$data[$post_type]['custom_fields'][$field_name];
 				
 		if ( !in_array($field_name, $custom_fields_array) ) {
-			$msg = '<p>'. __('Invalid custom field.', CCTM_TXTDOMAIN)
+			$msg = '<p>'. __('Invalid custom field', CCTM_TXTDOMAIN) . ': ' .$field_name
 				. '</p>';
 			$msg .= sprintf(
 				'<a href="?page=%s&%s=4&%s=%s" title="%s" class="button">%s</a>'
@@ -1094,9 +1099,9 @@ class CCTM {
 		$FieldObj->props 	= $field_data;  
 		// THIS is what keys us off to the fact that we're EDITING a field: 
 		// the logic in FormElement->save_definition_filter() ensures we don't overwrite other fields.
-		// This attribute is nuked by the time we get down to line 691 or so.
+		// This attribute is nuked later
 		$FieldObj->original_name = $field_name; 
-		
+
 		// Save if submitted...
 		if ( !empty($_POST) && check_admin_referer($action_name, $nonce_name) ) {
 			// A little cleanup before we handoff to save_definition_filter
@@ -1115,6 +1120,9 @@ class CCTM {
 			}
 			// Save;
 			else {
+				//print "Field name: $field_name";
+				
+				//exit;
 				// Unset the old field if the name changed ($field_name is passed via $_GET)
 				if ($field_name != $field_data['name']) {
 					unset(self::$data[$post_type]['custom_fields'][$field_name]);
@@ -1132,12 +1140,14 @@ class CCTM {
 		$fields = $FieldObj->get_edit_field_definition($field_data);
 
 		$submit_link = $tpl = sprintf(
-			'?page=%s&%s=9&%s=%s&type=%s'
+			'?page=%s&%s=11&%s=%s&type=%s&field=%s&_wpnonce=%s'
 			, self::admin_menu_slug
 			, self::action_param
 			, self::post_type_param
 			, $post_type
 			, $field_type
+			, $field_name
+			, wp_create_nonce('cctm_edit_field')
 		);
 		
 		include 'pages/custom_field.php';
@@ -1930,7 +1940,7 @@ class CCTM {
 			, CCTM_URL . '/css/manager.css');
 		wp_enqueue_style('CCTM_css');
 		// Hand-holding: If your custom post-type omits the main content block,
-		// then thickbox will not be queued.
+		// then thickbox will not be queued and your image, reference, selectors will fail.
 		wp_enqueue_script( 'thickbox' );
 		wp_enqueue_style( 'thickbox' );
 

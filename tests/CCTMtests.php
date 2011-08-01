@@ -9,7 +9,43 @@ class CCTMtests
 {
 	public static $errors = array(); // Any errors thrown.
 	
-	// INPUT: minimum req'd version of MySQL, e.g. 5.0.41
+	//------------------------------------------------------------------------------
+	/**
+	 * @param	array	list of names of incompatible plugins
+	 */
+	public static function incompatible_plugins($incompatible_plugins) 
+	{
+		require_once(ABSPATH.'/wp-admin/includes/admin.php');
+		$all_plugins = get_plugins();
+		$active_plugins = get_option('active_plugins');	
+
+		$plugin_list = array();
+		
+		foreach ( $incompatible_plugins as $bad_plugin ) {
+			foreach ($active_plugins as $plugin) {
+				if ( $all_plugins[$plugin]['Name'] == $bad_plugin ) {
+					$plugin_list[] = $bad_plugin;
+				}
+			}
+		}
+		
+		if (!empty($plugin_list)) {
+			$exit_msg = sprintf( __( '%1$s has detected that there are some active plugins that may be incompatible with it. We recommend disabling the following plugins:', CCTM_TXTDOMAIN)
+			, CCTM::name );
+			$exit_msg .= '<ul>';
+			foreach ($plugin_list as $p ) {
+				$exit_msg .= '<li>'. $p . '</li>';
+			}
+			$exit_msg .= '</ul>';
+			$exit_msg .= sprintf( __('Continued use of these plugins may cause erratic behavior and certain functionality on your site may break entirely. See the <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/IncompatiblePlugins">wiki</a> for more information.', CCTM_TXTDOMAIN) );
+		}
+	}
+	
+	//------------------------------------------------------------------------------
+	 /**
+	  * @param	string minimum req'd version of MySQL, e.g. 5.0.41
+	  * @return none, but the $errors array is populated
+	  */ 	
 	public static function mysql_version_gt($ver)
 	{
 		global $wpdb;
