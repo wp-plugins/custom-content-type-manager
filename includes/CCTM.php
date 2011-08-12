@@ -2321,6 +2321,20 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Since WP doesn't seem to support sorting of custom post types, we have to 
+	 * forcibly tell it to sort by the menu order. Perhaps this should kick in
+	 * only if a post_type's def has the "Attributes" box checked?
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=142
+	 */
+	public static function order_posts($orderBy) {
+        global $wpdb;
+		$orderBy = "{$wpdb->posts}.menu_order, {$wpdb->posts}.post_date DESC";
+        return($orderBy);
+    }
+
+
+	//------------------------------------------------------------------------------
+	/**
 	* This admin menu page handles exporting of the CCTM definition data. 
 	*/
 	public static function page_export() {

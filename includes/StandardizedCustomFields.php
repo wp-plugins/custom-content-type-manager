@@ -64,7 +64,7 @@ class StandardizedCustomFields
 				$field_name = CCTM::$data[$post_type]['custom_fields'][$i]['name'];
 				CCTM::$data[$post_type]['custom_fields'][$field_name] = $def; // re-establish the key version.
 				unset(CCTM::$data[$post_type]['custom_fields'][$i]); // kill the integer version
-			} 
+			} 			
 			return CCTM::$data[$post_type]['custom_fields'];
 		}
 		else

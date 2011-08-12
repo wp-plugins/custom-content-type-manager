@@ -79,6 +79,7 @@ or by going to your wp-content/plugins directory and executing the following com
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
 = 0.9.4 =
+* Fixed [Issue 142](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=142) custom post types can now be ordered correctly using the "Order" attribute.
 * Fixed [Issue 139](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=139) that affected editing the names of custom fields -- a new field was created if the name was changed.
 * Fixed [Issue 138](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138) that affected WYSIWYG custom fields that failed if a content type's main Content block was not active.
 * Implemented [Feature 126](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=126) so that bug reporting is easier: system info is generated for you to cut and paste into the bug report.
