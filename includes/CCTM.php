@@ -2739,6 +2739,21 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Ensures that the front-end search form can find posts. 
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=143
+	 */
+	public static function search_filter($query) {
+		if ($query->is_search or $query->is_feed) {
+			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
+				$post_types = get_post_types( array('public'=>true) );
+				$query->set('post_type', $post_types);
+			}
+		}
+		return $query;
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	 * Sets a flash message that's viewable only for the next page view (for the current user)
 	 * $_SESSION doesn't work b/c WP doesn't natively support them = lots of confused users.
 	 * setcookie() won't work b/c WP has already sent header info.

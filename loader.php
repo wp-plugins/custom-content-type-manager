@@ -61,5 +61,9 @@ if ( empty(CCTMtests::$errors) )
 	
 	// Forces custom post types to sort correctly
 	add_filter('posts_orderby', 'CCTM::order_posts');
+	
+	// Forces front-end searches to return results for all registered post_types
+	add_filter('pre_get_posts','CCTM::search_filter');
 }
+
 /*EOF*/
