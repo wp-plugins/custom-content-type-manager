@@ -1790,7 +1790,7 @@ class CCTM {
 		// post_type is the only required field
 		$sanitized['post_type'] = self::_get_value($raw, 'post_type');
 		$sanitized['post_type'] = strtolower($sanitized['post_type']);
-		$sanitized['post_type'] = preg_replace('/[^a-z|_]/', '_', $sanitized['post_type']);
+		$sanitized['post_type'] = preg_replace('/[^a-z0-9|_]/', '_', $sanitized['post_type']);
 		$sanitized['post_type'] = substr($sanitized['post_type'], 0, 20);
 
 		// Our form passes integers and strings, but WP req's literal booleans,
