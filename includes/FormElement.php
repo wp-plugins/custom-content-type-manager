@@ -329,7 +329,7 @@ abstract class FormElement {
 				return $this->name;
 		}
 	}
-
+	
 	//------------------------------------------------------------------------------
 	/**
 	* get_field_name
@@ -684,6 +684,13 @@ abstract class FormElement {
 		return $posted_data; // filtered data
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * If your custom field has done any customizations (e.g. of the database)
+	 * then you should implement this function to do cleanup: this is run when the 
+	 * the field is uninstalled or the CCTM plugin is uninstalled.
+	 */
+	public function uninstall() { }
 
 }
 /*EOF FormElement.php */

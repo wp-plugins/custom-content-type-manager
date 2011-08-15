@@ -85,6 +85,7 @@ class CCTM {
 	// CSS and $_POST variables
 	public static $def_i = 0;
 
+	// This is the definition shown when a user first creates a post_type
 	public static $default_post_type_def = array
 		(
 		    'supports' => array('title', 'editor'),
@@ -188,8 +189,8 @@ class CCTM {
 	 * @return unknown
 	 */
 	private static function _get_available_custom_field_types($post_type) {
-		// TODO: move this into another option
-		$available_custom_field_types = array('checkbox','colorselector','date','dropdown','image','media','multiselect','relation','text','textarea','wysiwyg', );
+
+		$available_custom_field_types = self::get_available_custom_field_types(); 
 		
 		// Aha... why have %s AND [+placeholders+].  Good question.
 		$output = '<ul id="cctm-field-type-selector">';
@@ -2106,6 +2107,25 @@ class CCTM {
 		return str_replace( "post_type = 'post'" , "post_type IN ( $post_types )" , $where );
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	public static function get_available_custom_field_types() {
+		return array(
+			'checkbox',
+			'colorselector',
+			'date',
+			'dropdown',
+			'image',
+			'media',
+			'multiselect',
+			'relation',
+			'text',
+			'textarea',
+			'wysiwyg', 
+		);
+	}
 
 	//------------------------------------------------------------------------------
 	/**

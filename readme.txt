@@ -79,6 +79,8 @@ or by going to your wp-content/plugins directory and executing the following com
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
 = 0.9.4 =
+
+* Added support for clean custom field un-installation:[Issue 145](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=145).
 * Fixed [Issue 144](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=144) so now you can define content types (i.e. post_types) that use numerical names.
 * Fixed [Issue 143](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=143) that prevented proper searching on the front-end.
 * Fixed [Issue 142](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=142) custom post types can now be ordered correctly using the "Order" attribute.
