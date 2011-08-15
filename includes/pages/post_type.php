@@ -168,7 +168,7 @@ if ( !isset($cancel_target_url) ) {
 			<!--!Menu Icon -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_icon">		
 				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon">Menu Icon</label>
-				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php print htmlspecialchars($def['menu_icon']); ?>" size="80"/>
+				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($def['menu_icon'])) { print htmlspecialchars($def['menu_icon']); } ?>" size="80"/>
 						<span class="cctm_description">Menu icon URL.</span>
 			</div>
 		
@@ -384,7 +384,7 @@ if ( !isset($cancel_target_url) ) {
 			</div>
 
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_hierarchical">
-				<input type="checkbox" name="cctm_hierarchical_custom" class="cctm_checkbox" id="cctm_hierarchical_custom" value="1" <?php print CCTM::is_checked($def['cctm_hierarchical_custom']); ?> 
+				<input type="checkbox" name="cctm_hierarchical_custom" class="cctm_checkbox" id="cctm_hierarchical_custom" value="1" <?php if (isset($def['cctm_hierarchical_custom'])) { print CCTM::is_checked($def['cctm_hierarchical_custom']); } ?> 
 					onclick="javascript:toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');"/> 
 				<label for="cctm_hierarchical_custom" class="cctm_label cctm_checkbox_label" id="cctm_label_hierarchical">Use Custom Hierarchy</label>
 				<span class="cctm_description">Allows custom hierarchies to be specified.</span>
@@ -396,7 +396,7 @@ if ( !isset($cancel_target_url) ) {
 					<p>Warning: this feature is experimental. See <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=9" target="_blank">Issue 9</a> in the bugtracker.</p>
 				
 					<div class="cctm_element_wrapper" id="custom_field_wrapper_include_drafts">
-						<input type="checkbox" name="cctm_hierarchical_includes_drafts" class="cctm_checkbox" id="cctm_hierarchical_includes_drafts" value="1" <?php print CCTM::is_checked($def['cctm_hierarchical_includes_drafts'], '1'); ?> /> 
+						<input type="checkbox" name="cctm_hierarchical_includes_drafts" class="cctm_checkbox" id="cctm_hierarchical_includes_drafts" value="1" <?php if ( isset($def['cctm_hierarchical_includes_drafts'])) { print CCTM::is_checked($def['cctm_hierarchical_includes_drafts'], '1'); } ?> /> 
 						<label for="cctm_hierarchical_includes_drafts" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_hierarchical_includes_drafts">Include Drafts?</label>
 						<span class="cctm_description">By default, WordPress only allows you to use published pages in your hierarchy. Select this option to override that behavior.</span>
 					</div>
@@ -413,8 +413,10 @@ if ( !isset($cancel_target_url) ) {
 				foreach ( $post_types as $pt => $v ) {
 
 					$is_checked = '';
-					if ( is_array($def['cctm_hierarchical_post_types']) && in_array( $pt, $def['cctm_hierarchical_post_types']) ) {
-						$is_checked = 'checked="checked"';
+					if ( isset($def['cctm_hierarchical_post_types']) ) {
+						if ( is_array($def['cctm_hierarchical_post_types']) && in_array( $pt, $def['cctm_hierarchical_post_types']) ) {
+							$is_checked = 'checked="checked"';
+						}
 					}
 					//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
 					print '<span style="margin-left:20px;"><input type="checkbox" name="cctm_hierarchical_post_types[]" class="cctm_multiselect" id="cctm_hierarchical_post_types'.$i.'" value="'.$pt.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="cctm_hierarchical_post_types'.$i.'">'.htmlspecialchars($pt).'</label></span><br/>';

@@ -100,7 +100,7 @@ class CCTM_text extends FormElement
 			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
 			, $this->get_field_id()
 			, $this->extra
-			, $current_value
+			, htmlspecialchars($current_value)
 		);
 		
 		$output .= $this->wrap_description($this->props['description']);

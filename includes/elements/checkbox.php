@@ -139,7 +139,7 @@ class CCTM_checkbox extends FormElement
 			, $this->get_field_name()
 			, $this->get_field_class($this->name, 'checkbox') . ' ' . $this->class
 			, $this->get_field_id()
-			, $this->checked_value
+			, htmlspecialchars($this->checked_value)
 			, $this->extra
 			, $is_checked
 		);
