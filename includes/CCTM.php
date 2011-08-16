@@ -2625,6 +2625,25 @@ class CCTM {
 				, $msg
 				, $error_items);
 		}
+		
+		// Check for warnings
+		if ( !empty(CCTMtests::$warnings) ) {
+			$warning_items = '';
+			foreach ( CCTMtests::$warnings as $w ) {
+				$warning_items .= "<li>$w</li>";
+			}
+			$msg = __('Warning!', CCTM_TXTDOMAIN);
+			printf('<div id="custom-post-type-manager-warning" class="error">
+				<p>
+					<strong>%1$s</strong>
+					<ul style="margin-left:30px;">
+						%2$s
+					</ul>
+				</p>
+				</div>'
+				, $msg
+				, $warning_items);
+		}
 	}
 
 

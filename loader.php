@@ -27,6 +27,7 @@ include_once('tests/CCTMtests.php');
 CCTMtests::wp_version_gt(CCTM::wp_req_ver);
 CCTMtests::php_version_gt(CCTM::php_req_ver);
 CCTMtests::mysql_version_gt(CCTM::mysql_req_ver);
+CCTMtests::incompatible_plugins( array('Magic Fields','Custom Post Type UI','CMS Press') );
 
 // Get admin ready, print any CCTMtests::$errors in the admin dashboard
 add_action( 'admin_notices', 'CCTM::print_notices');

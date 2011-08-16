@@ -80,6 +80,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+* Added checks for incompatible plugins [Issue 122](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=122)
 * Fixed [Issue 145](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=145) so you can now include HTML in default values for text and checkbox fields.
 * Added support for clean custom field un-installation:[Issue 145](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=145).
 * Fixed [Issue 144](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=144) so now you can define content types (i.e. post_types) that use numerical names.
