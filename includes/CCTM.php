@@ -19,7 +19,10 @@ class CCTM {
 	// Name of this plugin
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.4';
+	// See http://php.net/manual/en/function.version-compare.php
+	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	
 	
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.0.1';
@@ -1948,8 +1951,27 @@ class CCTM {
 		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/smoothness/jquery-ui-1.8.11.custom.css');
 		wp_enqueue_script( 'jquery-ui-tabs');
 		wp_enqueue_script( 'jquery-ui-sortable');
-		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
-		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
+
+		// Allow each custom field to load up any necessary CSS/JS
+		$available_custom_field_types = CCTM::get_available_custom_field_types();
+		foreach ( $available_custom_field_types as $field_type ) {
+			$element_file = CCTM_PATH.'/includes/elements/'.$field_type.'.php';
+			if ( file_exists($element_file) )
+			{
+				include_once($element_file);
+				if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
+				{
+					$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+					$FieldObj = new $field_type_name();
+					$FieldObj->admin_init();
+				}
+			}
+		}
+
+//		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
+//		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
+
+
 		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
 	}
 

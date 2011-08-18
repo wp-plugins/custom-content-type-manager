@@ -430,6 +430,13 @@ abstract class FormElement {
 	//! Public Functions
 	//------------------------------------------------------------------------------
 	/**
+	* Run when the WP dashboard (i.e. admin area) is initialized.
+	* Override this function to register any necessary CSS/JS.
+	*/
+	public function admin_init() { }
+
+	//------------------------------------------------------------------------------
+	/**
 	* Formats errors
 	* @return string HTML describing any errors tracked in the class $errors variable
 	*/

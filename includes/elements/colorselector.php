@@ -41,6 +41,14 @@ class CCTM_colorselector extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Add some necessary Javascript
+	 */
+	public function admin_init() {
+		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	* This function provides a name for this type of field. This should return plain
 	* text (no HTML). The returned value should be localized using the __() function.
 	* @return	string

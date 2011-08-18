@@ -43,6 +43,14 @@ class CCTM_date extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Add some necessary Javascript
+	 */
+	public function admin_init() {
+		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
+	}
+
+	//------------------------------------------------------------------------------
+	/**
 	* This function provides a name for this type of field. This should return plain
 	* text (no HTML). The returned value should be localized using the __() function.
 	* @return	string
@@ -137,12 +145,21 @@ class CCTM_date extends FormElement
 	 */
 	public function get_edit_field_definition($def) {
 		$is_checked = '';
-		if ($def['evaluate_default_value']) {
+		if (isset($def['evaluate_default_value'])) {
 			$is_checked = 'checked="checked"';
 		}
 		
 		// Option - select
 		$date_format = array();
+		$date_format['mm/dd/yy'] 							= '';
+		$date_format['yyyy-mm-dd'] 							= '';
+		$date_format['yy-mm-dd'] 							= '';
+		$date_format['d M, y'] 								= '';
+		$date_format['d MM, y'] 							= '';
+		$date_format['DD, d MM, yy'] 						= '';
+		$date_format["'day' d 'of' MM 'in the year' yy"]	= '';
+		
+		
 		if ( $def['date_format'] == 'mm/dd/yy' ) {
 			$date_format['mm/dd/yy'] = 'selected="selected"';
 		}
@@ -164,7 +181,7 @@ class CCTM_date extends FormElement
 		if ( $def['date_format'] == "'day' d 'of' MM 'in the year' yy" ) {
 			$date_format["'day' d 'of' MM 'in the year' yy"] = 'selected="selected"';
 		}
-		
+			
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -192,7 +209,7 @@ class CCTM_date extends FormElement
 		// Evaluate Default Value (use PHP eval)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="evaluate_default_value_wrapper">
 				 <label for="evaluate_default_value" class="cctm_label cctm_checkbox_label" id="evaluate_default_value_label">'
-					. __('Use PHP eval to calculate the default value?', CCTM_TXTDOMAIN) .
+					. __('Use PHP eval to calculate the default value? (Omit the php tags).', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_default_value" class="'.$this->get_field_class('evaluate_default_value','checkbox').'" id="evaluate_default_value" value="1" '. $is_checked.'/> '
