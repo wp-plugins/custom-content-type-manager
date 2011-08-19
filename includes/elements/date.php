@@ -36,7 +36,7 @@ class CCTM_date extends FormElement
 		'extra'	=> '',
 		'date_format'	=> '',
 		'default_value' => '',
-		'eval_default_value' => 0,
+		'evaluate_default_value' => 0,
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
 	);
@@ -95,12 +95,12 @@ class CCTM_date extends FormElement
 	* Optionally evals the default value
 	*/
 	public function get_create_field_instance() {
-		if( $this->props['evaluate_default_value'] ) {			
+		if( isset($this->props['evaluate_default_value']) && $this->props['evaluate_default_value'] ) {			
 			$default_value = $this->default_value;
 			$this->default_value = eval("return $default_value;"); 
 		}
 		
-		$output .= $this->wrap_description($this->props['description']);
+		$output = $this->wrap_description($this->props['description']);
 		
 		return $this->get_edit_field_instance($this->default_value); 
 	}

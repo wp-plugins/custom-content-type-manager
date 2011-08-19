@@ -80,6 +80,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+* Fixed some lingering PHP notices in date.php (whoops).
 * Added method for Custom Field PHP classes to let each field add JS/CSS to the manager via the "admin_init" function. See [Issue 71](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=71).
 * Cleaned up PHP notices when creating a "Date" custom field.
 * Added checks for incompatible plugins [Issue 122](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=122)
