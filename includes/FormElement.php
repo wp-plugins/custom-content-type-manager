@@ -674,9 +674,10 @@ abstract class FormElement {
 		}
 
 		$posted_data = CCTM::striptags_deep($posted_data);
-		if ( get_magic_quotes_gpc() ) {
+		// WP always (?) quotes data. See this: http://kovshenin.com/archives/wordpress-and-magic-quotes/	
+//		if ( get_magic_quotes_gpc() ) {
 			$posted_data = CCTM::stripslashes_deep($posted_data);
-		}
+//		}
 
 /*
 		if ( empty($posted_data['label']) ) {

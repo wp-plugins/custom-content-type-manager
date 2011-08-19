@@ -1743,9 +1743,10 @@ class CCTM {
 		
 		$raw = CCTM::stripalltags_deep(($raw));
 //		$raw = CCTM::striptags_deep(($raw));
-		if ( get_magic_quotes_gpc() ) {
+// WP always adds slashes: see http://kovshenin.com/archives/wordpress-and-magic-quotes/
+//		if ( get_magic_quotes_gpc() ) {
 			$raw = CCTM::stripslashes_deep(($raw));
-		}
+//		}
 		
 		$sanitized = array();
 		// Handle unchecked checkboxes
