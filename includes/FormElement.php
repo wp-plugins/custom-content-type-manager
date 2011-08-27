@@ -113,7 +113,7 @@ abstract class FormElement {
 		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_by_default'] =  __('Should this field be checked by default?', CCTM_TXTDOMAIN);
 		$this->descriptions['output_filter'] =  __('How should values be displayed in your theme files?', CCTM_TXTDOMAIN);
-		
+		$this->descriptions['use_key_values'] = __('Check this to make the values stored to be distinct from the options displayed to the user, e.g. Option:"red", Value:"#ff0000;"', CCTM_TXTDOMAIN);
 	}
 
 
@@ -223,10 +223,11 @@ abstract class FormElement {
 		return $this->get_edit_field_instance($this->default_value); 
 	}
 
+	//------------------------------------------------------------------------------
 	/**
 	 * get_edit_field_instance
 	 *
-	 * The form returned is what is displayed when a user is creating a post that contains
+	 * The form returned is what is displayed when a user is editing a post that contains
 	 * an instance of this field type.
 	 *
 	 * @param	string	$current_value is the current value for the field, as stored in the 

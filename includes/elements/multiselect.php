@@ -34,6 +34,8 @@ class CCTM_multiselect extends FormElement
 		'extra'	=> '',
 		'default_value' => '',
 		'options'	=> array(),
+		'values'	=> array(), // only used if use_key_values = 1
+		'use_key_values' => 0, // if 1, then 'options' will use key => value pairs.
 		'output_filter' => 'to_array',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
@@ -137,7 +139,8 @@ class CCTM_multiselect extends FormElement
 		$name = $this->get_field_name();
 		$id = $this->get_field_id();
 		$class = $this->get_field_class($this->name, 'muticheckbox');
-		//print_r($current_values_arr); exit;
+
+
 		foreach ($this->options as $opt) {
 			$is_checked = '';
 			$utf_opt = CCTM::charset_decode_utf_8($opt);
@@ -174,7 +177,14 @@ class CCTM_multiselect extends FormElement
 	 * @param mixed $def	nested array of existing definition.
 	 */
 	public function get_edit_field_definition($def) {
-	
+		$is_checked = '';
+		$readonly_str = ' readonly="readonly"';
+		if (isset($def['use_key_values']) && $def['use_key_values']) {
+			$is_checked = 'checked="checked"';
+			$readonly_str = '';
+		}
+
+			
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -217,6 +227,15 @@ class CCTM_multiselect extends FormElement
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
+
+		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
+		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
+				 <label for="use_key_values" class="cctm_label cctm_checkbox_label" id="use_key_values_label">'
+					. __('Distinct options/values?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="use_key_values" class="'.$this->get_field_class('use_key_values','checkbox').'" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
+			 	</div>';
 			
 		// OPTIONS
 		$option_cnt = 0;
@@ -233,39 +252,59 @@ class CCTM_multiselect extends FormElement
 		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
 		
 		$tpl = '
-			<div class="cctm_element_wrapper" id="dropdown_options">
-				<label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+options+] <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
-				</label>
-				<br />';
+			<table id="dropdown_options">
+				<thead>
+				<td width="200"><label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+options+]</label></td>
+				<td width="200"><label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+values+]</label></td>
+				<td>
+				 <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
+				</td>
+				</thead>';
+				
 		$out .= CCTM::parse($tpl, $hash);
 		
 		// this html should match up with the js html in manager.js
 		$option_html = '
-			<div id="%s">
-				<input type="text" name="options[]" id="option_%s" value="%s"/> 
-				<span class="button" onclick="javascript:remove_html(\'%s\');">%s</span>
-				<span class="button" onclick="javascript:set_as_default(\'option_%s\');">%s</span>
-			</div>';
+			<tr id="%s">
+				<td><input type="text" name="options[]" id="option_%s" value="%s"/></td>
+				<td><input type="text" name="values[]" id="value_%s" value="%s" class="possibly_gray"'.$readonly_str.'/></td>
+				<td><span class="button" onclick="javascript:remove_html(\'%s\');">%s</span>
+				<span class="button" onclick="javascript:set_as_default(\'%s\');">%s</span></td>
+			</tr>';
 
 
-		$i = 0; // used to uniquely ID options.
+		$opt_i = 0; // used to uniquely ID options.
 		if ( !empty($def['options']) && is_array($def['options']) ) {
-		
-			foreach ($def['options'] as $opt_val) {
-				$option_css_id = 'cctm_dropdown_option'.$i;
+
+			$opt_cnt = count($def['options']);
+			for ( $i = 0; $i <= $opt_cnt; $i++ ) {
+				// just in case the array isn't set
+				$option_txt = '';
+				if (isset($def['options'][$i])) {
+					$option_txt = htmlspecialchars($def['options'][$i]);
+				}
+				$value_txt = '';
+				if (isset($def['values'][$i])) {
+					$value_txt = htmlspecialchars($def['values'][$i]);
+				}
+				
+				$option_css_id = 'cctm_dropdown_option'.$opt_i;
 				$out .= sprintf($option_html
 					, $option_css_id
-					, $i
-					, htmlspecialchars($opt_val)
+					, $opt_i
+					, $option_txt
+					, $opt_i
+					, $value_txt
 					, $option_css_id, __('Delete') 
-					, $i, __('Set as Default') 
+					, $opt_i
+					, __('Set as Default') 
 				);
-				$i = $i + 1;
+				$opt_i = $opt_i + 1;
 			}
 		}
 			
-		$out .= '</div>';
-		
+		$out .= '</table>'; // close id="dropdown_options" 
+				
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'

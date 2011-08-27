@@ -16,11 +16,11 @@ Post Thumbnails support is post-type specific:
 http://markjaquith.wordpress.com/2009/12/23/new-in-wordpress-2-9-post-thumbnail-images/
 ------------------------------------------------------------------------------*/
 class CCTM {
-	// Name of this plugin
+	// Name of this plugin and version data.
+	// See http://php.net/manual/en/function.version-compare.php:
+	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.4';
-	// See http://php.net/manual/en/function.version-compare.php
-	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 	
 	
