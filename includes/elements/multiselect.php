@@ -141,17 +141,35 @@ class CCTM_multiselect extends FormElement
 		$class = $this->get_field_class($this->name, 'muticheckbox');
 
 
-		foreach ($this->options as $opt) {
+//		foreach ($this->options as $opt) {
+		$opt_cnt = count($this->options);
+//		print_r($this->options); exit;
+		for ( $i = 0; $i < $opt_cnt; $i++ ) {
 			$is_checked = '';
-			$utf_opt = CCTM::charset_decode_utf_8($opt);
-			//die($utf_opt); 
-			// print $utf_opt; exit;
-			if ( is_array($current_values_arr) && in_array( $utf_opt, $current_values_arr) ) {
+//			$utf_opt = CCTM::charset_decode_utf_8($this->options[$i]);
+//			$utf_val = CCTM::charset_decode_utf_8($this->values[$i]);
+
+			$option = '';
+			if (isset($this->options[$i])) {
+				// $option = htmlspecialchars($this->options[$i]);
+				$option = CCTM::charset_decode_utf_8($this->options[$i]);
+			}
+			$value = '';
+			if (isset($this->values[$i])) {
+				// $value = htmlspecialchars($this->values[$i]);
+				$value = CCTM::charset_decode_utf_8($this->values[$i]);
+			}
+			// Simplistic behavior if we don't use key=>value pairs
+			if ( !$this->use_key_values ) {
+				$value = $option;
+			}
+
+			if ( is_array($current_values_arr) && in_array( $value, $current_values_arr) ) {
 				$is_checked = 'checked="checked"';
 			}
 			//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
-			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.$utf_opt.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.$opt.'</label></div><br/>';
-			$i = $i + 1;
+			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.$value.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.$option.'</label></div><br/>';
+//			$opt_i = $opt_i + 1;
 		}
 		
 		$output .= $this->wrap_description($this->props['description']);
@@ -248,6 +266,7 @@ class CCTM_multiselect extends FormElement
 		$hash['option_cnt'] 	= $option_cnt;
 		$hash['delete'] 		= __('Delete');
 		$hash['options'] 		= __('Options', CCTM_TXTDOMAIN);
+		$hash['values']			= __('Stored Values', CCTM_TXTDOMAIN);
 		$hash['add_option'] 	= __('Add Option',CCTM_TXTDOMAIN);
 		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
 		
@@ -277,7 +296,7 @@ class CCTM_multiselect extends FormElement
 		if ( !empty($def['options']) && is_array($def['options']) ) {
 
 			$opt_cnt = count($def['options']);
-			for ( $i = 0; $i <= $opt_cnt; $i++ ) {
+			for ( $i = 0; $i < $opt_cnt; $i++ ) {
 				// just in case the array isn't set
 				$option_txt = '';
 				if (isset($def['options'][$i])) {

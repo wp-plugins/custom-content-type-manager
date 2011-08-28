@@ -80,6 +80,8 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+* Now HTML/JavaScript values can be stored correctly in text fields. See [Issue 152](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=152).
+* Implemented more advanced dropdown and multi-select options where users can now optionally store distinct values and labels for each option. See [Issue 150](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=150).
 * Revisited [Issue 146](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=146), discovered WordPress is adding slashes to $_POST, $_GET, $_COOKIE, and $_SERVER arrays (see [this article](http://kovshenin.com/archives/wordpress-and-magic-quotes/).  WHY IS WORDPRESS DOING THIS???
 * Fixed some lingering PHP notices in date.php (whoops).
 * Added method for Custom Field PHP classes to let each field add JS/CSS to the manager via the "admin_init" function. See [Issue 71](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=71).

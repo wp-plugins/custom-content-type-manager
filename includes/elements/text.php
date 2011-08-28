@@ -85,12 +85,13 @@ class CCTM_text extends FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * This is somewhat tricky if the values the user wants to store are HTML/JS.
+	 * See http://www.php.net/manual/en/function.htmlspecialchars.php#99185
 	 *
 	 * @param mixed $current_value	current value for this field.
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-		# print_r($this->props); exit;
 		$output = sprintf('
 			%s 
 			<input type="text" name="%s" class="%s" id="%s" %s value="%s"/>
@@ -100,7 +101,8 @@ class CCTM_text extends FormElement
 			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
 			, $this->get_field_id()
 			, $this->extra
-			, htmlspecialchars($current_value)
+			, htmlspecialchars( html_entity_decode($current_value) )
+
 		);
 		
 		$output .= $this->wrap_description($this->props['description']);

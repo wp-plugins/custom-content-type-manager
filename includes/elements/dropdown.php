@@ -108,7 +108,7 @@ class CCTM_dropdown extends FormElement
 				<!-- option value="">'.__('Pick One').'</option -->
 				';
 		$opt_cnt = count($this->options);
-		for ( $i = 0; $i <= $opt_cnt; $i++ ) {
+		for ( $i = 0; $i < $opt_cnt; $i++ ) {
 			// just in case the array isn't set
 			$option = '';
 			if (isset($this->options[$i])) {
@@ -224,7 +224,7 @@ class CCTM_dropdown extends FormElement
 		$hash['option_cnt'] 	= $option_cnt;
 		$hash['delete'] 		= __('Delete');
 		$hash['options'] 		= __('Options', CCTM_TXTDOMAIN);
-		$hash['values']			= __('Values', CCTM_TXTDOMAIN);
+		$hash['values']			= __('Stored Values', CCTM_TXTDOMAIN);
 		$hash['add_option'] 	= __('Add Option',CCTM_TXTDOMAIN);
 		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
 
@@ -254,7 +254,7 @@ class CCTM_dropdown extends FormElement
 		if ( !empty($def['options']) && is_array($def['options']) ) {
 
 			$opt_cnt = count($def['options']);
-			for ( $i = 0; $i <= $opt_cnt; $i++ ) {
+			for ( $i = 0; $i < $opt_cnt; $i++ ) {
 				// just in case the array isn't set
 				$option_txt = '';
 				if (isset($def['options'][$i])) {

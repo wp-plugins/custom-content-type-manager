@@ -113,7 +113,7 @@ abstract class FormElement {
 		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_by_default'] =  __('Should this field be checked by default?', CCTM_TXTDOMAIN);
 		$this->descriptions['output_filter'] =  __('How should values be displayed in your theme files?', CCTM_TXTDOMAIN);
-		$this->descriptions['use_key_values'] = __('Check this to make the values stored to be distinct from the options displayed to the user, e.g. Option:"red", Value:"#ff0000;"', CCTM_TXTDOMAIN);
+		$this->descriptions['use_key_values'] = __('Check this to make the stored values distinct from the options displayed to the user, e.g. Option:"Red", Store Value:"#ff0000;"', CCTM_TXTDOMAIN);
 	}
 
 
@@ -214,7 +214,7 @@ abstract class FormElement {
 	 * the get_edit_field_instance() function.
 	 *
 	 * Override this function in the rare cases when you need behavior that is specific 
-	 * to when you first create a post (e.g. to specify a special default value). 
+	 * to when you create a post (e.g. to specify a dynamic default value). 
 	 * Most of the time, the create/edit functions are nearly identical.
 	 *
 	 * @return string HTML field(s)
@@ -239,11 +239,13 @@ abstract class FormElement {
 	//------------------------------------------------------------------------------
 	/**
 	 * This should return (not print) form elements that handle all the controls 
-	 * required to define this type of field.  The default properties correspond to 
-	 * this class's public variables, e.g. name, label, etc. The form elements you 
-	 * create should have names that correspond to the public $props variable. A 
-	 * populated array of $props will be stored alongside the custom-field data for 
-	 * the parent post-type. (See notes on the CCTM data structure).
+	 * required to define this type of field.  The default properties (stored in 
+	 * $this->props)correspond to this class's public variables, e.g. name, label, 
+	 * etc. and should be defined at the top of the child class.
+	 *
+	 * The form elements you create should have names that correspond to the public 
+	 * $props variable. A populated array of $props will be stored with each custom
+	 * field definition. (See notes on the CCTM data structure).
 	 * 
 	 * Override this function in the rare cases when you need behavior that is specific 
 	 * to when you first define a field definition. Most of the time, the create/edit 
@@ -386,7 +388,7 @@ abstract class FormElement {
 		return sprintf($wrapper, $class, $this->element_i, $html);	
 	}
 	
-
+	//------------------------------------------------------------------------------
 	/**
 	 * This function returns an HTML label that wraps the label attribute for the instance of
 	 * of this element.
@@ -432,7 +434,7 @@ abstract class FormElement {
 	//------------------------------------------------------------------------------
 	/**
 	* Run when the WP dashboard (i.e. admin area) is initialized.
-	* Override this function to register any necessary CSS/JS.
+	* Override this function to register any necessary CSS/JS req'd by your field.
 	*/
 	public function admin_init() { }
 
@@ -481,13 +483,15 @@ abstract class FormElement {
 				.$this->get_field_class($this->name, 'select') . ' ' . $this->class.'" id="'.$this->get_field_id().'">
 				<option value="">'.__('None (raw)').'</option>
 				';
-			foreach ($this->supported_output_filters as $opt) {
-				$is_selected = '';
-				if ( $def['output_filter'] == $opt ) {
-					$is_selected = 'selected="selected"';
-				}
-				$out .= '<option value="'.$opt.'" '.$is_selected.'>'.$OutputFilters->descriptions[$opt] .'</option>';
+
+		foreach ($this->supported_output_filters as $opt) {
+			$is_selected = '';
+			if ( $def['output_filter'] == $opt ) {
+				$is_selected = 'selected="selected"';
 			}
+			$out .= '<option value="'.$opt.'" '.$is_selected.'>'.$OutputFilters->descriptions[$opt] .'</option>';
+		}
+
 		$out .= '</select>
 			' . $this->get_translation('output_filter') 
 			  .'</div>';
@@ -533,11 +537,13 @@ abstract class FormElement {
 	}
  
  	//------------------------------------------------------------------------------
- 	//------------------------------------------------------------------------------
  	/**
- 	* @param	string	$html string, with linebreaks, quotes, etc.
- 	* @return	string	Filtered: linebreaks removed, quotes escaped.
- 	*/
+ 	 * Take a string (e.g. html) and make it safe to be printed into a Javascript 
+ 	 * variable by stripping carriage returns and quotes. 
+ 	 *
+ 	 * @param	string	$html string, with linebreaks, quotes, etc.
+ 	 * @return	string	Filtered: linebreaks removed, quotes escaped.
+ 	 */
  	public static function make_js_safe($html) {
  		$html = preg_replace("/\n\r|\r\n|\r|\n/",'',$html);
  		$html = preg_replace( '/\s+/', ' ', $html );
@@ -587,16 +593,17 @@ abstract class FormElement {
 	//------------------------------------------------------------------------------
 	/**
 	 * This function allows for custom handling of submitted post/page data just before
-	 * it is saved to the database. Data validation and filtering should happen here,
-	 * although it's difficult to enforce any validation errors.
+	 * it is saved to the database; it can be thought of loosely as the "on save" event. 
+	 * Data validation and filtering should happen here, although it's difficult to 
+	 * enforce any validation errors due to lack of an appropriate event.
+	 *
+	 * Output should be whatever string value you want to store in the wp_postmeta table
+	 * for the post in question. Default behavior is to simply trim the values.
 	 *
 	 * Note that the field name in the $_POST array is prefixed by FormElement::post_name_prefix,
 	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
-	 * (where FormElement::post_name_prefix = 'cctm_').
-	 *
-	 * Output should be whatever string value you want to store in the wp_postmeta table
-	 * for the post in question. This function will be called after the post/page has
-	 * been submitted: this can be loosely thought of as the "on save" event
+	 * (where FormElement::post_name_prefix = 'cctm_'). This is done to avoid name 
+	 * collisions in the $_POST array.
 	 *
 	 * @param mixed   	$posted_data  $_POST data
 	 * @param string	$field_name: the unique name for this instance of the field
@@ -675,20 +682,10 @@ abstract class FormElement {
 		}
 
 		$posted_data = CCTM::striptags_deep($posted_data);
-		// WP always (?) quotes data. See this: http://kovshenin.com/archives/wordpress-and-magic-quotes/	
-//		if ( get_magic_quotes_gpc() ) {
-			$posted_data = CCTM::stripslashes_deep($posted_data);
-//		}
+		// WP always quotes data (!!!), so we don't bother checking get_magic_quotes_gpc et al.
+		// See this: http://kovshenin.com/archives/wordpress-and-magic-quotes/	
+		$posted_data = CCTM::stripslashes_deep($posted_data);
 
-/*
-		if ( empty($posted_data['label']) ) {
-			$this->errors['label'][] = __('Label is required.', CCTM_TXTDOMAIN);
-		}
-		else {
-			// print 'aqui' ; exit;
-			$posted_data['label'] = stripslashes($posted_data['label']);
-		}
-*/
 					
 		return $posted_data; // filtered data
 	}
