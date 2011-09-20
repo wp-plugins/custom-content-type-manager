@@ -225,15 +225,16 @@ class StandardizedCustomFields
 		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
 			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
 			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-			
-			$output .= sprintf('
-			<style>
-				#icon-edit, #icon-post {
-				  background-image:url(%s);
-				  background-position: 0px 0px;
-				}
-			</style>'
-			, CCTM_URL . '/images/icons/32x32/'. $baseimg);
+			if ( file_exists(CCTM_URL . '/images/icons/32x32/'. $baseimg) ) {
+				$output .= sprintf('
+				<style>
+					#icon-edit, #icon-post {
+					  background-image:url(%s);
+					  background-position: 0px 0px;
+					}
+				</style>'
+				, CCTM_URL . '/images/icons/32x32/'. $baseimg);
+			}
 		}
  		// Print the form
  		print '<div class="form-wrap">';		

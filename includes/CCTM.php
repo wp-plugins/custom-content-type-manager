@@ -873,36 +873,40 @@ if ( empty(self::$data) ) {
 
 */
 		// Add Custom Fields links
-		$active_post_types = self::get_active_post_types();
-		foreach ($active_post_types as $post_type) {
-			$parent_slug = 'edit.php?post_type='.$post_type;
-			if ($post_type == 'post'){
-				$parent_slug = 'edit.php';
+		if (isset(self::$data['settings']['show_custom_fields_menu']) && self::$data['settings']['show_custom_fields_menu']) {
+			$active_post_types = self::get_active_post_types();
+			foreach ($active_post_types as $post_type) {
+				$parent_slug = 'edit.php?post_type='.$post_type;
+				if ($post_type == 'post'){
+					$parent_slug = 'edit.php';
+				}
+				add_submenu_page( 
+					$parent_slug
+					, __('Custom Fields', CCTM_TXTDOMAIN)
+					, __('Custom Fields', CCTM_TXTDOMAIN)
+					, 'manage_options'
+					, 'cctm&a=list_pt_associations&pt='.$post_type
+					, 'CCTM::page_main_controller'
+				);
 			}
-			add_submenu_page( 
-				$parent_slug
-				, __('Custom Fields', CCTM_TXTDOMAIN)
-				, __('Custom Fields', CCTM_TXTDOMAIN)
-				, 'manage_options'
-				, 'cctm&a=list_pt_associations&pt='.$post_type
-				, 'CCTM::page_main_controller'
-			);
 		}
 
 		// Add Settings links
-		foreach ($active_post_types as $post_type) {
-			$parent_slug = 'edit.php?post_type='.$post_type;
-			if ( in_array($post_type, self::$reserved_post_types) ){
-				continue;
+		if (isset(self::$data['settings']['show_settings_menu']) && self::$data['settings']['show_settings_menu']) {
+			foreach ($active_post_types as $post_type) {
+				$parent_slug = 'edit.php?post_type='.$post_type;
+				if ( in_array($post_type, self::$reserved_post_types) ){
+					continue;
+				}
+				add_submenu_page( 
+					$parent_slug
+					, __('Settings', CCTM_TXTDOMAIN)
+					, __('Settings', CCTM_TXTDOMAIN)
+					, 'manage_options'
+					, 'cctm&a=edit_post_type&pt='.$post_type
+					, 'CCTM::page_main_controller'
+				);
 			}
-			add_submenu_page( 
-				$parent_slug
-				, __('Settings', CCTM_TXTDOMAIN)
-				, __('Settings', CCTM_TXTDOMAIN)
-				, 'manage_options'
-				, 'cctm&a=edit_post_type&pt='.$post_type
-				, 'CCTM::page_main_controller'
-			);
 		}
 
 	}
@@ -1177,7 +1181,10 @@ if ( empty(self::$data) ) {
 		if ( is_array($input) ) {
 			if ( in_array($find_in_array, $input) ) {
 				return 'checked="checked"';			
-			}		
+			}
+			else {
+				return '';
+			}
 		}
 		else
 		{

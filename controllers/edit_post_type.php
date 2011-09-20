@@ -22,12 +22,12 @@ if (!self::_is_existing_post_type($post_type, false ) ) {
 */
 
 // Variables for our template
-$data=array();
+$data = array();
 $d = array();
 if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
 	$d['def'] = CCTM::$data['post_type_defs'][$post_type];
 }
-// print '<pre>'; print_r($data); print '</pre>'; exit;
+
 $d['post_type'] = $post_type;
 
 $data['page_title']  = __('Edit Content Type: ') . $post_type;
