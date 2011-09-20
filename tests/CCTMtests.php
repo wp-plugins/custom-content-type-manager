@@ -8,7 +8,7 @@ When you deselect the dropdown as the field type, do the options clear?
 class CCTMtests
 {
 	public static $errors = array(); // Any errors thrown.
-	public static $warnings = array();
+//	public static $warnings = array();
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -42,7 +42,7 @@ class CCTMtests
 		}
 		
 		if ( !empty($exit_msg) ) {
-			self::$warnings[] = $exit_msg;
+			CCTM::$warnings[] = $exit_msg;
 		}
 	}
 	

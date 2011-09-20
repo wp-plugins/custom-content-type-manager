@@ -94,25 +94,18 @@ function get_custom_field($fieldname, $options=null)
 	// print_r(CCTM::$data); exit;
 	
 	global $post;
-	// print_r(CCTM::$data[$post->post_type]['custom_fields']); exit;
-	if ( !isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]) ) {
+	if ( !isset(CCTM::$data['custom_field_defs'][$fieldname]) ) {
 		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname );
 	}
 	
-	$field_type = CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['type'];
+	$field_type = CCTM::$data['custom_field_defs'][$fieldname]['type'];
 	CCTM::include_form_element_class($field_type); // This will die on errors
 		
 	$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
 	$FieldObj = new $field_type_name(); // Instantiate the field element
-	$FieldObj->props = CCTM::$data[$post->post_type]['custom_fields'][$fieldname];
+	$FieldObj->props = CCTM::$data['custom_field_defs'][$fieldname];
 
 	$value = get_post_meta($post->ID, $fieldname, true);
-
- 	// This is what will push out the default value if the value is not set.
- 	// but it breaks if you actually want NO value (e.g. no image)
-	//if ( empty($value) && isset(CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value']) ) {
-	//	$value = CCTM::$data[$post->post_type]['custom_fields'][$fieldname]['default_value'];
-	//}
 
 	$value = $FieldObj->output_filter($value, $options);
 
@@ -121,8 +114,7 @@ function get_custom_field($fieldname, $options=null)
 	}
 	else {
 		return $value;
-	}
-	
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -134,25 +126,13 @@ function get_custom_field($fieldname, $options=null)
 *
 * @param	string	$fieldname	The name of the custom field
 * @param	string	$item		The name of the definition item that you want
-* @param	string	$post_type	Optional.  Default is read from the global $post.
 * @return	mixed	Usually a string, but some items are arrays (e.g. options)
 */
-function get_custom_field_meta($fieldname, $item, $post_type=null)
-{
-	if (!$post_type)
-	{
-		global $post;
-		$post_type = $post->post_type;
-		if (!$post_type)
-		{
-			return __('Could not determine the post_type.',CCTM_TXTDOMAIN);
-		}
-	}
-
+function get_custom_field_meta($fieldname, $item) {
 	$data = get_option( CCTM::db_key, array() );
 	
-	if ( $data[$post_type]['custom_fields'][$fieldname] ) {
-		return $data[$post_type]['custom_fields'][$fieldname];
+	if ( $data['custom_field_defs'][$fieldname] ) {
+		return $data['custom_field_defs'][$fieldname];
 	}
 	else {
 		return sprintf( __('Invalid field name: %s', CCTM_TXTDOMAIN), $fieldname );

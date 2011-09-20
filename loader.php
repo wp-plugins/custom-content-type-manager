@@ -15,10 +15,10 @@ Run tests only upon activation
 http://codex.wordpress.org/Function_Reference/register_activation_hook
 */
 // Required Files
-include_once('includes/constants.php');
+include_once('includes/constants.php'); // needed before anything else
 include_once('includes/CCTM.php');
 include_once('includes/StandardizedCustomFields.php');
-include_once('includes/FormElement.php');
+include_once('includes/CCTMFormElement.php');
 include_once('includes/functions.php');
 include_once('tests/CCTMtests.php');
 
@@ -32,16 +32,19 @@ CCTMtests::incompatible_plugins( array('Magic Fields','Custom Post Type UI','CMS
 // Get admin ready, print any CCTMtests::$errors in the admin dashboard
 add_action( 'admin_notices', 'CCTM::print_notices');
 
-
 if ( empty(CCTMtests::$errors) )
 {
-	// Load up the CCTM data from wp_options
-	CCTM::$data = get_option( CCTM::db_key, array() );
-
+	// Load up the CCTM data from wp_options, populates CCTM::$data
+	CCTM::load_data();
+	
+	// Run any updates for this version.
+	add_action('init', 'CCTM::check_for_updates', 0 );	
+	
+	// Generate admin menu, bootstrap CSS/JS
 	add_action('admin_init', 'CCTM::admin_init');	
 	
 	// Register any custom post-types (a.k.a. content types)
-	add_action('init', 'CCTM::register_custom_post_types', 0 );
+	add_action('init', 'CCTM::register_custom_post_types', 1 );
 	
 	// Create custom plugin settings menu
 	add_action('admin_menu', 'CCTM::create_admin_menu');
@@ -51,7 +54,7 @@ if ( empty(CCTMtests::$errors) )
 	// Standardize Fields
 	add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
 	add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
-	add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 );
+	add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
 	
 	// Customize the page-attribute box for custom page hierarchies
 	add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
@@ -65,6 +68,23 @@ if ( empty(CCTMtests::$errors) )
 	
 	// Forces front-end searches to return results for all registered post_types
 	add_filter('pre_get_posts','CCTM::search_filter');
+	
+	// Highlght which themes are CCTM-compatible (if any)
+	// add_filter('theme_action_links', 'CCTM::highlight_cctm_compatible_themes');
+	add_action( 'admin_notices', 'CCTM::print_warnings');
 }
+
+/*
+unset(CCTM::$data['flash']);
+CCTM::$data['flash'] = array();
+update_option(CCTM::db_key, CCTM::$data);
+*/
+/*
+		$x = get_defined_vars();
+		print "<pre>";
+		print_r($x);
+		print "</pre>";
+*/
+
 
 /*EOF*/

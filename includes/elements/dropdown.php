@@ -5,13 +5,13 @@
 * Implements an HTML select element with options (single select).
 *
 */
-class CCTM_dropdown extends FormElement
+class CCTM_dropdown extends CCTMFormElement
 {
 	/** 
 	* The $props array acts as a template which defines the properties for each instance of this type of field.
 	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
 	* Some properties are required of all fields (see below), some are automatically generated (see below), but
-	* each type of custom field (i.e. each class that extends FormElement) can have whatever properties it needs
+	* each type of custom field (i.e. each class that extends CCTMFormElement) can have whatever properties it needs
 	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
 	* 
 	* 
@@ -48,14 +48,6 @@ class CCTM_dropdown extends FormElement
 	*/
 	public function get_name() {
 		return __('Dropdown',CCTM_TXTDOMAIN);	
-	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	* Used to drive a thickbox pop-up when a user clicks "See Example"
-	*/
-	public function get_example_image() {
-		return '';
 	}
 	
 	//------------------------------------------------------------------------------
@@ -302,12 +294,11 @@ class CCTM_dropdown extends FormElement
 	 * label. Override this if customized validation is required.
 	 *
 	 * @param	array	$posted_data = $_POST data
-	 * @param	string	$post_type the string defining this post_type
 	 * @return	array	filtered field_data that can be saved OR can be safely repopulated
 	 *					into the field values.
 	 */
-	public function save_definition_filter($posted_data, $post_type) {
-		$posted_data = parent::save_definition_filter($posted_data, $post_type);		
+	public function save_definition_filter($posted_data) {
+		$posted_data = parent::save_definition_filter($posted_data);		
 		if ( empty($posted_data['options']) ) {
 			$this->errors['options'][] = __('At least one option is required.', CCTM_TXTDOMAIN);
 		}

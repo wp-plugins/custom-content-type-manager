@@ -145,7 +145,7 @@ class OutputFilters {
 	 */
 	public function to_link($value, $option=null) {
 		$post = get_post($value);
-		$link_text = $this->post_title;
+		$link_text = $post->post_title;
 		if (!empty($option)) {
 			$link_text = $option;
 		}

@@ -56,11 +56,14 @@ label.cctm_checkbox_label
 
 /* Used when you view a Custom Post Types sample Templates: 
 Custom Post Types --> View Sample Templates (for any post type) */
-.sample_code_textarea {
+textarea.sample_code_textarea {
 	border: 1px solid black;
 	background-color: lightyellow; 
+	width: 100%; 
+	margin: 0; 
+	padding: 0; 
+	border-width: 0; 
 }
-
 
 /* This is the button used in the manager to choose a new image, and we 
 only display it when the custom field is an IMAGE or other MEDIA. The button is
@@ -157,4 +160,32 @@ span.custom_field_description {
 
 span.custom_field_icon {
 	padding: 10px;
+}
+
+
+.cctm_header_text {
+	color: #cecece;
+	font-size: 23px;
+	line-height: 29px;
+	font-family: HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', sans-serif;
+}
+
+.cctm_page_title {
+	color: #464646;
+	font-size: 18px;
+	font-family: HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', sans-serif;
+}
+
+.cctm_version {
+	font-size: 10px;
+	font-style: italic;
+	padding-left: 30px;
+}
+
+.cctm_field_type_header {
+	margin-top: 3px;
+}
+
+#cctm_nav {
+	margin-bottom:8px;
 }

@@ -5,13 +5,13 @@
 * Implements an HTML multi-select element with options (multiple select).
 *
 */
-class CCTM_multiselect extends FormElement
+class CCTM_multiselect extends CCTMFormElement
 {
 	/** 
 	* The $props array acts as a template which defines the properties for each instance of this type of field.
 	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
 	* Some properties are required of all fields (see below), some are automatically generated (see below), but
-	* each type of custom field (i.e. each class that extends FormElement) can have whatever properties it needs
+	* each type of custom field (i.e. each class that extends CCTMFormElement) can have whatever properties it needs
 	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
 	* 
 	* 
@@ -51,14 +51,6 @@ class CCTM_multiselect extends FormElement
 	*/
 	public function get_name() {
 		return __('Multi-select',CCTM_TXTDOMAIN);	
-	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	* Used to drive a thickbox pop-up when a user clicks "See Example"
-	*/
-	public function get_example_image() {
-		return '';
 	}
 	
 	//------------------------------------------------------------------------------
@@ -349,12 +341,11 @@ class CCTM_multiselect extends FormElement
 	 * label. Override this if customized validation is required.
 	 *
 	 * @param	array	$posted_data = $_POST data
-	 * @param	string	$post_type the string defining this post_type
 	 * @return	array	filtered field_data that can be saved OR can be safely repopulated
 	 *					into the field values.
 	 */
-	public function save_definition_filter($posted_data, $post_type) {
-		$posted_data = parent::save_definition_filter($posted_data, $post_type);		
+	public function save_definition_filter($posted_data) {
+		$posted_data = parent::save_definition_filter($posted_data);		
 		if ( empty($posted_data['options']) ) {
 			$this->errors['options'][] = __('At least one option is required.', CCTM_TXTDOMAIN);
 		}
@@ -367,9 +358,9 @@ class CCTM_multiselect extends FormElement
 	 * it is saved to the database. Data validation and filtering should happen here,
 	 * although it's difficult to enforce any validation errors.
 	 *
-	 * Note that the field name in the $_POST array is prefixed by FormElement::post_name_prefix,
+	 * Note that the field name in the $_POST array is prefixed by CCTMFormElement::post_name_prefix,
 	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
-	 * (where FormElement::post_name_prefix = 'cctm_').
+	 * (where CCTMFormElement::post_name_prefix = 'cctm_').
 	 *
 	 * Output should be whatever string value you want to store in the wp_postmeta table
 	 * for the post in question. This function will be called after the post/page has
@@ -380,9 +371,9 @@ class CCTM_multiselect extends FormElement
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		// print_r($posted_data[ FormElement::post_name_prefix . $field_name ]); exit;
-		if ( isset($posted_data[ FormElement::post_name_prefix . $field_name ]) ) {
-			return json_encode($posted_data[ FormElement::post_name_prefix . $field_name ]);		
+		// print_r($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]); exit;
+		if ( isset($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]) ) {
+			return json_encode($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]);		
 		}
 		else {
 			return '';

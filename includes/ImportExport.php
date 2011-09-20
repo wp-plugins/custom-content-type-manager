@@ -259,8 +259,8 @@ class ImportExport {
 	public static function import_from_preview() {
 	
 		$settings = get_option(CCTM::db_key_settings, array() );
-		$candidate = CCTM::_get_value($settings, 'candidate');
-		$new_data = CCTM::_get_value($candidate, 'payload');
+		$candidate = CCTM::get_value($settings, 'candidate');
+		$new_data = CCTM::get_value($candidate, 'payload');
 
 		// Clean up icon URLs: make them absolute again. See the ImportExport::export_to_desktop function
 		// and issue 64:http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=64

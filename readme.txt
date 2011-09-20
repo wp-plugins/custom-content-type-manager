@@ -5,6 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.0.1
 Tested up to: 3.2.1
 Stable tag: 0.9.3.3
+Version: 0.9.4-dev
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -80,6 +81,12 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+* Fixed [Issue 52](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=52) that caused wp_insert_post() to fail when used on the from the front-end.
+* Implemented [Feature 178](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=178): submenus added to the post_type menus.
+* Fixed [Issue 168](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=168) that was preventing the admin user from unchecking "Rewrite with Permalink Front"
+* Now CCTM is compatible with the Gravity Forms plugin per [Issue 155](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=155)
+* General cleanup of the plugin's directory structure; general move towards MVC organization of all files.
+* Finally added some appropriate images to the footer of the admin pages.
 * Now HTML/JavaScript values can be stored correctly in text fields. See [Issue 152](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=152).
 * Implemented more advanced dropdown and multi-select options where users can now optionally store distinct values and labels for each option. See [Issue 150](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=150).
 * Revisited [Issue 146](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=146), discovered WordPress is adding slashes to $_POST, $_GET, $_COOKIE, and $_SERVER arrays (see [this article](http://kovshenin.com/archives/wordpress-and-magic-quotes/).  WHY IS WORDPRESS DOING THIS???

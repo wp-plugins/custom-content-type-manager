@@ -23,32 +23,6 @@ class StandardizedCustomFields
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * This plugin is meant to be configured so it acts on a specified list of post
-	 * types, e.g. post, page, or any custom content types that is registered.
-	 * @return array	$active_post_types. Array of strings, each a valid post-type name, 
-		e.g. array('post','page','your_custom_post_type')
-	*/
-	private static function _get_active_post_types() {
-	
-		$active_post_types = array();	
-		$data = get_option( CCTM::db_key );
-		if ( !empty($data) && is_array($data) )
-		{
-			$known_post_types = array_keys($data);	
-			foreach ($known_post_types as $pt)
-			{
-				if ( CCTM::is_active_post_type($pt) )
-				{
-					$active_post_types[] = $pt;
-				}
-			}
-		}
-		
-		return $active_post_types;
-	}
-
-	//------------------------------------------------------------------------------
-	/**
 	 * Get custom fields for this content type.
 	 * @param string $post_type the name of the post_type, e.g. post, page.
 	OUTPUT: array of associative arrays where each associative array describes 
@@ -56,16 +30,9 @@ class StandardizedCustomFields
 	FUTURE: read these arrays from the database.
 	*/
 	private static function _get_custom_fields($post_type) {
-		if (isset(CCTM::$data[$post_type]['custom_fields']))
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields']))
 		{
-			// Sorting blows away the field_name key, so you have to walk back through the array and re-establish the key
-			usort(CCTM::$data[$post_type]['custom_fields'], CCTM::sort_custom_fields('sort_param', 'strnatcasecmp'));
-			foreach ( CCTM::$data[$post_type]['custom_fields'] as $i => $def ) {
-				$field_name = CCTM::$data[$post_type]['custom_fields'][$i]['name'];
-				CCTM::$data[$post_type]['custom_fields'][$field_name] = $def; // re-establish the key version.
-				unset(CCTM::$data[$post_type]['custom_fields'][$i]); // kill the integer version
-			} 			
-			return CCTM::$data[$post_type]['custom_fields'];
+			return CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
 		}
 		else
 		{
@@ -73,13 +40,32 @@ class StandardizedCustomFields
 		}
 	}
 
-	/*------------------------------------------------------------------------------
-	This determines if the user is creating a new post (of any type, e.g. a new page).
-	This is used so we know if and when to use the default values for any field.
-	INPUT: none; the current page is read from the server URL.
-	OUTPUT: boolean
-	------------------------------------------------------------------------------*/
-	private static function _is_new_post()
+	//------------------------------------------------------------------------------
+	/**
+	 * This determines if the user is editing an existing post.
+	 *
+	 * @return boolean
+	 */
+	private static function _is_existing_post()
+	{
+		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'post.php' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This determines if the user is creating a new post.
+	 *
+	 * @return boolean
+	 */
+	 private static function _is_new_post()
 	{
 		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'post-new.php' )
 		{
@@ -99,7 +85,7 @@ class StandardizedCustomFields
 	* of the wrapper div.
 	*/
 	public static function create_meta_box() {
-		$content_types_array = self::_get_active_post_types();
+		$content_types_array = CCTM::get_active_post_types();
 		foreach ( $content_types_array as $content_type ) {
 			add_meta_box( 'custom-content-type-mgr-custom-fields'
 				, __('Custom Fields', CCTM_TXTDOMAIN )
@@ -196,7 +182,7 @@ class StandardizedCustomFields
 	------------------------------------------------------------------------------*/
 	public static function print_custom_fields($post, $callback_args='') 
 	{
-		//return;
+	
 		$post_type = $callback_args['args']; // the 7th arg from add_meta_box()
 		$custom_fields = self::_get_custom_fields($post_type);
 		$output = '';		
@@ -205,39 +191,38 @@ class StandardizedCustomFields
 		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
 		if ( empty($custom_fields) )
 		{
-			$post_type = $post->post_type;
-			$url = sprintf( '<a href="options-general.php?page='
-				.CCTM::admin_menu_slug.'&'
-				.CCTM::action_param.'=4&'
-				.CCTM::post_type_param.'='.$post_type.'">%s</a>', __('Settings Page', CCTM_TXTDOMAIN ) );
-			print '<p>';
-			printf ( __('Custom fields can be added and configured using the %1$s %2$s', CCTM_TXTDOMAIN), CCTM::name, $url );
-			print '</p>';
 			return;
 		}
 		
-		foreach ( $custom_fields as $def_i => &$field_def ) {
+		foreach ( $custom_fields as $cf ) {
+			if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
+				// throw error!!
+				continue;
+			}
+			$def = CCTM::$data['custom_field_defs'][$cf];
 			$output_this_field = '';
-			CCTM::include_form_element_class($field_def['type']); // This will die on errors
-			$field_type_name = CCTM::FormElement_classname_prefix.$field_def['type'];
+			CCTM::include_form_element_class($def['type']); // This will die on errors
+			$field_type_name = CCTM::FormElement_classname_prefix.$def['type'];
 			$FieldObj = new $field_type_name(); // Instantiate the field element
 			
 			if ( self::_is_new_post() ) {	
-				$FieldObj->props = $field_def;
+				$FieldObj->props = $def;
 				$output_this_field = $FieldObj->get_create_field_instance();
 			}
 			else {
-				$current_value = htmlspecialchars( get_post_meta( $post->ID, $field_def['name'], true ) );
-				$FieldObj->props = $field_def;
+				$current_value = htmlspecialchars( get_post_meta( $post->ID, $def['name'], true ) );
+				$FieldObj->props = $def;
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}
 						
 			$output .= $output_this_field;
 		}
-
+		
+		// Print the nonce: this offers security and it will help us know when we should do custom saving logic in the save_custom_fields function
+		$output .= '<input type="hidden" name="_cctm_nonce" value="'. wp_create_nonce('cctm_create_update_post') . '" />';
+		
  		// Print the form
- 		print '<div class="form-wrap">';
-	 	wp_nonce_field('update_custom_content_fields','custom_content_fields_nonce');
+ 		print '<div class="form-wrap">';		
 	 	print $output;
 	 	print '</div>';
  
@@ -251,7 +236,7 @@ class StandardizedCustomFields
 	------------------------------------------------------------------------------*/
 	public static function remove_default_custom_fields( $type, $context, $post ) 
 	{
-		$content_types_array = self::_get_active_post_types();
+		$content_types_array = CCTM::get_active_post_types();
 		foreach ( array( 'normal', 'advanced', 'side' ) as $context ) {
 			foreach ( $content_types_array as $content_type )
 			{
@@ -265,20 +250,30 @@ class StandardizedCustomFields
 	 * Save the new Custom Fields values. If the content type is not active in the 
 	 * CCTM plugin or its custom fields are not being standardized, then this function 
 	 * effectively does nothing.
+	 *
+	 * WARNING: This function is also called when the wp_insert_post() is called, and
+	 * we don't want to step on its toes. We want this to kick in ONLY when a post 
+	 * is inserted via the WP manager. 
+	 * see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=52
 	 * 
 	 * @param	integer	$post_id id of the post these custom fields are associated with
 	 * @param	object	$post  the post object
 	 */
 	public static function save_custom_fields( $post_id, $post ) 
 	{
+		// Bail if you're not in the admin editing a post
+		if (!self::_is_existing_post() && !self::_is_new_post() ) {
+			return;
+		}
+		
 		// Bail if this post-type is not active in the CCTM
-		if ( !CCTM::is_active_post_type($post->post_type) ) {
+		if ( !isset(CCTM::$data['post_type_defs'][$post->post_type]['is_active']) 
+			|| CCTM::$data['post_type_defs'][$post->post_type]['is_active'] == 0) {
 			return;
 		}
 	
 		// Bail if there are no custom fields defined in the CCTM
-		#$data = get_option( CCTM::db_key );
-		if ( empty(CCTM::$data[$post->post_type]['custom_fields']) ) {
+		if ( empty(CCTM::$data['post_type_defs'][$post->post_type]['custom_fields']) ) {
 			return;
 		}
 		
@@ -286,21 +281,26 @@ class StandardizedCustomFields
 		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ){
 			return $post_id;
 		}
-				
-		// The 2nd arg here is important because there are multiple nonces on the page
-		if ( !empty($_POST) && check_admin_referer('update_custom_content_fields','custom_content_fields_nonce') ) {			
+
+		// Use this to ensure you save custom fields only when saving from the edit/create post page
+		$nonce = CCTM::get_value($_POST, '_cctm_nonce');
+		if (! wp_verify_nonce($nonce, 'cctm_create_update_post') ) {
+			return;
+		}
+
+		if ( !empty($_POST) ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
-			foreach ( $custom_fields as $field_name => $field_def ) {
-				$field_type = CCTM::$data[$post->post_type]['custom_fields'][$field_name]['type'];
+			foreach ( $custom_fields as $field_name ) {
+//				print_r(CCTM::$data['custom_field_defs']); exit;
+				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 				CCTM::include_form_element_class($field_type); // This will die on errors
 	
 				$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
 				$FieldObj = new $field_type_name(); // Instantiate the field element
-				$FieldObj->props = CCTM::$data[$post->post_type]['custom_fields'][$field_name];
+				$FieldObj->props = CCTM::$data['custom_field_defs'][$field_name];
 				$value = $FieldObj->save_post_filter($_POST, $field_name);
 				update_post_meta( $post_id, $field_name, $value );
-			}
-			
+			}			
 		}
 	}
 
