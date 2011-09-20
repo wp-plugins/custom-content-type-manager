@@ -199,7 +199,7 @@ class CCTM {
 	private static function _get_post_type_icons() {
 
 		$icons = array();
-		if ($handle = opendir(CCTM_PATH.'/images/icons')) {
+		if ($handle = opendir(CCTM_PATH.'/images/icons/16x16')) {
 			while (false !== ($file = readdir($handle))) {
 				if ( !preg_match('/^\./', $file) ) {
 					$icons[] = $file;
@@ -209,11 +209,17 @@ class CCTM {
 		}
 
 		$output = '';
-		$tpl = CCTM_PATH.'/tpls/settings/icon.tpl';
-		$tpl = file_get_contents($tpl);
 
 		foreach ( $icons as $img ) {
-			$output .= self::parse($tpl, array('title'=> $img, 'src'=> CCTM_URL.'/images/icons/'.$img) );
+			$output .= sprintf('
+				<span class="cctm-icon">
+					<img src="%s" title="%s" onclick="javascript:send_to_menu_icon(\'%s\');alert(\'%s\');"/>
+				</span>'
+				, CCTM_URL.'/images/icons/32x32/'.$img
+				, $img
+				, CCTM_URL.'/images/icons/16x16/'.$img	
+				, sprintf(__('Icon has been updated to %s', CCTM_TXTDOMAIN), $img)
+			);
 		}
 
 		return $output;

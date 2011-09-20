@@ -70,6 +70,7 @@ just want to make sure that the form is presented uncorrupted.
 	function send_to_menu_icon(src)
 	{
 		jQuery('#menu_icon').val(src);
+		// show the user some eye-candy so they know something happened
 	}
 </script>
 
@@ -144,11 +145,11 @@ just want to make sure that the form is presented uncorrupted.
 			<!--!Menu Icon -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_icon">		
 				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon">Menu Icon</label>
-				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($data['def']['menu_icon'])) { print htmlspecialchars($data['def']['menu_icon']); } ?>" size="80"/>
+				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($data['def']['menu_icon'])) { print htmlspecialchars($data['def']['menu_icon']); } ?>" size="120"/>
 						<span class="cctm_description"><?php _e('Choose an icon from the list below or paste a full URL to a 16x16 icon here.', CCTM_TXTDOMAIN); ?></span>
 			</div>
 		
-			<div style="width:300px; margin-top:10px;">
+			<div style="width:700px; margin-top:10px;">
 				<?php print CCTM::_get_post_type_icons(); ?>
 			</div>
 		</div>

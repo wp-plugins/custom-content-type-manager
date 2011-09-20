@@ -81,6 +81,8 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+* New menu icons! See [Issue 30](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=30).
+* Large menu icon now displayed when you edit or create a post type [Issue 136](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136).
 * Fixed [Issue 52](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=52) that caused wp_insert_post() to fail when used on the from the front-end.
 * Implemented [Feature 178](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=178): submenus added to the post_type menus.
 * Fixed [Issue 168](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=168) that was preventing the admin user from unchecking "Rewrite with Permalink Front"

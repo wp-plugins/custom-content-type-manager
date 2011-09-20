@@ -76,8 +76,8 @@ foreach ( $displayable_types as $post_type ) {
 
 	// Built-in post types use a canned description and override a few other behaviors
 	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
-		$hash['description']  = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" style="vertical-align: middle;"/> ' . __('Built-in post type.', CCTM_TXTDOMAIN);
-		$hash['edit_manage_view_links'] = $manage_custom_fields . ' | ' . $view_templates;
+		$hash['description']  = __('Built-in post type.', CCTM_TXTDOMAIN);
+		$hash['edit_manage_view_links'] = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp"/> ' . $manage_custom_fields . ' | ' . $view_templates;
 		if (!$is_active) {
 			$hash['activate_deactivate_delete_links'] = '<span class="activate">'
 				. sprintf(
