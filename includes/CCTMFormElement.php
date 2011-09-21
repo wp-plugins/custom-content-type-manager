@@ -43,7 +43,6 @@ abstract class CCTMFormElement {
 	* The following properties are set automatically:
 	*
 	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
-	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
 	*/
 	public $element_i = 0; // used to increment CSS ids as we wrap multiple elements
 	
@@ -62,7 +61,7 @@ abstract class CCTMFormElement {
 	public $supported_output_filters = array();
 	
 	// Definition vars from $props that you don't want a child class to change during runtime.
-	private $protected_instance_vars = array('sort_param', 'name');
+	private $protected_instance_vars = array('type');
 
 	// Added to each key in the $_POST array, to avoid name pollution e.g. $_POST['cctm_firstname']
 	const post_name_prefix 	= 'cctm_';
@@ -164,6 +163,19 @@ abstract class CCTMFormElement {
 	//! Protected Functions
 	//------------------------------------------------------------------------------
 	/**
+	 * Used to populate the [+help+] placeholder
+	 * @return string
+	 */
+	protected function get_all_placeholders() {
+		$all_placeholders = array_keys($this->props);
+		foreach ($all_placeholders as &$p) {
+			$p = "&#91;+$p+&#93;";
+		}
+		return sprintf(__('The %s.tpl has the following placeholders available for use:', CCTM_TXTDOMAIN), $this->props['type']) . ' '. implode(', ', $all_placeholders);
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	 * Generate a CSS class for this type of field, typically keyed off the actual HTML
 	 * input type, e.g. text, textarea, submit, etc.
 	 * 
@@ -175,10 +187,12 @@ abstract class CCTMFormElement {
 	 
 	 *
 	 * @param string  $id: unique id for the field 
+	 * @param string $input_type: identifies the type of field
+	 * @param string $additional: optional user-supplied class
 	 * @return string a string representing a CSS class.
 	 *
 	 */
-	protected function get_field_class( $id, $input_type='text' ) {
+	protected function get_field_class( $id, $input_type='text', $additional=null ) {
 		// cctm_text
 		// TODO!!! 
 		$css_arr = array();
@@ -190,6 +204,11 @@ abstract class CCTMFormElement {
 
 		$css_arr[] = self::css_class_prefix . $id;
 		$css_arr[] = self::css_class_prefix . $input_type;
+	
+		if (!empty($additional)) {
+			$css_arr[] = $additional;
+		}
+		
 		return implode(' ', $css_arr);
 	}
 
@@ -245,6 +264,26 @@ abstract class CCTMFormElement {
 			case 'get_create_field_definition':
 			default: 
 				return $this->name;
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Get the mini-template (tpl) for this particular type of field.  The default
+	 * location is tpls/custom_fields where the filenames are the shortname of the 
+	 * type with a ".tpl" extension, e.g. dropdown.tpl.  The user can override this
+	 * by placing a file by the same name into a specific folder in
+	 * the current theme, e.g. wp-content/themes/twentyten/cctm/tpls/custom_fields
+	 *
+	 * @return string	the contents of the file
+	 */
+	protected function get_tpl() {
+		$current_theme_path = get_stylesheet_directory();
+		if (file_exists($current_theme_path .'/cctm/tpls/custom_fields/'.$this->props['type'].'.tpl')) {
+			return file_get_contents($current_theme_path .'/cctm/tpls/custom_fields/'.$this->props['type'].'.tpl');	
+		}
+		else {
+			return file_get_contents(CCTM_PATH.'/tpls/custom_fields/'.$this->props['type'].'.tpl');
 		}
 	}
 	

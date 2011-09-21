@@ -58,7 +58,15 @@
 			<span class="cctm_description"><?php _e('Check this option if you want a "Settings" menu item to appear under each custom post type.', CCTM_TXTDOMAIN); ?></span>			
 		</div>
 	
-	
+		<!--!Show foreign post types -->		
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_foreign_post_types">
+			<input type="checkbox" name="show_foreign_post_types" class="cctm_checkbox" id="show_foreign_post_types" value="1" <?php print $data['settings']['show_foreign_post_types']; ?>/>
+			<label for="show_foreign_post_types" class="cctm_label cctm_checkbox_label" id="cctm_label_show_foreign_post_types">
+				<?php _e('Display Foreign Post Types', CCTM_TXTDOMAIN); ?>
+			</label>
+			<span class="cctm_description"><?php _e("Check this box if you want to display any post-types registered with some other plugin. You won't be able to edit them, but you'll know they are there.", CCTM_TXTDOMAIN); ?></span>
+		</div>
+		
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	<br/>
 	<div class="custom_content_type_mgr_form_controls">

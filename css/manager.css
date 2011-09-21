@@ -171,6 +171,8 @@ span.custom_field_icon {
 }
 
 .cctm_page_title {
+	display: block;
+	margin-top: -10px;
 	color: #464646;
 	font-size: 18px;
 	font-family: HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', sans-serif;

@@ -88,8 +88,10 @@ if ( is_array(self::$data['post_type_defs'][$post_type]['supports']) ) {
 if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields']) 
 	&& is_array(self::$data['post_type_defs'][$post_type]['custom_fields']) ) {
 	foreach ( 	$def = self::$data['post_type_defs'][$post_type]['custom_fields'] as $cf ) {
-		$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n"
-			, self::$data['custom_field_defs'][$cf]['label'], self::$data['custom_field_defs'][$cf]['name']);
+		if (isset(self::$data['custom_field_defs'][$cf])) {
+			$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n"
+				, self::$data['custom_field_defs'][$cf]['label'], self::$data['custom_field_defs'][$cf]['name']);
+		}
 	}
 }
 

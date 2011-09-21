@@ -112,21 +112,22 @@ foreach ( $displayable_types as $post_type ) {
 }
 
 // Flag foreign post types
-$registered_post_types = get_post_types();
-$cctm_post_types = array_keys(self::$data['post_type_defs']);
-$other_post_types = array_diff($registered_post_types, $cctm_post_types);
-$other_post_types = array_diff($other_post_types, self::$reserved_post_types);
-
-foreach($other_post_types as $post_type){
-	$hash['edit_manage_view_links'] = '';
-	$hash['post_type'] = $post_type;
-	$hash['class'] = 'inactive';
-	$hash['activate_deactivate_delete_links'] = '';
-	$hash['description'] = __('This post type has been registered by some other plugin.');
-	$hash['icon'] = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
-	$data['row_data'] .= CCTM::parse($tpl, $hash);
+if (isset(self::$data['settings']['show_foreign_post_types']) && self::$data['settings']['show_foreign_post_types']) {
+	$registered_post_types = get_post_types();
+	$cctm_post_types = array_keys(self::$data['post_type_defs']);
+	$other_post_types = array_diff($registered_post_types, $cctm_post_types);
+	$other_post_types = array_diff($other_post_types, self::$reserved_post_types);
+	
+	foreach($other_post_types as $post_type){
+		$hash['edit_manage_view_links'] = '';
+		$hash['post_type'] = $post_type;
+		$hash['class'] = 'inactive';
+		$hash['activate_deactivate_delete_links'] = '';
+		$hash['description'] = __('This post type has been registered by some other plugin.');
+		$hash['icon'] = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
+		$data['row_data'] .= CCTM::parse($tpl, $hash);
+	}
 }
-
 
 $data['content'] = CCTM::load_view('list_post_types.php', $data);
 print CCTM::load_view('templates/default.php', $data);

@@ -28,6 +28,7 @@ just want to make sure that the form is presented uncorrupted.
 		toggle_image_detail();
 		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
 		toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');
+		// jQuery("img[rel]").overlay();
 	});
 	
 	/* Drives the tab layout for this page. */
@@ -38,7 +39,6 @@ just want to make sure that the form is presented uncorrupted.
 	/* Used to show additional menu icons if the "use default" is deselected. */
 	function toggle_image_detail()
 	{
-
 		if( jQuery('#use_default_menu_icon:checked').val() == '1' )
 		{
             jQuery('#menu_icon_container').hide("slide");
@@ -48,7 +48,6 @@ just want to make sure that the form is presented uncorrupted.
             jQuery('#menu_icon_container').show("slide");
 
         }
-
 	}
 
 	function toggle_div(checkbox_id, css_id, checked_value)
@@ -71,6 +70,9 @@ just want to make sure that the form is presented uncorrupted.
 	{
 		jQuery('#menu_icon').val(src);
 		// show the user some eye-candy so they know something happened
+		console.log('.....');
+		jQuery("img[rel]").overlay();
+
 	}
 </script>
 
@@ -96,7 +98,7 @@ just want to make sure that the form is presented uncorrupted.
 			<label for="post_type" class="cctm_label cctm_text_label" id="cctm_label_post_type">
 				post_type* </label>
 			<input type="text" name="post_type" class="cctm_text" id="post_type" value="<?php print htmlspecialchars($data['post_type']); ?>"/>
-			<span class="cctm_description"><?php _e('This name may show up in your URLs, e.g. ?movie=epic-movie. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-movie.php</code>. WARNING: changing this value will change your URLs and you may have to rename your template files.', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('This name may show up in your URLs, e.g. ?movie=epic-movie. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-movie.php</code>.', CCTM_TXTDOMAIN); ?> <?php print $data['edit_warning']; ?></span>
 		</div>
 		
 		<!-- menu_name_label -->

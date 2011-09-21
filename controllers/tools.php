@@ -18,9 +18,9 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 }
 
-$data['content'] = 'Tools go there......';
+$data['content'] = '';
 
-// $data['content'] = CCTM::load_view('basic_form.php', $data);
+$data['content'] = CCTM::load_view('tools.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 
 /*EOF*/

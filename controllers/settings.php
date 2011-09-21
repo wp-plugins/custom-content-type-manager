@@ -21,6 +21,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['update_custom_fields'] 	= (int) CCTM::get_value($_POST, 'update_custom_fields', 0);
 	self::$data['settings']['show_custom_fields_menu']	= (int) CCTM::get_value($_POST, 'show_custom_fields_menu', 0);
 	self::$data['settings']['show_settings_menu'] 		= (int) CCTM::get_value($_POST, 'show_settings_menu', 0);
+	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
 	update_option( self::db_key, self::$data );
 
 	$data['msg'] = '<div class="updated"><p>'
@@ -31,7 +32,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	return;
 }
 // print "<pre>"; print_r(self::$data['settings']); print "</pre>"; // exit; 
-//! Defaults 
+//! Defaults for checkboxes
 $data['settings'] = array(
 	'delete_posts' => 0
 	, 'delete_custom_fields' => 0
@@ -39,6 +40,7 @@ $data['settings'] = array(
 	, 'update_custom_fields' => 0
  	, 'show_custom_fields_menu' => 1
  	, 'show_settings_menu' => 1
+ 	, 'show_foreign_post_types' => 1
  	
 );
 

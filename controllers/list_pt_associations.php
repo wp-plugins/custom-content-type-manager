@@ -66,6 +66,9 @@ $data['content'] = '';
 
 // First, display the custom fields active for this post_type
 foreach ($active_custom_fields as $cf) {
+	if ( !isset(self::$data['custom_field_defs'][$cf])) {
+		continue;
+	}
 	$d = self::$data['custom_field_defs'][$cf];
 	$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
 

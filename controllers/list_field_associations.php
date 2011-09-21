@@ -44,11 +44,8 @@ $displayable_types = array_unique($displayable_types);
 
 // Save data if it was properly submitted
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
-//	unset(self::$data['custom_field_defs'][$field_name]); 
-//	update_option( self::db_key, self::$data );
 	// All associations were removed
 	$post_type_defs = CCTM::get_post_type_defs();
-	//print '<pre>'; print_r($_POST['post_types']); print "</pre>"; exit;
 	
 	if ( !isset($_POST['post_types'])) {
 		// die('All associations removed...');
@@ -70,10 +67,6 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		}
 	}
 	else {
-		$x = '<pre>';
-		$x .= print_r($_POST['post_types'], true);
-		$x .= "</pre>";
-//		die($x);
 		foreach($displayable_types as $pt) {
 			$def = array();
 			if ( isset(self::$data['post_type_defs'][$pt])) {
@@ -82,7 +75,9 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 			
 			// Add the association
 			if (in_array($pt, $_POST['post_types'])) {
-				if (!in_array($field_name, $def['custom_fields'])) {
+				if (!isset($def['custom_fields']) 
+					|| !is_array($def['custom_fields'])
+					|| !in_array($field_name, $def['custom_fields'])) {
 					$def['custom_fields'][] = $field_name;
 					self::$data['post_type_defs'][$pt]['custom_fields'] = $def['custom_fields'];
 				}

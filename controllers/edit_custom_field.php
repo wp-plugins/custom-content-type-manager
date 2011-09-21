@@ -29,7 +29,6 @@ if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 }
 		
 
-
 $success_msg = sprintf('<div class="updated"><p>%s</p></div>'
 	, sprintf(__('The %s custom field has been edited.', CCTM_TXTDOMAIN)
 	, '<em>'.$field_name.'</em>'));

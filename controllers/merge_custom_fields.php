@@ -29,39 +29,74 @@ will be renamed to "dogs" in the wp_postmeta table, and the definition for
 
 // Variables for our template
 $data['page_title']  = __('Merge Custom Field', CCTM_TXTDOMAIN) . " <em>$field_name</em>";
-$data['msg'] = '';
+$data['msg'] = ''; // Any validation errors
 $data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_fields" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 
 $d['action_name'] = 'custom_content_type_mgr_merge_fields';
 $d['nonce_name'] = 'custom_content_type_mgr_merge_fields';
 $d['submit']   = __('Merge', CCTM_TXTDOMAIN);
 
-$d['msg']    = '';  // Any validation errors
+
 
 
 // Save data if it was properly submitted
-if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) ) {
-//	die('merging...');
-	global $wpdb;
-	$query = $wpdb->prepare("UPDATE {$wpdb->postmeta} SET meta_key='target_value' WHERE meta_key=%s;"
-		, $_POST['merge_target']
-		, $field_name);
-	$wpdb->query($query);
-	
-	// unset the old field in self::$data;
-	unset(self::$data['custom_field_defs'][$field_name]);	
-	update_option(self::db_key, self::$data);
-	
-	$msg = '<div class="updated"><p>'
-		. sprintf( __('The %s field has been merged into the %s field.', CCTM_TXTDOMAIN )
-			, '<em>'.$field_name.'</em>'
-			, '<em>'.$_POST['merge_target'].'</em>'
-		)
-		.'</p></div>';
+if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name'])) {
+	// Error?
+	if (isset($_POST['merge_target']) && empty($_POST['merge_target'])) {
+		$data['msg']    = sprintf('<div class="error"><p>%s</p></div>'
+			, __('You must select a target to merge the field into.', CCTM_TXTDOMAIN)
+		);
+	}
+	// Merge
+	else {
+	//	die('merging...');
+		global $wpdb;
+		$query = $wpdb->prepare("UPDATE {$wpdb->postmeta} SET meta_key='target_value' WHERE meta_key=%s;"
+			, $_POST['merge_target']
+			, $field_name);
+		$wpdb->query($query);
 		
-	self::set_flash($msg);
-	print '<script type="text/javascript">window.location.replace("?page=cctm_fields");</script>';
-	return;
+		// pool the post_type associations: 
+		// Condition we look for: 
+		// 	--	The old field_name is associated with post_type X, 
+		//  	make sure that new merge_target fieldname is also associated with X
+		foreach (self::$data as $pt => $def) {
+			if (isset(self::$data['post_type_defs'][$pt]['custom_fields']) && is_array(self::$data['post_type_defs'][$pt]['custom_fields'])) {
+	
+				if (in_array($field_name, self::$data['post_type_defs'][$pt]['custom_fields'])) {
+
+					// remove the old field's association
+					$revised_fields = array();
+					foreach(self::$data['post_type_defs'][$pt]['custom_fields'] as $field) {
+						if ($field != $field_name) {
+							$revised_fields[] = $field;
+						}
+					}
+					// Add the target field if it's not there already
+					if (!in_array($_POST['merge_target'], self::$data['post_type_defs'][$pt]['custom_fields'])) {
+						$revised_fields[] = $_POST['merge_target'];
+					}
+					
+					self::$data['post_type_defs'][$pt]['custom_fields'] = $revised_fields;
+				}
+			}
+		}
+		
+		// unset the old field in self::$data;
+		unset(self::$data['custom_field_defs'][$field_name]);	
+		update_option(self::db_key, self::$data); // <--- finally, save it all
+		
+		$msg = '<div class="updated"><p>'
+			. sprintf( __('The %s field has been merged into the %s field.', CCTM_TXTDOMAIN )
+				, '<em>'.$field_name.'</em>'
+				, '<em>'.$_POST['merge_target'].'</em>'
+			)
+			.'</p></div>';
+			
+		self::set_flash($msg);
+		print '<script type="text/javascript">window.location.replace("?page=cctm_fields");</script>';
+		return;
+	}
 }
 
 $d['content'] = '';
@@ -78,7 +113,7 @@ $d['content'] .= '<p>'.sprintf( __('Choose a custom field below that will absorb
 $d['content'] .= '<select name="merge_target">
 	<option value="">'.__('Choose target', CCTM_TXTDOMAIN) .'</option>';
 foreach ( self::$data['custom_field_defs'] as $fieldname => $def) {
-	// Skip THIS field as a viable target for the merge
+	// Skip THIS field as a viable target for the merge. $field_name is the name of the field being merged
 	if ($fieldname != $field_name) {
 		$d['content'] .= sprintf('<option value="%s">%s (%s) : %s</option>'
 			, $fieldname

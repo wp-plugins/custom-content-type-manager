@@ -29,6 +29,9 @@ if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
 }
 
 $d['post_type'] = $post_type;
+$d['edit_warning'] = sprintf('<br /><span style="color:red;">%s</span>'
+	, __('WARNING: changing this value will change your URLs and you may have to rename your template files.', CCTM_TXTDOMAIN)
+);
 
 $data['page_title']  = __('Edit Content Type: ') . $post_type;
 $fields   = '';

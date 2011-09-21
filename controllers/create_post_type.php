@@ -9,6 +9,7 @@ $data['page_title'] = __('Create Custom Content Type', CCTM_TXTDOMAIN)
 	</a>';
 $data['msg'] = '';
 $data['menu'] = sprintf('<a href="?page=cctm" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
+$data['edit_warning'] = ''; // only used when you edit a post_type, not delete.
 
 // Variables for our template
 

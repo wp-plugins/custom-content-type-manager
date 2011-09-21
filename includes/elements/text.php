@@ -36,7 +36,6 @@ class CCTM_text extends CCTMFormElement
 		'default_value' => '',
 		'output_filter'	=> '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
 	);
 
 	public $supported_output_filters = array('email');
@@ -100,11 +99,28 @@ class CCTM_text extends CCTMFormElement
 		$output .= $this->wrap_description($this->props['description']);
 		
 		return $this->wrap_outer($output);
+		//------- working... ------
+		
+		$tpl = $this->get_tpl();
+		
+		// Populate the values (i.e. properties) of this field
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
+		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
+		$this->props['inputs_wrapper_id']	= $this->get_wrapper_id();
+		
+		if ($this->is_repeatable) {
+			$this->props['add_button'] = 'Click'; 
+			$this->props['delete_button'] = 'Delete';
+		}
+		
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be last
+		
+		return CCTM::parse($tpl, $this->props);
 	}
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
