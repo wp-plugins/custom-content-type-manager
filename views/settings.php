@@ -15,18 +15,18 @@
 			<label for="delete_custom_fields" class="cctm_label cctm_checkbox_label" id="cctm_label_delete_custom_fields">
 				<?php _e('Delete Custom Fields', CCTM_TXTDOMAIN); ?>
 			</label>
-			<span class="cctm_description"><?php _e('Check this option if you want to delete custom fields from the database when you delete a custom field or remove a custom field from a content type.', CCTM_TXTDOMAIN); ?></span>			
+			<span class="cctm_description"><?php _e('Check this option if you want to delete custom fields from the database when you delete a custom field definition.', CCTM_TXTDOMAIN); ?></span>			
 		</div>
 		
 		
 		<!--!Add Custom Fields when associated -->		
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_add_custom_fields">
+		<!-- div class="cctm_element_wrapper" id="custom_field_wrapper_add_custom_fields">
 			<input type="checkbox" name="add_custom_fields" class="cctm_checkbox" id="add_custom_fields" value="1" <?php print $data['settings']['add_custom_fields']; ?>/>
 			<label for="add_custom_fields" class="cctm_label cctm_checkbox_label" id="cctm_label_add_custom_fields">
 				<?php _e('Add Custom Fields', CCTM_TXTDOMAIN); ?>
 			</label>
 			<span class="cctm_description"><?php _e('Check this option if you want to force custom fields to be created in the database when you associate custom field with a content type.', CCTM_TXTDOMAIN); ?></span>			
-		</div>
+		</div -->
 
 
 

@@ -8,6 +8,23 @@ $data['msg']:			Any message (e.g. after form submission)
 $data['menu']:			Navigation links (e.g. back, cancel, etc)
 $data['content']:		Main content block
 ------------------------------------------------------------------------------*/
+$active = array();
+$active['cctm'] 		= '';
+$active['cctm_fields']	= '';
+$active['cctm_settings'] = '';
+$active['cctm_themes'] = '';
+$active['cctm_tools'] = '';
+$active['cctm_info'] = '';
+
+$page = CCTM::get_value($_GET, 'page');
+$active[$page] = ' cctm_active'; // active tab class
+
+// for custom menu items, not registered via WP
+$a = CCTM::get_value($_GET, 'a');
+if ( $a == 'info') {
+	$active['cctm_info'] = ' cctm_active';
+	$active['cctm'] = '';
+}
 ?>
 <div class="wrap">
 
@@ -19,10 +36,17 @@ $data['content']:		Main content block
 		</p>
 	</div>
 	
-	
+	<div id="cctm_mainmenu">
+		<a href="<?php ?>?page=cctm" class="cctm_tab<?php print $active['cctm']; ?>"><?php _e('Content Types', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php ?>?page=cctm_fields" class="cctm_tab<?php print $active['cctm_fields']; ?>"><?php _e('Custom Fields', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php ?>?page=cctm_settings" class="cctm_tab<?php print $active['cctm_settings']; ?>"><?php _e('Settings', CCTM_TXTDOMAIN); ?></a>
+		<!-- a href="<?php ?>?page=cctm_themes" class="cctm_tab<?php print $active['cctm_themes']; ?>"><?php _e('Themes', CCTM_TXTDOMAIN); ?></a -->
+		<a href="<?php ?>?page=cctm_tools" class="cctm_tab<?php print $active['cctm_tools']; ?>"><?php _e('Tools', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php ?>?page=cctm&a=info" class="cctm_tab<?php print $active['cctm_info']; ?>"><?php _e('Info', CCTM_TXTDOMAIN); ?></a>
+	</div>	
 	
 	<?php print $data['msg']; ?>
-	
+
 	<div id="cctm_nav"><?php print $data['menu']; ?></div>
 	
 	<?php print $data['content']; ?>

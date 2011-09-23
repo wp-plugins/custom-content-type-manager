@@ -191,3 +191,43 @@ span.custom_field_icon {
 #cctm_nav {
 	margin-bottom:8px;
 }
+
+/* Main nav links @ top of each CCTM page*/
+#cctm_mainmenu {
+	/* background-color: #cecece; */
+	border-bottom: 1px solid gray;
+	margin-top: -21px;
+	margin-bottom: 10px;
+	padding-left: 200px;
+	line-height: 200%;
+}
+
+#cctm_mainmenu a {
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-bottom: 6px;
+	padding-top: 3px;
+	text-decoration: none;
+}
+
+a.cctm_tab {
+	border: 1px solid gray;
+	background-color: #ededed;
+}
+
+a.cctm_active {
+	border-bottom: 1px solid white;
+	background-color: white;
+}
+
+/* Formats rows of data, e.g. in the import definition */
+td.cctm_data {
+	height: 25px;
+}
+
+tr.cctm_evenrow {
+	background-color: #cecece;
+}
+tr.cctm_oddrow {
+	background-color: #f8f8f8;
+}

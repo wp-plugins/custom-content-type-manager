@@ -16,7 +16,7 @@ if (!self::_is_existing_post_type($post_type, false ) ) {
 		}
 	}
 	die('post_type does not exist:' . $post_type);
-	self::_format_errors();
+	self::format_errors();
 	return;
 }
 */

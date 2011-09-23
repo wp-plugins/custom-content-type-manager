@@ -19,6 +19,8 @@ This plugin also lets you export and import those content definitions, making it
 
 Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 
+If you are upgrading to version 0.9.4, please see the Wiki page on [Upgrading to version 0.9.4](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Upgrading094)!
+
 *PLEASE NOTE*: this plugin is still in development and I won't consider it stable until version 1.0! I have used it on numerous sites, but I still consider this BETA code. I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) and follow up on them when I ask for more details!
 
 This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book), published by Packt.
@@ -81,6 +83,8 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+* Improved help pages on the [project Wiki](http://code.google.com/p/wordpress-custom-content-type-manager/w/list).
+* Improved import/export of CCTM definitions.
 * Settings page added to give control to the users. See [Issue 72](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=72).
 * New menu icons! See [Issue 30](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=30).
 * Large menu icon now displayed when you edit or create a post type [Issue 136](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136).

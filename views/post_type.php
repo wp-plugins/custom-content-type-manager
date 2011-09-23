@@ -22,7 +22,7 @@ just want to make sure that the form is presented uncorrupted.
 ?>
 <form id="custom_post_type_manager_basic_form" method="post">
 
-<script>
+<script type="text/javascript">
 	/* Hide some of the divs by default */
 	jQuery(document).ready(function(){
 		toggle_image_detail();

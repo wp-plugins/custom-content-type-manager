@@ -27,6 +27,18 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	// Optionally delete the posts
 	if (isset(self::$data['settings']['delete_posts']) && self::$data['settings']['delete_posts']) {
 		global $wpdb;
+		
+		// Delete the custom fields
+		$query = $wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( SELECT post_id FROM {$wpdb->posts} WHERE post_type=%s)"
+			, $post_type);
+		$wpdb->query($query);		
+		
+		// Delete any revisions
+		$query = $wpdb->prepare("DELETE FROM {$wpdb->posts} WHERE post_type='revision' AND post_parent IN (SELECT ID FROM {$wpdb->posts} WHERE post_type=%s);"
+			, $post_type);
+		$wpdb->query($query);
+				
+		// Delete the posts
 		$query = $wpdb->prepare("DELETE FROM {$wpdb->posts} WHERE post_type=%s;"
 			, $post_type);
 		$wpdb->query($query);		

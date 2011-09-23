@@ -15,7 +15,6 @@ $data['submit']   = __('Save', CCTM_TXTDOMAIN);
 // If properly submitted, Proceed with deleting the post type
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 	$data['msg'] = 'Updating...';
-
 }
 
 $data['content'] = '';
