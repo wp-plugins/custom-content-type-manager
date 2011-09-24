@@ -9,6 +9,7 @@ $data['msg']		= self::get_flash();
 $data['action_name']  = 'custom_content_type_mgr_settings';
 $data['nonce_name']  = 'custom_content_type_mgr_settings';
 $data['submit']   = __('Save', CCTM_TXTDOMAIN);
+$data['custom_fields_settings_links'] = ''; // <-- optionally kicks in if the Field Element implements the get_settings_page() function
 
 // Add links to any custom field settings here
 $data['content'] = ''; 
@@ -51,6 +52,39 @@ foreach ( $data['settings'] as $k => $v) {
 	}
 }
 
+// Load up any settings pages for custom fields
+
+$element_files = CCTM::get_available_custom_field_types();
+$flag = false;
+foreach ( $element_files as $file ) {
+	include_once($file);
+	$field_type = basename($file);
+	$field_type = preg_replace('/\.php$/', '', $field_type);
+
+	if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
+	{
+		$d = array();
+		$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+		$FieldObj = new $field_type_name();
+		
+		if ($FieldObj->get_settings_page() ) {
+			$flag = true;
+			$data['custom_fields_settings_links'] .= sprintf(
+				'<li><strong>%s</strong>: %s (<a href="?page=cctm_settings&a=settings_cf&type=%s">%s</a>)'
+				, $FieldObj->get_name()
+				, $FieldObj->get_description()
+				, $field_type
+				, __('Edit Settings', CCTM_TXTDOMAIN)
+			);
+			
+		}
+	}
+}
+// We gots some!
+if ($flag) {
+	$data['custom_fields_settings_links'] = '<h3>'.__('Custom Fields', CCTM_TXTDOMAIN).'</h3>
+		<ul>'. $data['custom_fields_settings_links'] . '</ul>';
+}
 
 $data['content'] .= CCTM::load_view('settings.php', $data);
 print CCTM::load_view('templates/default.php', $data);

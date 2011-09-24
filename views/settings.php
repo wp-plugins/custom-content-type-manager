@@ -67,6 +67,9 @@
 			<span class="cctm_description"><?php _e("Check this box if you want to display any post-types registered with some other plugin. You won't be able to edit them, but you'll know they are there.", CCTM_TXTDOMAIN); ?></span>
 		</div>
 		
+		<!--!Custom Field settings links -->
+		<?php print $data['custom_fields_settings_links']; ?>
+		
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	<br/>
 	<div class="custom_content_type_mgr_form_controls">

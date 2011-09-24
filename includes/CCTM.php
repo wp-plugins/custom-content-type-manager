@@ -1506,7 +1506,7 @@ if ( empty(self::$data) ) {
 	public static function register_warning($str) {
 		if (!isset(self::$data['warnings'][$str])) {
 			self::$data['warnings'][$str] = 0; // 0 = not read.
-			update_option(self::db_key, self::$data);			
+			update_option(self::db_key, self::$data);
 		}
 	}
 	
