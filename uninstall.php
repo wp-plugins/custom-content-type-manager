@@ -14,20 +14,19 @@ if ( defined('WP_UNINSTALL_PLUGIN'))
 	
 	// If the custom fields modified anything, we need to give them this 
 	// opportunity to clean it up.
-	$available_custom_field_types = CCTM::get_available_custom_field_types();
-	foreach ( $available_custom_field_types as $field_type ) {
-		$element_file = CCTM_PATH.'/includes/elements/'.$field_type.'.php';
-		// TODO: search alternate location
-		if ( file_exists($element_file) )
+	$available_custom_field_files = CCTM::get_available_custom_field_types();
+	foreach ( $available_custom_field_files as $file ) {
+
+		include_once($file);
+		$field_type = basename($file);
+		$field_type = preg_replace('/\.php$/', '', $field_type);
+		if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
 		{
-			include_once($element_file);
-			if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
-			{
-				$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
-				$FieldObj = new $field_type_name();
-				$FieldObj->uninstall();
-			}
+			$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+			$FieldObj = new $field_type_name();
+			$FieldObj->uninstall();
 		}
+
 	}
 	delete_option( CCTM::db_key );	
 	delete_option('custom_content_types_mgr_data'); // legacy pre 0.9.4

@@ -32,13 +32,13 @@
 
 
 		<!--!Update Custom Field with new Default Values -->		
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_update_custom_fields">
+		<!-- div class="cctm_element_wrapper" id="custom_field_wrapper_update_custom_fields">
 			<input type="checkbox" name="update_custom_fields" class="cctm_checkbox" id="update_custom_fields" value="1" <?php print $data['settings']['update_custom_fields']; ?>/>
 			<label for="update_custom_fields" class="cctm_label cctm_checkbox_label" id="cctm_label_update_custom_fields">
 				<?php _e('Update Default Values', CCTM_TXTDOMAIN); ?>
 			</label>
 			<span class="cctm_description"><?php _e('Check this option if you want custom fields containing the old default value to be updated when the default value is changed.', CCTM_TXTDOMAIN); ?></span>			
-		</div>
+		</div -->
 		
 		<!--!Custom Fields Menu -->		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_custom_fields_menu">

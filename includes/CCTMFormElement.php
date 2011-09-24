@@ -540,7 +540,12 @@ abstract class CCTMFormElement {
 			CCTM::FormElement_classname_prefix,
 			'',
 			get_class($this) );
-		return CCTM_URL.'/images/custom-fields/'.$field_type.'.png';
+		if (file_exists(CCTM_PATH.'/images/custom-fields/'.$field_type.'.png')) {
+			return CCTM_URL.'/images/custom-fields/'.$field_type.'.png';
+		}
+		else {
+			return CCTM_URL.'/images/custom-fields/default.png';
+		}
 	}
 	
 	//------------------------------------------------------------------------------

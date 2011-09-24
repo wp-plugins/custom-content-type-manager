@@ -6,7 +6,8 @@ require_once(CCTM_PATH . '/includes/ImportExport.php');
 
 $data 				= array();
 $data['page_title']	= __('Import Definition', CCTM_TXTDOMAIN);
-$data['menu'] 		= $data['menu'] = sprintf('<a href="?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back'));
+$data['menu'] 		= sprintf('<a href="?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back')) . ' '.
+						sprintf('<a href="?page=cctm_tools&a=export_def" title="%s" class="button">%s</a>',__('Export'), __('Export'));
 $data['msg']		= '';
 $data['content'] = '';
 
@@ -29,7 +30,7 @@ if ( file_exists($dir) && is_dir($dir) ) {
 }
 
 
-// We have 2 forms on this page....
+// We have up-to 3 forms on this page....
 if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 
 		// We use the 'cctm_nonce' field to determine which form was submitted.
@@ -103,7 +104,7 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 			// Refresh the list of files
 			print '<script type="text/javascript">window.location.replace("?page=cctm_tools&a=import_def");</script>';
 		}
-		// See if the delete form was submitted
+		// Delete definitions
 		elseif (wp_verify_nonce($nonce, 'cctm_delete_defs') ) {
 			$defs = CCTM::get_value($_POST, 'defs', array());
 			if (ImportExport::delete_defs($defs)) {
@@ -117,6 +118,20 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 			else {
 				$data['msg'] = CCTM::format_errors();
 			}
+		}
+		// Activate the previewed definition
+		elseif(wp_verify_nonce($nonce, 'cctm_activate_def')) {
+			if (ImportExport::activate_def($_POST['def'])) {
+				$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'
+					, __('The definition was imported successfully!', CCTM_TXTDOMAIN)
+				);
+				CCTM::set_flash($data['msg']);
+				// print '<script type="text/javascript">window.location.replace("?page=cctm_tools&a=import_def");</script>';
+			}
+			else {
+				$data['msg'] = CCTM::format_errors();
+			}
+			
 		}
 		else {
 			$data['msg'] = __('Invalid submission.', CCTM_TXTDOMAIN);

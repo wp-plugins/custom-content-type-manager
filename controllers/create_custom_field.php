@@ -2,25 +2,31 @@
 /*------------------------------------------------------------------------------
 Edit a custom field of the type specified by $field_type.  
 
-$field_type
+$field_type is set in the $_GET array
 ------------------------------------------------------------------------------*/
 
+// Page variables
+$data = array();
+$data['page_title'] = __('Create Custom Field', CCTM_TXTDOMAIN);
+$data['msg'] = '';
+$data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_field_types" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
+$data['action_name']  = 'custom_content_type_mgr_create_new_custom_field';
+$data['nonce_name']  = 'custom_content_type_mgr_create_new_custom_field_nonce';
 	
 $field_data = array(); // Data object we will save
 
-self::include_form_element_class($field_type); // This will die on errors
+// Fail if there's a problem
+if (!self::include_form_element_class($field_type)) {
+	$data['msg'] = CCTM::format_errors();
+	print CCTM::load_view('templates/default.php', $data);
+	return;
+} 
 
 $field_type_name = self::FormElement_classname_prefix.$field_type;
 $FieldObj = new $field_type_name(); // Instantiate the field element
 
 
-// Page variables
-$data = array();
-$data['page_title'] = sprintf(__('Create Custom Field: %s', CCTM_TXTDOMAIN), $FieldObj->get_name() );
-$data['msg'] = '';
-$data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_field_types" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
-$data['action_name']  = 'custom_content_type_mgr_create_new_custom_field';
-$data['nonce_name']  = 'custom_content_type_mgr_create_new_custom_field_nonce';
+
 
 
 // Save if submitted...

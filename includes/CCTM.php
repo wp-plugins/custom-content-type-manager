@@ -48,10 +48,18 @@ class CCTM {
 	// Omit the trailing slash.
 	const base_storage_dir = 'cctm';
 	
-	// Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
-	// the .cctm.json definition files. Omit the trailing slash.
+	/**
+	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
+	 * the .cctm.json definition files. Omit the trailing slash.
+	 */ 
 	const def_dir = 'defs';
-
+	
+	/**
+	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
+	 * any 3rd-party or custom custom field types. Omit the trailing slash.
+	 */ 
+	const custom_fields_dir = 'custom_fields';
+	
 	// Default permissions for dirs/files created in the base_storage_dir.
 	// These cannot be more permissive thant the system's settings: the system
 	// will automatically shave them down. E.g. if the system has a global setting
@@ -546,19 +554,19 @@ class CCTM {
 		wp_enqueue_script( 'jquery-ui-sortable');
 
 		// Allow each custom field to load up any necessary CSS/JS
-		$available_custom_field_types = CCTM::get_available_custom_field_types();
-		foreach ( $available_custom_field_types as $field_type ) {
-			$element_file = CCTM_PATH.'/includes/elements/'.$field_type.'.php';
-			if ( file_exists($element_file) )
+		$available_custom_field_files = CCTM::get_available_custom_field_types();
+		foreach ( $available_custom_field_files as $file ) {
+			$field_type = basename($file);
+			$field_type = preg_replace('/\.php$/', '', $field_type);
+			
+			include_once($file);
+			if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
 			{
-				include_once($element_file);
-				if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
-				{
-					$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
-					$FieldObj = new $field_type_name();
-					$FieldObj->admin_init();
-				}
+				$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+				$FieldObj = new $field_type_name();
+				$FieldObj->admin_init();
 			}
+
 		}
 
 		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
@@ -914,22 +922,35 @@ if ( empty(self::$data) ) {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * TODO: lookup others @ wpcctm.com
+	 * Gets an array of full pathnames/filenames for all custom field types.
+	 * This searches the built-in location AND the add-on location inside
+	 * wp-content/uploads
+	 *
+	 * @return array	File names (including paths)
 	 */
 	public static function get_available_custom_field_types() {
-		return array(
-			'checkbox',
-			'colorselector',
-			'date',
-			'dropdown',
-			'image',
-			'media',
-			'multiselect',
-			'relation',
-			'text',
-			'textarea',
-			'wysiwyg', 
-		);
+		$files = array();
+		
+		// Scan default directory
+		$dir = CCTM_PATH .'/includes/elements';
+		$rawfiles = scandir($dir);		
+		foreach ($rawfiles as $f) {
+			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+				$files[] = $dir.'/'.$f;
+			}
+		}
+
+		// Scan 3rd party directory
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
+		$rawfiles = scandir($dir);		
+		foreach ($rawfiles as $f) {
+			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+				$files[] = $dir.'/'.$f;
+			}
+		}
+		
+		return array_unique($files);
 	}
 
 	//------------------------------------------------------------------------------
@@ -1065,35 +1086,48 @@ if ( empty(self::$data) ) {
 		
 	//------------------------------------------------------------------------------
 	/**
-	* Includes the class file for the field type specified by $field_type
+	* Includes the class file for the field type specified by $field_type. The 
+	* built-in directory is searched as well as the custom add-on directory.
+	* Precedence is given to the built-in directory.
+	* On success, the file is included and a true is returned.
+	* On error, the file is NOT included and a false is returned: errors are registered.
+	*
+	* @return boolean
 	*/
 	public static function include_form_element_class($field_type) {
 		if (empty($field_type) ) {
-			$msg = __('Field type is empty.', CCTM_TXTDOMAIN);
-			die($msg);
+			self::$errors['missing_field_type'] = __('Field type is empty.', CCTM_TXTDOMAIN);
+			return false;
 		}
-		
+		// Check built-in location
 		$element_file = CCTM_PATH.'/includes/elements/'.$field_type.'.php';
 		if ( !file_exists($element_file)) {
-			// ERROR!
-			$msg = sprintf( __('File not found for %s element: %s', CCTM_TXTDOMAIN) 
-				, $field_type
-				, $element_file
-			);
-			die ($msg); //! TODO: print admin notice
-		}
-		//
-		else {
-			//! TODO: try/catch block
-			include_once($element_file);
-			if ( !class_exists(self::FormElement_classname_prefix.$field_type) ) {
-				$msg = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
+			// check add-on location
+			$upload_dir = wp_upload_dir();
+			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
+			$element_file = $dir . '/'.$field_type .'.php';
+			if (!file_exists($element_file)) {
+				// ERROR!
+				self::$errors['file_not_found'] = sprintf( __('File not found for %s element: %s', CCTM_TXTDOMAIN) 
+					, $field_type
 					, $element_file
-					, self::FormElement_classname_prefix.$field_type
 				);
-				die( $msg );
+				
+				return false;
 			}
 		}
+		
+		// Load the file	
+		include_once($element_file);  // <-- this will flat-out bomb on syntax errors!
+		if ( !class_exists(self::FormElement_classname_prefix.$field_type) ) {
+			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
+				, $element_file
+				, self::FormElement_classname_prefix.$field_type
+			);
+			return false;
+		}
+				
+		return true;
 	}
 
 	//------------------------------------------------------------------------------

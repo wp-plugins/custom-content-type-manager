@@ -23,6 +23,37 @@ class ImportExport {
 	 */
 	public static $referential_field_types = array('image','relation','media');
 	
+	//------------------------------------------------------------------------------
+	//! Public Functions
+	//------------------------------------------------------------------------------
+	/**
+	 * Takes a definition file and activates it by copying it into the current 
+	 * CCTM::$data structure.
+	 *
+	 * @return boolean (true on success, false on fail)
+	 */
+	public static function activate_def($filename) {
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::def_dir .'/';
+
+		$data = ImportExport::load_def_file($dir.$filename);
+		
+		// check for errors
+		if (!empty(CCTM::$errors)) {
+			return false;
+		}
+		
+		// Merge the data
+		CCTM::$data['post_type_defs'] = $data['post_type_defs'];
+		CCTM::$data['custom_field_defs'] = $data['custom_field_defs'];
+		CCTM::$data['export_info'] = $data['export_info'];
+		
+		update_option(CCTM::db_key, CCTM::$data);
+		
+		return true;
+	}
+	
+	//------------------------------------------------------------------------------
 	/**
 	 * We can't just compare them because the menu_icon bits will be different: the candidate
 	 * will have a relative URL, the live one will have an absolute URL.

@@ -11,26 +11,24 @@ $data['msg'] = self::get_flash();
 $data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_fields" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) );
 $data['fields'] = '';
 
-$field_types = CCTM::get_available_custom_field_types();
-foreach ( $field_types as $ft ) {
-	$element_file = CCTM_PATH.'/includes/elements/'.$ft.'.php';
-	// TODO: search alternate location
-	if ( file_exists($element_file) )
+$element_files = CCTM::get_available_custom_field_types();
+foreach ( $element_files as $file ) {
+	include_once($file);
+	$field_type = basename($file);
+	$field_type = preg_replace('/\.php$/', '', $field_type);
+
+	if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
 	{
-		include_once($element_file);
-		if ( class_exists(CCTM::FormElement_classname_prefix.$ft) )
-		{
-			$d = array();
-			$field_type_name = CCTM::FormElement_classname_prefix.$ft;
-			$FieldObj = new $field_type_name();
-			
-			$d['name'] 			= $FieldObj->get_name();
-			$d['icon'] 			= $FieldObj->get_icon();
-			$d['description']	= $FieldObj->get_description();
-			$d['url'] 			= $FieldObj->get_url();
-			$d['type'] 			= $ft;
-			$data['fields'] .= CCTM::load_view('tr_custom_field_type.php',$d);
-		}
+		$d = array();
+		$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+		$FieldObj = new $field_type_name();
+		
+		$d['name'] 			= $FieldObj->get_name();
+		$d['icon'] 			= $FieldObj->get_icon();
+		$d['description']	= $FieldObj->get_description();
+		$d['url'] 			= $FieldObj->get_url();
+		$d['type'] 			= $field_type;
+		$data['fields'] .= CCTM::load_view('tr_custom_field_type.php',$d);
 	}
 }
 
