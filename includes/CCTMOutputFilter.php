@@ -7,6 +7,32 @@
 abstract class CCTMOutputFilter {
 
 	/**
+	 * Most filters should be publicly visible, but some should only be used via direct invocation 
+	 */
+	public $show_in_menus = true;
+	
+	/**
+	 * What kind of data can this filter accept? string|array|mixed
+	 */
+	public $input_type;
+	
+	/**
+	 * What kind of data does this filter output? string|array|mixed 
+	 */
+	public $output_type;
+	
+	
+	/**
+	 * Apply the filter.
+	 *
+	 * @param 	mixed 	input
+	 * @param	mixed	optional arguments
+	 * @return mixed
+	 */
+	abstract public function filter($input, $options=null);
+
+
+	/**
 	 * @return string	a description of what the filter is and does.
 	 */
 	abstract public function get_description();
@@ -17,7 +43,7 @@ abstract class CCTMOutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	abstract public function get_example();
+	abstract public function get_example($fieldname='my_field');
 
 
 	/**
@@ -29,6 +55,6 @@ abstract class CCTMOutputFilter {
 	 * @return string	the URL where the user can read more about the filter
 	 */
 	abstract public function get_url();
-
+		
 }
 /*EOF*/

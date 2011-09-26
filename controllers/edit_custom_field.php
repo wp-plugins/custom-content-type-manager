@@ -37,7 +37,7 @@ $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
 self::include_form_element_class($field_type); // This will die on errors
-$field_type_name = self::FormElement_classname_prefix.$field_type;
+$field_type_name = self::classname_prefix.$field_type;
 $FieldObj = new $field_type_name(); // Instantiate the field element
 
 

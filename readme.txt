@@ -83,6 +83,9 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.4 =
 
+Ok, this is a ridiculous amount of updates... 
+
+* Updated Output Filter functionality. See [Output Filters](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters) in the wiki.
 * Custom Fields can now implement their own settings page. [Issue 161](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=161)
 * Improved help pages on the [project Wiki](http://code.google.com/p/wordpress-custom-content-type-manager/w/list).
 * Improved import/export of CCTM definitions.

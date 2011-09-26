@@ -202,7 +202,7 @@ class StandardizedCustomFields
 			$def = CCTM::$data['custom_field_defs'][$cf];
 			$output_this_field = '';
 			CCTM::include_form_element_class($def['type']); // This will die on errors
-			$field_type_name = CCTM::FormElement_classname_prefix.$def['type'];
+			$field_type_name = CCTM::classname_prefix.$def['type'];
 			$FieldObj = new $field_type_name(); // Instantiate the field element
 			
 			if ( self::_is_new_post() ) {	
@@ -310,7 +310,7 @@ class StandardizedCustomFields
 				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 				CCTM::include_form_element_class($field_type); // This will die on errors
 	
-				$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+				$field_type_name = CCTM::classname_prefix.$field_type;
 				$FieldObj = new $field_type_name(); // Instantiate the field element
 				$FieldObj->props = CCTM::$data['custom_field_defs'][$field_name];
 				$value = $FieldObj->save_post_filter($_POST, $field_name);

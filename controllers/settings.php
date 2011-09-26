@@ -56,15 +56,13 @@ foreach ( $data['settings'] as $k => $v) {
 
 $element_files = CCTM::get_available_custom_field_types();
 $flag = false;
-foreach ( $element_files as $file ) {
+foreach ( $element_files as $shortname => $file ) {
 	include_once($file);
-	$field_type = basename($file);
-	$field_type = preg_replace('/\.php$/', '', $field_type);
 
-	if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
+	if ( class_exists(CCTM::classname_prefix.$shortname) )
 	{
 		$d = array();
-		$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+		$field_type_name = CCTM::classname_prefix.$shortname;
 		$FieldObj = new $field_type_name();
 		
 		if ($FieldObj->get_settings_page() ) {
@@ -73,7 +71,7 @@ foreach ( $element_files as $file ) {
 				'<li><strong>%s</strong>: %s (<a href="?page=cctm_settings&a=settings_cf&type=%s">%s</a>)'
 				, $FieldObj->get_name()
 				, $FieldObj->get_description()
-				, $field_type
+				, $shortname
 				, __('Edit Settings', CCTM_TXTDOMAIN)
 			);
 			

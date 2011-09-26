@@ -68,32 +68,36 @@ function get_all_fields_of_type($type, $prefix='')
 
 //------------------------------------------------------------------------------
 /**
-SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
-where you need to print out the value of a specific custom field.
-
-WordPress allows for multiple rows in wp_postmeta to share the same meta_key for 
-a single post; the CCTM plugin expects all meta_key's for a given post_id to be 
-unique.  To deal with the possibility that the user has created multiple custom 
-fields that share the same name for a single post (e.g. created manually with the 
-CCTM plugin disabled), this prints the 1st instance of the meta_key identified by 
-$fieldname associated with the current post. See get_post_meta() for more details.
-
-INPUT: 
-	$fieldname (str) the name of the custom field as defined inside the 
-		Manage Custom Fields area for a particular content type.
-	$options mixed can be used to specify additional arguments
-	
-OUTPUT:
-	The contents of that custom field for the current post.
-
-See also 	
-http://codex.wordpress.org/Function_Reference/get_post_custom_values
-*/
-function get_custom_field($fieldname, $options=null)
+ * SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
+ * where you need to print out the value of a specific custom field.
+ * 
+ * WordPress allows for multiple rows in wp_postmeta to share the same meta_key for 
+ * a single post; the CCTM plugin expects all meta_key's for a given post_id to be 
+ * unique.  To deal with the possibility that the user has created multiple custom 
+ * fields that share the same name for a single post (e.g. created manually with the 
+ * CCTM plugin disabled), this prints the 1st instance of the meta_key identified by 
+ * $fieldname associated with the current post. See get_post_meta() for more details.
+ *
+ * See also 	
+ * http://codex.wordpress.org/Function_Reference/get_post_custom_values
+ *
+ * @param	string the name of the custom field (exists in wp_postmeta).
+ * 		Optionally this string can be in the format of 'fieldname:output_filter'
+ * @param	mixed	can be used to specify additional arguments
+ * @return	mixed	The contents of the custom field, processed through output filters
+ */
+function get_custom_field($raw_fieldname, $options=null)
 {
-	// print_r(CCTM::$data); exit;
-	
 	global $post;
+	$options_array = func_get_args();
+	
+	// Extract any output filters.
+	$input_array = explode(':',$raw_fieldname);	
+	$fieldname = array_shift($input_array);
+	
+	// We need the custom field definition for 2 reasons:
+	// 1. To find the default Output Filter
+	// 2. To find any default value (if the field is not defined)
 	if ( !isset(CCTM::$data['custom_field_defs'][$fieldname]) ) {
 		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname );
 	}
@@ -101,20 +105,41 @@ function get_custom_field($fieldname, $options=null)
 	$field_type = CCTM::$data['custom_field_defs'][$fieldname]['type'];
 	CCTM::include_form_element_class($field_type); // This will die on errors
 		
-	$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+	$field_type_name = CCTM::classname_prefix.$field_type;
 	$FieldObj = new $field_type_name(); // Instantiate the field element
 	$FieldObj->props = CCTM::$data['custom_field_defs'][$fieldname];
 
+	// Get default output filter
+	if (empty($input_array)){
+		if (isset($FieldObj->output_filter) && !empty($FieldObj->output_filter)) {
+			$input_array[] = $FieldObj->output_filter;
+		}
+	}
+	// Raw value from the db
 	$value = get_post_meta($post->ID, $fieldname, true);
 
-	$value = $FieldObj->output_filter($value, $options);
-
+	// Default value?
 	if ( empty($value) ) {
-		return '';
+		$value = $FieldObj->default_value;
 	}
-	else {
-		return $value;
-	}	
+
+	// Pass thru Output Filters
+	$i = 1;
+	foreach($input_array as $outputfilter) {
+
+		if (isset($options_array[$i])) {
+			$options = $options_array[$i];
+		}
+		else {
+			$options = null;
+		}
+		
+		$value = CCTM::filter($value, $outputfilter, $options);
+
+		$i++;
+	}
+
+	return $value;	
 }
 
 //------------------------------------------------------------------------------

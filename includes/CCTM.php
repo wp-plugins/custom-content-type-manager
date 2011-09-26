@@ -38,8 +38,9 @@ class CCTM {
 	const action_param    = 'a';
 	const post_type_param   = 'pt';
 
-	// Each class that extends the CCTMFormElement class must prefix this to its class name.
-	const FormElement_classname_prefix = 'CCTM_';
+	// Each class that extends either the CCTMFormElement class or the 
+	// the CCTMOutputFilter class must prefix this to its class name.
+	const classname_prefix = 'CCTM_';
 
 	// used to control the uploading of the .cctm.json files
 	const max_def_file_size = 524288; // in bytes
@@ -59,6 +60,12 @@ class CCTM {
 	 * any 3rd-party or custom custom field types. Omit the trailing slash.
 	 */ 
 	const custom_fields_dir = 'custom_fields';
+	
+	/**
+	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
+	 * any 3rd-party or output filters. Omit the trailing slash.
+	 */
+	const filters_dir = 'filters';
 	
 	// Default permissions for dirs/files created in the base_storage_dir.
 	// These cannot be more permissive thant the system's settings: the system
@@ -554,19 +561,11 @@ class CCTM {
 		wp_enqueue_script( 'jquery-ui-sortable');
 
 		// Allow each custom field to load up any necessary CSS/JS
-		$available_custom_field_files = CCTM::get_available_custom_field_types();
-		foreach ( $available_custom_field_files as $file ) {
-			$field_type = basename($file);
-			$field_type = preg_replace('/\.php$/', '', $field_type);
-			
-			include_once($file);
-			if ( class_exists(CCTM::FormElement_classname_prefix.$field_type) )
-			{
-				$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
-				$FieldObj = new $field_type_name();
-				$FieldObj->admin_init();
+		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
+		foreach ( $available_custom_field_files as $shortname => $file ) {
+			if (!self::include_form_element_class($shortname)) {
+				print self::format_errors();
 			}
-
 		}
 
 		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
@@ -841,6 +840,36 @@ if ( empty(self::$data) ) {
 		}
 
 	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * The static invocation of filtering an input through an Output Filter
+	 *
+	 * @param	mixed	some kinda input
+	 * @param	string	shortname of output filter
+	 * @param	mixed	optional options
+	 * @return	mixed	dependent on output filter
+	 */
+	public static function filter($value, $outputfilter, $options=null) {
+		if(CCTM::include_output_filter_class($outputfilter)) {
+			if (isset($options)) {
+				$options = $options;
+			}
+			else {
+				$options = null;
+			}
+		$filter_class = CCTM::classname_prefix.$outputfilter;		
+		$OutputFilter = new $filter_class();
+		return $OutputFilter->filter($value, $options);	
+		}
+		else {
+			self::$errors['filter_not_found'] = sprintf(
+				__('Output filter not found: %s', CCTM_TXTDOMAIN)
+				, "<code>$outputfilter</code>");
+			return $value;
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This formats any errors registered in the class $errors array. The errors 
@@ -924,33 +953,107 @@ if ( empty(self::$data) ) {
 	/**
 	 * Gets an array of full pathnames/filenames for all custom field types.
 	 * This searches the built-in location AND the add-on location inside
-	 * wp-content/uploads
+	 * wp-content/uploads.  If there are duplicate filenames, the one inside the 
+	 * 3rd party directory will be registered: this allows developers to override 
+	 * the built-in custom field classes.
 	 *
-	 * @return array	File names (including paths)
+	 * This function will read the results from the cache 
+	 *
+	 * @param	boolean	perform directory scan and update cache?
+	 * @return array	Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
-	public static function get_available_custom_field_types() {
+	public static function get_available_custom_field_types($scandir=false) {
+	
 		$files = array();
+		
+		// Pull from cache if we can
+		if (!$scandir) {
+			if (isset(self::$data['cache']['elements'])) {
+				return self::$data['cache']['elements']; 
+			}
+		}
+		
 		
 		// Scan default directory
 		$dir = CCTM_PATH .'/includes/elements';
 		$rawfiles = scandir($dir);		
 		foreach ($rawfiles as $f) {
 			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
-				$files[] = $dir.'/'.$f;
+				$shortname = basename($f);
+				$shortname = preg_replace('/\.php$/', '', $shortname);	
+				$files[$shortname] = $dir.'/'.$f;
 			}
 		}
 
 		// Scan 3rd party directory
 		$upload_dir = wp_upload_dir();
 		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
-		$rawfiles = scandir($dir);		
-		foreach ($rawfiles as $f) {
-			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
-				$files[] = $dir.'/'.$f;
+		if (is_dir($dir)) {
+			$rawfiles = scandir($dir);		
+			foreach ($rawfiles as $f) {
+				if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+					$shortname = basename($f);
+					$shortname = preg_replace('/\.php$/', '', $shortname);	
+					$files[$shortname] = $dir.'/'.$f;
+				}
+			}
+		}
+				
+		self::$data['cache']['elements'] = $files;
+		update_option(self::db_key, self::$data);
+		
+		return $files;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Gets an array of full pathnames/filenames for all output filters.
+	 * This searches the built-in location AND the add-on location inside
+	 * wp-content/uploads. If there are duplicate filenames, the one inside the 
+	 * 3rd party directory will be registered: this allows developers to override 
+	 * the built-in output filter classes.
+	 *
+	 * @return array	Associative array: array('shortname' => '/full/path/to/shortname.php')
+	 */
+	public static function get_available_output_filters($scandir=false) {
+	
+		$files = array();
+
+		// Pull from cache if we can
+		if (!$scandir) {
+			if (isset(self::$data['cache']['filters'])) {
+				return self::$data['cache']['filters']; 
 			}
 		}
 		
-		return array_unique($files);
+		// Scan default directory
+		$dir = CCTM_PATH .'/includes/filters';
+		$rawfiles = scandir($dir);		
+		foreach ($rawfiles as $f) {
+			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+				$shortname = basename($f);
+				$shortname = preg_replace('/\.php$/', '', $shortname);	
+				$files[$shortname] = $dir.'/'.$f;
+			}
+		}
+
+		// Scan 3rd party directory
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::filters_dir;
+		if (is_dir($dir)) {
+			$rawfiles = scandir($dir);		
+			foreach ($rawfiles as $f) {
+				if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+					$shortname = basename($f);
+					$shortname = preg_replace('/\.php$/', '', $shortname);	
+					$files[$shortname] = $dir.'/'.$f;
+				}
+			}
+		}
+		self::$data['cache']['filters'] = $files;
+		update_option(self::db_key, self::$data);
+
+		return $files;
 	}
 
 	//------------------------------------------------------------------------------
@@ -1095,34 +1198,93 @@ if ( empty(self::$data) ) {
 	* @return boolean
 	*/
 	public static function include_form_element_class($field_type) {
+
 		if (empty($field_type) ) {
 			self::$errors['missing_field_type'] = __('Field type is empty.', CCTM_TXTDOMAIN);
 			return false;
 		}
-		// Check built-in location
-		$element_file = CCTM_PATH.'/includes/elements/'.$field_type.'.php';
-		if ( !file_exists($element_file)) {
-			// check add-on location
-			$upload_dir = wp_upload_dir();
-			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
-			$element_file = $dir . '/'.$field_type .'.php';
-			if (!file_exists($element_file)) {
-				// ERROR!
+		
+		$element_file = '';
+		
+		// Check cache...
+		if (isset(self::$data['cache']['elements'][$field_type])) {
+			$element_file = self::$data['cache']['elements'][$field_type];
+		}
+		// or Refresh the cache...
+		else {
+			self::get_available_custom_field_types(true);
+			if (isset(self::$data['cache']['elements'][$field_type])) {
+				$element_file = self::$data['cache']['elements'][$field_type];
+			}
+			else {
 				self::$errors['file_not_found'] = sprintf( __('File not found for %s element: %s', CCTM_TXTDOMAIN) 
 					, $field_type
 					, $element_file
 				);
-				
 				return false;
 			}
 		}
-		
-		// Load the file	
+
+		// and Load the file... 
+		include_once(CCTM_PATH.'/includes/CCTMFormElement.php');
 		include_once($element_file);  // <-- this will flat-out bomb on syntax errors!
-		if ( !class_exists(self::FormElement_classname_prefix.$field_type) ) {
+		if ( !class_exists(self::classname_prefix.$field_type) ) {
 			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
 				, $element_file
-				, self::FormElement_classname_prefix.$field_type
+				, self::classname_prefix.$field_type
+			);
+			return false;
+		}
+				
+		return true;
+	}
+
+		
+	//------------------------------------------------------------------------------
+	/**
+	* Includes the class file for the output filter specified by $filter. The 
+	* built-in directory is searched as well as the custom add-on directory.
+	* Precedence is given to the built-in directory.
+	* On success, the file is included and a true is returned.
+	* On error, the file is NOT included and a false is returned: errors are registered.
+	*
+	* @return boolean
+	*/
+	public static function include_output_filter_class($filter) {
+		if (empty($filter) ) {
+			self::$errors['missing_filter'] = __('Output filter is empty.', CCTM_TXTDOMAIN);
+			return false;
+		}
+		
+		$filter_file = '';
+		
+		// Check cache...
+		if (isset(self::$data['cache']['filters'][$filter])) {
+			$filter_file = self::$data['cache']['filters'][$filter];
+		}
+		
+		// or Refresh the cache...
+		else {
+			self::get_available_output_filters(true);
+			if (isset(self::$data['cache']['filters'][$filter])) {
+				$filter_file = self::$data['cache']['filters'][$filter];
+			}
+			else {
+				self::$errors['file_not_found'] = sprintf( __('File not found for %s output filter: %s', CCTM_TXTDOMAIN) 
+					, $filter
+					, $filter_file
+				);
+				return false;
+			}
+		}
+
+		// and Load the file... 
+		include_once(CCTM_PATH.'/includes/CCTMOutputFilter.php');
+		include_once($filter_file);  // <-- this will flat-out bomb on syntax errors!
+		if ( !class_exists(self::classname_prefix.$filter) ) {
+			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
+				, $element_file
+				, self::classname_prefix.$filter
 			);
 			return false;
 		}
@@ -1278,6 +1440,7 @@ if ( empty(self::$data) ) {
 	 *
 	 */
 	public static function page_main_controller() {
+
 		// TODO: this should be specific to the request
 		if (!current_user_can('manage_options')) {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
@@ -1289,7 +1452,7 @@ if ( empty(self::$data) ) {
 		$field_type	= self::get_value($_GET, 'type');
 		$field_name = self::get_value($_GET, 'field');
 		
-		
+
 		
 		// Default Actions for each main menu item (see create_admin_menu)
 		if (empty($action)) {

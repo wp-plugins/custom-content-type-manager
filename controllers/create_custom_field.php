@@ -22,7 +22,7 @@ if (!self::include_form_element_class($field_type)) {
 	return;
 } 
 
-$field_type_name = self::FormElement_classname_prefix.$field_type;
+$field_type_name = self::classname_prefix.$field_type;
 $FieldObj = new $field_type_name(); // Instantiate the field element
 
 

@@ -498,13 +498,10 @@ abstract class CCTMFormElement {
 	 * @param mixed	$def is the existing field definition
 	 */
 	public function get_available_output_filters($def) {
-	
-		include_once('OutputFilters.php');
-		$OutputFilters = new OutputFilters();
-		
+			
 		$out = '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
 			 	<label for="output_filter" class="cctm_label cctm_select_label" id="output_filter_label">'
-			 		.__('Output Filter', CCTM_TXTDOMAIN) .'
+			 		.__('Default Output Filter', CCTM_TXTDOMAIN) .'
 			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
 			 		</label>';
 		
@@ -512,13 +509,21 @@ abstract class CCTMFormElement {
 				.$this->get_field_class($this->name, 'select') . ' ' . $this->class.'" id="'.$this->get_field_id().'">
 				<option value="">'.__('None (raw)').'</option>
 				';
-
-		foreach ($this->supported_output_filters as $opt) {
-			$is_selected = '';
-			if ( $def['output_filter'] == $opt ) {
-				$is_selected = 'selected="selected"';
+		
+		$available_output_filters = CCTM::get_available_output_filters(true);
+		foreach ($available_output_filters as $filter => $filename) {
+			if (CCTM::include_output_filter_class($filter)) {
+				$filter_name = CCTM::classname_prefix . $filter;
+				$Obj = new $filter_name();
+				
+				if ($Obj->show_in_menus) {
+					$is_selected = '';
+					if ( isset($def['output_filter']) && $def['output_filter'] == $filter ) {
+						$is_selected = 'selected="selected"';
+					}
+					$out .= '<option value="'.$filter.'" '.$is_selected.'>'.$Obj->get_name().' ('.$filter.')</option>';
+				}
 			}
-			$out .= '<option value="'.$opt.'" '.$is_selected.'>'.$OutputFilters->descriptions[$opt] .'</option>';
 		}
 
 		$out .= '</select>
@@ -537,7 +542,7 @@ abstract class CCTMFormElement {
 	 */
 	public function get_icon() {
 		$field_type = str_replace(
-			CCTM::FormElement_classname_prefix,
+			CCTM::classname_prefix,
 			'',
 			get_class($this) );
 		if (file_exists(CCTM_PATH.'/images/custom-fields/'.$field_type.'.png')) {
@@ -588,45 +593,6 @@ abstract class CCTMFormElement {
  		$html = addslashes($html);
  		$html = trim($html);
  	}
- 	
-	//------------------------------------------------------------------------------
-	/**
-	 * This function acts as a per-fieldtype filter for the front-end for any given
-	 * CCTMFormElement so that any type of custom field can convert whatever value is stored
-	 * in the datbase into a value that's appropriate for the front-end. 
-	 * This function is called from the theme function: get_custom_field()
-	 *
-	 * The output of this function should be a string.  If you need more complex outputs,
-	 * utilize the $extra parameters and set its values directly. It's passed by reference,
-	 *  so any edits to $extra will be visible to the caller.
-	 *
-	 * Example of custom handling per field type:
-	 * $img_atts = array();
-	 * $img_html = get_custom_field('my_img_field', $img_atts);
-	 * print $img_html; // prints <img src="/path/to/image.jpg" />
-	 * print_r($img_atts); // prints Array('src'=>'/path/to/image.jpg', 'h'=>'100', 'w' => '50')
-	 *
-	 * Override this function to provide special output filtering on a
-	 *  field-type basis.
-	 *
-	 * @param string  $value is whatever was stored in the database for this field for the current post
-	 * @param mixed $options (reference)
-	 * @return string
-	 */
-	public function output_filter($value, $options) {
-
-		if ( !empty($this->supported_output_filters) && !empty($this->props['output_filter']) ) {
-			include_once('OutputFilters.php');
-			$OutputFilters = new OutputFilters();
-			$filter = $this->props['output_filter']; 		
-			return $OutputFilters->$filter($value,$options);
-		}
-		else
-		{
-			return $value;
-		}	
-	}
-
 	
 	//------------------------------------------------------------------------------
 	/**

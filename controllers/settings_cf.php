@@ -15,7 +15,7 @@ if (!empty(CCTM::$errors)) {
 }
 else {
 
-	$field_type_name = CCTM::FormElement_classname_prefix.$field_type;
+	$field_type_name = CCTM::classname_prefix.$field_type;
 	$FieldObj = new $field_type_name();
 	$data['page_title']	= sprintf( __('Settings for Custom Field %s', CCTM_TXTDOMAIN), '<em>'.$FieldObj->get_name().'</em>' );
 	// It's all up to the field to implement this sensibly.

@@ -18,7 +18,6 @@ http://codex.wordpress.org/Function_Reference/register_activation_hook
 include_once('includes/constants.php'); // needed before anything else
 include_once('includes/CCTM.php');
 include_once('includes/StandardizedCustomFields.php');
-include_once('includes/CCTMFormElement.php');
 include_once('includes/functions.php');
 include_once('tests/CCTMtests.php');
 
