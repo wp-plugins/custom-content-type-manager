@@ -62,27 +62,44 @@ $data['single_page_msg'] .= sprintf( __('You are currently using the %1$s theme.
 $custom_fields_str = '';
 $builtin_fields_str = '';
 $comments_str = '';
+
 // Built-in Fields
-if ( is_array(self::$data['post_type_defs'][$post_type]['supports']) ) {
+if (isset(self::$data['post_type_defs'][$post_type]['supports']) && is_array(self::$data['post_type_defs'][$post_type]['supports'])) {
 	if ( in_array('title', self::$data['post_type_defs'][$post_type]['supports']) ) {
-		$builtin_fields_str .= "\n\t<h1><?php the_title(); ?></h1>\n";
+		$builtin_fields_str .= "\n\t<h1><?php the_title(); ?></h1>";
 	}
 	if ( in_array('editor', self::$data['post_type_defs'][$post_type]['supports']) ) {
-		$builtin_fields_str .= "\n\t\t<?php the_content(); ?>\n";
+		$builtin_fields_str .= "\n\t\t<?php the_content(); ?>";
 	}
 	if ( in_array('author', self::$data['post_type_defs'][$post_type]['supports']) ) {
-		$builtin_fields_str .= "\n\t\t<?php the_author(); ?>\n";
+		$builtin_fields_str .= "\n\t\t<?php the_author(); ?>";
 	}
 	if ( in_array('thumbnail', self::$data['post_type_defs'][$post_type]['supports']) ) {
-		$builtin_fields_str .= "\n\t\t<?php the_post_thumbnail(); ?>\n";
+		$builtin_fields_str .= "\n\t\t<?php the_post_thumbnail(); ?>";
 	}
 	if ( in_array('excerpt', self::$data['post_type_defs'][$post_type]['supports']) ) {
-		$builtin_fields_str .= "\n\t\t<?php the_excerpt(); ?>\n";
+		$builtin_fields_str .= "\n\t\t<?php the_excerpt(); ?>";
 	}
 	if ( in_array('comments', self::$data['post_type_defs'][$post_type]['supports']) ) {
-		$comments_str .= "\n\t\t<?php comments_template(); ?>\n";
+		$comments_str .= "\n\t\t<?php comments_template(); ?>";
 	}
+} 
+// We show this for built-in types
+elseif ($post_type == 'post') {
+	$builtin_fields_str .= "\n\t<h1><?php the_title(); ?></h1>";
+	$builtin_fields_str .= "\n\t\t<?php the_content(); ?>";
+	$builtin_fields_str .= "\n\t\t<?php the_author(); ?>";
+	$builtin_fields_str .= "\n\t\t<?php the_post_thumbnail(); ?>";
+	$builtin_fields_str .= "\n\t\t<?php the_excerpt(); ?>";
+	$comments_str .= "\n\t\t<?php comments_template(); ?>";
 }
+elseif ($post_type == 'page') {
+	$builtin_fields_str .= "\n\t<h1><?php the_title(); ?></h1>";
+	$builtin_fields_str .= "\n\t\t<?php the_content(); ?>";
+	$builtin_fields_str .= "\n\t\t<?php the_author(); ?>";
+	$builtin_fields_str .= "\n\t\t<?php the_post_thumbnail(); ?>";
+}
+
 
 // Custom fields
 if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields']) 

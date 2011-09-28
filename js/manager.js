@@ -27,40 +27,10 @@ function append_dropdown_option( target_id, delete_label, set_as_default_label, 
 }
 
 /*------------------------------------------------------------------------------
-Grey out form elements (i.e. make readonly)
-------------------------------------------------------------------------------*/
-function toggle_readonly() 
-{
-	// is checked: i.e. use both options and values (remove readonly)
-	if( jQuery('#use_key_values:checked').is(':checked') )
-	{
-//        jQuery('.possibly_gray').attr('readonly','');
-        jQuery('.possibly_gray').removeAttr('readonly');
-    }
-    // is not checked: use options only and make values readonly.
-    else
-    {
-    	jQuery('.possibly_gray').attr('readonly','readonly');
-    }
-}
 
-/*------------------------------------------------------------------------------
-Sets the one of the options in a dropdown to be the default value by copying its
-value to the default_value field.
-@param	integer	i identifies the integer of dropdown option whose value we want to
-				copy as the default value.
 ------------------------------------------------------------------------------*/
-function set_as_default(i)
-{
-	source_id= 'option_'+i;
-	
-	if( jQuery('#use_key_values:checked').is(':checked') )
-	{
-        source_id= 'value_'+i;
-    }
-    
-	new_default_value = jQuery('#'+source_id).val();
-	jQuery('#default_value').val(new_default_value);
+function add_instance(){
+	console.log('xxxo');
 }
 
 /*------------------------------------------------------------------------------
@@ -84,6 +54,25 @@ function remove_relation( target_id, target_html )
 	jQuery('#'+target_html).html('');	
 }
 
+/*------------------------------------------------------------------------------
+Sets the one of the options in a dropdown to be the default value by copying its
+value to the default_value field.
+@param	integer	i identifies the integer of dropdown option whose value we want to
+				copy as the default value.
+------------------------------------------------------------------------------*/
+function set_as_default(i)
+{
+	source_id= 'option_'+i;
+	
+	if( jQuery('#use_key_values:checked').is(':checked') )
+	{
+        source_id= 'value_'+i;
+    }
+    
+	new_default_value = jQuery('#'+source_id).val();
+	jQuery('#default_value').val(new_default_value);
+}
+
 
 /*------------------------------------------------------------------------------
 TinyMCE make HTML view
@@ -99,4 +88,22 @@ TinyMCE make Rich-Text-Formatted view
 function show_rtf_view(id)
 {
 	tinyMCE.execCommand('mceAddControl', false, id);
+}
+
+/*------------------------------------------------------------------------------
+Grey out form elements (i.e. make readonly)
+------------------------------------------------------------------------------*/
+function toggle_readonly() 
+{
+	// is checked: i.e. use both options and values (remove readonly)
+	if( jQuery('#use_key_values:checked').is(':checked') )
+	{
+//        jQuery('.possibly_gray').attr('readonly','');
+        jQuery('.possibly_gray').removeAttr('readonly');
+    }
+    // is not checked: use options only and make values readonly.
+    else
+    {
+    	jQuery('.possibly_gray').attr('readonly','readonly');
+    }
 }

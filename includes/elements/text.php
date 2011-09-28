@@ -83,40 +83,27 @@ class CCTM_text extends CCTMFormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-		$output = sprintf('
-			%s 
-			<input type="text" name="%s" class="%s" id="%s" %s value="%s"/>
-			'
-			, $this->wrap_label()
-			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
-			, $this->get_field_id()
-			, $this->extra
-			, htmlspecialchars( html_entity_decode($current_value) )
+		$fieldtpl = $this->get_field_tpl();
+		$wrappertpl = $this->get_wrapper_tpl();
 
-		);
-		
-		$output .= $this->wrap_description($this->props['description']);
-		
-		return $this->wrap_outer($output);
-		//------- working... ------
-		
-		$tpl = $this->get_tpl();
-		
 		// Populate the values (i.e. properties) of this field
 		$this->props['id'] 					= $this->get_field_id();
 		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
 		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
-		$this->props['inputs_wrapper_id']	= $this->get_wrapper_id();
-		
+		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		$this->props['instance_id']			= $this->get_instance_id();
+		// $this->is_repeatable = 1; // testing
+				
 		if ($this->is_repeatable) {
-			$this->props['add_button'] = 'Click'; 
-			$this->props['delete_button'] = 'Delete';
+			$this->props['add_button'] = '<span class="button" onclick="javascript:add_instance();">Click</span>'; 
+			$this->props['delete_button'] = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
+			$this->i = $this->i + 1; // increment the instance 
 		}
 		
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be last
-		
-		return CCTM::parse($tpl, $this->props);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		return CCTM::parse($wrappertpl, $this->props);
 	}
 
 	//------------------------------------------------------------------------------

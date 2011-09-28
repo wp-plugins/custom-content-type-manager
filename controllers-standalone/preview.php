@@ -6,8 +6,7 @@ Output is the HTML required to display and format the def file.
 This needed to live in a separate file because I needed to completely control
 the entire request: if it were handled by WP, headers() would be sent.
 ------------------------------------------------------------------------------*/
-require_once( realpath('../../../../').'/wp-config.php' );
-
+@require_once( realpath('../../../../').'/wp-load.php' );
 include_once('../includes/constants.php');
 include_once(CCTM_PATH.'/includes/CCTM.php');
 include_once(CCTM_PATH.'/includes/ImportExport.php');

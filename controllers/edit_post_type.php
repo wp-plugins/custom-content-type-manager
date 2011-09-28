@@ -62,6 +62,10 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 			$wpdb->query($query);
 			
 			// unset the old option in self::$data;
+//			print '<pre>';
+//			print_r($sanitized_vals);
+//			print '</pre>';
+//			exit;
 			unset(self::$data['post_type_defs'][ $sanitized_vals['original_post_type_name'] ]);
 
 			// Try to rename theme file

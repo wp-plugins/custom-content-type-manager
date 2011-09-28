@@ -73,17 +73,4 @@ if ( empty(CCTMtests::$errors) )
 	add_action( 'admin_notices', 'CCTM::print_warnings');
 }
 
-/*
-unset(CCTM::$data['flash']);
-CCTM::$data['flash'] = array();
-update_option(CCTM::db_key, CCTM::$data);
-*/
-/*
-		$x = get_defined_vars();
-		print "<pre>";
-		print_r($x);
-		print "</pre>";
-*/
-
-
 /*EOF*/

@@ -52,6 +52,9 @@ abstract class CCTMFormElement {
 	// Stores any errors with fields.  The structure is array( 'field_name' => array('Error msg1','Error msg2') )
 	public $errors = array();
 
+	// tracks field instances
+	public $i = 0;
+
 	// Stores our "managed" class properties: the magic __set and __get are mapped to keys in this array.
 	public $props = array();
 
@@ -105,6 +108,10 @@ abstract class CCTMFormElement {
 		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
+		$this->descriptions['name'] .= sprintf('<br /><span style="color:red;">%s</span>'
+			, __('WARNING: if you change the name, you will have to update any template files that use the <code>get_custom_field()</code> or <code>print_custom_field()</code> functions or any other functions that reference this field by its name.', CCTM_TXTDOMAIN));
+
+		
 		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
 		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_by_default'] =  __('Should this field be checked by default?', CCTM_TXTDOMAIN);
@@ -168,10 +175,12 @@ abstract class CCTMFormElement {
 	 */
 	protected function get_all_placeholders() {
 		$all_placeholders = array_keys($this->props);
-		foreach ($all_placeholders as &$p) {
-			$p = "&#91;+$p+&#93;";
+		$output = '<ul>';
+		foreach ($all_placeholders as $p) {
+			$output .= "<li>&#91;+$p+&#93;</li>";
 		}
-		return sprintf(__('The %s.tpl has the following placeholders available for use:', CCTM_TXTDOMAIN), $this->props['type']) . ' '. implode(', ', $all_placeholders);
+		$output .= '</ul>';
+		return '<p>'.sprintf(__('The %s.tpl has the following placeholders available for use:', CCTM_TXTDOMAIN), $this->props['type']) . '</p>'. $output;
 	}
 	
 	//------------------------------------------------------------------------------
@@ -258,7 +267,12 @@ abstract class CCTMFormElement {
 			case 'get_create_field_instance':
 			case 'get_edit_field_instance':
 			case 'wrap_label':
-				return self::post_name_prefix . $this->name;
+				if ($this->is_repeatable) {
+					return self::post_name_prefix . $this->name .'[]';
+				}
+				else {
+					return self::post_name_prefix . $this->name;
+				}
 				break;
 			case 'get_edit_field_definition':
 			case 'get_create_field_definition':
@@ -269,22 +283,82 @@ abstract class CCTMFormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Get the mini-template (tpl) for this particular type of field.  The default
-	 * location is tpls/custom_fields where the filenames are the shortname of the 
-	 * type with a ".tpl" extension, e.g. dropdown.tpl.  The user can override this
-	 * by placing a file by the same name into a specific folder in
-	 * the current theme, e.g. wp-content/themes/twentyten/cctm/tpls/custom_fields
+	 * Get the field tpl for this particular type of field.  The locations can be 
+	 * overriden by placing a file in one of the correct directories.  The following
+	 * directories are searched (in order):
+	 *
+	 *	wp-content/cctm/tpls/fields/{name-of-field}.tpl
+	 *	wp-content/cctm/tpls/fieldtypes/{type-of-field}.tpl
+	 *  wp-content/plugins/custom-content-type-manager/tpls/fieldtypes/{type-of-field}.tpl
+	 *
+	 * 	or last-ditch:
+	 *	wp-content/plugins/custom-content-type-manager/tpls/fieldtypes/_default.tpl 
+	 *
+	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
 	 *
 	 * @return string	the contents of the file
 	 */
-	protected function get_tpl() {
-		$current_theme_path = get_stylesheet_directory();
-		if (file_exists($current_theme_path .'/cctm/tpls/custom_fields/'.$this->props['type'].'.tpl')) {
-			return file_get_contents($current_theme_path .'/cctm/tpls/custom_fields/'.$this->props['type'].'.tpl');	
+	protected function get_field_tpl() {
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
+
+		if (file_exists($dir.'/fields/'.$this->props['name'].'.tpl')) {
+			return file_get_contents($dir.'/fields/'.$this->props['name'].'.tpl');	
+		}
+		elseif(file_exists($dir.'/fieldtypes/'.$this->props['type'].'.tpl')) {
+			return file_get_contents($dir.'/fieldtypes/'.$this->props['type'].'.tpl');
+		}
+		elseif (file_exists(CCTM_PATH.'/tpls/fieldtypes/'.$this->props['type'].'.tpl')) {
+			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$this->props['type'].'.tpl');
 		}
 		else {
-			return file_get_contents(CCTM_PATH.'/tpls/custom_fields/'.$this->props['type'].'.tpl');
+			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
 		}
+
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	protected function get_instance_id() {
+		return 'cctm_instance_'.$this->get_field_id().'_'.$this->i;
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Get the wrapper tpl for this particular type of field.  The locations can be 
+	 * overriden by placing a file in one of the correct directories.  The following
+	 * directories are searched (in order):
+	 *
+	 *	wp-content/cctm/tpls/wrappers/fields/{name-of-field}.tpl
+	 *	wp-content/cctm/tpls/wrappers/fieldtypes/{type-of-field}.tpl
+	 *  wp-content/plugins/custom-content-type-manager/tpls/wrappers/{type-of-field}.tpl
+	 *
+	 * 	or last-ditch:
+	 *	wp-content/plugins/custom-content-type-manager/tpls/wrappers/_default.tpl 
+	 *
+	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
+	 *
+	 * @return string	the contents of the file
+	 */
+	protected function get_wrapper_tpl() {
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
+
+		if (file_exists($dir.'/wrappers/fields/'.$this->props['name'].'.tpl')) {
+			return file_get_contents($dir.'/wrappers/fields/'.$this->props['name'].'.tpl');	
+		}
+		elseif(file_exists($dir.'/wrappers/fieldtypes/'.$this->props['type'].'.tpl')) {
+			return file_get_contents($dir.'/wrappers/fieldtypes/'.$this->props['type'].'.tpl');
+		}
+		// future ?
+		elseif (file_exists(CCTM_PATH.'/tpls/wrappers/'.$this->props['type'].'.tpl')) {
+			return file_get_contents(CCTM_PATH.'/tpls/wrappers/'.$this->props['type'].'.tpl');
+		}
+		else {
+			return file_get_contents(CCTM_PATH.'/tpls/wrappers/_default.tpl');
+		}		
 	}
 	
 	//------------------------------------------------------------------------------
@@ -628,8 +702,8 @@ abstract class CCTMFormElement {
 	 * this type of element. Default behavior here is require only a unique name and 
 	 * label. Override this if customized validation is required: usually you'll want
 	 * to override and still reference the parent:
-	 * 		public function save_definition_filter($posted_data, $post_type) {
-	 *			$posted_data = parent::save_definition_filter($posted_data, $post_type);
+	 * 		public function save_definition_filter($posted_data) {
+	 *			$posted_data = parent::save_definition_filter($posted_data);
 	 *			// your code here...
 	 *			return $posted_data;
 	 *		}

@@ -32,7 +32,7 @@ if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_nam
 	}
 
 	update_option( self::db_key, self::$data );
-	$x = sprintf( __('Custom fields have been updated.', CCTM_TXTDOMAIN) );
+	$x = sprintf( __('Custom fields for %s have been updated.', CCTM_TXTDOMAIN), "<em>$post_type</em>" );
 	$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>', $x);
 	self::set_flash($data['msg']);
 	include CCTM_PATH . '/controllers/list_post_types.php';
@@ -58,7 +58,7 @@ if (!$all_custom_fields_cnt) {
 }
 elseif (!$active_custom_fields_cnt ) {
 	$data['msg'] .= sprintf('<div class="updated"><p>%s</p></div>'
-		, sprintf( __('The %s post type does not have any custom fields yet. Check one of the fields below to add a custom field.', CCTM_TXTDOMAIN)
+		, sprintf( __('The %s post type does not have any custom fields yet. Check the fields below to add custom fields.', CCTM_TXTDOMAIN)
 			, "<em>$post_type</em>" ));
 }
 

@@ -28,10 +28,6 @@ if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 }
 		
-
-$success_msg = sprintf('<div class="updated"><p>%s</p></div>'
-	, sprintf(__('The %s custom field has been edited.', CCTM_TXTDOMAIN)
-	, '<em>'.$field_name.'</em>'));
 	
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
@@ -72,11 +68,13 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		self::$data['custom_field_defs'][ $field_data['name'] ] = $field_data;
 		update_option( self::db_key, self::$data );
 		unset($_POST);
-		self::set_flash($success_msg);
+		$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'
+			, sprintf(__('The %s custom field has been edited.', CCTM_TXTDOMAIN)
+			, '<em>'.$field_name.'</em>'));		
+		self::set_flash($data['msg']);
 		include(CCTM_PATH.'/controllers/list_custom_fields.php');
 		return;
 	}
-
 }
 
 

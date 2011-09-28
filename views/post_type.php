@@ -89,7 +89,9 @@ just want to make sure that the form is presented uncorrupted.
 	<div style="clear:both;"></div>	
 	
 	<div id="basic-tab">
-	
+		<!-- Is active -->
+		<input type="hidden" name="is_active" value="<?php print $data['is_active']; ?>" />
+		
 		<!--!Post Type -->
 		<input type="hidden" name="original_post_type_name" value="<?php print $data['post_type']; ?>" />
 		
@@ -576,5 +578,5 @@ just want to make sure that the form is presented uncorrupted.
 		<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	<br/>
 		<div class="custom_content_type_mgr_form_controls">
-			<input type="submit" name="Submit" class="button-primary" value="<?php print $data['submit']; ?>" />
+			<input type="submit" class="button-primary" value="<?php print $data['submit']; ?>" />
 		</div>

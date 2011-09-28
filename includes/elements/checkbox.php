@@ -38,6 +38,7 @@ class CCTM_checkbox extends CCTMFormElement
 		'unchecked_value' => '0',
 		'class' => '',
 		'extra'	=> '',
+		'is_checked' => '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
 	);
@@ -120,39 +121,31 @@ class CCTM_checkbox extends CCTMFormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$is_checked = '';
+		$this->props['is_checked'] = '';
 		if ($current_value == $this->checked_value) {
-			$is_checked = 'checked="checked"';
+			$this->props['is_checked'] = 'checked="checked"';
 		}
-
-		$output = sprintf(' 
-			<input type="checkbox" name="%s" class="%s" id="%s" value="%s" %s %s/>
-			'
-			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'checkbox') . ' ' . $this->class
-			, $this->get_field_id()
-			, htmlspecialchars($this->checked_value)
-			, $this->extra
-			, $is_checked
-		);
-
-		$output .= $this->wrap_label();
-		$output .= $this->wrap_description($this->props['description']);
 		
-		return $this->wrap_outer($output);
+		$fieldtpl = $this->get_field_tpl();
+		$wrappertpl = $this->get_wrapper_tpl();
+
+		// Populate the values (i.e. properties) of this field
+		$this->props['name'] 				= $this->get_field_name();
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'checkbox', $this->class);
+		$this->props['value']				= htmlspecialchars($this->checked_value);
+		
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		return CCTM::parse($wrappertpl, $this->props);
+		
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param unknown $current_values
-			<style>
-			input.cctm_error { 
-				background: #fed; border: 1px solid red;
-			}
-			</style>
+	 * @param	mixed	current definition array
 	 */
 	public function get_edit_field_definition($def) {
 		$is_checked = '';
@@ -230,7 +223,20 @@ class CCTM_checkbox extends CCTMFormElement
 			 	</div>';
 		return $out;
 	}
-	
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Handle the "checked by default" option
+	 */
+	public function save_definition_filter($posted_data) {
+		$posted_data = parent::save_definition_filter($posted_data);
+
+	 	if (!isset($posted_data['checked_by_default'])) {
+			$posted_data['checked_by_default'] = 0; // set it 	 	
+	 	}
+
+		return $posted_data;
+	}	
 	//------------------------------------------------------------------------------
 	/**
 	 * Here we do some smoothing of the checkbox warts... normally if the box is not

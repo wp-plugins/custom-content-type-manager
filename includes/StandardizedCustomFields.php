@@ -5,20 +5,6 @@ post, page, and any other custom post-type you register via a plugin.
 ------------------------------------------------------------------------------*/
 class StandardizedCustomFields 
 {
-	/*
-	This prefix helps ensure unique keys in the $_POST array. It is used only to 
-	identify the form elements; this prefix is *not* used as part of the meta_key
-	when saving the field names to the database. If you want your fields to be 
-	hidden from built-in WordPress functions, you can name them individually 
-	using "_" as the first character.
-	
-	If you omit a prefix entirely, your custom field names must steer clear of
-	the built-in post field names (e.g. 'content').
-	*/
-	const field_name_prefix = 'custom_content_'; 
-	
-	// Which types of content do we want to standardize?
-	public static $content_types_array = array('post');
 	
 	//! Private Functions
 	//------------------------------------------------------------------------------
@@ -87,7 +73,7 @@ class StandardizedCustomFields
 	public static function create_meta_box() {
 		$content_types_array = CCTM::get_active_post_types();
 		foreach ( $content_types_array as $content_type ) {
-			add_meta_box( 'custom-content-type-mgr-custom-fields'
+			add_meta_box( 'cctm_default'
 				, __('Custom Fields', CCTM_TXTDOMAIN )
 				, 'StandardizedCustomFields::print_custom_fields'
 				, $content_type
@@ -254,8 +240,7 @@ class StandardizedCustomFields
 	{
 		$content_types_array = CCTM::get_active_post_types();
 		foreach ( array( 'normal', 'advanced', 'side' ) as $context ) {
-			foreach ( $content_types_array as $content_type )
-			{
+			foreach ( $content_types_array as $content_type ) {
 				remove_meta_box( 'postcustom', $content_type, $context );
 			}
 		}

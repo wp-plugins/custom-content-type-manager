@@ -36,7 +36,6 @@ class CCTM_colorselector extends CCTMFormElement
 		'extra'	=> '',
 		'default_value' => '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
 	);
 
 	//------------------------------------------------------------------------------

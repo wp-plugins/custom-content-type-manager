@@ -67,6 +67,13 @@ class CCTM {
 	 */
 	const filters_dir = 'filters';
 	
+	/**
+	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store
+	 * formatting templates (tpls)
+	 * May contain the following sub directories: fields, fieldtypes, metaboxes
+	 */
+	const tpls_dir = 'tpls';
+	
 	// Default permissions for dirs/files created in the base_storage_dir.
 	// These cannot be more permissive thant the system's settings: the system
 	// will automatically shave them down. E.g. if the system has a global setting
@@ -402,7 +409,7 @@ class CCTM {
 		// post_type is the only required field
 		$sanitized['post_type'] = self::get_value($raw, 'post_type');
 		$sanitized['post_type'] = strtolower($sanitized['post_type']);
-		$sanitized['post_type'] = preg_replace('/[^a-z0-9|_]/', '_', $sanitized['post_type']);
+		$sanitized['post_type'] = preg_replace('/[^a-z0-9_\-]/', '_', $sanitized['post_type']);
 		$sanitized['post_type'] = substr($sanitized['post_type'], 0, 20);
 
 		// Our form passes integers and strings, but WP req's literal booleans,
@@ -566,6 +573,9 @@ class CCTM {
 			if (!self::include_form_element_class($shortname)) {
 				print self::format_errors();
 			}
+			$classname = self::classname_prefix . $shortname;
+			$Obj = new $classname();
+			$Obj->admin_init();
 		}
 
 		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
