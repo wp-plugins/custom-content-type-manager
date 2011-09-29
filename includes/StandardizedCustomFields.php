@@ -156,6 +156,33 @@ class StandardizedCustomFields
 		return $html;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * We use this to print out the large icon
+	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=188
+	 */
+	public static function print_admin_header() {		
+		$post_type = CCTM::get_value($_GET, 'post_type');
+		if (!empty($post_type)) {
+			// Show the big icon: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
+			if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
+				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+				// die($baseimg); 
+				if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
+					printf('
+					<style>
+						#icon-edit, #icon-post {
+						  background-image:url(%s);
+						  background-position: 0px 0px;
+						}
+					</style>'
+					, CCTM_URL . '/images/icons/32x32/'. $baseimg);
+				}
+			}	
+		}
+	}
+
 	/*------------------------------------------------------------------------------
 	Display the new Custom Fields meta box inside the WP manager.
 	INPUT:
@@ -173,6 +200,23 @@ class StandardizedCustomFields
 		$custom_fields = self::_get_custom_fields($post_type);
 		$output = '';		
 				
+		// Show the big icon: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
+		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
+			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+			// die($baseimg); 
+			if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
+				$output .= sprintf('
+				<style>
+					#icon-edit, #icon-post {
+					  background-image:url(%s);
+					  background-position: 0px 0px;
+					}
+				</style>'
+				, CCTM_URL . '/images/icons/32x32/'. $baseimg);
+			}
+		}
+
 
 		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
 		if ( empty($custom_fields) )
@@ -206,23 +250,7 @@ class StandardizedCustomFields
 		
 		// Print the nonce: this offers security and it will help us know when we should do custom saving logic in the save_custom_fields function
 		$output .= '<input type="hidden" name="_cctm_nonce" value="'. wp_create_nonce('cctm_create_update_post') . '" />';
-		
-		// Show the big icon: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
-		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
-			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
-			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-			// die($baseimg); 
-			if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
-				$output .= sprintf('
-				<style>
-					#icon-edit, #icon-post {
-					  background-image:url(%s);
-					  background-position: 0px 0px;
-					}
-				</style>'
-				, CCTM_URL . '/images/icons/32x32/'. $baseimg);
-			}
-		}
+
  		// Print the form
  		print '<div class="form-wrap">';		
 	 	print $output;
@@ -262,6 +290,7 @@ class StandardizedCustomFields
 	 */
 	public static function save_custom_fields( $post_id, $post ) 
 	{
+
 		// Bail if you're not in the admin editing a post
 		if (!self::_is_existing_post() && !self::_is_new_post() ) {
 			return;

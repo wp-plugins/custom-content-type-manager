@@ -70,7 +70,10 @@ if ( empty(CCTMtests::$errors) )
 	
 	// Highlght which themes are CCTM-compatible (if any)
 	// add_filter('theme_action_links', 'CCTM::highlight_cctm_compatible_themes');
-	add_action( 'admin_notices', 'CCTM::print_warnings');
+	add_action('admin_notices', 'CCTM::print_warnings');
+	
+	// Used to modify the large post icon
+	add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
 }
 
 /*EOF*/

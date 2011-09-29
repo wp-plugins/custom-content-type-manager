@@ -34,8 +34,9 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 			, $post_type);
 		$wpdb->query($query);		
 		
-		// Delete any revisions
-		$query = $wpdb->prepare("DELETE FROM {$wpdb->posts} WHERE post_type='revision' AND post_parent IN (SELECT ID FROM {$wpdb->posts} WHERE post_type=%s);"
+		// Delete any revisions, e.g.
+		// DELETE a FROM wp_posts a INNER JOIN wp_posts b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type='post'
+		$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type=%s"
 			, $post_type);
 		$wpdb->query($query);
 				
@@ -54,6 +55,12 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	return;
 }
 
+$post_cnt_obj = wp_count_posts($post_type);
+$post_count = '<p>'
+	. sprintf( __('This would affect %1$s published %2$s posts.'
+		, CCTM_TXTDOMAIN), '<strong>'.$post_cnt_obj->publish.'</strong>'
+	, "<strong>$post_type</strong>")
+	.'</p>';
 // Warn about the actual deletion
 if (isset(self::$data['settings']['delete_posts']) && self::$data['settings']['delete_posts']) {
 	$data['content'] = '<div class="error">
@@ -61,6 +68,7 @@ if (isset(self::$data['settings']['delete_posts']) && self::$data['settings']['d
 		<p>'
 		. sprintf( __('You are about to delete the %s post type and delete all of its posts from the database. This cannot be undone!', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 		.'</p>'
+		. $post_count
 		. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
 		</p></div>';
 }
@@ -71,6 +79,7 @@ else {
 		<p>'
 		. sprintf( __('You are about to delete the %s post type. This will remove all of its settings from the database, but this will NOT delete any rows from the wp_posts table. However, without a custom post type defined for those rows, they will be essentially invisible to WordPress.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 		.'</p>'
+		. $post_count
 		. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
 		</p></div>';
 }

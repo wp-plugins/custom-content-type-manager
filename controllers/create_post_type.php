@@ -3,10 +3,8 @@
 Create a new post type
 ------------------------------------------------------------------------------*/
 $data=array();
-$data['page_title'] = __('Create Custom Content Type', CCTM_TXTDOMAIN) 
-	. ' <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType" title="Creating a Content Type" target="_blank">
-		<img src="'. CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
-	</a>';
+$data['page_title'] = __('Create Custom Content Type', CCTM_TXTDOMAIN);
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
 $data['msg'] = '';
 $data['menu'] = sprintf('<a href="?page=cctm" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['edit_warning'] = ''; // only used when you edit a post_type, not delete.

@@ -31,6 +31,7 @@ if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
 else {
 	$data['msg'] = sprintf('<div class="error"><p>%s</p></div>', __('Unrecognized post_type.', CCTM_TXTDOMAIN));
 	$data['page_title']  = __('Unrecognized Content type');
+	$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
 	$data['menu'] = sprintf('<a href="?page=cctm" title="%s" class="button">%s</a>', __('Back'), __('Back'));
 	$data['content'] = '';
 	print CCTM::load_view('templates/default.php', $data);
@@ -43,6 +44,7 @@ $d['edit_warning'] = sprintf('<br /><span style="color:red;">%s</span>'
 );
 
 $data['page_title']  = __('Edit Content Type: ') . $post_type;
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
 $fields   = '';
 $data['msg'] = '';
 $data['menu'] = sprintf('<a href="?page=cctm" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));

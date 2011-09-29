@@ -81,7 +81,8 @@ class CCTM_wysiwyg extends CCTMFormElement
 			<textarea name="[+name+]" class="cctm_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
 	 */
 	public function get_edit_field_instance($current_value) {
-		# print_r($this->props); exit;
+		
+		// print "Here------->".$current_value; exit;
 		// See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138
 		// See http://keighl.com/2010/04/switching-visualhtml-modes-with-tinymce/
 		ob_start();
@@ -109,6 +110,7 @@ class CCTM_wysiwyg extends CCTMFormElement
 					}
 				});
 			</script>
+			<br />
 			'
 			, $this->get_field_id()
 			, $this->get_field_id()
@@ -249,7 +251,8 @@ class CCTM_wysiwyg extends CCTMFormElement
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		$value = trim($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]);
+//		print_r($posted_data); exit;
+		$value = $posted_data[ CCTMFormElement::post_name_prefix . $field_name ];
 		return wpautop( $value ); // Auto-paragraphs for any WYSIWYG
 	}
 
