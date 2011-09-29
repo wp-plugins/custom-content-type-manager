@@ -48,5 +48,5 @@ foreach ($active_plugins as $plugin) {
 	<li><?php _e("<strong>Be ready to provide extra information if the programmer needs it.</strong> If they didn't need it, they wouldn't be asking for it.", CCTM_TXTDOMAIN); ?></li>
 	<li><?php _e("<strong>Write clearly.</strong> Make sure what you write can't be misinterpreted. Avoid pronouns, and error on the side of providing too much information instead of too little.", CCTM_TXTDOMAIN); ?></li>
 </ol>
-
+<p><?php _e('Consider using <a href="http://www.techsmith.com/jing/free/">Jing</a> to do a screencast of the problem!', CCTM_TXTDOMAIN): ?></p>
 <p><?php _e('The gist of this was inspired by <a href="http://www.chiark.greenend.org.uk/~sgtatham/bugs.html">How to Report Bugs Effectively</a> by Simon Tatham.', CCTM_TXTDOMAIN);?></p>

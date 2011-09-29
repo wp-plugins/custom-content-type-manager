@@ -21,7 +21,13 @@ class CCTM_formatted_list extends CCTMOutputFilter {
 			$array = $input;
 		}
 		else {
-			$array = json_decode(html_entity_decode($input), true );
+			$input = json_decode(html_entity_decode($input), true );
+			if (is_array($input)) {
+				$array = $input;
+			}
+			else {
+				$array = array($input);
+			}
 		}
 				
 		if ( !empty($options) && is_array($options) ) {
@@ -34,7 +40,8 @@ class CCTM_formatted_list extends CCTMOutputFilter {
 				}
 			}
 			else {
-				// ???
+				// ??? user supplied an associative array?
+				return 'Options array in incorrect format!';
 			}
 			
 			// wrap the output

@@ -689,7 +689,7 @@ abstract class CCTMFormElement {
 	 */
 	public function save_post_filter($posted_data, $field_name) {
 		if ( isset($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]) ) {
-			return trim($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]);
+			return stripslashes(trim($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]));
 		}
 		else {
 			return '';

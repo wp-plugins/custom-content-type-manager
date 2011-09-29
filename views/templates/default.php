@@ -25,13 +25,21 @@ if ( $a == 'info') {
 	$active['cctm_info'] = ' cctm_active';
 	$active['cctm'] = '';
 }
+// Default help page:
+if (!isset($data['help']) || empty($data['help'])) {
+	$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/';
+}
 ?>
 <div class="wrap">
 
 	<?php /*---------------- HEADER --------------------------- */ ?>	
 	<div id="cctm_header">
 		<img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="custom-content-type-manager-logo" width="88" height="55" style="float:left; margin-right:20px;"/>
-		<p class="cctm_header_text">Custom Content Type Manager <span class="cctm_version">[<?php print CCTM::get_current_version(); ?>]</span><br/>
+		<p class="cctm_header_text">Custom Content Type Manager <span class="cctm_version">[<?php print CCTM::get_current_version(); ?>]</span> 		
+			<a href="<?php print $data['help']; ?>" target="_new" title="Contextual Help" style="text-decoration: none;">
+				<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
+			</a>		
+		<br/>
 		<span class="cctm_page_title"><?php print $data['page_title']; ?></span>
 		</p>
 	</div>

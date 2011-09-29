@@ -92,8 +92,6 @@ class CCTM_date extends CCTMFormElement
 			$this->default_value = eval("return $default_value;"); 
 		}
 		
-		$output = $this->wrap_description($this->props['description']);
-		
 		return $this->get_edit_field_instance($this->default_value); 
 	}
 
@@ -105,29 +103,20 @@ class CCTM_date extends CCTMFormElement
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
-		#print_r($this->props); exit;
-		$output = '
-			<script>
-				jQuery(function() {
-					jQuery("#'.$this->get_field_id().'").datepicker({
-						dateFormat : "'.$this->props['date_format'].'"
-					});
-				});
-			</script>';
-			
-		$output .= sprintf('
-			%s 
-			<input type="text" name="%s" class="%s" id="%s" %s value="%s"/>
-			'
-			, $this->wrap_label()
-			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
-			, $this->get_field_id()
-			, stripslashes($this->extra)
-			, $current_value
-		);
-		
-		return $this->wrap_outer($output);
+
+		$fieldtpl = $this->get_field_tpl();
+		$wrappertpl = $this->get_wrapper_tpl();
+
+		// Populate the values (i.e. properties) of this field
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
+		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
+		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+				
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		return CCTM::parse($wrappertpl, $this->props);		
 	}
 
 	//------------------------------------------------------------------------------
@@ -144,8 +133,7 @@ class CCTM_date extends CCTMFormElement
 		// Option - select
 		$date_format = array();
 		$date_format['mm/dd/yy'] 							= '';
-		$date_format['yyyy-mm-dd'] 							= '';
-		$date_format['yy-mm-dd'] 							= '';
+		$date_format['yy-mm-dd'] 							= ''; // note this is really yyyy-mm-dd
 		$date_format['d M, y'] 								= '';
 		$date_format['d MM, y'] 							= '';
 		$date_format['DD, d MM, yy'] 						= '';
@@ -154,9 +142,6 @@ class CCTM_date extends CCTMFormElement
 		
 		if ( $def['date_format'] == 'mm/dd/yy' ) {
 			$date_format['mm/dd/yy'] = 'selected="selected"';
-		}
-		if ( $def['date_format'] == 'yyyy-mm-dd' ) {
-			$date_format['yyyy-mm-dd'] = 'selected="selected"';
 		}
 		if ( $def['date_format'] == 'yy-mm-dd' ) {
 			$date_format['yy-mm-dd'] = 'selected="selected"';
@@ -201,7 +186,7 @@ class CCTM_date extends CCTMFormElement
 		// Evaluate Default Value (use PHP eval)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="evaluate_default_value_wrapper">
 				 <label for="evaluate_default_value" class="cctm_label cctm_checkbox_label" id="evaluate_default_value_label">'
-					. __('Use PHP eval to calculate the default value? (Omit the php tags).', CCTM_TXTDOMAIN) .
+					. __('Use PHP eval to calculate the default value? (Omit the php tags, e.g. <code>date(\'Y-m-d\')</code>).', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_default_value" class="'.$this->get_field_class('evaluate_default_value','checkbox').'" id="evaluate_default_value" value="1" '. $is_checked.'/> '
@@ -224,8 +209,7 @@ class CCTM_date extends CCTMFormElement
 			 		.__('Date Format', CCTM_TXTDOMAIN) .'</label>
 					<select id="date_format" name="date_format">
 						<option value="mm/dd/yy" '.$date_format['mm/dd/yy'].'>Default - mm/dd/yy</option>
-						<option value="yyyy-mm-dd" '.$date_format['yyyy-mm-dd'].'>MySQL - yyyy-mm-dd</option>
-						<option value="yy-mm-dd" '.$date_format['yy-mm-dd'].'>ISO 8601 - yy-mm-dd</option>
+						<option value="yy-mm-dd" '.$date_format['yy-mm-dd'].'>MySQL - yyyy-mm-dd</option>
 						<option value="d M, y" '.$date_format['d M, y'].'>Short - d M, y</option>
 						<option value="d MM, y" '.$date_format['d MM, y'].'>Medium - d MM, y</option>
 						<option value="DD, d MM, yy" '.$date_format['DD, d MM, yy'].'>Full - DD, d MM, yy</option>

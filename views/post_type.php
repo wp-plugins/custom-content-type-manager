@@ -89,8 +89,6 @@ just want to make sure that the form is presented uncorrupted.
 	<div style="clear:both;"></div>	
 	
 	<div id="basic-tab">
-		<!-- Is active -->
-		<input type="hidden" name="is_active" value="<?php print $data['is_active']; ?>" />
 		
 		<!--!Post Type -->
 		<input type="hidden" name="original_post_type_name" value="<?php print $data['post_type']; ?>" />

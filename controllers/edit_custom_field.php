@@ -52,7 +52,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	// Validate and sanitize any submitted data
 	$field_data 		= $FieldObj->save_definition_filter($_POST);
 	$field_data['type'] = $field_type; // same effect as adding a hidden field
-	$FieldObj->props 	= $field_data;
+	$FieldObj->props 	= $field_data; // used for repopulating on errors
 
 	// Any errors?
 	if ( !empty($FieldObj->errors) ) {

@@ -14,6 +14,7 @@ if (!self::_is_existing_post_type($post_type) ) {
 // Variables for our template
 $data 				= array();
 $data['page_title']	= sprintf( __('Deactivate Content Type %s', CCTM_TXTDOMAIN), $post_type );
+$data['help']		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeactivatePostType';
 $data['menu'] 		= '';
 $data['msg']		= '';
 $data['content'] =  '';
@@ -64,9 +65,6 @@ $data['content'] .= '<p>'
 	, "<strong>$post_type</strong>")
 	.'</p>';
 $data['content'] .= '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
-		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeactivatePostType" title="deactivating a content type" target="_blank">
-			<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
-		</a>
 		</p>
 	</div>';
 

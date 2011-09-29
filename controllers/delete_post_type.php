@@ -6,6 +6,7 @@
 
 $data 				= array();
 $data['page_title']	= sprintf( __('Delete Content Type: %s', CCTM_TXTDOMAIN), $post_type );
+$data['help']		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType';
 $data['menu'] 		= ''; 
 $data['msg']		= CCTM::get_flash();
 $data['action_name'] = 'custom_content_type_mgr_delete_content_type';
@@ -61,9 +62,6 @@ if (isset(self::$data['settings']['delete_posts']) && self::$data['settings']['d
 		. sprintf( __('You are about to delete the %s post type and delete all of its posts from the database. This cannot be undone!', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 		.'</p>'
 		. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
-		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType" title="Deleting a content type" target="_blank">
-		<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
-		</a>
 		</p></div>';
 }
 // Warn about the chaos of not having a definition
@@ -74,9 +72,6 @@ else {
 		. sprintf( __('You are about to delete the %s post type. This will remove all of its settings from the database, but this will NOT delete any rows from the wp_posts table. However, without a custom post type defined for those rows, they will be essentially invisible to WordPress.', CCTM_TXTDOMAIN), "<em>$post_type</em>" )
 		.'</p>'
 		. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
-		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType" title="Deleting a content type" target="_blank">
-		<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
-		</a>
 		</p></div>';
 }
 $data['content'] = CCTM::load_view('basic_form.php', $data);

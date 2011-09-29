@@ -84,7 +84,8 @@ class CCTM_dropdown extends CCTMFormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		// Some error messaging: the options thing is enforced at time of def creation too
+		// Some error messaging: the options thing is enforced at time of def creation, so 
+		// we shouldn't ever need to enforce it here, but just in case...
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
 				, __('Custom Content Error', CCTM_TXTDOMAIN)
@@ -92,13 +93,11 @@ class CCTM_dropdown extends CCTMFormElement
 				, $data['name']
 			);
 		}
-
-
-		$output = $this->wrap_label();
-		$output .= '<select name="'.$this->get_field_name().'" class="'
-				.$this->get_field_class($this->name, 'dropdown') . ' ' . $this->class.'" id="'.$this->get_field_id().'" '.$this->extra.'>
-				<!-- option value="">'.__('Pick One').'</option -->
-				';
+		
+		// Get the options.  This currently is not skinnable.
+		// $this->props['options'] is already bogarted by the definition.
+		$this->props['all_options'] = '';
+		// <!-- option value="">'.__('Pick One').'</option -->
 		$opt_cnt = count($this->options);
 		for ( $i = 0; $i < $opt_cnt; $i++ ) {
 			// just in case the array isn't set
@@ -116,16 +115,27 @@ class CCTM_dropdown extends CCTMFormElement
 			}
 
 			$is_selected = '';
-			if ( $current_value == $value ) {
+			if ( trim($current_value) == trim($value) ) {
 				$is_selected = 'selected="selected"';
 			}
-			$output .= '<option value="'.$value.'" '.$is_selected.'>'.$option.'</option>';
+			$this->props['all_options'] .= '<option value="'.$value.'" '.$is_selected.'>'.$option.'</option>';
 		}
-		$output .= '</select>';
+
+		$fieldtpl = $this->get_field_tpl();
+		$wrappertpl = $this->get_wrapper_tpl();
+
+		// Populate the values (i.e. properties) of this field
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
+		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
+		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		$this->props['instance_id']			= $this->get_instance_id();
 		
-		$output .= $this->wrap_description($this->props['description']);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		return CCTM::parse($wrappertpl, $this->props);		
 		
-		return $this->wrap_outer($output);
 	}
 
 	//------------------------------------------------------------------------------
@@ -250,11 +260,11 @@ class CCTM_dropdown extends CCTMFormElement
 				// just in case the array isn't set
 				$option_txt = '';
 				if (isset($def['options'][$i])) {
-					$option_txt = htmlspecialchars($def['options'][$i]);
+					$option_txt = htmlspecialchars(trim($def['options'][$i]));
 				}
 				$value_txt = '';
 				if (isset($def['values'][$i])) {
-					$value_txt = htmlspecialchars($def['values'][$i]);
+					$value_txt = htmlspecialchars(trim($def['values'][$i]));
 				}
 				
 				$option_css_id = 'cctm_dropdown_option'.$opt_i;

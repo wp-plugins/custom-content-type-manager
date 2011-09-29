@@ -86,16 +86,14 @@ class CCTM_multiselect extends CCTMFormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		// die($current_value); 
-		// print CCTM::charset_decode_utf_8('€ª'); exit;
 		$current_values_arr = json_decode(html_entity_decode($current_value), true );
-		
+	
 		if ( $current_values_arr and is_array($current_values_arr) ) {
 			foreach ( $current_values_arr as $i => $v ) {
-				$current_values_arr[$i] = CCTM::charset_decode_utf_8($v);
+				$current_values_arr[$i] = trim(CCTM::charset_decode_utf_8($v));
 			}
 		}
-		// print_r($current_values_arr); die;
+
 		// Some error messaging: the options thing is enforced at time of def creation too
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
@@ -133,22 +131,17 @@ class CCTM_multiselect extends CCTMFormElement
 		$class = $this->get_field_class($this->name, 'muticheckbox');
 
 
-//		foreach ($this->options as $opt) {
+		// we use a for loop so we can read places out of 2 similar arrays: values & options
 		$opt_cnt = count($this->options);
-//		print_r($this->options); exit;
 		for ( $i = 0; $i < $opt_cnt; $i++ ) {
 			$is_checked = '';
-//			$utf_opt = CCTM::charset_decode_utf_8($this->options[$i]);
-//			$utf_val = CCTM::charset_decode_utf_8($this->values[$i]);
 
 			$option = '';
 			if (isset($this->options[$i])) {
-				// $option = htmlspecialchars($this->options[$i]);
 				$option = CCTM::charset_decode_utf_8($this->options[$i]);
 			}
 			$value = '';
 			if (isset($this->values[$i])) {
-				// $value = htmlspecialchars($this->values[$i]);
 				$value = CCTM::charset_decode_utf_8($this->values[$i]);
 			}
 			// Simplistic behavior if we don't use key=>value pairs
@@ -156,7 +149,7 @@ class CCTM_multiselect extends CCTMFormElement
 				$value = $option;
 			}
 
-			if ( is_array($current_values_arr) && in_array( $value, $current_values_arr) ) {
+			if ( is_array($current_values_arr) && in_array( trim($value), $current_values_arr) ) {
 				$is_checked = 'checked="checked"';
 			}
 			//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
@@ -215,7 +208,7 @@ class CCTM_multiselect extends CCTMFormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. CCTM::charset_decode_utf_8($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -292,11 +285,11 @@ class CCTM_multiselect extends CCTMFormElement
 				// just in case the array isn't set
 				$option_txt = '';
 				if (isset($def['options'][$i])) {
-					$option_txt = htmlspecialchars($def['options'][$i]);
+					$option_txt = CCTM::charset_decode_utf_8(trim($def['options'][$i]));
 				}
 				$value_txt = '';
 				if (isset($def['values'][$i])) {
-					$value_txt = htmlspecialchars($def['values'][$i]);
+					$value_txt = CCTM::charset_decode_utf_8(trim($def['values'][$i]));
 				}
 				
 				$option_css_id = 'cctm_dropdown_option'.$opt_i;
@@ -373,7 +366,7 @@ class CCTM_multiselect extends CCTMFormElement
 	public function save_post_filter($posted_data, $field_name) {
 		// print_r($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]); exit;
 		if ( isset($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]) ) {
-			return json_encode($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]);		
+			return addslashes(json_encode($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]));		
 		}
 		else {
 			return '';

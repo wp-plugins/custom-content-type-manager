@@ -613,7 +613,7 @@ class CCTM {
 	 *
 	 * 		print 'ę'; // prints Ä™
 	 *
-	 * But this solves it: 
+	 * But this function solves it by converting the characters into appropriate html-entities: 
 	 *
 	 * 		print charset_decode_utf_8('ę');
 	 *
@@ -621,9 +621,11 @@ class CCTM {
 	 * Solution from Squirrelmail, see http://pa2.php.net/manual/en/function.utf8-decode.php
 	 */
 	public static function charset_decode_utf_8($string) { 
+		$string = htmlspecialchars($string); // htmlentities will NOT work here.
+		
 		/* Only do the slow convert if there are 8-bit characters */ 
 		/* avoid using 0xA0 (\240) in ereg ranges. RH73 does not like that */ 
-		if (! ereg("[\200-\237]", $string) and ! ereg("[\241-\377]", $string)) {
+		if (! preg_match("/[\200-\237]/", $string) and ! preg_match("/[\241-\377]/", $string)) {
 			return $string;
 		}
 		
@@ -722,7 +724,7 @@ if ( empty(self::$data) ) {
 		// Main menu item
 		add_menu_page(
 			__('Manage Custom Content Types', CCTM_TXTDOMAIN),  // page title
-			__('Content Types', CCTM_TXTDOMAIN),     		// menu title
+			__('Custom Content Types', CCTM_TXTDOMAIN),     		// menu title
 			'manage_options',       							// capability
 			'cctm',												// menu-slug (should be unique)
 			'CCTM::page_main_controller',   					// callback function
@@ -812,6 +814,7 @@ if ( empty(self::$data) ) {
 		, "edit.php?post_type=$ptype" );
 
 */
+//	print '<pre>'; print_r(self::$data); print '</pre>'; exit;
 		// Add Custom Fields links
 		if (isset(self::$data['settings']['show_custom_fields_menu']) && self::$data['settings']['show_custom_fields_menu']) {
 			$active_post_types = self::get_active_post_types();
@@ -1747,6 +1750,7 @@ if ( empty(self::$data) ) {
 		if ($query->is_search or $query->is_feed) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
 				$post_types = get_post_types( array('public'=>true) );
+				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
 				$query->set('post_type', $post_types);
 			}
 		}

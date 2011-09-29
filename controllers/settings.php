@@ -4,6 +4,7 @@ Settings Page
 ------------------------------------------------------------------------------*/
 $data 				= array();
 $data['page_title']	= __('Settings', CCTM_TXTDOMAIN);
+$data['help'] 		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Settings';
 $data['menu'] 		='';
 $data['msg']		= self::get_flash();
 $data['action_name']  = 'custom_content_type_mgr_settings';
