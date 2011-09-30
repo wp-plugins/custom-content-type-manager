@@ -871,9 +871,9 @@ if ( empty(self::$data) ) {
 			else {
 				$options = null;
 			}
-		$filter_class = CCTM::classname_prefix.$outputfilter;		
-		$OutputFilter = new $filter_class();
-		return $OutputFilter->filter($value, $options);	
+			$filter_class = CCTM::classname_prefix.$outputfilter;		
+			$OutputFilter = new $filter_class();
+			return $OutputFilter->filter($value, $options);	
 		}
 		else {
 			self::$errors['filter_not_found'] = sprintf(
@@ -1509,16 +1509,19 @@ if ( empty(self::$data) ) {
 		return;
 	}
 
-	/*------------------------------------------------------------------------------
-	SYNOPSIS: a simple parsing function for basic templating.
-	INPUT:
-		$tpl (str): a string containing [+placeholders+]
-		$hash (array): an associative array('key' => 'value');
-	OUTPUT
-		string; placeholders corresponding to the keys of the hash will be replaced
-		with the values and the string will be returned.
-	------------------------------------------------------------------------------*/
-	public static function parse($tpl, $hash) 
+	//------------------------------------------------------------------------------
+	/**
+	 *
+	 * SYNOPSIS: a simple parsing function for basic templating.
+	 *
+	 * @param	string	$tpl: a string containing [+placeholders+]
+	 * @param	array	$hash: an associative array('key' => 'value');
+	 * @param	boolean	if true, will not remove unused [+placeholders+]
+	 *
+	 * @return string	placeholders corresponding to the keys of the hash will be replaced
+	 *	with the values and the string will be returned.
+	 */
+	public static function parse($tpl, $hash, $preserve_unused_placeholders=false) 
 	{
 	
 	    foreach ($hash as $key => $value) 
@@ -1530,8 +1533,9 @@ if ( empty(self::$data) ) {
 	    }
 	    
 	    // Remove any unparsed [+placeholders+]
-	    $tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
-	    
+	    if (!$preserve_unused_placeholders) {
+	    	$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
+	    }
 	    return $tpl;
 	}
 	

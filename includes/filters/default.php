@@ -43,7 +43,7 @@ class CCTM_default extends CCTMOutputFilter {
 	 * @return string	the human-readable name of the filter.
 	 */
 	public function get_name() {
-		return __('default', CCTM_TXTDOMAIN);
+		return __('Set Default Value', CCTM_TXTDOMAIN);
 	}
 
 	/**

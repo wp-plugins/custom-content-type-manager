@@ -11,6 +11,7 @@
 
 $data 				= array();
 $data['page_title']	= sprintf( __('Content Types using Custom Field %s', CCTM_TXTDOMAIN), "<em>$field_name</em>" );
+$data['help']		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/FieldAssociations';
 $data['menu'] 		= ''; 
 $data['msg']		= CCTM::get_flash();
 $data['action_name'] = 'custom_content_type_mgr_delete_field';
@@ -111,7 +112,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 $data['content'] .= '<table>';
 foreach ($displayable_types as $post_type) {
-	$def = array();
+	$def = self::$data['post_type_defs'][$post_type];
 	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
 		$def['description']  = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post type.', CCTM_TXTDOMAIN);
 	}

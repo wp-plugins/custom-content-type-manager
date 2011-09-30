@@ -76,6 +76,20 @@ class CCTM_multiselect extends CCTMFormElement
 		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/MultiSelect';
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * get_create_field_instance
+	 * 
+	 * We have to do this because of how WP handles inserting meta data
+	 * verses how it handles updating meta data.
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
+	 * @return string HTML field(s)
+	 */
+	public function get_create_field_instance() {
+		$this->is_create_flag = true;
+		return $this->get_edit_field_instance($this->default_value); 
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -158,7 +172,9 @@ class CCTM_multiselect extends CCTMFormElement
 		}
 		
 		$output .= $this->wrap_description($this->props['description']);
-		
+		if ($this->is_create_flag) {
+			$output .= '<input type="hidden" name="_cctm_is_create" value="1" />';
+		}
 		return $this->wrap_outer($output);
 	}
 
@@ -364,9 +380,15 @@ class CCTM_multiselect extends CCTMFormElement
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		// print_r($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]); exit;
 		if ( isset($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]) ) {
-			return addslashes(json_encode($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]));		
+			// Use this for Create Posts (yes, seriously we have doubleslash it)
+			if (isset($posted_data['_cctm_is_create'])) {			
+				return addslashes(addslashes(json_encode($posted_data[ CCTMFormElement::post_name_prefix . $field_name ])));
+			}
+			// Use this for Edit Posts 
+			else {
+				return addslashes(json_encode($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]));
+			}
 		}
 		else {
 			return '';

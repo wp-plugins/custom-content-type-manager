@@ -96,12 +96,6 @@ class CCTM_wysiwyg extends CCTMFormElement
 		ob_end_clean();
 
 		$output .= sprintf('
-			<p align="right">
-			  <a class="button" onclick="javascript:show_rtf_view(\'%s\');">Visual</a>
-			  <a class="button" onclick="javascript:show_html_view(\'%s\');">HTML</a>
-			</p>
-			%s
-			<textarea name="%s" class="%s " id="%s" %s>%s</textarea>
 			<script type="text/javascript">
 				jQuery( document ).ready( function() {
 					jQuery( "%s" ).addClass( "mceEditor" );
@@ -109,9 +103,19 @@ class CCTM_wysiwyg extends CCTMFormElement
 						tinyMCE.execCommand( "mceAddControl", false, "%s" );
 					}
 				});
-			</script>
+			</script>		
+			<p align="right">
+			  <a class="button" onclick="javascript:show_rtf_view(\'%s\');">Visual</a>
+			  <a class="button" onclick="javascript:show_html_view(\'%s\');">HTML</a>
+			</p>
+			%s
+			<textarea name="%s" class="%s " id="%s" %s>%s</textarea>
+
 			<br />
 			'
+			, $this->get_field_name()
+			, $this->get_field_name()
+
 			, $this->get_field_id()
 			, $this->get_field_id()
 			, $this->wrap_label()
@@ -122,8 +126,6 @@ class CCTM_wysiwyg extends CCTMFormElement
 			, $this->get_field_id()
 			, $this->extra
 			, $current_value
-			, $this->get_field_name()
-			, $this->get_field_name()
 		);
 		
 		$output .= $this->wrap_description($this->props['description']);
@@ -251,7 +253,6 @@ class CCTM_wysiwyg extends CCTMFormElement
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-//		print_r($posted_data); exit;
 		$value = $posted_data[ CCTMFormElement::post_name_prefix . $field_name ];
 		return wpautop( $value ); // Auto-paragraphs for any WYSIWYG
 	}

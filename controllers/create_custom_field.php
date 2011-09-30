@@ -45,7 +45,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 	// Any errors?
 	if ( !empty($FieldObj->errors) ) {
-		$msg = $FieldObj->format_errors();
+		$data['msg'] = $FieldObj->format_errors();
 	}
 	// Save;
 	else {

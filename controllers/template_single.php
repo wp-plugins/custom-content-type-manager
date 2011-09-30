@@ -13,6 +13,7 @@
 
 $data 				= array();
 $data['page_title']	= sprintf(__('Sample Themes for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
+$data['help']		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SampleTemplates?ts=1317363617&updated=SampleTemplates';
 $data['menu'] 		= sprintf('<a href="?page=cctm&a=list_post_types" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) );
 $data['msg']		= '';
 $data['post_type'] = $post_type;
@@ -102,12 +103,40 @@ elseif ($post_type == 'page') {
 
 
 // Custom fields
+/*
 if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields']) 
 	&& is_array(self::$data['post_type_defs'][$post_type]['custom_fields']) ) {
 	foreach ( 	$def = self::$data['post_type_defs'][$post_type]['custom_fields'] as $cf ) {
 		if (isset(self::$data['custom_field_defs'][$cf])) {
 			$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n"
 				, self::$data['custom_field_defs'][$cf]['label'], self::$data['custom_field_defs'][$cf]['name']);
+		}
+	}
+}
+*/
+if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields']) 
+	&& is_array(self::$data['post_type_defs'][$post_type]['custom_fields']) ) {
+	foreach ( 	$def = self::$data['post_type_defs'][$post_type]['custom_fields'] as $cf ) {
+		if (isset(self::$data['custom_field_defs'][$cf])) {
+			// Get the example from the Output Filter
+			if (isset(self::$data['custom_field_defs'][$cf]['output_filter']) 
+				&& !empty(self::$data['custom_field_defs'][$cf]['output_filter'])
+				&& self::$data['custom_field_defs'][$cf]['output_filter'] != 'raw'
+				&& CCTM::include_output_filter_class(self::$data['custom_field_defs'][$cf]['output_filter'])
+			) {
+				$filter_class = CCTM::classname_prefix.self::$data['custom_field_defs'][$cf]['output_filter'];		
+				$OutputFilter = new $filter_class();
+				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> %s<br />\n"
+					, self::$data['custom_field_defs'][$cf]['label']
+					, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'])
+				);
+
+			
+			}
+			else {
+				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> <?php print_custom_field('%s'); ?><br />\n"
+					, self::$data['custom_field_defs'][$cf]['label'], self::$data['custom_field_defs'][$cf]['name']);
+			}
 		}
 	}
 }
@@ -118,7 +147,7 @@ $hash['built_in_fields'] = $builtin_fields_str;
 $hash['custom_fields'] = $custom_fields_str;
 $hash['comments'] = $comments_str;
 
-$data['single_page_sample_code'] = self::parse($tpl, $hash);
+$data['single_page_sample_code'] = self::parse($tpl, $hash, true);
 //die('d.x.x.');
 // include CCTM_PATH.'/views/sample_template.php';
 $data['content'] = CCTM::load_view('sample_template.php', $data);

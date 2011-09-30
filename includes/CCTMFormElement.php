@@ -746,8 +746,14 @@ abstract class CCTMFormElement {
 				&& $this->original_name != $posted_data['name'] // i.e. if the name changed
 				&& is_array(CCTM::$data['custom_field_defs']) 
 				&& in_array( $posted_data['name'], array_keys(CCTM::$data['custom_field_defs']) ) ) {
-					$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
+					$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
 					$posted_data['name'] = '';
+			}
+			elseif ( is_array(CCTM::$data['custom_field_defs']) 
+				&& in_array( $posted_data['name'], array_keys(CCTM::$data['custom_field_defs']) ) ) {
+					$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
+					$posted_data['name'] = '';
+			
 			}
 		}
 		
