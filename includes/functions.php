@@ -99,7 +99,8 @@ function get_custom_field($raw_fieldname, $options=null)
 	// 1. To find the default Output Filter
 	// 2. To find any default value (if the field is not defined)
 	if ( !isset(CCTM::$data['custom_field_defs'][$fieldname]) ) {
-		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname );
+		// return get_post_meta($post->ID, $fieldname, true); // ???
+		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname ); // ! TODO: just return the fieldname?
 	}
 	
 	$field_type = CCTM::$data['custom_field_defs'][$fieldname]['type'];

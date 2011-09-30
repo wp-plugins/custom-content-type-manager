@@ -45,12 +45,12 @@ if (!isset($data['help']) || empty($data['help'])) {
 	</div>
 	
 	<div id="cctm_mainmenu">
-		<a href="<?php ?>?page=cctm" class="cctm_tab<?php print $active['cctm']; ?>"><?php _e('Content Types', CCTM_TXTDOMAIN); ?></a>
-		<a href="<?php ?>?page=cctm_fields" class="cctm_tab<?php print $active['cctm_fields']; ?>"><?php _e('Custom Fields', CCTM_TXTDOMAIN); ?></a>
-		<a href="<?php ?>?page=cctm_settings" class="cctm_tab<?php print $active['cctm_settings']; ?>"><?php _e('Settings', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php print get_admin_url(false,'admin.php'); ?>?page=cctm" class="cctm_tab<?php print $active['cctm']; ?>"><?php _e('Content Types', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php get_admin_url(); ?>?page=cctm_fields" class="cctm_tab<?php print $active['cctm_fields']; ?>"><?php _e('Custom Fields', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php print get_admin_url(false,'admin.php'); ?>?page=cctm_settings" class="cctm_tab<?php print $active['cctm_settings']; ?>"><?php _e('Settings', CCTM_TXTDOMAIN); ?></a>
 		<!-- a href="<?php ?>?page=cctm_themes" class="cctm_tab<?php print $active['cctm_themes']; ?>"><?php _e('Themes', CCTM_TXTDOMAIN); ?></a -->
-		<a href="<?php ?>?page=cctm_tools" class="cctm_tab<?php print $active['cctm_tools']; ?>"><?php _e('Tools', CCTM_TXTDOMAIN); ?></a>
-		<a href="<?php ?>?page=cctm&a=info" class="cctm_tab<?php print $active['cctm_info']; ?>"><?php _e('Info', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php print get_admin_url(false,'admin.php'); ?>?page=cctm_tools" class="cctm_tab<?php print $active['cctm_tools']; ?>"><?php _e('Tools', CCTM_TXTDOMAIN); ?></a>
+		<a href="<?php print get_admin_url(false,'admin.php'); ?>?page=cctm&a=info" class="cctm_tab<?php print $active['cctm_info']; ?>"><?php _e('Info', CCTM_TXTDOMAIN); ?></a>
 	</div>	
 	
 	<?php print $data['msg']; ?>

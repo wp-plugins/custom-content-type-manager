@@ -16,7 +16,7 @@ $rows	integer -- number of records returned
     var data = new google.visualization.DataTable();
     data.addColumn("string", "<?php _e('Post Type', CCTM_TXTDOMAIN); ?>");
     data.addColumn("number", "<?php _e('Records', CCTM_TXTDOMAIN); ?>");
-    data.addRows(<?php print $data['all_cnt']; ?>);
+    data.addRows(<?php print $data['in_use_cnt']; ?>);
 <?php
 foreach ($data['results'] as $i => $r):
 ?>

@@ -17,10 +17,18 @@ $query = "SELECT post_type, count(*) as 'cnt' FROM {$wpdb->posts} WHERE post_typ
 $data['results'] = $wpdb->get_results( $query, OBJECT );
 
 $pts = get_post_types();
-$data['active_cnt'] = count($pts);
-$data['all_cnt'] = count($data['results']);
+// remove any post types you omitted in the query
+unset($pts['revision']);
+unset($pts['nav_menu_item']);
 
-$data['inactive_cnt'] = $data['all_cnt'] - $data['active_cnt'];
+$data['active_cnt'] = count($pts);
+$data['in_use_cnt'] = count($data['results']);
+
+// you might have registered a post type that isn't actually used in the database
+$data['inactive_cnt'] = $data['in_use_cnt'] - $data['active_cnt'];
+if($data['inactive_cnt'] < 0) {
+	$data['inactive_cnt'] = 0;  
+}
 
 foreach ($data['results'] as &$r) {
 	if ( !in_array($r->post_type, $pts) ) {
