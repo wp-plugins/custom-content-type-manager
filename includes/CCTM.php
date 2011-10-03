@@ -118,12 +118,18 @@ class CCTM {
 		    'menu_icon' => '',
 		    'label' => '',
 		    'menu_position' => '',
+		    'show_in_menu' => 1,
+		    
 		    'rewrite_with_front' => 1,
 		    'permalink_action' => 'Off',
 		    'rewrite_slug' => '',
 		    'query_var' => '',
 		    'capability_type' => 'post',
 		    'show_in_nav_menus' => 1,
+		    'publicly_queryable' => 1,
+		    'include_in_search' => 1,	// this makes more sense to users
+		    'exclude_from_search' => 0, // this is what register_post_type expects
+		    'include_in_rss' => 1,
 		    'can_export' => 1,
 		    'use_default_menu_icon' => 1,
 		    'hierarchical' => 0,
@@ -210,12 +216,11 @@ class CCTM {
 		foreach ( $icons as $img ) {
 			$output .= sprintf('
 				<span class="cctm-icon">
-					<img src="%s" title="%s" onclick="javascript:send_to_menu_icon(\'%s\');alert(\'%s\');"/>
+					<img src="%s" title="%s" onclick="javascript:send_to_menu_icon(\'%s\');"/>
 				</span>'
 				, CCTM_URL.'/images/icons/32x32/'.$img
 				, $img
-				, CCTM_URL.'/images/icons/16x16/'.$img	
-				, sprintf(__('Icon has been updated to %s', CCTM_TXTDOMAIN), $img)
+				, CCTM_URL.'/images/icons/16x16/'.$img
 			);
 		}
 
@@ -336,6 +341,30 @@ class CCTM {
 		return; // no errors
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Prepare a post type definition for registration.  This gets run immediatlye before
+	 * the register_post_type() function is called.  It allows us to abstract the 
+	 * stored definition from what gets passed to the WP function.
+	 *
+	 * @param	mixed 	the CCTM definition for a post type
+	 * @return	mixed 	the WordPress authorized definition format.
+	 */
+	private static function _prepare_post_type_def($def) {
+		//unset($def['public']);
+		// Sigh... working around WP's irksome inputs
+		if ($def['cctm_show_in_menu'] == 'custom') {
+			$def['show_in_menu'] = $def['cctm_show_in_menu_custom'];
+		}
+		else {
+			$def['show_in_menu'] = (bool) $def['cctm_show_in_menu'];
+		}
+		// We display "include" type options to the user, and here on the backend 
+		// we swap this for the "exclude" option that the function requires.
+		$def['exclude_from_search'] = !(bool) $def['include_in_search'];
+//		print '<pre>'; print_r($def); print '</pre>'; exit;
+		return $def;
+	} 
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -393,9 +422,8 @@ class CCTM {
 		// You gotta unset these if you want the arrays to passed unmolested.
 		unset($raw['taxonomies']);
 
-		// Temporary thing...
+		// Temporary thing... ????
 		unset($sanitized['rewrite_slug']);
-//		unset($sanitized['rewrite_with_front']);
 
 		// The main event
 		// We grab everything except stuff that begins with '_', then override specific $keys as needed.
@@ -421,6 +449,9 @@ class CCTM {
 		$sanitized['can_export']    = (bool) self::get_value($raw, 'can_export');
 		$sanitized['use_default_menu_icon'] = (bool) self::get_value($raw, 'use_default_menu_icon');
 		$sanitized['hierarchical']    = (bool) self::get_value($raw, 'hierarchical');
+		$sanitized['include_in_search']    = (bool) self::get_value($raw, 'include_in_search');
+		$sanitized['publicly_queryable']    = (bool) self::get_value($raw, 'publicly_queryable');
+		$sanitized['include_in_rss']    = (bool) self::get_value($raw, 'include_in_rss');
 
 		if ( empty($sanitized['has_archive']) ) {
 			$sanitized['has_archive'] = false;
@@ -437,6 +468,10 @@ class CCTM {
 		else {
 			$sanitized['menu_position'] = null;
 		}
+		$sanitized['show_in_menu']    = self::get_value($raw, 'show_in_menu');	
+
+		$sanitized['cctm_show_in_menu']    = self::get_value($raw, 'cctm_show_in_menu');	
+
 
 		// menu_icon... the user will lose any custom Menu Icon URL if they save with this checked!
 		// TODO: let this value persist.
@@ -486,16 +521,16 @@ class CCTM {
 
 		// Rewrites. TODO: make this work like the built-in post-type permalinks
 		switch ($sanitized['permalink_action']) {
-		case '/%postname%/':
-			$sanitized['rewrite'] = true;
-			break;
-		case 'Custom':
-			$sanitized['rewrite']['slug'] = $raw['rewrite_slug'];
-			$sanitized['rewrite']['with_front'] = (bool) $raw['rewrite_with_front'];
-			break;
-		case 'Off':
-		default:
-			$sanitized['rewrite'] = false;
+			case '/%postname%/':
+				$sanitized['rewrite'] = true;
+				break;
+			case 'Custom':
+				$sanitized['rewrite']['slug'] = $raw['rewrite_slug'];
+				$sanitized['rewrite']['with_front'] = (bool) $raw['rewrite_with_front'];
+				break;
+			case 'Off':
+			default:
+				$sanitized['rewrite'] = false;
 		}
 
 		return $sanitized;
@@ -1309,6 +1344,13 @@ if ( empty(self::$data) ) {
 	/**
 	 * Used when generating forms. Any non-empty non-zero incoming value will cause
 	 * the function to return checked="checked"
+	 *
+	 * Simple usage uses just the first parameter: if the value is not empty or 0, 
+	 * the box will be checked.
+	 *
+	 * Advanced usage was built for checking a list of options in an array (see 
+	 * register_post_type's "supports" array).  
+	 *
 	 * @param	mixed	normally a string, but if an array, the 2nd param must be set
 	 * @param	string	value to look for inside the $input array. 
 	 * @return	string	either '' or 'checked="checked"'
@@ -1335,11 +1377,11 @@ if ( empty(self::$data) ) {
 	/**
 	 * If $option_value == $field_value, then this returns 'selected="selected"'
 	 * @param	string	$option_value: the value of the <option> being tested
-	 * @param	string	$field_value: the current value of the field
+	 * @param	string	$current_value: the current value of the field
 	 * @return	string
 	 */
-	public static function is_selected($option_value, $field_value) {
-		if ( $option_value == $field_value ) {
+	public static function is_selected($option_value, $current_value) {
+		if ( $option_value == $current_value ) {
 			return 'selected="selected"';
 		}
 		return '';
@@ -1664,7 +1706,9 @@ if ( empty(self::$data) ) {
 		foreach ($post_type_defs as $post_type => $def) {
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
-				&& !in_array($post_type, self::$built_in_post_types)) {
+				&& !in_array($post_type, self::$built_in_post_types))
+			{
+				$def = self::_prepare_post_type_def($def);
 				register_post_type( $post_type, $def );
 			}
 		}
@@ -1747,17 +1791,36 @@ if ( empty(self::$data) ) {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Ensures that the front-end search form can find posts. 
+	 * Ensures that the front-end search form can find posts or view posts in the RSS
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=143
+	 * See also http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=186
 	 */
 	public static function search_filter($query) {
-		if ($query->is_search or $query->is_feed) {
+		if ($query->is_search) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
-				$post_types = get_post_types( array('public'=>true) );
+				//$post_types = get_post_types( array('public'=>true) );
+				$post_types = get_post_types( array('exclude_from_search'=>false) );
 				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
 				$query->set('post_type', $post_types);
 			}
 		}
+		elseif ($query->is_feed) {
+			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
+				$post_types = get_post_types();
+				unset($post_types['revision']);
+				unset($post_types['nav_menu_item']);
+				foreach ($post_types as $pt) {
+					// we only exclude it if it was specifically excluded.
+					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) 
+					{
+						unset($post_types[$pt]);
+					}
+				}
+				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
+				$query->set('post_type', $post_types);
+			}
+		}
+
 		return $query;
 	}
 	

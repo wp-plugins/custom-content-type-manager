@@ -103,17 +103,12 @@ function get_custom_field($raw_fieldname, $options=null)
 		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname ); // ! TODO: just return the fieldname?
 	}
 	
-	$field_type = CCTM::$data['custom_field_defs'][$fieldname]['type'];
-	CCTM::include_form_element_class($field_type); // This will die on errors
-		
-	$field_type_name = CCTM::classname_prefix.$field_type;
-	$FieldObj = new $field_type_name(); // Instantiate the field element
-	$FieldObj->props = CCTM::$data['custom_field_defs'][$fieldname];
-
+	
 	// Get default output filter
 	if (empty($input_array)){
-		if (isset($FieldObj->output_filter) && !empty($FieldObj->output_filter)) {
-			$input_array[] = $FieldObj->output_filter;
+		if (isset(CCTM::$data['custom_field_defs'][$fieldname]['output_filter']) 
+			&& !empty(CCTM::$data['custom_field_defs'][$fieldname]['output_filter'])) {
+			$input_array[] = CCTM::$data['custom_field_defs'][$fieldname]['output_filter'];
 		}
 	}
 	// Raw value from the db

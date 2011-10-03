@@ -28,7 +28,10 @@ just want to make sure that the form is presented uncorrupted.
 		toggle_image_detail();
 		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
 		toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');
-		// jQuery("img[rel]").overlay();
+		jQuery('.checkall').click(function () {
+			jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
+		});
+
 	});
 	
 	/* Drives the tab layout for this page. */
@@ -50,19 +53,25 @@ just want to make sure that the form is presented uncorrupted.
         }
 	}
 
-	function toggle_div(checkbox_id, css_id, checked_value)
+	/*------------------------------------------------------------------------------
+	Check a given form element value and show or hide a separate div
+	
+	@param	string	CSS id of the form element
+	@param	string	CSS of the div id  to show or hide
+	@param	string	value to test against
+	------------------------------------------------------------------------------*/
+	function toggle_div(element_id, target_id, test_value)
 	{
-
-		if( jQuery('#'+checkbox_id+':checked').val() == checked_value )
+		if( jQuery('#'+element_id+':checked').val() == test_value || 'custom' == test_value)
 		{
-            jQuery('#'+css_id).show("slide");
-        } 
+            jQuery('#'+target_id).show("slide");
+        }
         else 
         {
-            jQuery('#'+css_id).hide("slide");
+            jQuery('#'+target_id).hide("slide");
 
         }
-
+        console.log('Test value:' + test_value);
 	}
 	
 	/* Used to send a full img path to the id="menu_icon" field */
@@ -70,9 +79,7 @@ just want to make sure that the form is presented uncorrupted.
 	{
 		jQuery('#menu_icon').val(src);
 		// show the user some eye-candy so they know something happened
-		console.log('.....');
-		jQuery("img[rel]").overlay();
-
+		alert('<?php _e('Icon updated.', CCTM_TXTDOMAIN); ?>');
 	}
 </script>
 
@@ -122,20 +129,6 @@ just want to make sure that the form is presented uncorrupted.
 			<textarea name="description" class="cctm_textarea" id="description" rows="4" cols="60"><?php print htmlentities($data['def']['description']); ?></textarea>
 		</div>
 		
-		<!--!Show UI -->
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_ui">
-			<input type="checkbox" name="show_ui" class="cctm_checkbox" id="show_ui" value="1" <?php print CCTM::is_checked($data['def']['show_ui']); ?>/> 
-			<label for="show_ui" class="cctm_label cctm_checkbox_label" id="cctm_label_show_ui">Show Admin User Interface</label>
-			<span class="cctm_description">Should this post type be visible on the back-end?</span>
-		</div>
-		
-		<!--!Public -->
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_public">		
-			<input type="checkbox" name="public" class="cctm_checkbox" id="public" value="1" <?php print CCTM::is_checked($data['def']['public']); ?>/> 
-			<label for="public" class="cctm_label cctm_checkbox_label" id="cctm_label_public">Public</label>
-			<span class="cctm_description">Should these posts be visible on the front-end?</span>
-		</div>
-		
 		<!--!Use Default Menu Icon -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_use_default_menu_icon">
 			<input type="checkbox" name="use_default_menu_icon" class="cctm_checkbox" id="use_default_menu_icon" value="1"  onclick="javascript:toggle_image_detail('menu_icon_container');" <?php print CCTM::is_checked($data['def']['use_default_menu_icon']); ?>/> 
@@ -147,7 +140,8 @@ just want to make sure that the form is presented uncorrupted.
 			<!--!Menu Icon -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_icon">		
 				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon">Menu Icon</label>
-				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($data['def']['menu_icon'])) { print htmlspecialchars($data['def']['menu_icon']); } ?>" size="120"/>
+				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($data['def']['menu_icon'])) { print htmlspecialchars($data['def']['menu_icon']); } ?>" size="100"/>
+					<br /><br />
 						<span class="cctm_description"><?php _e('Choose an icon from the list below or paste a full URL to a 16x16 icon here.', CCTM_TXTDOMAIN); ?></span>
 			</div>
 		
@@ -158,7 +152,6 @@ just want to make sure that the form is presented uncorrupted.
 	</div>
 
 	<!-- ================================================================================================ -->	
-	<!-- More advanced labels-->
 	<!--!Labels -->
 	<div id="labels-tab">	
 	
@@ -417,7 +410,23 @@ just want to make sure that the form is presented uncorrupted.
 	
 	<!-- ================================================================================================ -->
 	<div id="menu-tab">
-
+		<p><?php _e('These settings only apply if you have the <em>Show Admin User Interface</em> selected.', CCTM_TXTDOMAIN); ?></p>
+		
+		<!--!show_in_menu -->
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_show_in_menu">		
+			<label for="cctm_show_in_menu" class="cctm_label cctm_text_label" id="cctm_label_cctm_show_in_menu"><?php _e('Show in Menus', CCTM_TXTDOMAIN); ?></label>
+			<select name="cctm_show_in_menu" class="cctm_dropdown" id="cctm_show_in_menu">
+				<option value="1" <?php print CCTM::is_selected('1',$data['def']['show_in_menu']); ?>><?php _e('Yes'); ?></option>
+				<option value="0" <?php print CCTM::is_selected('0',$data['def']['show_in_menu']); ?>><?php _e('No'); ?></option>
+				<option value="custom" <?php print CCTM::is_selected('custom',$data['def']['show_in_menu']); ?>><?php _e('Custom'); ?></option>
+			</select>
+			<div id="cctm_show_in_menu_wrapper" style="margin-left:20px;">
+				<em><?php _e('Custom top-level Menu', CCTM_TXTDOMAIN); ?></em>: 
+				<input type="text" name="cctm_show_in_menu_custom" id="cctm_show_in_menu_custom" />
+			</div>
+			<span class="cctm_description"><?php _e('Whether to show the post type in the admin menu. Change this to <em>Custom</em> to specify a top level page like <code>tools.php</code> or <code>edit.php?post_type=page</code>', CCTM_TXTDOMAIN); ?></span>
+		</div>
+				
 		<!--!Menu Position-->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_position">
 			<label for="menu_position" class="cctm_label cctm_text_label" id="cctm_label_menu_position"><?php _e('Menu Position', CCTM_TXTDOMAIN); ?></label>
@@ -493,20 +502,66 @@ just want to make sure that the form is presented uncorrupted.
 	<!-- ================================================================================================ -->
 	<div id="advanced-tab">
 	
+
+<div style="border:1px solid black; padding:10px;">
+<fieldset>
+		
+		<!--!Public: check/uncheck all shortcut -->
+		<input type="checkbox" id="public" class="checkall" />
+		<label for="public" class="cctm_label cctm_checkbox_label" id="cctm_label_public"><?php _e('Public', CCTM_TXTDOMAIN); ?></label>
+
+	<div style="margin-left: 30px;">
+		<!--!Show UI -->
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_ui">
+			<input type="checkbox" name="show_ui" class="cctm_checkbox" id="show_ui" value="1" <?php print CCTM::is_checked($data['def']['show_ui']); ?>/> 
+			<label for="show_ui" class="cctm_label cctm_checkbox_label" id="cctm_label_show_ui"><?php _e('Show Admin User Interface', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Should this post type be visible on the back-end?', CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		
+		<!--! Show in Nav Menus -->			
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_in_nav_menus">		
+			<input type="checkbox" name="show_in_nav_menus" class="cctm_checkbox" id="show_in_nav_menus" value="1" <?php print CCTM::is_checked($data['def']['show_in_nav_menus']); ?>/> 
+			<label for="show_in_nav_menus" class="cctm_label cctm_checkbox_label" id="cctm_label_show_in_nav_menus"><?php _e('Show in Nav Menus', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Whether post_type is available for selection in navigation menus (under <em>Appearance --> Menus</em>). Default: value of public argument', CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		<!--! Publicly Queriable -->			
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_publicly_queryable">		
+			<input type="checkbox" name="publicly_queryable" class="cctm_checkbox" id="publicly_queryable" value="1" <?php 
+				print CCTM::is_checked($data['def']['publicly_queryable']); 
+			?>/> 
+			<label for="publicly_queryable" class="cctm_label cctm_checkbox_label" id="cctm_label_publicly_queryable"><?php _e('Publicly Queriable', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Whether post_type queries can be performed from the front end. Usually this matches up with the <em>Public</em> setting.', CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		<!--! Include in Search -->			
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_include_in_search">		
+			<input type="checkbox" name="include_in_search" class="cctm_checkbox" id="include_in_search" value="1" <?php 
+				print CCTM::is_checked($data['def']['include_in_search']); 
+			?>/> 
+			<label for="include_in_search" class="cctm_label cctm_checkbox_label" id="cctm_label_include_in_search"><?php _e('Include in Search', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Whether to include posts with this post type in search results.', CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		<!--! Include in RSS -->			
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_include_in_rss">		
+			<input type="checkbox" name="include_in_rss" class="cctm_checkbox" id="include_in_rss" value="1" <?php 
+				print CCTM::is_checked($data['def']['include_in_rss']); 
+			?>/> 
+			<label for="include_in_rss" class="cctm_label cctm_checkbox_label" id="cctm_label_include_in_rss"><?php _e('Include in RSS feed', CCTM_TXTDOMAIN); ?> <img src="<?php print CCTM_URL;?>/images/rss.jpg" height="16" width="16" als="RSS"/></label>
+			<span class="cctm_description"><?php _e('Should posts with this post type be included in the RSS feed?', CCTM_TXTDOMAIN); ?></span>
+		</div>
+	</div>	
+</fieldset>		
+</div>
+
 		<!-- Capability Type -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_capability_type">			
 			<label for="capability_type" class="cctm_label cctm_text_label" id="cctm_label_capability_type"><?php _e('Capability Type', CCTM_TXTDOMAIN); ?></label>
 			<input type="text" name="capability_type" class="cctm_text" id="capability_type" value="<?php print htmlspecialchars($data['def']['capability_type']); ?>"/>
 			<span class="cctm_description"><?php _e('The post type to use for checking read, edit, and delete capabilities. Default: "post"', CCTM_TXTDOMAIN); ?></span>
 		</div>
-		
-		<!--! Show in Nav Menus -->			
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_in_nav_menus">		
-			<input type="checkbox" name="show_in_nav_menus" class="cctm_checkbox" id="show_in_nav_menus" value="1" <?php print CCTM::is_checked($data['def']['show_in_nav_menus']); ?>/> 
-			<label for="show_in_nav_menus" class="cctm_label cctm_checkbox_label" id="cctm_label_show_in_nav_menus"><?php _e('Show in Nav Menus', CCTM_TXTDOMAIN); ?></label>
-			<span class="cctm_description"><?php _e('Whether post_type is available for selection in navigation menus. Default: value of public argument', CCTM_TXTDOMAIN); ?></span>
-		</div>
-
 		
 		<!--!Can Export -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_can_export">
@@ -520,13 +575,15 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_trackbacks">
 					
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_trackbacks" value="trackbacks" <?php print CCTM::is_checked($data['def']['supports'], 'trackbacks'); ?> /> 
-			<label for="supports_trackbacks" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_trackbacks_label"><?php _e('Trackbacks', CCTM_TXTDOMAIN); ?></label>
+			<label for="supports_trackbacks" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_trackbacks_label"><?php _e('Trackbacks', CCTM_TXTDOMAIN); ?> <img src="<?php print CCTM_URL;?>/images/trackbacks.png" height="16" width="16" als="RSS"/></label>
+			<span class="cctm_description"><?php _e('Allows cross-blog notification. See <a href="http://codex.wordpress.org/Introduction_to_Blogging#Trackbacks">official documentation</a>.', CCTM_TXTDOMAIN); ?></span>
 		</div>
 		
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_comments">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_comments" value="comments"  <?php print CCTM::is_checked($data['def']['supports'], 'comments'); ?>/> 
 			<label for="supports_comments" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_comments_label"><?php _e('Enable Comments', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('If checked, your template will require the <code>comments_template();</code> function.', CCTM_TXTDOMAIN); ?></span>
 		</div>
 		
 		

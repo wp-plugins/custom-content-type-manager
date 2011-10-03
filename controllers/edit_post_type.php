@@ -26,6 +26,13 @@ $data = array();
 $d = array();
 if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
 	$d['def'] = CCTM::$data['post_type_defs'][$post_type];
+	// Older definitions may be missing nodes, so we fill from
+	// the default in order to avoid "Undefined index" notices
+	foreach(CCTM::$default_post_type_def as $k => $v) {
+		if (!isset($d['def'][$k])) {
+			$d['def'][$k] = $v;
+		}
+	}
 }
 // Oops... bail.
 else {
