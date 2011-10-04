@@ -9,6 +9,7 @@
 
 $data=array();
 $data['page_title'] = __('Manage Custom Fields', CCTM_TXTDOMAIN);
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DefinedCustomFields';
 $data['msg'] = self::get_flash();
 $data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_field_types" class="button">%s</a>', __('Create Custom Field', CCTM_TXTDOMAIN) );
 
@@ -17,6 +18,15 @@ $def = array();
 if ( isset(self::$data['custom_field_defs']) ) {
 	$def = self::$data['custom_field_defs'];
 }
+// sort them
+usort($def, CCTM::sort_custom_fields('name', 'strnatcasecmp'));
+
+foreach ( $def as $i => $d ) {
+	$field_name = $d['name'];
+	$def[$field_name] = $d; // re-establish the key version.
+	unset($def[$i]); // kill the integer version
+} 			
+
 
 $def_cnt = count($def);
 

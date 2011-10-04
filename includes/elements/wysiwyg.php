@@ -228,7 +228,7 @@ class CCTM_wysiwyg extends CCTMFormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.htmlentities($def['description']).'</textarea>
+			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 		return $out;

@@ -739,21 +739,25 @@ abstract class CCTMFormElement {
 				$posted_data['name'] = '';	
 			}
 			
-			// Is that name already in use? 
-			// if the original field_name is not empty, then we're editing an existing field.
-			// if it's an edit, the name changed, and it's equal to an existing name, then we throw an error.
-			if ( !empty($this->original_name)
-				&& $this->original_name != $posted_data['name'] // i.e. if the name changed
-				&& is_array(CCTM::$data['custom_field_defs']) 
-				&& in_array( $posted_data['name'], array_keys(CCTM::$data['custom_field_defs']) ) ) {
+			// it's a CREATE operation
+			if ( empty($this->original_name) ) {
+
+				if ( is_array(CCTM::$data['custom_field_defs']) 
+					&& in_array( $posted_data['name'], array_keys(CCTM::$data['custom_field_defs']))) 
+				{
 					$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
 					$posted_data['name'] = '';
+				}
 			}
-			elseif ( is_array(CCTM::$data['custom_field_defs']) 
-				&& in_array( $posted_data['name'], array_keys(CCTM::$data['custom_field_defs']) ) ) {
+			// it's an EDIT operation and we're renaming the field
+			elseif ( $this->original_name != $posted_data['name'] ) 
+			{
+				if (is_array(CCTM::$data['custom_field_defs']) 
+					&& in_array( $posted_data['name'], array_keys(CCTM::$data['custom_field_defs']) ) )
+				{
 					$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
 					$posted_data['name'] = '';
-			
+				}
 			}
 		}
 		

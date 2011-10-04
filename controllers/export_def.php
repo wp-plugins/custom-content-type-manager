@@ -4,6 +4,7 @@ Export a content type definition to a .json file
 ------------------------------------------------------------------------------*/
 $data 				= array();
 $data['page_title']	= __('Export Definition', CCTM_TXTDOMAIN);
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Export';
 $data['menu'] 		= $data['menu'] = sprintf('<a href="?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back')) . ' ' .
 	sprintf('<a href="?page=cctm_tools&a=import_def" title="%s" class="button">%s</a>',__('Import'), __('Import'));;
 $data['msg']		= '';

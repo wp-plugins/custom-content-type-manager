@@ -8,6 +8,7 @@
  */
 $data 				= array();
 $data['page_title']	= sprintf( __('Custom Fields for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/FieldAssociations';
 $data['menu'] 		= ''; // sprintf('<a href="?page=cctm&a=list_post_types" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) );
 $data['msg']		= CCTM::get_flash();
 

@@ -4,6 +4,7 @@ Tools Page: displays available tools
 ------------------------------------------------------------------------------*/
 $data 				= array();
 $data['page_title']	= __('Tools', CCTM_TXTDOMAIN);
+$data['help']		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Tools';
 $data['menu'] 		='';
 $data['msg']		= '';
 $data['action_name']  = 'custom_content_type_mgr_theme';

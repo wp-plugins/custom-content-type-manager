@@ -32,12 +32,12 @@ just want to make sure that the form is presented uncorrupted.
 			jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
 		});
 
+		/* Drives the tab layout for this page. */
+		jQuery(function() {
+			jQuery( "#tabs" ).tabs();
+		});		
 	});
 	
-	/* Drives the tab layout for this page. */
-	jQuery(function() {
-		jQuery( "#tabs" ).tabs();
-	});
 	
 	/* Used to show additional menu icons if the "use default" is deselected. */
 	function toggle_image_detail()
@@ -71,7 +71,6 @@ just want to make sure that the form is presented uncorrupted.
             jQuery('#'+target_id).hide("slide");
 
         }
-        console.log('Test value:' + test_value);
 	}
 	
 	/* Used to send a full img path to the id="menu_icon" field */
@@ -80,7 +79,7 @@ just want to make sure that the form is presented uncorrupted.
 		jQuery('#menu_icon').val(src);
 		// show the user some eye-candy so they know something happened
 		alert('<?php _e('Icon updated.', CCTM_TXTDOMAIN); ?>');
-	}
+	}	
 </script>
 
 <div id="tabs">

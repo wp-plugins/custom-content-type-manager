@@ -17,6 +17,7 @@ if (!array_key_exists($field_name, self::$data['custom_field_defs'])) {
 // Page variables
 $data = array();
 $data['page_title'] = sprintf(__('Edit Custom Field: %s', CCTM_TXTDOMAIN), $field_name );
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SupportedCustomFields';
 $data['msg'] = '';
 $data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_fields" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['submit'] = __('Save', CCTM_TXTDOMAIN);
@@ -41,7 +42,7 @@ $FieldObj->props 	= $field_data;
 // THIS is what keys us off to the fact that we're EDITING a field: 
 // the logic in CCTMFormElement->save_definition_filter() ensures we don't overwrite other fields.
 // This attribute is nuked later
-$FieldObj->original_name = $field_name; 
+$FieldObj->props['original_name'] = $field_name; 
 
 // Save if submitted...
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
@@ -56,7 +57,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 	// Any errors?
 	if ( !empty($FieldObj->errors) ) {
-		$msg = $FieldObj->format_errors();
+		$data['msg'] = $FieldObj->format_errors();
 	}
 	// Save;
 	else {

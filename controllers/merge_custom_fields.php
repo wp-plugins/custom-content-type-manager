@@ -107,7 +107,7 @@ $d['content'] .= __('Merging causes a field to be renamed in the database and th
 $d['content'] .= '</p>';
 $d['content'] .= '<p><strong>' . __('Be careful about merging a field into a field of a different type! You may encounter unpredictable results!')	. '</strong></p>';
 
-$d['content'] .= '<p>'.sprintf( __('Choose a custom field below that will absorb the values for %s.', CCTM_TXTDOMAIN)
+$d['content'] .= '<p>'.sprintf( __('Choose a custom field below that will absorb the values for the %s field.', CCTM_TXTDOMAIN)
 	, "<strong><em>$field_name</em></strong>" ) .'</p>';
 
 

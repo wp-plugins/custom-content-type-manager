@@ -135,7 +135,7 @@ class CCTM_textarea extends CCTMFormElement
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
-			 			.htmlentities($def['extra']).'"/>
+			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
@@ -153,7 +153,7 @@ class CCTM_textarea extends CCTMFormElement
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
-			 		. htmlentities($def['description']).'</textarea>
+			 		. htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 		return $out;

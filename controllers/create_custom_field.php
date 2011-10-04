@@ -8,6 +8,7 @@ $field_type is set in the $_GET array
 // Page variables
 $data = array();
 $data['page_title'] = __('Create Custom Field', CCTM_TXTDOMAIN);
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SupportedCustomFields';
 $data['msg'] = '';
 $data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_field_types" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['action_name']  = 'custom_content_type_mgr_create_new_custom_field';

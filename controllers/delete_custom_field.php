@@ -55,6 +55,7 @@ if (isset(self::$data['settings']['delete_custom_fields']) && self::$data['setti
 		<img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" />
 		</a>
 		</p></div>';
+}
 // Warn about the chaos of having no def
 else {
 	$data['content'] = '<div class="error">

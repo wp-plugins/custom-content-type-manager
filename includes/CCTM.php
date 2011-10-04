@@ -601,6 +601,7 @@ class CCTM {
 		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/smoothness/jquery-ui-1.8.11.custom.css');
 		wp_enqueue_script( 'jquery-ui-tabs');
 		wp_enqueue_script( 'jquery-ui-sortable');
+		wp_enqueue_script( 'jquery-ui-dialog');
 
 		// Allow each custom field to load up any necessary CSS/JS
 		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
