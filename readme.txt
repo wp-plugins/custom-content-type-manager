@@ -7,7 +7,7 @@ Tested up to: 3.2.1
 Stable tag: 0.9.4
 Version: 0.9.4-pl
 
-Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
+Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
 == Description ==
 
@@ -251,7 +251,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 == Upgrade Notice ==
 
 = 0.9.4 =
-Corrects issue with custom hierarchies.
+Major release! Please see the upgrade notes: [Upgrading to version 0.9.4](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Upgrading094)
 
 = 0.9.3.3 =
 Corrects yet another glitch where custom page templates were being ignored.
