@@ -351,17 +351,17 @@ class CCTM {
 	 * @return	mixed 	the WordPress authorized definition format.
 	 */
 	private static function _prepare_post_type_def($def) {
-		//unset($def['public']);
+		unset($def['public']);
 		// Sigh... working around WP's irksome inputs
-		if ($def['cctm_show_in_menu'] == 'custom') {
+		if (isset($def['cctm_show_in_menu']) && $def['cctm_show_in_menu'] == 'custom') {
 			$def['show_in_menu'] = $def['cctm_show_in_menu_custom'];
 		}
 		else {
-			$def['show_in_menu'] = (bool) $def['cctm_show_in_menu'];
+			$def['show_in_menu'] = (bool) self::get_value($def,'cctm_show_in_menu');
 		}
 		// We display "include" type options to the user, and here on the backend 
 		// we swap this for the "exclude" option that the function requires.
-		$def['exclude_from_search'] = !(bool) $def['include_in_search'];
+		$def['exclude_from_search'] = !(bool) self::get_value($def,'include_in_search');
 //		print '<pre>'; print_r($def); print '</pre>'; exit;
 		return $def;
 	} 
@@ -547,6 +547,9 @@ class CCTM {
 	private static function _save_post_type_settings($def) {
 
 		$key = $def['post_type'];
+		
+		unset(self::$data['post_type_defs'][$key]['original_post_type_name']);
+		
 		// Update existing settings if this post-type has already been added
 		if ( isset(self::$data['post_type_defs'][$key]) ) {
 			self::$data['post_type_defs'][$key] = array_merge(self::$data['post_type_defs'][$key], $def);
@@ -595,7 +598,8 @@ class CCTM {
 		wp_enqueue_style('CCTM_css');
 		// Hand-holding: If your custom post-type omits the main content block,
 		// then thickbox will not be queued and your image, reference, selectors will fail.
-		wp_enqueue_script( 'thickbox' );
+		wp_register_script('cctm_thickbox', CCTM_URL . '/js/thickbox.js', array('thickbox') );
+		wp_enqueue_script( 'cctm_thickbox');
 		wp_enqueue_style( 'thickbox' );
 
 		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/smoothness/jquery-ui-1.8.11.custom.css');
@@ -1710,6 +1714,7 @@ if ( empty(self::$data) ) {
 				&& !in_array($post_type, self::$built_in_post_types))
 			{
 				$def = self::_prepare_post_type_def($def);
+//				print_r($def); exit;
 				register_post_type( $post_type, $def );
 			}
 		}

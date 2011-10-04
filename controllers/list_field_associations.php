@@ -112,7 +112,11 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 $data['content'] .= '<table>';
 foreach ($displayable_types as $post_type) {
-	$def = self::$data['post_type_defs'][$post_type];
+	$def = array();
+	if (isset(self::$data['post_type_defs'][$post_type])) {
+		$def = self::$data['post_type_defs'][$post_type];
+	}
+	
 	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
 		$def['description']  = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post type.', CCTM_TXTDOMAIN);
 	}

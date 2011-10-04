@@ -115,8 +115,8 @@ function get_custom_field($raw_fieldname, $options=null)
 	$value = get_post_meta($post->ID, $fieldname, true);
 
 	// Default value?
-	if ( empty($value) ) {
-		$value = $FieldObj->default_value;
+	if ( empty($value) && isset(CCTM::$data['custom_field_defs'][$fieldname]['default_value'])) {
+		$value = CCTM::$data['custom_field_defs'][$fieldname]['default_value'];
 	}
 
 	// Pass thru Output Filters

@@ -101,9 +101,10 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 				$data['msg'] = self::format_errors();
 				self::set_flash($data['msg']);
 			}
-			
+
 			// Refresh the list of files
 			print '<script type="text/javascript">window.location.replace("?page=cctm_tools&a=import_def");</script>';
+			return;
 		}
 		// Delete definitions
 		elseif (wp_verify_nonce($nonce, 'cctm_delete_defs') ) {
@@ -114,6 +115,7 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 				);
 				CCTM::set_flash($data['msg']);
 				print '<script type="text/javascript">window.location.replace("?page=cctm_tools&a=import_def");</script>';
+				return;
 			}
 			// problems deleting
 			else {
@@ -127,7 +129,8 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 					, __('The definition was imported successfully!', CCTM_TXTDOMAIN)
 				);
 				CCTM::set_flash($data['msg']);
-				// print '<script type="text/javascript">window.location.replace("?page=cctm_tools&a=import_def");</script>';
+				print '<script type="text/javascript">window.location.replace("?page=cctm_tools&a=import_def");</script>';
+				return;
 			}
 			else {
 				$data['msg'] = CCTM::format_errors();

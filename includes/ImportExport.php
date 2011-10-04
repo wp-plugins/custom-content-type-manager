@@ -234,7 +234,7 @@ class ImportExport {
 		if ( !empty($title) ) {
 			$title = strtolower($title);
 			$title = preg_replace('/\s+/', '_', $title); 
-			$title = preg_replace('/[^a-z_]/', '', $title); 
+			$title = preg_replace('/[^a-z_0-9]/', '', $title); 
 		}
 		else {
 			$title = 'definition'; // default basename
@@ -537,7 +537,7 @@ class ImportExport {
 			CCTM::$errors['title'] = __('Title is required.', CCTM_TXTDOMAIN);
 		}
 		elseif ( preg_match('/[^a-z\s\-_0-9]/i', $raw['title']) ) {
-			CCTM::$errors['title'] = __('Only basic text characters are allowed.', CCTM_TXTDOMAIN);
+			CCTM::$errors['title'] = __('Only basic text characters are allowed for the title.', CCTM_TXTDOMAIN);
 		}
 		elseif ( strlen($raw['title'] > 64) ) {
 			CCTM::$errors['title'] = __('The title cannot exceed 64 characters.', CCTM_TXTDOMAIN);
@@ -547,8 +547,8 @@ class ImportExport {
 		if ( empty($raw['author'])) {
 			CCTM::$errors['author'] = __('Author is required.', CCTM_TXTDOMAIN);
 		}
-		elseif ( preg_match('/[^a-z\s\-_0-9]/i', $raw['author']) ) {
-			CCTM::$errors['author'] = __('Only basic text characters are allowed.', CCTM_TXTDOMAIN);
+		elseif ( preg_match('/[^a-z\s\-_0-9\.@]/i', $raw['author']) ) {
+			CCTM::$errors['author'] = __('Only basic characters are allowed for the author field.', CCTM_TXTDOMAIN);
 		}
 		elseif ( strlen($raw['author'] > 64) ) {
 			CCTM::$errors['author'] = __('The author name cannot exceed 32 characters.', CCTM_TXTDOMAIN);
@@ -586,7 +586,7 @@ class ImportExport {
 
 		// HTML entities cleanup
 		$sanitized['title'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['title']) ), 0, 64) );
-		$sanitized['author'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['author']) ), 0, 64) );
+		$sanitized['author'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9\.@]/i', '', trim($raw['author']) ), 0, 64) );
 		$sanitized['url'] = htmlentities( substr( trim($raw['url']), 0, 255) );
 		$sanitized['template_url'] = htmlentities( substr( trim($raw['template_url']), 0, 255) );
 		$sanitized['description'] = htmlentities( substr( strip_tags( trim($raw['description']) ), 0, 1024) );

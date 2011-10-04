@@ -11,7 +11,7 @@ Create custom content types (aka post types), standardize custom fields for each
 
 == Description ==
 
-http://www.youtube.com/watch?v=rDPPfO69BxU
+http://www.youtube.com/watch?v=xmr1bOndP1g
 
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
@@ -65,9 +65,9 @@ Please see the online [FAQ](http://code.google.com/p/wordpress-custom-content-ty
 == Screenshots ==
 
 1. After activating this plugin, you can create custom content types (post types) by using the configuration page for this plugin. Click the "Custom Content Types" link under the Settings menu or click this plugin's "Settings" shortcut link in on the Plugin administration page.
-2. You can create a new content type by clicking the button at the top of the settings page.
+2. You can list all defined content types (a.k.a. post-types) by clicking on the "Custom Content Types" menu item.
 3. There are a lot of options available when you create a new content type, only some of them are pictured.
-4. You can define new custom fields by clicking on the "Manage Custom Fields" link for any content type.
+4. You can define many different types of custom fields by clicking on the "Custom Content Types --> Custom Fields" link.
 5. Clicking the "activate" link for any content type will cause its fields to be standardized and it will show up in the administration menus.
 6. Once you have defined custom fields for a content type and you have activated that content type, those custom fields will show up when you edit a new post. Here's what the custom fields look like when I create a new "Movie" post.
 

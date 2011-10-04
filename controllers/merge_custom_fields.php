@@ -4,26 +4,6 @@ Merge one custom field definition into another.  This isn't intelligent about
 its merging: if you merge "cats" into "dogs", any custom field named "cats" 
 will be renamed to "dogs" in the wp_postmeta table, and the definition for 
 "cats" will simply be deleted.
-	<table class="custom_field_info">
-		<tr>
-			<td colspan="2">
-				<h3 class="field_type_name"><?php print $data['name']; ?></h3>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<span class="custom_field_icon"><?php print $data['icon']; ?></span>
-			</td>
-			<td>
-				<span class="custom_field_description"><?php print $data['description']; ?>
-				<br />
-				<a href="<?php print $data['url']; ?>" target="_blank"><?php _e('More Information', CCTM_TXTDOMAIN); ?></a>
-				</span>
-				
-				
-			</td>
-		</tr>
-	</table>
 
 ------------------------------------------------------------------------------*/
 
@@ -61,7 +41,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']))
 		// Condition we look for: 
 		// 	--	The old field_name is associated with post_type X, 
 		//  	make sure that new merge_target fieldname is also associated with X
-		foreach (self::$data as $pt => $def) {
+		foreach (self::$data['post_type_defs'] as $pt => $def) {
 			if (isset(self::$data['post_type_defs'][$pt]['custom_fields']) && is_array(self::$data['post_type_defs'][$pt]['custom_fields'])) {
 	
 				if (in_array($field_name, self::$data['post_type_defs'][$pt]['custom_fields'])) {
@@ -82,10 +62,10 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']))
 				}
 			}
 		}
-		
+
 		// unset the old field in self::$data;
-		unset(self::$data['custom_field_defs'][$field_name]);	
-		update_option(self::db_key, self::$data); // <--- finally, save it all
+		//unset(self::$data['custom_field_defs'][$field_name]);	
+		//update_option(self::db_key, self::$data); // <--- finally, save it all
 		
 		$msg = '<div class="updated"><p>'
 			. sprintf( __('The %s field has been merged into the %s field.', CCTM_TXTDOMAIN )
