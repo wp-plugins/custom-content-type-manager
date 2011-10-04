@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.0.1
 Tested up to: 3.2.1
 Stable tag: 0.9.4
-Version: 0.9.4-pl
+Version: 0.9.4.1-dev
 
 Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -83,8 +83,8 @@ or by going to your wp-content/plugins directory and executing the following com
 
 This is a major release:
 
-* * Fixed [Issue 187](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=187) that affected dropdowns and multi-selects: values were not trimmed before comparison, causing the current value to be unselected.
-* * Fixed [Issue 88](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88) that prevented certain UTF8 characters (e.g. Polish) from being saved correctly in multi-select fields.
+* Fixed [Issue 187](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=187) that affected dropdowns and multi-selects: values were not trimmed before comparison, causing the current value to be unselected.
+* Fixed [Issue 88](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88) that prevented certain UTF8 characters (e.g. Polish) from being saved correctly in multi-select fields.
 * Updated Output Filter functionality. See [Output Filters](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters) in the wiki or [Issue 162](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=162) and [Issue 183](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=183) in the bug tracker.
 * Added "Wrapper" and "Default" output filters. See [Wrapper](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/wrapper_OutputFilter) and [Default](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/default_OutputFilter) in the wiki.
 * Custom Fields can now implement their own settings page. [Issue 161](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=161)
