@@ -18,8 +18,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.4';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.4.1';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -59,7 +59,7 @@ class CCTM {
 	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
 	 * any 3rd-party or custom custom field types. Omit the trailing slash.
 	 */ 
-	const custom_fields_dir = 'custom_fields';
+	const custom_fields_dir = 'fields';
 	
 	/**
 	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store 
@@ -613,6 +613,7 @@ class CCTM {
 			if (!self::include_form_element_class($shortname)) {
 				print self::format_errors();
 			}
+			// the filenaems/classnames are validated in the get_available_custom_field_types() function
 			$classname = self::classname_prefix . $shortname;
 			$Obj = new $classname();
 			$Obj->admin_init();
@@ -1038,16 +1039,31 @@ if ( empty(self::$data) ) {
 			}
 		}
 
-		// Scan 3rd party directory
+		// Scan 3rd party directory and subdirectories
 		$upload_dir = wp_upload_dir();
 		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
 		if (is_dir($dir)) {
-			$rawfiles = scandir($dir);		
-			foreach ($rawfiles as $f) {
-				if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+			$rawfiles = scandir($dir);
+			foreach ($rawfiles as $subdir) {
+				if (preg_match('/^\./', $f)) {
+					continue;
+				}
+				// check subdirectories
+				if (is_dir($dir.'/'.$subdir)) { 
+					$morerawfiles = scandir($dir.'/'.$subdir);
+					foreach ($morerawfiles as $f) {
+						if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+							$shortname = basename($f);
+							$shortname = preg_replace('/\.php$/', '', $shortname);	
+							$files[$shortname] = $dir.'/'.$subdir.'/'.$f;
+						}					
+					}
+				} 
+				// Check the main directory too.
+				elseif (preg_match('/\.php$/',$subdir) ) {
 					$shortname = basename($f);
 					$shortname = preg_replace('/\.php$/', '', $shortname);	
-					$files[$shortname] = $dir.'/'.$f;
+					$files[$shortname] = $dir.'/'.$subdir;
 				}
 			}
 		}
@@ -1280,13 +1296,19 @@ if ( empty(self::$data) ) {
 
 		// and Load the file... 
 		include_once(CCTM_PATH.'/includes/CCTMFormElement.php');
-		include_once($element_file);  // <-- this will flat-out bomb on syntax errors!
-		if ( !class_exists(self::classname_prefix.$field_type) ) {
-			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
-				, $element_file
-				, self::classname_prefix.$field_type
-			);
-			return false;
+		if (file_exists($element_file)) {
+			include_once($element_file);  // <-- this will flat-out bomb on syntax errors!
+			if ( !class_exists(self::classname_prefix.$field_type) ) {
+				self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
+					, $element_file
+					, self::classname_prefix.$field_type
+				);
+				return false;
+			}		
+		}
+		else {
+			$msg = sprintf(__('The custom field class file %s could not be found. Did you move or delete the file?', CCTM_TXTDOMAIN), "<code>$element_file</code>");
+			self::register_warning($msg);
 		}
 				
 		return true;
