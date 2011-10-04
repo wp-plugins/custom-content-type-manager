@@ -30,7 +30,7 @@ function append_dropdown_option( target_id, delete_label, set_as_default_label, 
 
 ------------------------------------------------------------------------------*/
 function add_instance(){
-	console.log('xxxo');
+	console.log('testing 123...');
 }
 
 /*------------------------------------------------------------------------------

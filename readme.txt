@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.2.1
-Stable tag: 0.9.3.3
-Version: 0.9.4-dev
+Stable tag: 0.9.4
+Version: 0.9.4-pl
 
 Create custom content types (aka post types), standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -17,11 +17,9 @@ The Custom Content Type Manager plugin allows users to create custom content typ
 
 This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
 
-Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
-
 If you are upgrading to version 0.9.4, please see the Wiki page on [Upgrading to version 0.9.4](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Upgrading094)!
 
-*PLEASE NOTE*: this plugin is still in development and I won't consider it stable until version 1.0! I have used it on numerous sites, but I still consider this BETA code. I try to make my code clean and functional, but there are no guarantees!  If you need certain features developed *hire me*.  Please be willing to [file bugs](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) and follow up on them when I ask for more details!
+Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 
 This plugin was written in part for the book [WordPress 3 Plugin Development Essentials](http://www.packtpub.com/wordpress-3-plugin-development-essentials/book), published by Packt.
 
@@ -69,7 +67,7 @@ Please see the online [FAQ](http://code.google.com/p/wordpress-custom-content-ty
 3. There are a lot of options available when you create a new content type, only some of them are pictured.
 4. You can define many different types of custom fields by clicking on the "Custom Content Types --> Custom Fields" link.
 5. Clicking the "activate" link for any content type will cause its fields to be standardized and it will show up in the administration menus.
-6. Once you have defined custom fields for a content type and you have activated that content type, those custom fields will show up when you edit a new post. Here's what the custom fields look like when I create a new "Movie" post.
+6. Once you have defined custom fields and associated them with one or more content types, those custom fields will show up when you create or edit a new post. 
 
 == Changelog ==
 

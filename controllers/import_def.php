@@ -9,16 +9,16 @@ $data['page_title']	= __('Import Definition', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Import';
 $data['menu'] 		= sprintf('<a href="?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back')) . ' '.
 						sprintf('<a href="?page=cctm_tools&a=export_def" title="%s" class="button">%s</a>',__('Export'), __('Export'));
-$data['msg']		= '';
+$data['msg']		= CCTM::get_flash();
 $data['content'] = '';
 
 // We reference this in a couple places.
 $upload_dir = wp_upload_dir();
 $dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
 
-// Check to see if the library directory 
+// Check to see if the library directory exists...
 if ( file_exists($dir) && is_dir($dir) ) {
-	$data['msg'] = ''; // do nothing
+//	$data['msg'] = ''; // do nothing
 	// Read the files
 	$data['defs_array'] = ImportExport::get_defs();
 	

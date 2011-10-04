@@ -10,7 +10,7 @@
 	
 		<p>
 			<strong><?php _e('Author', CCTM_TXTDOMAIN); ?>:</strong> <?php print $data['export_info']['author']; ?><br />
-			<strong><?php _e('URL', CCTM_TXTDOMAIN); ?>:</strong> <a href="<?php print $data['export_info']['url']; ?>"><?php print $data['export_info']['url']; ?></a><br />
+			<strong><?php _e('Author URL', CCTM_TXTDOMAIN); ?>:</strong> <a href="<?php print $data['export_info']['url']; ?>"><?php print $data['export_info']['url']; ?></a><br />
 			<strong><?php _e('Template URL', CCTM_TXTDOMAIN); ?>:</strong> <a href="<?php print $data['export_info']['template_url']; ?>"><?php print $data['export_info']['template_url']; ?></a><br />
 		</p>
 	

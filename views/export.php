@@ -16,7 +16,7 @@
 	<label for="author" class="cctm_label" id="author_label"><?php _e('Author', CCTM_TXTDOMAIN); ?></label>
 	<input type="text" name="author" class=""id="author" value="<?php print $data['author']; ?>" /><br/><br/>
 
-	<label for="url" class="cctm_label" id="url_label"><?php _e('Your URL', CCTM_TXTDOMAIN); ?></label>
+	<label for="url" class="cctm_label" id="url_label"><?php _e('Author URL', CCTM_TXTDOMAIN); ?></label>
 	<input type="text" name="url" class="" id="url" size="60" value="<?php print $data['url']; ?>" /><br/><br/>
 
 	<label for="template_url" class="cctm_label" id="template_url_label"><?php _e('Template URL', CCTM_TXTDOMAIN); ?></label>
