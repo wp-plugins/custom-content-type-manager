@@ -639,7 +639,7 @@ class CCTM {
 	public static function add_plugin_settings_link($links, $file) {
 		if ( $file == basename(self::get_basepath()) . '/index.php' ) {
 			$settings_link = sprintf('<a href="%s">%s</a>'
-				, admin_url( 'options-general.php?page=cctm' )
+				, admin_url( 'admin.php?page=cctm' )
 				, __('Settings')
 			);
 			array_unshift( $links, $settings_link );

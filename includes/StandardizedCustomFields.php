@@ -321,15 +321,19 @@ class StandardizedCustomFields
 		if ( !empty($_POST) ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
 			foreach ( $custom_fields as $field_name ) {
+				if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
+					continue;
+				}
 				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
-				CCTM::include_form_element_class($field_type); // This will die on errors
-	
-				$field_type_name = CCTM::classname_prefix.$field_type;
-				$FieldObj = new $field_type_name(); // Instantiate the field element
-				$FieldObj->props = CCTM::$data['custom_field_defs'][$field_name];
-				$value = $FieldObj->save_post_filter($_POST, $field_name);
 				
-				update_post_meta( $post_id, $field_name, $value );
+				if (CCTM::include_form_element_class($field_type)) {
+					$field_type_name = CCTM::classname_prefix.$field_type;
+					$FieldObj = new $field_type_name(); // Instantiate the field element
+					$FieldObj->props = CCTM::$data['custom_field_defs'][$field_name];
+					$value = $FieldObj->save_post_filter($_POST, $field_name);
+					
+					update_post_meta( $post_id, $field_name, $value );
+				}
 			}			
 		}
 	}

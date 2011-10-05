@@ -64,8 +64,8 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']))
 		}
 
 		// unset the old field in self::$data;
-		//unset(self::$data['custom_field_defs'][$field_name]);	
-		//update_option(self::db_key, self::$data); // <--- finally, save it all
+		unset(self::$data['custom_field_defs'][$field_name]);	
+		update_option(self::db_key, self::$data); // <--- finally, save it all
 		
 		$msg = '<div class="updated"><p>'
 			. sprintf( __('The %s field has been merged into the %s field.', CCTM_TXTDOMAIN )

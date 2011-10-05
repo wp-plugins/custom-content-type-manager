@@ -78,13 +78,20 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+	
+= 0.9.4.1 =
+
+* Fixed [Issue 196](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=196): Wrong link to plugin's settings from the Plugin's page.
+
+* Fixed [Issue 197](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=197): I had forgotten to uncomment lines that cleaned up field definitions after merging fields.
+
 
 = 0.9.4 =
 
 This is a major release:
 
-* * Fixed [Issue 187](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=187) that affected dropdowns and multi-selects: values were not trimmed before comparison, causing the current value to be unselected.
-* * Fixed [Issue 88](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88) that prevented certain UTF8 characters (e.g. Polish) from being saved correctly in multi-select fields.
+* Fixed [Issue 187](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=187) that affected dropdowns and multi-selects: values were not trimmed before comparison, causing the current value to be unselected.
+* Fixed [Issue 88](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88) that prevented certain UTF8 characters (e.g. Polish) from being saved correctly in multi-select fields.
 * Updated Output Filter functionality. See [Output Filters](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters) in the wiki or [Issue 162](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=162) and [Issue 183](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=183) in the bug tracker.
 * Added "Wrapper" and "Default" output filters. See [Wrapper](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/wrapper_OutputFilter) and [Default](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/default_OutputFilter) in the wiki.
 * Custom Fields can now implement their own settings page. [Issue 161](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=161)
@@ -249,6 +256,10 @@ If you are eager to see a particular feature implemented in a future release, pl
 And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N).  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
+
+= 0.9.4.1 =
+
+Fixes minor bugs with the 0.9.4 release: cleanup after merging custom fields.
 
 = 0.9.4 =
 Major release! Please see the upgrade notes: [Upgrading to version 0.9.4](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Upgrading094)
