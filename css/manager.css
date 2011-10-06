@@ -46,6 +46,11 @@ label.cctm_checkbox_label
 	display: inline;
 }
 
+label.cctm_radio_label
+{
+	display: inline;
+}
+
 .cctm_element_wrapper {
 	margin-top: 10px;
 }

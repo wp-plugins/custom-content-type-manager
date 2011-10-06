@@ -296,20 +296,24 @@ abstract class CCTMFormElement {
 	 *
 	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
 	 *
+	 * @param	string	optionally override the type
 	 * @return string	the contents of the file
 	 */
-	protected function get_field_tpl() {
+	protected function get_field_tpl($type=null) {
+		if (empty($type)) {
+			$type = $this->props['type'];
+		}
 		$upload_dir = wp_upload_dir();
 		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
 
 		if (file_exists($dir.'/fields/'.$this->props['name'].'.tpl')) {
 			return file_get_contents($dir.'/fields/'.$this->props['name'].'.tpl');	
 		}
-		elseif(file_exists($dir.'/fieldtypes/'.$this->props['type'].'.tpl')) {
-			return file_get_contents($dir.'/fieldtypes/'.$this->props['type'].'.tpl');
+		elseif(file_exists($dir.'/fieldtypes/'.$type.'.tpl')) {
+			return file_get_contents($dir.'/fieldtypes/'.$type.'.tpl');
 		}
-		elseif (file_exists(CCTM_PATH.'/tpls/fieldtypes/'.$this->props['type'].'.tpl')) {
-			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$this->props['type'].'.tpl');
+		elseif (file_exists(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl')) {
+			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl');
 		}
 		else {
 			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
@@ -323,6 +327,47 @@ abstract class CCTMFormElement {
 	 */
 	protected function get_instance_id() {
 		return 'cctm_instance_'.$this->get_field_id().'_'.$this->i;
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Get the option tpl used by some field (e.g. multiselect, dropdown).  The locations can be 
+	 * overriden by placing a file in one of the correct directories.  The following
+	 * directories are searched (in order):
+	 *
+	 *	wp-content/cctm/tpls/fields/{name-of-field}.tpl
+	 *	wp-content/cctm/tpls/fieldoptions/{type-of-field}.tpl
+	 *  wp-content/plugins/custom-content-type-manager/tpls/fieldoptions/{type-of-field}.tpl
+	 *
+	 * 	or last-ditch:
+	 *	wp-content/plugins/custom-content-type-manager/tpls/fieldtypes/_default.tpl 
+	 *
+	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
+	 *
+	 * @param	string	optionally override the type
+	 * @return string	the contents of the file
+	 */
+	protected function get_option_tpl($type=null) {
+		if (empty($type)) {
+			$type = $this->props['type'];
+		}
+		$upload_dir = wp_upload_dir();
+		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
+
+		if (file_exists($dir.'/fields/'.$this->props['name'].'.tpl')) {
+			return file_get_contents($dir.'/fields/'.$this->props['name'].'.tpl');	
+		}
+		elseif(file_exists($dir.'/fieldtypes/'.$type.'.tpl')) {
+			return file_get_contents($dir.'/fieldtypes/'.$type.'.tpl');
+		}
+		elseif (file_exists(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl')) {
+			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl');
+		}
+		else {
+			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
+		}
+
 	}
 	
 	//------------------------------------------------------------------------------

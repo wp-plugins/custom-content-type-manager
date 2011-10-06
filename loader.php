@@ -43,7 +43,7 @@ if ( empty(CCTMtests::$errors) )
 	add_action('admin_init', 'CCTM::admin_init');	
 	
 	// Register any custom post-types (a.k.a. content types)
-	add_action('init', 'CCTM::register_custom_post_types', 10 );
+	add_action('init', 'CCTM::register_custom_post_types', 11 );
 	
 	// Create custom plugin settings menu
 	add_action('admin_menu', 'CCTM::create_admin_menu');

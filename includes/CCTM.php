@@ -19,7 +19,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.4.1';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -127,9 +127,9 @@ class CCTM {
 		    'capability_type' => 'post',
 		    'show_in_nav_menus' => 1,
 		    'publicly_queryable' => 1,
-		    'include_in_search' => 1,	// this makes more sense to users
-		    'exclude_from_search' => 0, // this is what register_post_type expects
-		    'include_in_rss' => 1,
+		    'include_in_search' => 1,	// this makes more sense to users than the exclude_from_search,
+		    'exclude_from_search' => 0, // but this is what register_post_type expects. Boo.
+		    'include_in_rss' => 1,		// this is a custom option
 		    'can_export' => 1,
 		    'use_default_menu_icon' => 1,
 		    'hierarchical' => 0,
@@ -351,7 +351,7 @@ class CCTM {
 	 * @return	mixed 	the WordPress authorized definition format.
 	 */
 	private static function _prepare_post_type_def($def) {
-		unset($def['public']);
+		unset($def['public']); // <-- I think this caused some of the update errors.
 		// Sigh... working around WP's irksome inputs
 		if (isset($def['cctm_show_in_menu']) && $def['cctm_show_in_menu'] == 'custom') {
 			$def['show_in_menu'] = $def['cctm_show_in_menu_custom'];
@@ -1367,9 +1367,10 @@ if ( empty(self::$data) ) {
 		return true;
 	}
 
+
 	//------------------------------------------------------------------------------
 	/**
-	 * Used when generating forms. Any non-empty non-zero incoming value will cause
+	 * Used when generating checkboxes in forms. Any non-empty non-zero incoming value will cause
 	 * the function to return checked="checked"
 	 *
 	 * Simple usage uses just the first parameter: if the value is not empty or 0, 
@@ -1400,6 +1401,21 @@ if ( empty(self::$data) ) {
 		return ''; // default
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Like the is_selected function, but for radio inputs.
+	 * If $option_value == $field_value, then this returns 'selected="selected"'
+	 * @param	string	$option_value: the value of the <option> being tested
+	 * @param	string	$current_value: the current value of the field
+	 * @return	string
+	 */
+	public static function is_radio_selected($option_value, $current_value) {
+		if ( $option_value == $current_value ) {
+			return 'checked="checked"';
+		}
+		return '';
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * If $option_value == $field_value, then this returns 'selected="selected"'

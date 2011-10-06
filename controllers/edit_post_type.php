@@ -2,8 +2,7 @@
 //------------------------------------------------------------------------------
 /**
 * Manager Page -- called by page_main_controller()
-* Edit an existing post type. Changing the unique post-type identifier (i.e. name)
-* is not allowed.
+* Edit an existing post type. 
 * @param string $post_type
 */
 

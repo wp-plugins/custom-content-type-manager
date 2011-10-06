@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.2.1
-Stable tag: 0.9.4
-Version: 0.9.4.1-dev
+Stable tag: 0.9.4.1
+Version: 0.9.4.1
 
 Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -82,9 +82,9 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.4.1 =
 
 * Fixed [Issue 196](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=196): Wrong link to plugin's settings from the Plugin's page.
-
 * Fixed [Issue 197](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=197): I had forgotten to uncomment lines that cleaned up field definitions after merging fields.
-
+* Added support for duplication of custom fields: [Issue 174](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=174)
+* Added support for duplication of post types: [Issue 173](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=173)
 
 = 0.9.4 =
 
@@ -259,7 +259,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.4.1 =
 
-Fixes minor bugs with the 0.9.4 release: cleanup after merging custom fields.
+Fixes minor bugs with the 0.9.4 release: cleanup after merging custom fields. Also a couple new features: duplication of defs, radio buttons!
 
 = 0.9.4 =
 Major release! Please see the upgrade notes: [Upgrading to version 0.9.4](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Upgrading094)

@@ -36,8 +36,9 @@ class CCTM_dropdown extends CCTMFormElement
 		'options'	=> array(), 
 		'values'	=> array(), // only used if use_key_values = 1
 		'use_key_values' => 0, // if 1, then 'options' will use key => value pairs.
+		'display_type' => 'dropdown', // dropdown|radio
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
+
 	);
 
 	//------------------------------------------------------------------------------
@@ -94,35 +95,69 @@ class CCTM_dropdown extends CCTMFormElement
 			);
 		}
 		
+		// Default tpls
+		$fieldtpl = $this->get_field_tpl();
+		$wrappertpl = $this->get_wrapper_tpl();
+
+		
 		// Get the options.  This currently is not skinnable.
 		// $this->props['options'] is already bogarted by the definition.
 		$this->props['all_options'] = '';
 		// <!-- option value="">'.__('Pick One').'</option -->
 		$opt_cnt = count($this->options);
-		for ( $i = 0; $i < $opt_cnt; $i++ ) {
-			// just in case the array isn't set
-			$option = '';
-			if (isset($this->options[$i])) {
-				$option = htmlspecialchars($this->options[$i]);
+		
+		// Format for Radio buttons
+		if ( $this->display_type == 'radio' ) {
+			for ( $i = 0; $i < $opt_cnt; $i++ ) {
+				// just in case the array isn't set
+				$option = '';
+				if (isset($this->options[$i])) {
+					$option = htmlspecialchars($this->options[$i]);
+				}
+				$value = '';
+				if (isset($this->values[$i])) {
+					$value = htmlspecialchars($this->values[$i]);
+				}
+				// Simplistic behavior if we don't use key=>value pairs
+				if ( !$this->use_key_values ) {
+					$value = $option;
+				}
+	
+				$is_selected = '';
+				if ( trim($current_value) == trim($value) ) {
+					$is_selected = 'checked="checked"';
+				}
+				$id = $this->get_field_id() . '_option_' .$i;
+				$name = $this->get_field_name();
+				$this->props['all_options'] .= '<input type="radio" name="'.$name.'" id="'.$id.'" value="'.$value.'" '.$is_selected.'> <label for="'.$id.'" class="cctm_radio_label">'.$option . '</label><br />';
 			}
-			$value = '';
-			if (isset($this->values[$i])) {
-				$value = htmlspecialchars($this->values[$i]);
-			}
-			// Simplistic behavior if we don't use key=>value pairs
-			if ( !$this->use_key_values ) {
-				$value = $option;
-			}
-
-			$is_selected = '';
-			if ( trim($current_value) == trim($value) ) {
-				$is_selected = 'selected="selected"';
-			}
-			$this->props['all_options'] .= '<option value="'.$value.'" '.$is_selected.'>'.$option.'</option>';
+			
+			$fieldtpl = $this->get_field_tpl('radio');
 		}
-
-		$fieldtpl = $this->get_field_tpl();
-		$wrappertpl = $this->get_wrapper_tpl();
+		// Format for Dropdown
+		else {
+			for ( $i = 0; $i < $opt_cnt; $i++ ) {
+				// just in case the array isn't set
+				$option = '';
+				if (isset($this->options[$i])) {
+					$option = htmlspecialchars($this->options[$i]);
+				}
+				$value = '';
+				if (isset($this->values[$i])) {
+					$value = htmlspecialchars($this->values[$i]);
+				}
+				// Simplistic behavior if we don't use key=>value pairs
+				if ( !$this->use_key_values ) {
+					$value = $option;
+				}
+	
+				$is_selected = '';
+				if ( trim($current_value) == trim($value) ) {
+					$is_selected = 'selected="selected"';
+				}
+				$this->props['all_options'] .= '<option value="'.$value.'" '.$is_selected.'>'.$option.'</option>';
+			}
+		}
 
 		// Populate the values (i.e. properties) of this field
 		$this->props['id'] 					= $this->get_field_id();
@@ -283,6 +318,22 @@ class CCTM_dropdown extends CCTMFormElement
 		}
 			
 		$out .= '</table>'; // close id="dropdown_options" 
+
+		// Display as Radio Button or as Dropdown?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="display_type_wrapper">
+				 <label class="cctm_label cctm_checkbox_label" id="display_type_label">'
+					. __('How should the field display?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="radio" name="display_type" class="'.$this->get_field_class('display_type','radio').'" id="display_type_dropdown" value="dropdown" '. CCTM::is_radio_selected('dropdown', CCTM::get_value($this->props, 'display_type', 'dropdown') ).'/> 
+				 <label for="display_type_dropdown" class="cctm_label cctm_radio_label" id="display_type_dropdown_label">'
+					. __('Dropdown', CCTM_TXTDOMAIN) .
+			 	'</label><br />
+				 <input type="radio" name="display_type" class="'.$this->get_field_class('display_type','radio').'" id="display_type_radio" value="radio" '. CCTM::is_radio_selected('radio', CCTM::get_value($this->props, 'display_type', 'dropdown')).'/> 
+				 <label for="display_type_radio" class="cctm_label cctm_radio_label" id="display_type_radio_label">'
+					. __('Radio Button', CCTM_TXTDOMAIN) .
+			 	'</label><br />
+			 	</div>';
 		
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">

@@ -57,6 +57,13 @@ foreach ($def as $field_name => $d) {
 		, __('Edit this custom field', CCTM_TXTDOMAIN)
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
+	$d['duplicate_field_link'] = sprintf(
+		'<a href="?page=cctm_fields&a=duplicate_custom_field&field=%s&_wpnonce=%s" title="%s">%s</a>'
+		, $d['name']
+		, wp_create_nonce('cctm_edit_field')
+		, __('Duplicate this custom field', CCTM_TXTDOMAIN)
+		, __('Duplicate', CCTM_TXTDOMAIN)
+	);
 	$d['delete_field_link'] = sprintf(
 		'<a href="?page=cctm_fields&a=delete_custom_field&field=%s&_wpnonce=%s" title="%s">%s</a>'
 		, $d['name']

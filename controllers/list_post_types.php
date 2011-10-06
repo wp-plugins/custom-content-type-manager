@@ -36,6 +36,14 @@ foreach ( $displayable_types as $post_type ) {
 			, __('Edit this content type', CCTM_TXTDOMAIN )
 			, __('Edit', CCTM_TXTDOMAIN)
 		);
+
+	$duplicate_link     = sprintf(
+			'<a href="?page=cctm&a=duplicate_post_type&pt=%s" title="%s">%s</a>'
+			, $post_type
+			, __('Duplicate this content type', CCTM_TXTDOMAIN )
+			, __('Duplicate', CCTM_TXTDOMAIN)
+		);
+
 	$manage_custom_fields  = sprintf(
 			'<a href="?page=cctm&a=list_pt_associations&pt=%s" title="%s">%s</a>'
 			, $post_type
@@ -47,9 +55,10 @@ foreach ( $displayable_types as $post_type ) {
 			, __('View Sample Templates for this content type', CCTM_TXTDOMAIN )
 			, __('View Sample Templates', CCTM_TXTDOMAIN)
 		);
+	
 
 
-	$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates;
+	$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates . ' | ' . $duplicate_link;
 
 	if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
 		$hash['class'] = 'active';
