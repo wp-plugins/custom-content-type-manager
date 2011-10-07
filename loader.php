@@ -74,6 +74,9 @@ if ( empty(CCTMtests::$errors) )
 	
 	// Used to modify the large post icon
 	add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
+	
+	// Modifies the "Right Now" widget
+	add_action( 'right_now_content_table_end' , 'CCTM::right_now_widget' );
 }
 
 /*EOF*/

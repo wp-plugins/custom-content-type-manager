@@ -18,8 +18,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.4.1';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.4.2';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -761,6 +761,7 @@ if ( empty(self::$data) ) {
 	 * See http://codex.wordpress.org/Administration_Menus	 
 	 */
 	public static function create_admin_menu() {
+		$active_post_types = self::get_active_post_types();
 
 		// Main menu item
 		add_menu_page(
@@ -858,7 +859,6 @@ if ( empty(self::$data) ) {
 //	print '<pre>'; print_r(self::$data); print '</pre>'; exit;
 		// Add Custom Fields links
 		if (isset(self::$data['settings']['show_custom_fields_menu']) && self::$data['settings']['show_custom_fields_menu']) {
-			$active_post_types = self::get_active_post_types();
 			foreach ($active_post_types as $post_type) {
 				$parent_slug = 'edit.php?post_type='.$post_type;
 				if ($post_type == 'post'){
@@ -1831,6 +1831,35 @@ if ( empty(self::$data) ) {
 		$query['post_type'] = $search_me_post_types;
 		
 		return $query;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Adds custom post-types to dashboard "Right Now" widget
+	 */
+	public static function right_now_widget() {
+		$args = array(
+			'publicly_queryable' => true ,
+			'_builtin' => false
+		);
+		$output = 'object';
+		$operator = 'and';
+		
+		$post_types = get_post_types( $args , $output , $operator );
+
+		foreach( $post_types as $post_type ) {
+			$num_posts = wp_count_posts( $post_type->name );
+			$num = number_format_i18n( $num_posts->publish );
+			$text = _n( $post_type->labels->singular_name, $post_type->labels->name , intval( $num_posts->publish ) );
+
+			// Make links if the user has permission to edit
+			if ( current_user_can( 'edit_posts' ) ) {
+				$num = "<a href='edit.php?post_type=$post_type->name'>$num</a>";
+				$text = "<a href='edit.php?post_type=$post_type->name'>$text</a>";
+			}
+			printf('<tr><td class="first b b-%s">%s</td>', $post_type->name, $num);
+			printf('<td class="t %s">%s</td></tr>', $post_type->name, $text);
+		}
 	}
 
 	//------------------------------------------------------------------------------
