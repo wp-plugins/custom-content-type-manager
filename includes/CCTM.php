@@ -114,7 +114,7 @@ class CCTM {
 		        ),
 		    'description' => '',
 		    'show_ui' => 1,
-		    'public' => 1,
+//		    'public' => 1, // optional. as of 0.9.4.2 we set this verbosely.
 		    'menu_icon' => '',
 		    'label' => '',
 		    'menu_position' => '',
@@ -351,7 +351,16 @@ class CCTM {
 	 * @return	mixed 	the WordPress authorized definition format.
 	 */
 	private static function _prepare_post_type_def($def) {
-		unset($def['public']); // <-- I think this caused some of the update errors.
+		// retro-support
+		if (isset($def['public'])) {
+			$def['publicly_queriable'] = true;
+			$def['show_ui'] = true;
+			$def['show_in_nav_menus'] = true;
+			$def['exclude_from_search'] = false;
+			unset($def['public']); // <-- I think this caused some of the update errors.
+		}
+		
+			
 		// Sigh... working around WP's irksome inputs
 		if (isset($def['cctm_show_in_menu']) && $def['cctm_show_in_menu'] == 'custom') {
 			$def['show_in_menu'] = $def['cctm_show_in_menu_custom'];
@@ -1752,7 +1761,6 @@ if ( empty(self::$data) ) {
 				&& !in_array($post_type, self::$built_in_post_types))
 			{
 				$def = self::_prepare_post_type_def($def);
-//				print_r($def); exit;
 				register_post_type( $post_type, $def );
 			}
 		}
