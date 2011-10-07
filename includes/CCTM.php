@@ -992,21 +992,21 @@ if ( empty(self::$data) ) {
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
 	 */		
 	public static function get_archives_where_filter( $where , $r ) {
-	
 		// Get only public, custom post types
-		$args = array( 'public' => true, '_builtin' => false ); 		
+		$args = array( 'publicly_queryable' => true, '_builtin' => false ); 		
 		$public_post_types = get_post_types( $args );
-		
+		//die(print_r($public_post_types,true)); exit;
 		// Only posts get archives... not pages.
 		$search_me_post_types = array('post');
 		
 		// check which have 'has_archive' enabled.
-		foreach (self::$data as $post_type => $def) {
-			if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
-					$search_me_post_types[] = $post_type;
-			} 
+		if (isset(self::$data['post_type_defs']) && is_array(self::$data['post_type_defs'])) {		
+			foreach (self::$data['post_type_defs'] as $post_type => $def) {
+				if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
+						$search_me_post_types[] = $post_type;
+				} 
+			}
 		}
-		
 		$post_types = "'" . implode( "' , '" , $search_me_post_types ) . "'";
 		
 		return str_replace( "post_type = 'post'" , "post_type IN ( $post_types )" , $where );
@@ -1812,7 +1812,7 @@ if ( empty(self::$data) ) {
 		}
 
 		// Get only public, custom post types
-		$args = array( 'public' => true, '_builtin' => false ); 		
+		$args = array( 'publicly_queryable' => true, '_builtin' => false ); 		
 		$public_post_types = get_post_types( $args );
 
 
@@ -1879,7 +1879,6 @@ if ( empty(self::$data) ) {
 	public static function search_filter($query) {
 		if ($query->is_search) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
-				//$post_types = get_post_types( array('public'=>true) );
 				$post_types = get_post_types( array('exclude_from_search'=>false) );
 				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
 				$query->set('post_type', $post_types);
