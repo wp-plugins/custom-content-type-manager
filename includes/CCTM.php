@@ -352,14 +352,14 @@ class CCTM {
 	 */
 	private static function _prepare_post_type_def($def) {
 		// retro-support
-		if (isset($def['public'])) {
+		if (isset($def['public']) && $def['public']) {
 			$def['publicly_queriable'] = true;
 			$def['show_ui'] = true;
 			$def['show_in_nav_menus'] = true;
 			$def['exclude_from_search'] = false;
-			unset($def['public']); // <-- I think this caused some of the update errors.
+//			unset($def['public']); // <-- I think this caused some of the update errors.
 		}
-		
+		$def['public'] = true;
 			
 		// Sigh... working around WP's irksome inputs
 		if (isset($def['cctm_show_in_menu']) && $def['cctm_show_in_menu'] == 'custom') {
@@ -371,7 +371,7 @@ class CCTM {
 		// We display "include" type options to the user, and here on the backend 
 		// we swap this for the "exclude" option that the function requires.
 		$def['exclude_from_search'] = !(bool) self::get_value($def,'include_in_search');
-//		print '<pre>'; print_r($def); print '</pre>'; exit;
+
 		return $def;
 	} 
 	
@@ -993,7 +993,8 @@ if ( empty(self::$data) ) {
 	 */		
 	public static function get_archives_where_filter( $where , $r ) {
 		// Get only public, custom post types
-		$args = array( 'publicly_queryable' => true, '_builtin' => false ); 		
+		//$args = array( 'publicly_queryable' => true, '_builtin' => false ); 		
+		$args = array( 'public' => true, '_builtin' => false );
 		$public_post_types = get_post_types( $args );
 		//die(print_r($public_post_types,true)); exit;
 		// Only posts get archives... not pages.
@@ -1830,7 +1831,7 @@ if ( empty(self::$data) ) {
 		$search_me_post_types = array('post');		
 		
 		// check which have 'has_archive' enabled.
-		foreach (self::$data as $post_type => $def) {
+		foreach (self::$data['post_type_defs'] as $post_type => $def) {
 			if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
 					$search_me_post_types[] = $post_type;
 			} 

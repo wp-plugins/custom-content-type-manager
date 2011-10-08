@@ -68,7 +68,7 @@ if ( empty(CCTMtests::$errors) )
 	// Forces front-end searches to return results for all registered post_types
 	add_filter('pre_get_posts','CCTM::search_filter');
 	
-	// Highlght which themes are CCTM-compatible (if any)
+	// FUTURE: Highlght which themes are CCTM-compatible (if any)
 	// add_filter('theme_action_links', 'CCTM::highlight_cctm_compatible_themes');
 	add_action('admin_notices', 'CCTM::print_warnings');
 	
