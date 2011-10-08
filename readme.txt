@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
 Tested up to: 3.2.1
-Stable tag: 0.9.4.1
-Version: 0.9.4.2-dev
+Stable tag: 0.9.4.2
+Version: 0.9.4.2-pl
 
 Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -82,6 +82,7 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.4.2 =
 
 * Added support for "Right Now" dashboard widget. [Issue 200](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=200)
+* Fixed issues with Categories and Archives: [Issue 202](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=202)
 	
 = 0.9.4.1 =
 

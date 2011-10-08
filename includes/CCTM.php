@@ -19,7 +19,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.4.2';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -350,17 +350,7 @@ class CCTM {
 	 * @param	mixed 	the CCTM definition for a post type
 	 * @return	mixed 	the WordPress authorized definition format.
 	 */
-	private static function _prepare_post_type_def($def) {
-		// retro-support
-		if (isset($def['public']) && $def['public']) {
-			$def['publicly_queriable'] = true;
-			$def['show_ui'] = true;
-			$def['show_in_nav_menus'] = true;
-			$def['exclude_from_search'] = false;
-//			unset($def['public']); // <-- I think this caused some of the update errors.
-		}
-		$def['public'] = true;
-			
+	private static function _prepare_post_type_def($def) {			
 		// Sigh... working around WP's irksome inputs
 		if (isset($def['cctm_show_in_menu']) && $def['cctm_show_in_menu'] == 'custom') {
 			$def['show_in_menu'] = $def['cctm_show_in_menu_custom'];
@@ -371,6 +361,23 @@ class CCTM {
 		// We display "include" type options to the user, and here on the backend 
 		// we swap this for the "exclude" option that the function requires.
 		$def['exclude_from_search'] = !(bool) self::get_value($def,'include_in_search');
+
+		// retro-support... if public is checked, then the following options are inferred
+		if (isset($def['public']) && $def['public']) {
+			$def['publicly_queriable'] = true;
+			$def['show_ui'] = true;
+			$def['show_in_nav_menus'] = true;
+			$def['exclude_from_search'] = false;
+		}
+		// Verbosely check to see if "public" is inferred
+		if (isset($def['publicly_queriable']) && $def['publicly_queriable']
+			&& isset($def['show_ui']) && $def['show_ui']
+			&& isset($def['show_in_nav_menus']) && $def['show_in_nav_menus']
+			&& (!isset($def['exclude_from_search']) || (isset($def['exclude_from_search']) && !$def['publicly_queriable']))
+		) 
+		{
+			$def['public'] = true;
+		}
 
 		return $def;
 	} 
@@ -794,8 +801,8 @@ if ( empty(self::$data) ) {
 		
 		add_submenu_page( 
 			'cctm', 								// parent slug (menu-slug from add_menu_page call)
-			__('CCTM Settings', CCTM_TXTDOMAIN), 	// page title
-			__('Settings', CCTM_TXTDOMAIN), 		// menu title
+			__('CCTM Global Settings', CCTM_TXTDOMAIN), 	// page title
+			__('Global Settings', CCTM_TXTDOMAIN), 		// menu title
 			'manage_options', 						// capability
 			'cctm_settings', 						// menu_slug
 			'CCTM::page_main_controller' 			// callback function
