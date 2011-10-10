@@ -381,11 +381,13 @@ just want to make sure that the form is presented uncorrupted.
 				// checkbox_id, css_id, checked_value
 				/* Handle custom hierarchical stuff */
 				$i = 0;
-				$args = array('public' => true );
-				$post_types = get_post_types($args);
+				$args = array('publicly_queryable' => true, 'public' => true );
+				$post_types = get_post_types($args, 'names', 'or');
 				//print_r($data['post_type']s); exit;
 				foreach ( $post_types as $pt => $v ) {
-
+					if ( in_array($pt, array('nav_menu_item','revision'))) {
+						continue;
+					}
 					$is_checked = '';
 					if ( isset($data['def']['cctm_hierarchical_post_types']) ) {
 						if ( is_array($data['def']['cctm_hierarchical_post_types']) && in_array( $pt, $data['def']['cctm_hierarchical_post_types']) ) {

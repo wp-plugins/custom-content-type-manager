@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.0.1
 Tested up to: 3.2.1
 Stable tag: 0.9.4.2
-Version: 0.9.4.2-pl
+Version: 0.9.4.3-dev
 
 Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -78,6 +78,11 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.4.3 =
+
+* Fixed glitch with custom hierarchies.
+* Adjusted default size of text fields.
 
 = 0.9.4.2 =
 

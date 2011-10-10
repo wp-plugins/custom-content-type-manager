@@ -8,6 +8,8 @@ else we lose the thickbox. The solution is to post the data to an iFrame that
 includes this page.
 ------------------------------------------------------------------------------*/
 @include_once( realpath('../../../').'/wp-load.php' );
+include_once('includes/constants.php');
+
 if ( !empty($_POST) && !empty($_FILES) )// && isset($_POST['async-upload']) && !empty($_FILES) )
 {
 
@@ -19,7 +21,7 @@ if ( !empty($_POST) && !empty($_FILES) )// && isset($_POST['async-upload']) && !
 	// there is no post_id.
 	if ( is_object($id) )
 	{
-		printf( __("<p>There was a problem uploading. Did you select a file? If you continue to have problems, please try using WordPress' <a href='media-new.php'>built-in manager</a> to upload new media.</p>", CCTM::CCTM_TXTDOMAIN) );
+		printf( __("<p>There was a problem uploading. Did you select a file? If you continue to have problems, please try using WordPress' <a href='media-new.php'>built-in manager</a> to upload new media.</p>", CCTM_TXTDOMAIN) );
 	}
 	else
 	{
@@ -56,7 +58,7 @@ else
 {
 	
 ?>
-	<p>If you are having trouble using this uploader, try using the standard WordPress uploader. Save your work, then click the "Media" menu item on the left to <a href="media-new.php">Add New Media</a>.</p>
+	<p>If you are having trouble using this uploader, try using the standard WordPress uploader. Save your work, then click the "Media" menu item on the left to <a href="<?php print get_admin_url(); ?>media-new.php" target="_parent">Add New Media</a>.</p>
 	<!-- span class="button" onclick="javascript:parent.clear_search();">Back</span -->
 	
 <?php 

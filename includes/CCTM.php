@@ -18,8 +18,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.4.2';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.4.3';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -1058,36 +1058,44 @@ if ( empty(self::$data) ) {
 
 		// Scan 3rd party directory and subdirectories
 		$upload_dir = wp_upload_dir();
-		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
-		if (is_dir($dir)) {
-			$rawfiles = scandir($dir);
-			foreach ($rawfiles as $subdir) {
-				if (preg_match('/^\./', $f)) {
-					continue;
-				}
-				// check subdirectories
-				if (is_dir($dir.'/'.$subdir)) { 
-					$morerawfiles = scandir($dir.'/'.$subdir);
-					foreach ($morerawfiles as $f) {
-						if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
-							$shortname = basename($f);
-							$shortname = preg_replace('/\.php$/', '', $shortname);	
-							$files[$shortname] = $dir.'/'.$subdir.'/'.$f;
-						}					
+		// it might come back something like 
+		// Array ( [error] => Unable to create directory /path/to/wp-content/uploads/2011/10. Is its parent directory writable by the server? )
+		if (isset($upload_dir['error'])) {
+			self::register_warning($upload_dir['error']);	
+		}
+		else {
+		
+					
+			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
+			if (is_dir($dir)) {
+				$rawfiles = scandir($dir);
+				foreach ($rawfiles as $subdir) {
+					if (preg_match('/^\./', $f)) {
+						continue;
 					}
-				} 
-				// Check the main directory too.
-				elseif (preg_match('/\.php$/',$subdir) ) {
-					$shortname = basename($f);
-					$shortname = preg_replace('/\.php$/', '', $shortname);	
-					$files[$shortname] = $dir.'/'.$subdir;
+					// check subdirectories
+					if (is_dir($dir.'/'.$subdir)) { 
+						$morerawfiles = scandir($dir.'/'.$subdir);
+						foreach ($morerawfiles as $f) {
+							if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+								$shortname = basename($f);
+								$shortname = preg_replace('/\.php$/', '', $shortname);	
+								$files[$shortname] = $dir.'/'.$subdir.'/'.$f;
+							}					
+						}
+					} 
+					// Check the main directory too.
+					elseif (preg_match('/\.php$/',$subdir) ) {
+						$shortname = basename($f);
+						$shortname = preg_replace('/\.php$/', '', $shortname);	
+						$files[$shortname] = $dir.'/'.$subdir;
+					}
 				}
 			}
+					
+			self::$data['cache']['elements'] = $files;
+			update_option(self::db_key, self::$data);
 		}
-				
-		self::$data['cache']['elements'] = $files;
-		update_option(self::db_key, self::$data);
-		
 		return $files;
 	}
 

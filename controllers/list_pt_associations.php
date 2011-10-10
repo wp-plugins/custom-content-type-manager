@@ -55,7 +55,7 @@ $all_custom_fields_cnt = count($all_custom_fields);
 
 if (!$all_custom_fields_cnt) {
 	$data['msg'] .= sprintf('<div class="updated"><p>%s</p></div>'
-		, __('There are no custom fields defined yet. <a href="?page=cctm_fields">Define custom fields</a>.', CCTM_TXTDOMAIN));
+		, __('There are no custom fields defined yet. <a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=list_custom_field_types">Define custom fields</a>.', CCTM_TXTDOMAIN));
 }
 elseif (!$active_custom_fields_cnt ) {
 	$data['msg'] .= sprintf('<div class="updated"><p>%s</p></div>'
