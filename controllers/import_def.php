@@ -41,7 +41,7 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 		if (wp_verify_nonce($nonce, 'cctm_upload_def') ) {
 
 			// A little cleanup before we sanitize
-			unset($_POST[ $data['nonce_name'] ]);
+			unset($_POST['cctm_nonce']);
 			unset($_POST['_wp_http_referer']);
 
 			// Start Checking stuff....

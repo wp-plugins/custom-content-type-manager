@@ -218,7 +218,7 @@ class ImportExport {
 			}
 			closedir($handle);
 		}
-		return 	$available_defs;
+		return $available_defs;
 	} 
 
 	//------------------------------------------------------------------------------

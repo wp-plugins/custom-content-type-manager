@@ -381,13 +381,10 @@ just want to make sure that the form is presented uncorrupted.
 				// checkbox_id, css_id, checked_value
 				/* Handle custom hierarchical stuff */
 				$i = 0;
-				$args = array('publicly_queryable' => true, 'public' => true );
-				$post_types = get_post_types($args, 'names', 'or');
+				$args = array('public' => true );
+				$post_types = get_post_types($args);
 				//print_r($data['post_type']s); exit;
 				foreach ( $post_types as $pt => $v ) {
-					if ( in_array($pt, array('nav_menu_item','revision'))) {
-						continue;
-					}
 					$is_checked = '';
 					if ( isset($data['def']['cctm_hierarchical_post_types']) ) {
 						if ( is_array($data['def']['cctm_hierarchical_post_types']) && in_array( $pt, $data['def']['cctm_hierarchical_post_types']) ) {
@@ -508,10 +505,16 @@ just want to make sure that the form is presented uncorrupted.
 <fieldset>
 		
 		<!--!Public: check/uncheck all shortcut -->
-		<input type="checkbox" id="public" class="checkall" />
-		<label for="public" class="cctm_label cctm_checkbox_label" id="cctm_label_public"><?php _e('Public', CCTM_TXTDOMAIN); ?></label>
+		<input type="checkbox" id="public_checkall" class="checkall" />
+		<label for="public_checkall" class="cctm_label cctm_checkbox_label" id="cctm_label_public_checkall"><?php _e('Public', CCTM_TXTDOMAIN); ?></label>
 
 	<div style="margin-left: 30px;">
+		<!--!Public-->
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_public">
+			<input type="checkbox" name="public" class="cctm_checkbox" id="public" value="1" <?php print CCTM::is_checked($data['def']['public']); ?>/> 
+			<label for="public" class="cctm_label cctm_checkbox_label" id="cctm_label_public"><?php _e('Public', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Set the public attribute verbosely so WordPress behaves as you would expect it to. See <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=212">Issue 212</a> in the bug tracker.', CCTM_TXTDOMAIN); ?></span>
+		</div>		
 		<!--!Show UI -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_ui">
 			<input type="checkbox" name="show_ui" class="cctm_checkbox" id="show_ui" value="1" <?php print CCTM::is_checked($data['def']['show_ui']); ?>/> 

@@ -10,7 +10,7 @@ http://code.google.com/p/wordpress-custom-content-type-manager/
 
 It is largely static classes
 
-This class handles the creation and management of custom post-types (also
+This plugin handles the creation and management of custom post-types (also
 referred to as 'content-types'). 
 ------------------------------------------------------------------------------*/
 class CCTM {
@@ -114,7 +114,7 @@ class CCTM {
 		        ),
 		    'description' => '',
 		    'show_ui' => 1,
-//		    'public' => 1, // optional. as of 0.9.4.2 we set this verbosely.
+		    'public' => 1, // 0.9.4.2 tried to set this verbosely, but WP still req's this attribute
 		    'menu_icon' => '',
 		    'label' => '',
 		    'menu_position' => '',
@@ -378,7 +378,7 @@ class CCTM {
 		{
 			$def['public'] = true;
 		}
-
+			$def['public'] = true;
 		return $def;
 	} 
 	
@@ -458,6 +458,7 @@ class CCTM {
 
 		// Our form passes integers and strings, but WP req's literal booleans,
 		// so we do some type-casting here to ensure literal booleans.
+		$sanitized['public']    = (bool) self::get_value($raw, 'public');
 		$sanitized['rewrite_with_front']     = (bool) self::get_value($raw, 'rewrite_with_front');
 		$sanitized['show_ui']     = (bool) self::get_value($raw, 'show_ui');
 		$sanitized['public']     = (bool) self::get_value($raw, 'public');
@@ -501,28 +502,28 @@ class CCTM {
 
 		// Cleaning up the labels
 		if ( empty($sanitized['label']) ) {
-			$sanitized['label'] = $sanitized['post_type'];
+			$sanitized['label'] = ucfirst($sanitized['post_type']);
 		}
 		if ( empty($sanitized['labels']['singular_name']) ) {
-			$sanitized['labels']['singular_name'] = $sanitized['post_type'];
+			$sanitized['labels']['singular_name'] = ucfirst($sanitized['post_type']);
 		}
 		if ( empty($sanitized['labels']['add_new']) ) {
 			$sanitized['labels']['add_new'] = __('Add New');
 		}
 		if ( empty($sanitized['labels']['add_new_item']) ) {
-			$sanitized['labels']['add_new_item'] = __('Add New') . ' ' .$sanitized['post_type'];
+			$sanitized['labels']['add_new_item'] = __('Add New') . ' ' .ucfirst($sanitized['post_type']);
 		}
 		if ( empty($sanitized['labels']['edit_item']) ) {
-			$sanitized['labels']['edit_item'] = __('Edit'). ' ' .$sanitized['post_type'];
+			$sanitized['labels']['edit_item'] = __('Edit'). ' ' .ucfirst($sanitized['post_type']);
 		}
 		if ( empty($sanitized['labels']['new_item']) ) {
-			$sanitized['labels']['new_item'] = __('New'). ' ' .$sanitized['post_type'];
+			$sanitized['labels']['new_item'] = __('New'). ' ' .ucfirst($sanitized['post_type']);
 		}
 		if ( empty($sanitized['labels']['view_item']) ) {
-			$sanitized['labels']['view_item'] = __('View'). ' ' .$sanitized['post_type'];
+			$sanitized['labels']['view_item'] = __('View'). ' ' .ucfirst($sanitized['post_type']);
 		}
 		if ( empty($sanitized['labels']['search_items']) ) {
-			$sanitized['labels']['search_items'] = __('Search'). ' ' .$sanitized['labels']['menu_name'];
+			$sanitized['labels']['search_items'] = __('Search'). ' ' .ucfirst($sanitized['labels']['menu_name']);
 		}
 		if ( empty($sanitized['labels']['not_found']) ) {
 			$sanitized['labels']['not_found'] = sprintf( __('No %s found', CCTM_TXTDOMAIN), strtolower($raw['labels']['menu_name']) );
@@ -1000,10 +1001,8 @@ if ( empty(self::$data) ) {
 	 */		
 	public static function get_archives_where_filter( $where , $r ) {
 		// Get only public, custom post types
-		//$args = array( 'publicly_queryable' => true, '_builtin' => false ); 		
 		$args = array( 'public' => true, '_builtin' => false );
 		$public_post_types = get_post_types( $args );
-		//die(print_r($public_post_types,true)); exit;
 		// Only posts get archives... not pages.
 		$search_me_post_types = array('post');
 		
@@ -1796,7 +1795,7 @@ if ( empty(self::$data) ) {
 	 * @return	none
 	 */
 	public static function register_warning($str) {
-		if (!isset(self::$data['warnings'][$str])) {
+		if (!empty($str) && !isset(self::$data['warnings'][$str])) {
 			self::$data['warnings'][$str] = 0; // 0 = not read.
 			update_option(self::db_key, self::$data);
 		}
@@ -1863,7 +1862,7 @@ if ( empty(self::$data) ) {
 	 */
 	public static function right_now_widget() {
 		$args = array(
-			'publicly_queryable' => true ,
+			'public' => true ,
 			'_builtin' => false
 		);
 		$output = 'object';
