@@ -1069,8 +1069,8 @@ if ( empty(self::$data) ) {
 		$upload_dir = wp_upload_dir();
 		// it might come back something like 
 		// Array ( [error] => Unable to create directory /path/to/wp-content/uploads/2011/10. Is its parent directory writable by the server? )
-		if (isset($upload_dir['error'])) {
-			self::register_warning($upload_dir['error']);	
+		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
+			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);	
 		}
 		else {
 		
@@ -1147,19 +1147,25 @@ if ( empty(self::$data) ) {
 
 		// Scan 3rd party directory
 		$upload_dir = wp_upload_dir();
-		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::filters_dir;
-		if (is_dir($dir)) {
-			$rawfiles = scandir($dir);		
-			foreach ($rawfiles as $f) {
-				if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
-					$shortname = basename($f);
-					$shortname = preg_replace('/\.php$/', '', $shortname);	
-					$files[$shortname] = $dir.'/'.$f;
+		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
+			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);	
+		}
+		else {					
+			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::filters_dir;
+			if (is_dir($dir)) {
+				$rawfiles = scandir($dir);		
+				foreach ($rawfiles as $f) {
+					if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+						$shortname = basename($f);
+						$shortname = preg_replace('/\.php$/', '', $shortname);	
+						$files[$shortname] = $dir.'/'.$f;
+					}
 				}
 			}
 		}
 		self::$data['cache']['filters'] = $files;
 		update_option(self::db_key, self::$data);
+		
 
 		return $files;
 	}
@@ -1227,31 +1233,6 @@ if ( empty(self::$data) ) {
 			return $current_user->ID;
 		}
 	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	 * Designed to safely retrieve scalar elements out of a hash. Don't use this
-	 * if you have a more deeply nested object (e.g. an array of arrays).
-	 *
-	 * @param array $hash an associative array, e.g. array('animal' => 'Cat');
-	 * @param string $key the key to search for in that array, e.g. 'animal'
-	 * @param mixed $default (optional) : value to return if the value is not set. Default=''
-	 * @return mixed
-	 */
-	public static function get_value($hash, $key, $default='') {
-		if ( !isset($hash[$key]) ) {
-			return $default;
-		}
-		else {
-			if ( is_array($hash[$key]) ) {
-				return $hash[$key];
-			}
-			// Warning: stripslashes was added to avoid some weird behavior
-			else {
-				return esc_html(stripslashes($hash[$key]));
-			}
-		}
-	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1282,6 +1263,39 @@ if ( empty(self::$data) ) {
 		}
 		else {
 			return '0';
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Gets CCTM's upload path (absolute).  Changes with the media upload directory.
+	 */
+	public static function get_upload_path() {
+	
+	}	
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Designed to safely retrieve scalar elements out of a hash. Don't use this
+	 * if you have a more deeply nested object (e.g. an array of arrays).
+	 *
+	 * @param array $hash an associative array, e.g. array('animal' => 'Cat');
+	 * @param string $key the key to search for in that array, e.g. 'animal'
+	 * @param mixed $default (optional) : value to return if the value is not set. Default=''
+	 * @return mixed
+	 */
+	public static function get_value($hash, $key, $default='') {
+		if ( !isset($hash[$key]) ) {
+			return $default;
+		}
+		else {
+			if ( is_array($hash[$key]) ) {
+				return $hash[$key];
+			}
+			// Warning: stripslashes was added to avoid some weird behavior
+			else {
+				return esc_html(stripslashes($hash[$key]));
+			}
 		}
 	}
 
