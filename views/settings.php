@@ -74,7 +74,7 @@
 				<?php _e('Cache Directory Scans', CCTM_TXTDOMAIN); ?>
 			</label>
 			<span class="cctm_description"><?php _e("Usually you want the results of directory scans can be cached for faster performance, but in some server setups (e.g. when two sites connect to the same database), you may need to disable this.", CCTM_TXTDOMAIN); ?></span>
-		</div>
+		</div>		
 		
 		<!--!Custom Field settings links -->
 		<?php print $data['custom_fields_settings_links']; ?>

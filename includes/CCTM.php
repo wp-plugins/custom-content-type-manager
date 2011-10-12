@@ -134,7 +134,9 @@ class CCTM {
 		    'use_default_menu_icon' => 1,
 		    'hierarchical' => 0,
 		    'rewrite' => '',
-		    'has_archive' => 0
+		    'has_archive' => 0,
+		    'custom_order' => 'ASC',
+		    'custom_orderby' => '',
 		);
 
 
@@ -378,7 +380,10 @@ class CCTM {
 		{
 			$def['public'] = true;
 		}
-			$def['public'] = true;
+		
+		unset($def['custom_orderby']);
+			
+			
 		return $def;
 	} 
 	
@@ -435,7 +440,7 @@ class CCTM {
 			// do this so this will take precedence when you merge the existing array with the new one in the _save_post_type_settings() function.
 			$sanitized['taxonomies'] = array();
 		}
-		// You gotta unset these if you want the arrays to passed unmolested.
+		// You gotta unset arrays if you want the foreach thing below to work.
 		unset($raw['taxonomies']);
 
 		// Temporary thing... ????
@@ -1037,7 +1042,7 @@ if ( empty(self::$data) ) {
 		$files = array();
 		
 		// Optionally, we can force directories o be scanned
-		if (!get_value(self::$data['settings'], 'cache_directory_scans', 1)) {
+		if (!self::get_value(self::$data['settings'], 'cache_directory_scans', 1)) {
 			$scandir = true;
 		}
 		
@@ -1558,9 +1563,17 @@ if ( empty(self::$data) ) {
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=142
 	 */
 	public static function order_posts($orderBy) {
-        global $wpdb;
-		$orderBy = "{$wpdb->posts}.menu_order, {$wpdb->posts}.post_date DESC";
-        return($orderBy);
+		$post_type = self::get_value($_GET,'post_type');
+		if (empty($post_type)) {
+			return $orderBy;
+		}
+		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])) {
+	        global $wpdb;
+	        $order = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_order', 'ASC');
+			$orderBy = "{$wpdb->posts}.".self::$data['post_type_defs'][$post_type]['custom_orderby'] . " $order";
+		
+		}
+        return $orderBy;
     }
 	
 	//------------------------------------------------------------------------------
