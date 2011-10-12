@@ -34,19 +34,10 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	print '<script type="text/javascript">window.location.replace("?page=cctm_settings");</script>';
 	return;
 }
-// print "<pre>"; print_r(self::$data['settings']); print "</pre>"; // exit; 
-//! Defaults for checkboxes
-$data['settings'] = array(
-	'delete_posts' => 0
-	, 'delete_custom_fields' => 0
-	, 'add_custom_fields' => 0
-	, 'update_custom_fields' => 0
- 	, 'show_custom_fields_menu' => 1
- 	, 'show_settings_menu' => 1
- 	, 'show_foreign_post_types' => 1
- 	, 'cache_directory_scans'	=> 1
- 	
-);
+
+// Use Defaults by default...
+$data['settings'] = CCTM::$default_settings;
+
 // list all checkboxes here
 $checkboxes = array(
 	'delete_posts' 
@@ -61,7 +52,7 @@ $checkboxes = array(
 
 // this only works for checkboxes...
 foreach ( $checkboxes as $k) {
-	if (isset(self::$data['settings'][$k]) && self::$data['settings'][$k]) {
+	if (self::get_setting($k)) {
 		$data['settings'][$k] = ' checked="checked"';
 	}
 }

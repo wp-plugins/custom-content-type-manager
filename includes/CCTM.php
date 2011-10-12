@@ -139,6 +139,19 @@ class CCTM {
 		    'custom_orderby' => '',
 		);
 
+	/**
+	 * List default settings here.
+	 */
+	public static $default_settings = array(
+		'delete_posts' => 0
+		, 'delete_custom_fields' => 0
+		, 'add_custom_fields' => 0
+		, 'update_custom_fields' => 0
+	 	, 'show_custom_fields_menu' => 1
+	 	, 'show_settings_menu' => 1
+	 	, 'show_foreign_post_types' => 1
+	 	, 'cache_directory_scans'	=> 1	
+	);
 
 	// Where are the icons for custom images stored?
 	// TODO: let the users select their own dir in their own directory
@@ -615,11 +628,11 @@ class CCTM {
 
 		load_plugin_textdomain( CCTM_TXTDOMAIN, false, CCTM_PATH.'/lang/' );
 		
-		wp_register_style('CCTM_css'
-			, CCTM_URL . '/css/manager.css');
+		wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
 		wp_enqueue_style('CCTM_css');
 		// Hand-holding: If your custom post-type omits the main content block,
 		// then thickbox will not be queued and your image, reference, selectors will fail.
+		// Also, we have to fix the bugs with WP's thickbox.js, so here we include a patched file.
 		wp_register_script('cctm_thickbox', CCTM_URL . '/js/thickbox.js', array('thickbox') );
 		wp_enqueue_script( 'cctm_thickbox');
 		wp_enqueue_style( 'thickbox' );
@@ -629,19 +642,10 @@ class CCTM {
 		wp_enqueue_script( 'jquery-ui-sortable');
 		wp_enqueue_script( 'jquery-ui-dialog');
 
-		// Allow each custom field to load up any necessary CSS/JS
-		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
-		foreach ( $available_custom_field_files as $shortname => $file ) {
-			if (!self::include_form_element_class($shortname)) {
-				print self::format_errors();
-			}
-			// the filenaems/classnames are validated in the get_available_custom_field_types() function
-			$classname = self::classname_prefix . $shortname;
-			$Obj = new $classname();
-			$Obj->admin_init();
-		}
-
 		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
+		
+		// Allow each custom field to load up any necessary CSS/JS.  This should only fire in 2 places:
+		self::initialize_custom_fields();
 	}
 
 
@@ -880,7 +884,7 @@ if ( empty(self::$data) ) {
 */
 //	print '<pre>'; print_r(self::$data); print '</pre>'; exit;
 		// Add Custom Fields links
-		if (isset(self::$data['settings']['show_custom_fields_menu']) && self::$data['settings']['show_custom_fields_menu']) {
+		if (self::get_setting('show_custom_fields_menu')) {
 			foreach ($active_post_types as $post_type) {
 				$parent_slug = 'edit.php?post_type='.$post_type;
 				if ($post_type == 'post'){
@@ -898,7 +902,7 @@ if ( empty(self::$data) ) {
 		}
 
 		// Add Settings links
-		if (isset(self::$data['settings']['show_settings_menu']) && self::$data['settings']['show_settings_menu']) {
+		if (self::get_setting('show_settings_menu')) {
 			foreach ($active_post_types as $post_type) {
 				$parent_slug = 'edit.php?post_type='.$post_type;
 				if ( in_array($post_type, self::$reserved_post_types) ){
@@ -1042,7 +1046,7 @@ if ( empty(self::$data) ) {
 		$files = array();
 		
 		// Optionally, we can force directories o be scanned
-		if (!self::get_value(self::$data['settings'], 'cache_directory_scans', 1)) {
+		if (!self::get_setting('cache_directory_scans')) {
 			$scandir = true;
 		}
 		
@@ -1052,7 +1056,6 @@ if ( empty(self::$data) ) {
 				return self::$data['cache']['elements']; 
 			}
 		}
-		
 		
 		// Scan default directory
 		$dir = CCTM_PATH .'/includes/elements';
@@ -1072,9 +1075,7 @@ if ( empty(self::$data) ) {
 		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
 			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);	
 		}
-		else {
-		
-					
+		else {			
 			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
 			if (is_dir($dir)) {
 				$rawfiles = scandir($dir);
@@ -1101,9 +1102,12 @@ if ( empty(self::$data) ) {
 					}
 				}
 			}
-					
+			
 			self::$data['cache']['elements'] = $files;
-			update_option(self::db_key, self::$data);
+			// We only write this to the database if the settings allow it
+			if (self::get_setting('cache_directory_scans')) {
+				update_option(self::db_key, self::$data);
+			}
 		}
 		return $files;
 	}
@@ -1123,7 +1127,7 @@ if ( empty(self::$data) ) {
 		$files = array();
 
 		// Optionally, we can force directories o be scanned
-		if (!get_value(self::$data['settings'], 'cache_directory_scans', 1)) {
+		if (!self::get_setting('cache_directory_scans')) {
 			$scandir = true;
 		}
 		
@@ -1164,7 +1168,10 @@ if ( empty(self::$data) ) {
 			}
 		}
 		self::$data['cache']['filters'] = $files;
-		update_option(self::db_key, self::$data);
+		// We cache this only if allowed
+		if (self::get_setting('cache_directory_scans')) {
+			update_option(self::db_key, self::$data);
+		}
 		
 
 		return $files;
@@ -1266,6 +1273,34 @@ if ( empty(self::$data) ) {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Read the value of a setting.  Will use default value if the setting is not
+	 * yet defined (e.g. when the user hasn't updated their settings.
+	 */
+	public static function get_setting($setting) {
+		if (empty($setting)) {
+			return '';
+		} 
+		if (isset(self::$data['settings']) && is_array(self::$data['settings'])) {
+			if (isset(self::$data['settings'][$setting])) {
+				return self::$data['settings'][$setting]; 
+			}
+			elseif (isset(self::$default_settings[$setting])) {
+				return self::$default_settings[$setting];
+			}
+			else {
+				return ''; // setting not found :(
+			}
+		}
+		elseif (isset(self::$default_settings[$setting])) {
+			return self::$default_settings[$setting];
+		}
+		else {
+			return '';
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Gets CCTM's upload path (absolute).  Changes with the media upload directory.
@@ -1420,6 +1455,68 @@ if ( empty(self::$data) ) {
 		return true;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Each custom field can optionally do stuff during the admin_init event -- this
+	 * was designed so custom fields could include their own JS & CSS, but it could
+	 * be used for other purposes (?).  
+	 *
+	 * Custom field classes will be included and initialized only in the following
+	 * two cases:
+	 *		1. when creating/editing a post that uses one of these fields
+	 *		2. when creating/editing a field definition of the type indicated. 
+	 * E.g.
+	 *		post-new.php
+	 * 		post.php?post_type=page
+	 *		admin.php?page=cctm_fields&a=create_custom_field
+	 *		admin.php?page=cctm_fields&a=edit_custom_field
+	 */
+	public static function initialize_custom_fields() {
+
+		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
+		$page = substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1);
+		$post_type = self::get_value($_GET,'post_type', 'post');
+		$fieldtype = self::get_value($_GET,'type');
+		$fieldname = self::get_value($_GET,'field');
+		$action = self::get_value($_GET, 'a');
+		
+		foreach ( $available_custom_field_files as $shortname => $file ) {
+			// Create/edit posts 
+			if ( ($page == 'post.php') || ($page == 'post-new.php') ) {
+				if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
+					$custom_fields = self::get_value($data['post_type_defs'][$post_type]['custom_fields'], array() );
+					if (!in_array($shortname, $custom_fields)) {
+						continue;
+					}
+				}		
+			}
+			// Create custom field definitions
+			elseif ( $page == 'admin.php' && $action == 'create_custom_field') {
+				if ($shortname != $fieldtype) {
+					continue;
+				}
+			}
+			// Edit custom field definitions (the name is specified, not the type)
+			elseif ( $page == 'admin.php' && $action == 'edit_custom_field' && isset(self::$data['custom_field_defs'][$fieldname])) {
+				$fieldtype = self::get_value(self::$data['custom_field_defs'][$fieldname],'type');
+				if ($shortname != $fieldtype) {
+					continue;
+				}
+			}
+
+			// We only get here if we survived the gauntlet above 			
+			if (self::include_form_element_class($shortname)) {				
+				// the filenames/classnames are validated in the get_available_custom_field_types() function
+				$classname = self::classname_prefix . $shortname;
+				$Obj = new $classname();
+				$Obj->admin_init();
+			}
+		}
+		
+		if (!empty(CCTM::$errors)) {
+			self::print_notices();
+		}	
+	}
 
 	//------------------------------------------------------------------------------
 	/**
