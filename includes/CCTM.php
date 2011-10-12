@@ -1036,6 +1036,11 @@ if ( empty(self::$data) ) {
 	
 		$files = array();
 		
+		// Optionally, we can force directories o be scanned
+		if (!get_value(self::$data['settings'], 'cache_directory_scans', 1)) {
+			$scandir = true;
+		}
+		
 		// Pull from cache if we can
 		if (!$scandir) {
 			if (isset(self::$data['cache']['elements'])) {
@@ -1112,6 +1117,11 @@ if ( empty(self::$data) ) {
 	
 		$files = array();
 
+		// Optionally, we can force directories o be scanned
+		if (!get_value(self::$data['settings'], 'cache_directory_scans', 1)) {
+			$scandir = true;
+		}
+		
 		// Pull from cache if we can
 		if (!$scandir) {
 			if (isset(self::$data['cache']['filters'])) {
@@ -1827,7 +1837,7 @@ if ( empty(self::$data) ) {
 		}
 
 		// Get only public, custom post types
-		$args = array( 'publicly_queryable' => true, '_builtin' => false ); 		
+		$args = array( 'public' => true, '_builtin' => false ); 		
 		$public_post_types = get_post_types( $args );
 
 

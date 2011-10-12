@@ -24,6 +24,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['show_custom_fields_menu']	= (int) CCTM::get_value($_POST, 'show_custom_fields_menu', 0);
 	self::$data['settings']['show_settings_menu'] 		= (int) CCTM::get_value($_POST, 'show_settings_menu', 0);
 	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
+	self::$data['settings']['cache_directory_scans'] 	= (int) CCTM::get_value($_POST, 'cache_directory_scans', 1);
 	update_option( self::db_key, self::$data );
 
 	$data['msg'] = '<div class="updated"><p>'
@@ -43,11 +44,23 @@ $data['settings'] = array(
  	, 'show_custom_fields_menu' => 1
  	, 'show_settings_menu' => 1
  	, 'show_foreign_post_types' => 1
+ 	, 'cache_directory_scans'	=> 1
  	
+);
+// list all checkboxes here
+$checkboxes = array(
+	'delete_posts' 
+	, 'delete_custom_fields'
+	, 'add_custom_fields'
+	, 'update_custom_fields'
+ 	, 'show_custom_fields_menu'
+ 	, 'show_settings_menu'
+ 	, 'show_foreign_post_types'
+ 	, 'cache_directory_scans'
 );
 
 // this only works for checkboxes...
-foreach ( $data['settings'] as $k => $v) {
+foreach ( $checkboxes as $k) {
 	if (isset(self::$data['settings'][$k]) && self::$data['settings'][$k]) {
 		$data['settings'][$k] = ' checked="checked"';
 	}
