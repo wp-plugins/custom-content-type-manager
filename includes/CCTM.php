@@ -1484,8 +1484,17 @@ if ( empty(self::$data) ) {
 			// Create/edit posts 
 			if ( ($page == 'post.php') || ($page == 'post-new.php') ) {
 				if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
-					$custom_fields = self::get_value($data['post_type_defs'][$post_type]['custom_fields'], array() );
-					if (!in_array($shortname, $custom_fields)) {
+					$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type],'custom_fields', array() );
+					$field_types = array();
+					// We gotta convert the fieldname to fieldtype
+					foreach ($custom_fields as $cf){
+						$fieldtype = self::get_value(self::$data['custom_field_defs'][$cf],'type');
+						if (!empty($fieldtype)) {
+							$field_types[] = $fieldtype;
+						}
+					}
+					
+					if (!in_array($shortname, $field_types)) {
 						continue;
 					}
 				}		
