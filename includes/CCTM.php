@@ -33,10 +33,12 @@ class CCTM {
 	 */	 
 	const db_key  = 'cctm_data';
 
-	// These parameters identify where in the $_GET array we can find the values
-	// and how URLs are constructed, e.g. some-admin-page.php?a=123&pt=xyz
-	const action_param    = 'a';
-	const post_type_param   = 'pt';
+	/**
+	 * Determines where the main CCTM menu appears. WP is vulnerable to conflicts 
+	 * with menu items, so the parameter is listed here for easier editing.
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=203
+	 */
+	const menu_position = 71;
 
 	// Each class that extends either the CCTMFormElement class or the 
 	// the CCTMOutputFilter class must prefix this to its class name.
@@ -792,12 +794,12 @@ if ( empty(self::$data) ) {
 		// Main menu item
 		add_menu_page(
 			__('Manage Custom Content Types', CCTM_TXTDOMAIN),  // page title
-			__('Custom Content Types', CCTM_TXTDOMAIN),     		// menu title
+			__('Custom Content Types', CCTM_TXTDOMAIN),     	// menu title
 			'manage_options',       							// capability
 			'cctm',												// menu-slug (should be unique)
 			'CCTM::page_main_controller',   					// callback function
 			CCTM_URL .'/images/gear.png',   					// Icon
-			71													// menu position
+			self::menu_position									// menu position
 		);
 
 		add_submenu_page( 
@@ -1711,8 +1713,8 @@ if ( empty(self::$data) ) {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
 		}
 		// Grab any possible parameters that might get passed around in the URL
-		$action		= self::get_value($_GET, self::action_param);
-		$post_type	= self::get_value($_GET, self::post_type_param);
+		$action		= self::get_value($_GET, 'a');
+		$post_type	= self::get_value($_GET, 'pt');
 		$file 		= self::get_value($_GET, 'file');
 		$field_type	= self::get_value($_GET, 'type');
 		$field_name = self::get_value($_GET, 'field');
