@@ -1364,9 +1364,9 @@ if ( empty(self::$data) ) {
 		}
 		
 		$element_file = '';
-		
+
 		// Check cache...
-		if (isset(self::$data['cache']['elements'][$field_type])) {
+		if (self::get_setting('cache_directory_scans') && isset(self::$data['cache']['elements'][$field_type])) {
 			$element_file = self::$data['cache']['elements'][$field_type];
 		}
 		// or Refresh the cache...
@@ -1424,10 +1424,9 @@ if ( empty(self::$data) ) {
 		$filter_file = '';
 		
 		// Check cache...
-		if (isset(self::$data['cache']['filters'][$filter])) {
+		if (self::get_setting('cache_directory_scans') && isset(self::$data['cache']['filters'][$filter])) {
 			$filter_file = self::$data['cache']['filters'][$filter];
 		}
-		
 		// or Refresh the cache...
 		else {
 			self::get_available_output_filters(true);

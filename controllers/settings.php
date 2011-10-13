@@ -24,7 +24,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['show_custom_fields_menu']	= (int) CCTM::get_value($_POST, 'show_custom_fields_menu', 0);
 	self::$data['settings']['show_settings_menu'] 		= (int) CCTM::get_value($_POST, 'show_settings_menu', 0);
 	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
-	self::$data['settings']['cache_directory_scans'] 	= (int) CCTM::get_value($_POST, 'cache_directory_scans', 1);
+	self::$data['settings']['cache_directory_scans'] 	= (int) CCTM::get_value($_POST, 'cache_directory_scans', 0);
 	update_option( self::db_key, self::$data );
 
 	$data['msg'] = '<div class="updated"><p>'
