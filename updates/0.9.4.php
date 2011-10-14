@@ -66,6 +66,14 @@ if ( isset($settings['export_info']) ) {
 
 // get custom fields from old 
 foreach ($data as $post_type => &$def) {
+
+	if (isset($def['public']) && $def['public']) {
+		$def['publicly_queriable'] = true;
+		$def['show_ui'] = true;
+		$def['show_in_nav_menus']  = true;
+		$def['exclude_from_search'] = false;
+	}
+	unset($def['custom_content_type_mgr_create_new_content_type_nonce']);
 	
 	$custom_fields_this_post_type = array();
 	

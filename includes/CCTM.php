@@ -1922,11 +1922,11 @@ if ( empty(self::$data) ) {
 	
 		$post_type_defs = self::get_post_type_defs();
 		foreach ($post_type_defs as $post_type => $def) {
+			$def = self::_prepare_post_type_def($def);
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
 				&& !in_array($post_type, self::$built_in_post_types))
 			{
-				$def = self::_prepare_post_type_def($def);
 				register_post_type( $post_type, $def );
 			}
 		}
