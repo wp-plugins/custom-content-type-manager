@@ -1,24 +1,11 @@
 <?php
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
 //------------------------------------------------------------------------------
 /**
 * Duplicate an existing post type. 
 * @param string $post_type
 */
-
-// We can't edit built-in post types -- gotta edit this for when we change the post_type name
-/*
-if (!self::_is_existing_post_type($post_type, false ) ) {
-	if (!empty($_POST) && isset($_POST['original_post_type_name'])) {
-		if (!self::_is_existing_post_type($post_type, false ) ) {
-		
-		}
-	}
-	die('post_type does not exist:' . $post_type);
-	self::format_errors();
-	return;
-}
-*/
-
 // Variables for our template
 $data = array();
 $d = array();

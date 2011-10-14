@@ -1,4 +1,6 @@
 <?php
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 Activate a CCTM .json definition file.
 Moves the definition stored in $settings['candidate'] into the active CCTM::$data

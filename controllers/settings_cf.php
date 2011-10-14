@@ -1,4 +1,6 @@
 <?php
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 Settings Page for a custom field.  This requires that the custom field type 
 implements the get_settings_page() function.

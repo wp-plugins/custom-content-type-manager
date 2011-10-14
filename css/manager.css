@@ -64,7 +64,8 @@ Custom Post Types --> View Sample Templates (for any post type) */
 textarea.sample_code_textarea {
 	border: 1px solid black;
 	background-color: lightyellow; 
-	width: 100%; 
+	width: 100%;
+	height: 500px;
 	margin: 0; 
 	padding: 0; 
 	border-width: 0; 

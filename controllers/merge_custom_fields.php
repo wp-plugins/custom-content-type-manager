@@ -1,4 +1,6 @@
 <?php
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 Merge one custom field definition into another.  This isn't intelligent about
 its merging: if you merge "cats" into "dogs", any custom field named "cats" 

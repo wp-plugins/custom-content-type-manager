@@ -3,12 +3,11 @@
 CCTM = Custom Content Type Manager
 
 This is the main class for the Custom Content Type Manager plugin.
-It holds its functions hooked to WP events and utilty functions.
+It holds its functions hooked to WP events and utilty functions and configuration
+settings.
 
 Homepage:
 http://code.google.com/p/wordpress-custom-content-type-manager/
-
-It is largely static classes
 
 This plugin handles the creation and management of custom post-types (also
 referred to as 'content-types'). 
@@ -627,26 +626,34 @@ class CCTM {
 	 * of default scripts bundled with WordPress
 	 */
 	public static function admin_init() {
-
+	
 		load_plugin_textdomain( CCTM_TXTDOMAIN, false, CCTM_PATH.'/lang/' );
-		
-		wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
-		wp_enqueue_style('CCTM_css');
-		// Hand-holding: If your custom post-type omits the main content block,
-		// then thickbox will not be queued and your image, reference, selectors will fail.
-		// Also, we have to fix the bugs with WP's thickbox.js, so here we include a patched file.
-		wp_register_script('cctm_thickbox', CCTM_URL . '/js/thickbox.js', array('thickbox') );
-		wp_enqueue_script( 'cctm_thickbox');
-		wp_enqueue_style( 'thickbox' );
 
-		wp_enqueue_style( 'jquery-ui-tabs', CCTM_URL . '/css/smoothness/jquery-ui-1.8.11.custom.css');
-		wp_enqueue_script( 'jquery-ui-tabs');
-		wp_enqueue_script( 'jquery-ui-sortable');
-		wp_enqueue_script( 'jquery-ui-dialog');
-
-		wp_enqueue_script( 'cctm_manager', CCTM_URL . '/js/manager.js' );
+		$file = substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1);
+		$page = self::get_value($_GET,'page');
 		
-		// Allow each custom field to load up any necessary CSS/JS.  This should only fire in 2 places:
+		// Only add our junk if we are creating/editing a post or we're on 
+		// on of our CCTM pages
+		if ( in_array($file, array('post.php','post-new.php')) || preg_match('/^cctm.*/', $page) ) {
+			
+			wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
+			wp_enqueue_style('CCTM_css');
+			// Hand-holding: If your custom post-type omits the main content block,
+			// then thickbox will not be queued and your image, reference, selectors will fail.
+			// Also, we have to fix the bugs with WP's thickbox.js, so here we include a patched file.
+			wp_register_script('cctm_thickbox', CCTM_URL . '/js/thickbox.js', array('thickbox') );
+			wp_enqueue_script('cctm_thickbox');
+			wp_enqueue_style('thickbox' );
+	
+			wp_enqueue_style('jquery-ui-tabs', CCTM_URL . '/css/smoothness/jquery-ui-1.8.11.custom.css');
+			wp_enqueue_script('jquery-ui-tabs');
+			wp_enqueue_script('jquery-ui-sortable');
+			wp_enqueue_script('jquery-ui-dialog');
+	
+			wp_enqueue_script('cctm_manager', CCTM_URL . '/js/manager.js' );			
+		}
+		
+		// Allow each custom field to load up any necessary CSS/JS.
 		self::initialize_custom_fields();
 	}
 
@@ -1803,9 +1810,9 @@ if ( empty(self::$data) ) {
 	 * @return	none  But errors are printed if present.
 	 */
 	public static function print_notices() {
-		if ( !empty(CCTMtests::$errors) ) {
+		if ( !empty(CCTM::$errors) ) {
 			$error_items = '';
-			foreach ( CCTMtests::$errors as $e ) {
+			foreach ( CCTM::$errors as $e ) {
 				$error_items .= "<li>$e</li>";
 			}
 			$msg = sprintf( __('The %s plugin encountered errors! It cannot load!', CCTM_TXTDOMAIN)
