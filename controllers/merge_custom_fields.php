@@ -13,7 +13,7 @@ will be renamed to "dogs" in the wp_postmeta table, and the definition for
 $data['page_title']  = __('Merge Custom Field', CCTM_TXTDOMAIN) . " <em>$field_name</em>";
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/MergeCustomField';
 $data['msg'] = ''; // Any validation errors
-$data['menu'] = sprintf('<a href="?page=cctm_fields&a=list_custom_fields" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
+$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=list_custom_fields" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 
 $d['action_name'] = 'custom_content_type_mgr_merge_fields';
 $d['nonce_name'] = 'custom_content_type_mgr_merge_fields';

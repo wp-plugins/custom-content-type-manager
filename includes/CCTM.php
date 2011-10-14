@@ -18,7 +18,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.4.3';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -634,7 +634,7 @@ class CCTM {
 		
 		// Only add our junk if we are creating/editing a post or we're on 
 		// on of our CCTM pages
-		if ( in_array($file, array('post.php','post-new.php')) || preg_match('/^cctm.*/', $page) ) {
+		if ( in_array($file, array('post.php','post-new.php','edit.php')) || preg_match('/^cctm.*/', $page) ) {
 			
 			wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
 			wp_enqueue_style('CCTM_css');

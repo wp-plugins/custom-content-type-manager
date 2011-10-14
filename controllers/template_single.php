@@ -16,7 +16,7 @@ if (!current_user_can('administrator')) exit('Admins only.');
 $data 				= array();
 $data['page_title']	= sprintf(__('Sample Themes for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
 $data['help']		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SampleTemplates?ts=1317363617&updated=SampleTemplates';
-$data['menu'] 		= sprintf('<a href="?page=cctm&a=list_post_types" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) );
+$data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm&a=list_post_types" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) );
 $data['msg']		= '';
 $data['post_type'] = $post_type;
 

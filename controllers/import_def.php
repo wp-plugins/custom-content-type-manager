@@ -9,8 +9,8 @@ require_once(CCTM_PATH . '/includes/ImportExport.php');
 $data 				= array();
 $data['page_title']	= __('Import Definition', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Import';
-$data['menu'] 		= sprintf('<a href="?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back')) . ' '.
-						sprintf('<a href="?page=cctm_tools&a=export_def" title="%s" class="button">%s</a>',__('Export'), __('Export'));
+$data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back')) . ' '.
+						sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_tools&a=export_def" title="%s" class="button">%s</a>',__('Export'), __('Export'));
 $data['msg']		= CCTM::get_flash();
 $data['content'] = '';
 

@@ -15,7 +15,8 @@ include_once('includes/constants.php');
 
 if ( !empty($_POST) && !empty($_FILES) )// && isset($_POST['async-upload']) && !empty($_FILES) )
 {
-	print 'uploading...';
+	print '<img src="'.CCTM_URL.'/images/progress.gif" width="75" height="75" />';
+
 	// This is a WP built-in, poorly documented.
 	$id = media_handle_upload('async-upload',''); //post id of Client Files page
 	// on success, $id should be an inteter (last_insert_id), on error, it's a WP_Error Object 
