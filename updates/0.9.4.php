@@ -1,4 +1,4 @@
-<?php if ( ! defined('CCMT_UPDATE_MODE')) exit('Run in update mode only.');
+<?php if ( ! defined('CCTM_UPDATE_MODE')) exit('Run in update mode only.');
 /*------------------------------------------------------------------------------
 This is run when the user updates to version 0.9.4 of the plugin. It is executed
 via a simple include from within the CCTM class.
@@ -19,6 +19,10 @@ manager.
 2. Migrate Data Structure
 
 See http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DataStructures
+
+See this issue:
+http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=219
+*some* fields use the integer array key, some have the string key.  Yarrgh.
 
 The biggest problem here is that custom field definitions were not normalized, so
 the easy way out is to define a new field for any name conflicts, e.g. "my_dropdown"
@@ -56,6 +60,7 @@ $new_data['export_info'] = array(
 	'title' 		=> 'CCTM Site',
 	'author' 		=> get_option('admin_email',''),
 	'url' 			=> get_option('siteurl','http://wpcctm.com/'),
+	'template_url'	=> '',
 	'description'	=> __('This site was created in part using the Custom Content Type Manager', CCTM_TXTDOMAIN),
 );
 // grab the other option...
@@ -78,15 +83,10 @@ foreach ($data as $post_type => &$def) {
 	$custom_fields_this_post_type = array();
 	
 	if ( isset($def['custom_fields']) && is_array($def['custom_fields'])) {
-		// Strip out any extra integer keys (not sure where these come from)
-		foreach ($def['custom_fields'] as $fieldname => $field_def) { 
-			if (is_numeric($fieldname)) {
-				unset($def['custom_fields'][$fieldname]);
-			}
-		}
-
 		// usort pushes everything back to an integer key
-		usort($def['custom_fields'], _____sort_custom_fields('sort_param', 'strnatcasecmp'));
+		// This step also consolidates any instances where a custom field def has both an
+		// integer key AND a string key (yes, this happened somehow).
+		@usort($def['custom_fields'], _____sort_custom_fields('sort_param', 'strnatcasecmp'));
 		foreach ($def['custom_fields'] as $i => $field_def) {
 			$fieldname = $field_def['name'];
 			$def['custom_fields'][$fieldname] = $field_def;
@@ -165,8 +165,7 @@ foreach ($data as $post_type => &$def) {
     	        , $original_fieldname
             );
 		}
-	}
-	
+	}	
 } // post_type loop
 
 
@@ -176,7 +175,6 @@ $new_data['post_type_defs'] = $data;
 //print_r($new_data); exit;
 update_option( self::db_key, $new_data ); // stick it in the db
 self::$data = $new_data; // and stick it in memory just to be sure
-
 delete_option('custom_content_types_mgr_data'); // legacy pre 0.9.4
 delete_option('custom_content_types_mgr_settings'); // legacy pre 0.9.4
 

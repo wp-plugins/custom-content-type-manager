@@ -744,7 +744,7 @@ if ( empty(self::$data) ) {
 		if ( version_compare( self::get_stored_version(), self::get_current_version(), '<' ) ) 
 		{	
 			// set the flag
-			define('CCMT_UPDATE_MODE', 1);
+			define('CCTM_UPDATE_MODE', 1);
 			// Load up available updates in order (scandir will sort the results automatically)
 			$updates = scandir(CCTM_PATH.'/updates');
 			foreach ($updates as $file) {
