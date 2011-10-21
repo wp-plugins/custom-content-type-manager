@@ -316,7 +316,8 @@ abstract class CCTMFormElement {
 			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl');
 		}
 		else {
-			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
+			// return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
+			return false;
 		}
 
 	}
@@ -678,7 +679,8 @@ abstract class CCTMFormElement {
 	 * to *all* instances of the field (e.g. an API key). If this function returns
 	 * anything except for false, then a menu item will be created for the custom
 	 * field type. The function (if implemented), should return an HTML form that
-	 * allows users to modify the settings.
+	 * allows users to modify the settings. The function must also handle the form
+	 * submission.
 	 * 
 	 * @return	mixed: false or HTML form
 	 */

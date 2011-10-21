@@ -11,7 +11,7 @@ if (!current_user_can('administrator')) exit('Admins only.');
 $data 				= array();
 $data['page_title']	= sprintf( __('Custom Fields for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/FieldAssociations';
-$data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm&a=list_custom_field_types" class="button">%s</a>', __('Create Custom Field', CCTM_TXTDOMAIN) );
+$data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm&a=list_custom_field_types&pt=%s" class="button">%s</a>', $post_type, __('Create Custom Field', CCTM_TXTDOMAIN) );
 $data['msg']		= CCTM::get_flash();
 
 
@@ -73,13 +73,18 @@ foreach ($active_custom_fields as $cf) {
 		continue;
 	}
 	$d = self::$data['custom_field_defs'][$cf];
-	$icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
 
-	if ( !CCTM::is_valid_img($icon_src) ) {
-		$icon_src = self::get_custom_icons_src_dir() . 'default.png';
+	$field_type_name = CCTM::classname_prefix.$d['type'];
+	$FieldObj = new $field_type_name();
+	$d['icon'] 			= $FieldObj->get_icon();
+
+	// $icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
+
+	if ( !CCTM::is_valid_img($d['icon']) ) {
+		$d['icon'] = self::get_custom_icons_src_dir() . 'default.png';
 	}
 
-	$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $icon_src);
+	$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $d['icon']);
 	
 	$d['class'] = '';
 	$d['is_checked'] = ' checked="checked"';

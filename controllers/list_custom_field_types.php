@@ -13,7 +13,8 @@ $data['msg'] = self::get_flash();
 $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=list_custom_fields" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) );
 $data['fields'] = '';
 
-$elements = CCTM::get_available_custom_field_types();
+$elements = CCTM::get_available_custom_field_types(true);
+
 foreach ( $elements as $field_type => $file ) {
 	if ( CCTM::include_form_element_class($field_type) ) {
 		$d = array();

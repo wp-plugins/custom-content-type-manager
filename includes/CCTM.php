@@ -17,8 +17,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.4.4';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.4.5';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 	
 	
 	// Required versions (referenced in the CCTMtest class).
@@ -991,6 +991,42 @@ if ( empty(self::$data) ) {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Gets the path of 3rd party custom field defs, WITH trailing slash, e.g. 
+	 * /home/user/public_html/wp-content/uploads/cctm/fields/
+	 * This is used when 3rd party custom fields need to point to their own directory
+	 * (e.g. for including files)
+	 */
+	public static function get_3rd_party_fields_path() {
+		$uploads = wp_upload_dir();
+		// Best to check this lest we run afoul of permissions issues.
+		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
+			CCTM::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);	
+		}
+		elseif(isset($uploads['basedir'])) {			
+			return $uploads['basedir'].'/'. self::base_storage_dir . '/'.self::custom_fields_dir .'/';
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Gets the URL of 3rd party custom field defs, WITH trailing slash, e.g. 
+	 * http://yoursite.com/wp-content/uploads/cctm/fields/
+	 * This is used when 3rd party custom fields need to point to the field icon.
+	 * @return	string	full URL to 48x48 icon (jpg|png|gif)
+	 */
+	public static function get_3rd_party_fields_url() {
+		$uploads = wp_upload_dir();
+		// Best to check this lest we run afoul of permissions issues.
+		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
+			CCTM::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);	
+		}
+		elseif(isset($uploads['baseurl'])) {			
+			return $uploads['baseurl'].'/'. self::base_storage_dir . '/'.self::custom_fields_dir .'/';
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
 	 * Returns an array of active post_types (i.e. ones that will a have their fields
 	 * standardized.
 	 * 
@@ -1065,7 +1101,7 @@ if ( empty(self::$data) ) {
 				return self::$data['cache']['elements']; 
 			}
 		}
-		
+
 		// Scan default directory
 		$dir = CCTM_PATH .'/includes/elements';
 		$rawfiles = scandir($dir);		
@@ -1090,15 +1126,15 @@ if ( empty(self::$data) ) {
 				$rawfiles = scandir($dir);
 				foreach ($rawfiles as $subdir) {
 					if (preg_match('/^\./', $f)) {
-						continue;
+						continue; // skip the . and .. dirs
 					}
 					// check subdirectories
 					if (is_dir($dir.'/'.$subdir)) { 
 						$morerawfiles = scandir($dir.'/'.$subdir);
 						foreach ($morerawfiles as $f) {
-							if ( !preg_match('/^\./', $f) && preg_match('/\.php$/',$f) ) {
+							if ( !preg_match('/^\./', $f) && preg_match('/\.class\.php$/',$f) ) {
 								$shortname = basename($f);
-								$shortname = preg_replace('/\.php$/', '', $shortname);	
+								$shortname = preg_replace('/\.class\.php$/', '', $shortname);	
 								$files[$shortname] = $dir.'/'.$subdir.'/'.$f;
 							}					
 						}
@@ -1208,6 +1244,31 @@ if ( empty(self::$data) ) {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Interface with the model: retrieve the custom field definitions, sorted.
+	 *
+	 * @return array
+	 */
+	public static function get_custom_field_defs() {
+		if ( isset(self::$data['custom_field_defs']) ) {
+			// sort them
+			$defs = self::$data['custom_field_defs'];
+			usort($defs, CCTM::sort_custom_fields('name', 'strnatcasecmp'));
+
+			foreach ($defs as $i => $d ) {
+				$field_name = $d['name'];
+				$defs[$field_name] = $d; // re-establish the key version.
+				unset($defs[$i]); // kill the integer version
+			} 			
+
+			return $defs;
+		}
+		else {
+			return array();
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
 	 * Returns a path with trailing slash.
 	 *
 	 * @return string
@@ -1290,7 +1351,8 @@ if ( empty(self::$data) ) {
 	public static function get_setting($setting) {
 		if (empty($setting)) {
 			return '';
-		} 
+		}
+//		die($setting);
 		if (isset(self::$data['settings']) && is_array(self::$data['settings'])) {
 			if (isset(self::$data['settings'][$setting])) {
 				return self::$data['settings'][$setting]; 
@@ -1671,16 +1733,20 @@ if ( empty(self::$data) ) {
 	/**
 	 * Load up a PHP file into a string via an include statement. MVC type usage here.
 	 * @param	string	filename (relative to the views/ directory)
-	 * @param	array	associative array of data
+	 * @param	array	(optional) associative array of data
+	 * @param	string	(optional) pathname. Can be overridden.
 	 * @return	string	the parsed contents of that file
 	 */
-	public static function load_view($filename, $data=array() ) {
-	    if (is_file(CCTM_PATH . '/views/'.$filename)) {
+	public static function load_view($filename, $data=array(), $path=null) {
+		if (empty($path)){
+			$path = CCTM_PATH . '/views/';
+		}
+	    if (is_file($path.$filename)) {
 	        ob_start();
-	        include CCTM_PATH . '/views/'.$filename;
+	        include $path.$filename;
 	        return ob_get_clean();
 	    }
-	    die('View file does not exist: ' .$filename);
+	    die('View file does not exist: ' .$path.$filename);
 	}
 	
 	//------------------------------------------------------------------------------
