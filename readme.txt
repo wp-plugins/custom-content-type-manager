@@ -79,7 +79,9 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.4.5 =
 
+* Fixing minor bugs, code-cleanup in preparation for supporting 3rd party custom fields and the merging of the Summarize Posts plugin.
 
 = 0.9.4.4 =
 
