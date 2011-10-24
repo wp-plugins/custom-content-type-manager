@@ -399,15 +399,24 @@ class CCTM {
 		}
 		// We display "include" type options to the user, and here on the backend
 		// we swap this for the "exclude" option that the function requires.
-		$def['exclude_from_search'] = !(bool) self::get_value($def, 'include_in_search');
+		 $include = self::get_value($def, 'include_in_search');
+
+		 if (empty($include)) {
+		 	$def['exclude_from_search'] = true;
+		 }
+		 else {
+			 $def['exclude_from_search'] = false;
+		 }
 
 		// retro-support... if public is checked, then the following options are inferred
+/*
 		if (isset($def['public']) && $def['public']) {
 			$def['publicly_queriable'] = true;
 			$def['show_ui'] = true;
 			$def['show_in_nav_menus'] = true;
 			$def['exclude_from_search'] = false;
 		}
+*/
 		// Verbosely check to see if "public" is inferred
 		if (isset($def['publicly_queriable']) && $def['publicly_queriable']
 			&& isset($def['show_ui']) && $def['show_ui']
@@ -416,10 +425,10 @@ class CCTM {
 		) {
 			$def['public'] = true;
 		}
-
+		//die(print_r($def,true));
 		unset($def['custom_orderby']);
 
-
+//		die(print_r($def,true)); 
 		return $def;
 	}
 
@@ -2095,8 +2104,10 @@ if ( empty(self::$data) ) {
 	public static function register_custom_post_types() {
 
 		$post_type_defs = self::get_post_type_defs();
+
 		foreach ($post_type_defs as $post_type => $def) {
 			$def = self::_prepare_post_type_def($def);
+			
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
 				&& !in_array($post_type, self::$built_in_post_types)) {
@@ -2227,14 +2238,8 @@ if ( empty(self::$data) ) {
 	 * @return unknown
 	 */
 	public static function search_filter($query) {
-		if ($query->is_search) {
-			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
-				$post_types = get_post_types( array('exclude_from_search'=>false) );
-				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
-				$query->set('post_type', $post_types);
-			}
-		}
-		elseif ($query->is_feed) {
+		//die(print_r($query, true));
+		if ($query->is_feed) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
 				$post_types = get_post_types();
 				unset($post_types['revision']);
@@ -2245,6 +2250,16 @@ if ( empty(self::$data) ) {
 						unset($post_types[$pt]);
 					}
 				}
+				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
+				$query->set('post_type', $post_types);
+			}
+		}
+		elseif ($query->is_search || $query->is_category) {
+			// die('ouch');
+			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
+				$post_types = get_post_types( array('exclude_from_search'=>false) );
+				//die(print_r(self::$data['post_type_defs'], true));
+				//die(print_r($post_types,true));
 				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
 				$query->set('post_type', $post_types);
 			}
