@@ -28,7 +28,7 @@ $class_names_used -- add any class names that are declared by this plugin.
 Warning: the text-domain for the __() localization functions is hardcoded.
 ------------------------------------------------------------------------------*/
 $function_names_used = array('get_custom_field','get_custom_field_meta','get_custom_field_def'
-	,'get_all_fields_of_type','get_post_complete','get_posts_sharing_custom_field_value'
+	,'get_post_complete','get_posts_sharing_custom_field_value'
 	,'get_relation','get_unique_values_this_custom_field','print_custom_field','print_custom_field_meta'
 	,'uninstall_cctm');
 $class_names_used = array('CCTM', 'ImportExport'
