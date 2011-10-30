@@ -109,7 +109,7 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 			return;
 		}
 		// Delete definitions
-		elseif (wp_verify_nonce($nonce, 'cctm_delete_defs') ) {
+		elseif (wp_verify_nonce($nonce, 'cctm_delete_defs')) {
 			$defs = CCTM::get_value($_POST, 'defs', array());
 			if (ImportExport::delete_defs($defs)) {
 				$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'

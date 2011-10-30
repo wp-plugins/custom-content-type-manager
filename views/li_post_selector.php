@@ -1,0 +1,1 @@
+<li><span class="button" onclick="javascript:select_post('<?php print $data['field_id']; ?>','<?php print $data['ID']; ?>','');">Choose</span> <?php print $data['post_title']; ?> (<?php print $data['ID']; ?>)</li>

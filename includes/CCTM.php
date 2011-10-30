@@ -17,8 +17,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.4.5';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.5.0';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 
 	// Required versions (referenced in the CCTMtest class).
@@ -53,8 +53,6 @@ class CCTM {
 	// Directory relative to wp-content/uploads/ where we can store def files
 	// Omit the trailing slash.
 	const base_storage_dir = 'cctm';
-
-
 
 	/**
 	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store
@@ -94,7 +92,13 @@ class CCTM {
 	const new_dir_perms = 0755;
 	const new_file_perms = 0644;
 
-	// Used to filter inputs (e.g. descriptions)
+	//------------------------------------------------------------------------------
+	/**
+	 * This contains the CCTM_Ajax object, stashed here for easy reference.
+	 */
+	public static $Ajax;
+
+	// Used to filter settings inputs (e.g. descriptions of custom fields or post-types)
 	public static $allowed_html_tags = '<a><strong><em><code><style>';
 
 	// Data object stored in the wp_options table representing all primary data
@@ -399,17 +403,17 @@ class CCTM {
 		}
 		// We display "include" type options to the user, and here on the backend
 		// we swap this for the "exclude" option that the function requires.
-		 $include = self::get_value($def, 'include_in_search');
+		$include = self::get_value($def, 'include_in_search');
 
-		 if (empty($include)) {
-		 	$def['exclude_from_search'] = true;
-		 }
-		 else {
-			 $def['exclude_from_search'] = false;
-		 }
+		if (empty($include)) {
+			$def['exclude_from_search'] = true;
+		}
+		else {
+			$def['exclude_from_search'] = false;
+		}
 
 		// retro-support... if public is checked, then the following options are inferred
-/*
+		/*
 		if (isset($def['public']) && $def['public']) {
 			$def['publicly_queriable'] = true;
 			$def['show_ui'] = true;
@@ -428,7 +432,7 @@ class CCTM {
 		//die(print_r($def,true));
 		unset($def['custom_orderby']);
 
-//		die(print_r($def,true)); 
+		//  die(print_r($def,true));
 		return $def;
 	}
 
@@ -685,6 +689,21 @@ class CCTM {
 			wp_enqueue_script('jquery-ui-dialog');
 
 			wp_enqueue_script('cctm_manager', CCTM_URL . '/js/manager.js' );
+
+			// The following makes PHP variables available to Javascript the "correct" way.
+			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226
+			$data = array();
+			$data['cctm_url'] = CCTM_URL;
+			$data['ajax_url'] = admin_url( 'admin-ajax.php' );
+			$data['ajax_nonce'] = wp_create_nonce('ajax_nonce');
+			$data['label_search_posts'] = __('Search Posts', CCTM_TXTDOMAIN);
+			$data['label_select_posts'] = __('Select Posts', CCTM_TXTDOMAIN);
+			$data['label_upload_image'] = __('Upload Image', CCTM_TXTDOMAIN);
+			$data['label_upload_media'] = __('Upload Media', CCTM_TXTDOMAIN);
+			$data['label_create_post'] = __('Create Post', CCTM_TXTDOMAIN);
+			
+			wp_localize_script( 'cctm_manager', 'cctm', $data );
+
 		}
 
 		// Allow each custom field to load up any necessary CSS/JS.
@@ -1003,6 +1022,29 @@ if ( empty(self::$data) ) {
 	}
 
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Adds formatting to a string to make an "error" message.
+	 *
+	 * @param string $msg localized error message
+	 * @return string
+	 */
+	public static function format_error_msg($msg) {
+		return sprintf('<div class="error"><p>%s</p></div>', $msg);
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Adds formatting to a string to make an "updated" message.
+	 *
+	 * @param string $msg localized message
+	 * @return string
+	 */
+	public static function format_msg($msg) {
+		return sprintf('<div class="updated"><p>%s</p></div>', $msg);
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This formats any errors registered in the class $errors array. The errors
@@ -1847,6 +1889,7 @@ if ( empty(self::$data) ) {
 	}
 
 
+
 	//------------------------------------------------------------------------------
 	/**
 	 * Since WP doesn't seem to support sorting of custom post types, we have to
@@ -1854,8 +1897,8 @@ if ( empty(self::$data) ) {
 	 * only if a post_type's def has the "Attributes" box checked?
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=142
 	 *
-	 * @param unknown $orderBy
-	 * @return unknown
+	 * @param string  $orderBy
+	 * @return string
 	 */
 	public static function order_posts($orderBy) {
 		$post_type = self::get_value($_GET, 'post_type');
@@ -2107,7 +2150,7 @@ if ( empty(self::$data) ) {
 
 		foreach ($post_type_defs as $post_type => $def) {
 			$def = self::_prepare_post_type_def($def);
-			
+
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
 				&& !in_array($post_type, self::$built_in_post_types)) {

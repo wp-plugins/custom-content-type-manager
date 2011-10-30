@@ -31,12 +31,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 	if ( empty($error_msg) ) {
 		self::_save_post_type_settings($sanitized_vals);
-		$data['msg'] = '
-		<div class="updated">
-			<p>'
-			. sprintf( __('The content type %s has been created', CCTM_TXTDOMAIN), '<em>'.$sanitized_vals['post_type'].'</em>')
-			. '</p>
-		</div>';
+		$data['msg'] = CCTM::format_msg( sprintf(__('The content type %s has been created', CCTM_TXTDOMAIN), '<em>'.$sanitized_vals['post_type'].'</em>'));
 		self::set_flash($data['msg']);
 		include CCTM_PATH . '/controllers/list_post_types.php';
 		return;
@@ -46,7 +41,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		$data['def']  = $sanitized_vals;
 		$data['def']['labels']['singular_name'] = '';
 		$data['def']['label'] = '';
-		$data['msg'] = "<div class='error'>$error_msg</div>";
+		$data['msg'] = CCTM::format_error_msg($error_msg);
 	}
 }
 

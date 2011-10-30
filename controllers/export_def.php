@@ -32,23 +32,16 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		$nonce = wp_create_nonce('cctm_download_definition');
 		
 		$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'
-			, sprintf(__('Your Custom Content Type definition %s should begin downloading shortly. If the download does not begin, %s', CCTM_TXTDOMAIN)
-			, '<strong>'.ImportExport::get_download_title($sanitized['title']).'</strong>'
-			, '<a href="'.CCTM_URL.'/controllers-standalone/download.php?_wpnonce='.$nonce.'">click here</a>'));
+			, sprintf(__('Your Custom Content Type definition %s should begin downloading shortly.', CCTM_TXTDOMAIN)
+			, '<strong>'.ImportExport::get_download_title($sanitized['title']).'</strong>')
+		);
 
 		// Save the options: anything that's in the form is considered a valid "info" key.
 		self::$data['export_info'] = $sanitized;
 		update_option(self::db_key, self::$data);
 
 		// Fire off a request to download the file:
-		$data['msg'] .= sprintf('
-			<script type="text/javascript">
-				jQuery(document).ready(function() {
-					window.location.replace("%s?_wpnonce=%s");
-				});
-			</script>'
-			, CCTM_URL.'/controllers-standalone/download.php'
-			, $nonce );
+		$data['msg'] .= sprintf('<script type="text/javascript" src="%s"></script>', CCTM_URL.'/js/download_def.js');
 	}
 	elseif($_POST['export_type'] == 'to_library') {
 		// Save the options: anything that's in the form is considered a valid "info" key.

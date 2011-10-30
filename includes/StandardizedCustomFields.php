@@ -126,7 +126,10 @@ class StandardizedCustomFields
 			$args['post_type'] = CCTM::$data['post_type_defs'][$post_type]['cctm_hierarchical_post_types'];
 			// We gotta ensure ALL posts are returned.
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=114
-			$args['numberposts'] = -1;
+			$args['numberposts'] 	= -1;
+			// And we tweak the order: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=227
+			$args['orderby'] 		= 'title';
+			$args['order'] 			= 'ASC';
 
 			$posts = get_posts($args);
 

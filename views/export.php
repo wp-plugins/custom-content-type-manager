@@ -1,4 +1,5 @@
 <script type="text/javascript">
+	/* Used to control the behavior of the submitted form. */
 	function set_export_type(value){
 		jQuery('#export_type').val(value);
 	}

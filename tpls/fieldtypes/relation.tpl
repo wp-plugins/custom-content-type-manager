@@ -1,16 +1,3 @@
-<h2>[+icon+] Relation Field</h2>
-
-
-[+label+]
-
-[+name+]
-
-[+description+]
-
-<input type="hidden" name="[+type.name+]" id="[+type.id+]" value="[+type.value+]" />				
-
-
-[+default_value+]
-
-<!-- this is a hidden parameter -->
-[+sort_param+]
+<div id="[+instance_id+]">
+	<input type="text" name="[+name+]" class="[+class+]" id="[+id+]"  value="[+value+]" [+extra+]/> [+delete_button+]
+</div>

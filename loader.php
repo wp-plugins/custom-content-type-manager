@@ -16,13 +16,15 @@ Run tests only upon activation
 http://codex.wordpress.org/Function_Reference/register_activation_hook
 */
 // Always Required Files
-include_once('includes/constants.php'); // needed before anything else
-include_once('includes/CCTM.php');
+require_once('includes/constants.php'); // needed before anything else
+require_once('includes/CCTM.php');
 
 // Admin-only files
 if( is_admin()) {
-	include_once('includes/StandardizedCustomFields.php');
-	include_once('tests/CCTMtests.php');
+	require_once('includes/StandardizedCustomFields.php');
+	require_once('tests/CCTMtests.php');
+	require_once('includes/CCTM_Ajax.php');
+	CCTM::$Ajax = new CCTM_Ajax();
 	
 	// Run Tests (add new tests to the CCCTMtests class as req'd)
 	// If there are errors, CCTMtests::$errors will get populated.
@@ -43,6 +45,8 @@ if ( empty(CCTM::$errors) )
 {
 	// Load up the CCTM data from wp_options, populates CCTM::$data
 	CCTM::load_data();
+
+	
 	
 	// Run any updates for this version.
 	add_action('init', 'CCTM::check_for_updates', 0 );	
@@ -84,7 +88,11 @@ if ( empty(CCTM::$errors) )
 	add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
 	
 	// Modifies the "Right Now" widget
-	add_action( 'right_now_content_table_end' , 'CCTM::right_now_widget' );
+	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');
+	
+	// Handle Ajax Requests
+	add_action('wp_ajax_get_search_form', 'CCTM::get_search_form');
+ 
 }
 
 /*EOF*/

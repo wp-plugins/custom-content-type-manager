@@ -35,8 +35,8 @@ class CCTM_relation extends CCTMFormElement
 		'class' => '',
 		'extra'	=> '',
 		'default_value' => '',
+		'is_repeatable' => '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
 	);
 
 	public $supported_output_filters = array('to_link','to_link_href');
@@ -59,7 +59,7 @@ class CCTM_relation extends CCTMFormElement
 	* @return	string text description
 	*/
 	public function get_description() {
-		return __('Relation fields are used to store a reference to another post of some kind. For example you can use a relation to link to a related post or to a parent post.',CCTM_TXTDOMAIN);
+		return __('Relation fields are used to store a reference to another post, including media posts. For example you can use a relation to link to a parent post or to an image or attachment.',CCTM_TXTDOMAIN);
 	}
 	
 	//------------------------------------------------------------------------------
@@ -80,7 +80,30 @@ class CCTM_relation extends CCTMFormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
+
+		$fieldtpl = $this->get_field_tpl();
+		$wrappertpl = $this->get_wrapper_tpl();
+
+		// Populate the values (i.e. properties) of this field
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
+		$this->props['value']				= (int) $current_value; // Relations only store the foreign key.
+		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		$this->props['instance_id']			= $this->get_instance_id();
+		// $this->is_repeatable = 1; // testing
+				
+		if ($this->is_repeatable) {
+			$this->props['add_button'] = '<span class="button" onclick="javascript:thickbox_results(\''.$this->props['id'].'\');">Click</span>'; 
+			$this->props['delete_button'] = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
+			$this->i = $this->i + 1; // increment the instance 
+		}
+		
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		return CCTM::parse($wrappertpl, $this->props);
 	
+/*
 		global $post;
 		
 		$media_html = '';
@@ -112,7 +135,7 @@ class CCTM_relation extends CCTMFormElement
 			<br />
 			<div id="'.$this->get_field_id().'_media">'.$preview_html.'</div>
 			<br class="clear" />
-			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="thickbox button">'
+			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="button">'
 			.$click_label.'</a>
 			<span class="button" onclick="javascript:remove_relation(\''.$this->get_field_id().'\',\''.$this->get_field_id().'_media\')">'.$remove_label.'</span>
 			<br class="clear" /><br />';
@@ -120,6 +143,7 @@ class CCTM_relation extends CCTMFormElement
 		$output .= $this->wrap_description($this->props['description']);
 		
 		return $this->wrap_outer($output);
+*/
 	}
 
 
@@ -135,6 +159,10 @@ class CCTM_relation extends CCTMFormElement
 	 * @return	string	HTML input fields
 	 */
 	public function get_edit_field_definition($def) {
+		$is_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_checked = 'checked="checked"';
+		}
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -189,6 +217,14 @@ class CCTM_relation extends CCTMFormElement
 				<br />
 			</div>';
 
+		// Is Repeatable?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="is_repeatable" class="'.$this->get_field_class('is_repeatable','checkbox').'" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
+			 	</div>';
 			
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">

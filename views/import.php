@@ -6,16 +6,7 @@ This page lists the contents of the definition library
 name="_cctm_nonce" value="'. wp_create_nonce('cctm_create_update_post')
 ------------------------------------------------------------------------------*/
 ?>
-
-<script type="text/javascript">
-	function preview_def(filename){
-		jQuery.get('<?php printf( CCTM_URL.'/controllers-standalone/preview.php?_cctm_nonce=%s&file='
-			, wp_create_nonce('cctm_preview_def')
-			);?>'+filename, function(data) {
-		  jQuery('#cctm_def_preview_target').html(data);
-		});	
-	}
-</script>
+<script type="text/javascript" src="<?php print CCTM_URL; ?>/js/preview_def.js"></script>
 
 <table>
 	<tr>

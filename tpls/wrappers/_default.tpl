@@ -4,7 +4,7 @@
 	</label>
 	
 	[+add_button+]
-	
+	<div id="target_[+id+]"></div>
 	<div id="cctm_instance_wrapper_[+id+]">
 		[+content+]
 	</div> 

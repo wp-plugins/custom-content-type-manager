@@ -91,7 +91,7 @@ function show_rtf_view(id)
 }
 
 /*------------------------------------------------------------------------------
-Grey out form elements (i.e. make readonly)
+Grey out form elements (i.e. make readonly). Used for dropdown fields
 ------------------------------------------------------------------------------*/
 function toggle_readonly() 
 {
@@ -106,4 +106,107 @@ function toggle_readonly()
     {
     	jQuery('.possibly_gray').attr('readonly','readonly');
     }
+}
+
+
+/*------------------------------------------------------------------------------
+Used to pop a thickbox containing search results -- used by relation, image, etc.
+fields.
+------------------------------------------------------------------------------*/
+function thickbox_results(id) {
+	// Remove any existing thickbox: this will force the thickbox to refresh if
+	// you are calling this function from within a thickbox.
+	tb_remove();
+	
+	jQuery.post(
+	    cctm.ajax_url,
+	    {
+	        action : 'get_posts',
+	        fieldname : id,
+	        get_posts_nonce : cctm.ajax_nonce
+	    },
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#target_'+id).html(response);
+			
+			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
+			W = W - 80;
+			H = H - 84;
+			// then thickbox the div
+			tb_show( cctm.label_select_posts, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
+	    }
+	);	
+}
+
+/*------------------------------------------------------------------------------
+Where the magic happens: this sends our selection back to WordPress
+@param	integer	post_id is the ID of the attachment that has been selected
+@param	string	thumbnail_html is the html that displays a thumbnail of the post_id referenced
+------------------------------------------------------------------------------*/
+function select_post( field_id, post_id, thumbnail_html )
+{
+	jQuery('#'+field_id).val(post_id);
+	jQuery('#'+field_id+'_media').html(thumbnail_html);
+	tb_remove();
+	return false;
+}
+
+/*------------------------------------------------------------------------------
+Used to pop a thickbox containing a search form -- used by relation, image, etc.
+fields. Careful about this:
+http://wordpress.org/support/topic/iframe-on-load-thickbox-giving-up-hope
+http://rodnavarroweb.wordpress.com/2009/06/07/opencall-thickbox-without-using-the-class-attribute/
+------------------------------------------------------------------------------*/
+function thickbox_searchform(id) {
+	// Remove any existing thickbox: this will force the thickbox to refresh if
+	// you are calling this function from within a thickbox.
+	tb_remove();
+		
+	jQuery.post(
+	    cctm.ajax_url,
+	    {
+	        action : 'get_search_form',
+	        fieldname : id,
+	        get_search_form_nonce : cctm.ajax_nonce
+	    },
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#target_'+id).html(response);
+			
+			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
+			W = W - 80;
+			H = H - 84;
+			// then thickbox the div
+			tb_show( cctm.label_search_posts, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
+	    }
+	);	
+}
+
+
+/*------------------------------------------------------------------------------
+Emulates WordPress' Media Browser
+------------------------------------------------------------------------------*/
+function thickbox_upload_image(id) {
+	// Remove any existing thickbox: this will force the thickbox to refresh if
+	// you are calling this function from within a thickbox.
+	tb_remove();
+
+	jQuery.post(
+	    cctm.ajax_url,
+	    {
+	        action : 'upload_image',
+	        fieldname : id,
+	        upload_image_nonce : cctm.ajax_nonce
+	    },
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#target_'+id).html(response);
+			
+			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
+			W = W - 80;
+			H = H - 84;
+			// then thickbox the div
+			tb_show( cctm.label_upload_image, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
+	    }
+	);	
 }
