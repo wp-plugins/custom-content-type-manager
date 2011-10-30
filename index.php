@@ -32,7 +32,7 @@ $function_names_used = array('get_custom_field','get_custom_field_meta','get_cus
 	,'get_relation','get_unique_values_this_custom_field','print_custom_field','print_custom_field_meta'
 	,'uninstall_cctm');
 $class_names_used = array('CCTM', 'ImportExport','StandardizedCustomFields'
-	,'CCTMtests','PostSelector','CCTMFormElement','CCTM_Ajax', 'CCTM_Pagination'
+	,'CCTMtests','PostSelector','CCTM_FormElement','CCTM_Ajax', 'CCTM_Pagination'
 	,'GetPostsQuery','GetPostsForm');
 	
 // Not class constants: constants declared via define():

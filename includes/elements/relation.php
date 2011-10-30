@@ -6,13 +6,13 @@
 * another post of some kind
 *
 */
-class CCTM_relation extends CCTMFormElement
+class CCTM_relation extends CCTM_FormElement
 {
 	/** 
 	* The $props array acts as a template which defines the properties for each instance of this type of field.
 	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
 	* Some properties are required of all fields (see below), some are automatically generated (see below), but
-	* each type of custom field (i.e. each class that extends CCTMFormElement) can have whatever properties it needs
+	* each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
 	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
 	* 
 	* 

@@ -206,3 +206,14 @@ tr.cctm_oddrow {
 .cctm_text {
 	width: 400px;
 }
+
+span.post_selector_pagination_link {
+	cursor: pointer;
+}
+
+img.cctm_tiny_thumb {
+	cursor:pointer;
+	vertical-align:middle; 
+	/* clear:both; 
+	float:left; */
+}

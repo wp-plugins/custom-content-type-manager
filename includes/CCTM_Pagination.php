@@ -26,13 +26,13 @@ if the # of records per page changed.
 
 
 
-See the Pagination.conf.php file for more details and customization options.
+See the CCTM_Pagination.conf.php file for more details and customization options.
 
 Private functions reference internal publics; public functions do not.
 
 */
 
-class Pagination
+class CCTM_Pagination
 {
 	public $Config;	
 	// Contains all placeholders passed to the outerTpl
@@ -88,7 +88,7 @@ class Pagination
 	function __construct() 
 	{
 		
-		$this->Config = new Pagination_Configuration();
+		$this->Config = new CCTM_Pagination_Configuration();
 
 		$this->set_tpls();
 	

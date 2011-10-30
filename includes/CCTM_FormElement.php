@@ -21,17 +21,17 @@
  * Usually the forms to create and edit a definition or element are the same, but if needed,
  * there are separate functions to create and edit a definition or value.
  *
- * @package CCTMFormElement
+ * @package CCTM_FormElement
  */
 
 
-abstract class CCTMFormElement {
+abstract class CCTM_FormElement {
 
 	/**
 	 * The $props array acts as a template which defines the properties for each instance of this type of field.
 	 * When added to a post_type, an instance of this data structure is stored in the array of custom_fields.
 	 * Some properties are required of all fields (see below), some are automatically generated (see below), but
-	 * each type of custom field (i.e. each class that extends CCTMFormElement) can have whatever properties it needs
+	 * each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
 	 * in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
 	 *
 	 * The following properties MUST be implemented:
@@ -58,7 +58,7 @@ abstract class CCTMFormElement {
 	 * The $props array acts as a template which defines the properties for each instance of this type of field.
 	 * When a custom field is created, an instance of this data structure is stored in the array of custom_fields_defs.
 	 * Some properties are required of all fields (see below), some are automatically generated (e.g. 'type'), but
-	 * each type of custom field (i.e. each class that extends CCTMFormElement) can have whatever properties it needs
+	 * each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
 	 * in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
 	 *
 	 * Below is a sample array that most fields will utilize.
@@ -801,9 +801,9 @@ abstract class CCTMFormElement {
 	 * Output should be whatever string value you want to store in the wp_postmeta table
 	 * for the post in question. Default behavior is to simply trim the values.
 	 *
-	 * Note that the field name in the $_POST array is prefixed by CCTMFormElement::post_name_prefix,
+	 * Note that the field name in the $_POST array is prefixed by CCTM_FormElement::post_name_prefix,
 	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
-	 * (where CCTMFormElement::post_name_prefix = 'cctm_'). This is done to avoid name
+	 * (where CCTM_FormElement::post_name_prefix = 'cctm_'). This is done to avoid name
 	 * collisions in the $_POST array.
 	 *
 	 * @param mixed   $posted_data $_POST data
@@ -811,8 +811,8 @@ abstract class CCTMFormElement {
 	 * @return string whatever value you want to store in the wp_postmeta table where meta_key = $field_name
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		if ( isset($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]) ) {
-			return stripslashes(trim($posted_data[ CCTMFormElement::post_name_prefix . $field_name ]));
+		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+			return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
 		}
 		else {
 			return '';
@@ -912,4 +912,4 @@ abstract class CCTMFormElement {
 }
 
 
-/*EOF CCTMFormElement.php */
+/*EOF CCTM_FormElement.php */

@@ -1151,13 +1151,25 @@ class GetPostsQuery {
 		if ( !$this->args['yearmonth'] ) {
 			return '';
 		}
+/*
+		print '<pre>';
+		print "Join rule:".$this->args['join_rule'];
+		print "Post table: " . $wpdb->posts;
+		print "Date Column: ".$this->args['date_column'];
+		print "prepared stuff:". $wpdb->prepare('%s', $this->args['yearmonth']);
+		print '</pre>';
+		die();
+*/
 		// AND DATE_FORMAT(wp_posts.post_modified, '%Y%m') = '201102'
+/*
 		return sprintf("%s DATE_FORMAT(%s.%s, '%Y%m') = %s"
 			, $this->args['join_rule']
 			, $wpdb->posts
 			, $this->args['date_column']
 			, $wpdb->prepare('%s', $this->args['yearmonth'])
 		);
+*/
+		return $this->args['join_rule']. " DATE_FORMAT({$wpdb->posts}.{$this->args['date_column']}, '%Y%m') = ". $wpdb->prepare('%s', $this->args['yearmonth']);
 	}
 
 
@@ -1422,7 +1434,7 @@ class GetPostsQuery {
 			// $this->_override_args_with_url_params();
 			include_once 'CCTM_Pagination.conf.php';
 			include_once 'CCTM_Pagination.php';
-			$this->P = new PostPagination();
+			$this->P = new CCTM_Pagination();
 			$this->P->set_base_url( self::get_current_page_url() );
 			$this->P->set_offset($this->args['offset']); //
 			$this->P->set_results_per_page($this->args['limit']);  // You can optionally expose this to the user.

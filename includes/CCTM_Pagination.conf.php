@@ -33,7 +33,7 @@ number_of_pagination_links_displayed controls whether you have something like
 
 Make sure you've filtered any GET values before using this library!
 ------------------------------------------------------------------------------*/
-class Pagination_Configuration {
+class CCTM_Pagination_Configuration {
 
 	// (int) 1 or greater.  This only kicks in if the $limit_key is not
 	// specified explicitly.

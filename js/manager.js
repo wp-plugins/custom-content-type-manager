@@ -160,14 +160,14 @@ http://rodnavarroweb.wordpress.com/2009/06/07/opencall-thickbox-without-using-th
 function thickbox_searchform(id) {
 	// Remove any existing thickbox: this will force the thickbox to refresh if
 	// you are calling this function from within a thickbox.
-	tb_remove();
+	//tb_remove();
 		
 	jQuery.post(
 	    cctm.ajax_url,
 	    {
-	        action : 'get_search_form',
-	        fieldname : id,
-	        get_search_form_nonce : cctm.ajax_nonce
+	        "action" : "get_search_form",
+	        "fieldname" : id,
+	        "get_search_form_nonce" : cctm.ajax_nonce
 	    },
 	    function( response ) {
 	    	// Write the response to the div
@@ -194,9 +194,9 @@ function thickbox_upload_image(id) {
 	jQuery.post(
 	    cctm.ajax_url,
 	    {
-	        action : 'upload_image',
-	        fieldname : id,
-	        upload_image_nonce : cctm.ajax_nonce
+	        "action" : "upload_image",
+	        "fieldname" : id,
+	        "upload_image_nonce" : cctm.ajax_nonce
 	    },
 	    function( response ) {
 	    	// Write the response to the div
@@ -209,4 +209,57 @@ function thickbox_upload_image(id) {
 			tb_show( cctm.label_upload_image, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
 	    }
 	);	
+}
+
+/*------------------------------------------------------------------------------
+Used for flipping through pages of thickbox'd search results.
+------------------------------------------------------------------------------*/
+function change_page(page_number) {
+	// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+	
+	jQuery.post(
+	    cctm.ajax_url,
+	    {
+	        "action" : 'get_posts',
+	        "fieldname" : fieldname,
+	        "page_number": page_number,
+	        "get_posts_nonce" : cctm.ajax_nonce
+	    },
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#cctm_thickbox').html(response);
+			
+	    }
+	);	
+	
+}
+
+
+/*------------------------------------------------------------------------------
+Refining a search
+@param	string	form_id: the form which contains the additional search parameters
+------------------------------------------------------------------------------*/
+function refine_search(form_id) {
+	// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+
+	var data = 
+		{
+	        "action" : 'get_posts',
+	        "fieldname" : fieldname,
+	        "get_posts_nonce" : cctm.ajax_nonce
+	    };
+	data.search_parameters = jQuery('#'+form_id).serialize();
+	
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#cctm_thickbox').html(response);
+			
+	    }
+	);	
+	
 }

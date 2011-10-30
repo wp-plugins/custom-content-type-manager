@@ -42,7 +42,7 @@ $FieldObj = new $field_type_name(); // Instantiate the field element
 
 $FieldObj->props 	= $field_data;  
 // THIS is what keys us off to the fact that we're EDITING a field: 
-// the logic in CCTMFormElement->save_definition_filter() ensures we don't overwrite other fields.
+// the logic in CCTM_FormElement->save_definition_filter() ensures we don't overwrite other fields.
 // This attribute is nuked later
 $FieldObj->props['original_name'] = $field_name; 
 

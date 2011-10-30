@@ -1,6 +1,12 @@
 <?php
 /**
- * Generate search forms that feed into GetPostsQuery->get_posts()
+ * This class generates search forms that act as a GUI for GetPostsQuery->get_posts().
+ * In other words, the data submitted from one of the generated forms describes
+ * a search that can be performed by GetPostsQuery->get_posts().  This is not to
+ * say that you NEED to use this class to front-end any queries performed by GetPostsQuery,
+ * this just lets you generate such a form quickly and via configuration. This class
+ * also dynamically creates form elements based on what's in the database (e.g. it 
+ * lists Year/Months for filtering only if posts were created in those months).
  *
  * Requires: GetPostsQuery
  *
@@ -14,7 +20,7 @@
  * Form element names will correspond exactly to the arguments accepted by the
  * get_posts() function so that this will work: GetPostsQuery::get_posts($_POST);
  *
- * @package GetPostsForm
+ * @package SummarizePosts
  */
 
 
@@ -27,7 +33,7 @@ class GetPostsForm {
 		'search_term'
 	);
 
-	public static $small = array('search_term','match_rule','post_type','yearmonth');
+	public static $small = array('search_term', 'match_rule', 'post_type', 'yearmonth');
 	public static $medium = array();
 	public static $large = array();
 
@@ -101,9 +107,7 @@ class GetPostsForm {
 	 */
 	public $errors = array();
 
-	public $name_prefix = 'gpf_';
-	// As above, but for the id attribute.
-	public $id_prefix = 'gpf_';
+
 
 	public $nonce_field; // set @ __construct. Contains the whole field to be used.
 	public $nonce_action = 'sp_search';
@@ -124,16 +128,16 @@ class GetPostsForm {
 	 * get replaced with.
 	 */
 	public $placeholders = array(
-		'name_prefix'  		=> 'gpf_',
-		'id_prefix'   		=> 'gpf_',
-		'wrapper_class'  	=> 'input_wrapper',
-		'input_class'  		=> 'input_field',
-		'label_class'		=> 'input_title',
+		'name_prefix'    => 'gpf_',
+		'id_prefix'     => 'gpf_',
+		'wrapper_class'   => 'input_wrapper',
+		'input_class'    => 'input_field',
+		'label_class'  => 'input_title',
 		'description_class' => 'input_description',
-		'form_name'   		=> 'getpostsform',
-		'form_number'  		=> '', // iterated on each instance of generate, even across objects
-		'action'   			=> '',
-		'method'   			=> 'post',
+		'form_name'     => 'getpostsform',
+		'form_number'    => '', // iterated on each instance of generate, even across objects
+		'action'      => '',
+		'method'      => 'post',
 	);
 
 	// Contains css stuff, populated at instantiation
@@ -151,11 +155,12 @@ class GetPostsForm {
 	//! Magic Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Generic textfield generator if the user wants to search for a specific value
-	 * in a specific field.
+	 * This function handles generation of generic textfields.  This occurs if the
+	 * user wants to search a specific field for an exact value, e.g. 'post_excerpt'.
 	 *
-	 * @param	string	$name the name of the field you want to search.
-	 * @return	string	html for this field element.
+	 * @param string  $name the name of the field you want to search.
+	 * @param unknown $args
+	 * @return string html for this field element.
 	 */
 	public function __call($name, $args) {
 		$ph = $this->placeholders;
@@ -165,8 +170,10 @@ class GetPostsForm {
 		$ph['label'] = __($name, SummarizePosts::txtdomain);
 		$ph['description'] = sprintf(__('Retrieve posts with this exact %s.', SummarizePosts::txtdomain), "<em>$name</em>");
 
-		return self::parse($this->text_tpl, $ph);	
+		return self::parse($this->text_tpl, $ph);
 	}
+
+
 	//------------------------------------------------------------------------------
 	/**
 	 * The inputs describe how you want to search: each element provided will trigger
@@ -175,11 +182,11 @@ class GetPostsForm {
 	 * @param array   $search_by (optional)
 	 */
 	public function __construct($search_by=array()) {
-	
+
 		// Default CSS stuff
 		$dir = dirname(dirname(__FILE__));
 		$this->set_css( $dir.'/css/searchform.css');
-		
+
 		$this->no_results_msg = '<p>'. __('Sorry, no results matched your search criteria.', SummarizePosts::txtdomain) . '</p>';
 		// some localization
 		$this->placeholders['search'] = __('Search', SummarizePosts::txtdomain);
@@ -187,8 +194,8 @@ class GetPostsForm {
 		$this->placeholders['wrapper_class'] = 'input_wrapper';
 		$this->placeholders['description_class'] = 'input_description';
 		$this->placeholders['input_class'] = 'input_field';
-		
-		
+
+
 		$this->valid_props = array_keys(GetPostsQuery::$defaults);
 		if (empty($search_by)) {
 			// push this through validation.
@@ -202,7 +209,7 @@ class GetPostsForm {
 		}
 
 		$this->nonce_field = wp_nonce_field($this->nonce_action, $this->nonce_name, true, false);
-		
+
 	}
 
 
@@ -280,6 +287,7 @@ class GetPostsForm {
 		$ph['id']  = 'append';
 		$ph['label'] = __('Append', SummarizePosts::txtdomain);
 		$ph['description'] = __('List posts by their ID that you wish to include on every search. Comma-separate multiple values.', SummarizePosts::txtdomain);
+		$this->register_global_placeholders($ph, 'append');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -292,10 +300,10 @@ class GetPostsForm {
 	 */
 	private function _author() {
 		$ph = $this->placeholders;
-		
+
 		global $wpdb;
 		$authors = $wpdb->get_results("SELECT ID, display_name from $wpdb->users ORDER BY display_name");
-		
+
 		$ph['options'] = '';
 		foreach ($authors as $a) {
 			$ph['value'] = $a->display_name;
@@ -309,7 +317,7 @@ class GetPostsForm {
 		$ph['label'] = __('Author', SummarizePosts::txtdomain);
 		$ph['description'] = __('List posts by their ID that you wish to include on every search.', SummarizePosts::txtdomain);
 		$ph['size'] = 5;
-
+		$this->register_global_placeholders($ph, 'author');
 		return self::parse($this->select_wrapper_tpl, $ph);
 	}
 
@@ -323,7 +331,7 @@ class GetPostsForm {
 	 */
 	private function _date_column() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'date_column';
 		$ph['id']  = 'date_column';
@@ -331,12 +339,12 @@ class GetPostsForm {
 		$ph['description'] = __('Which column should be used for date comparisons? Select one, or write in a custom field.', SummarizePosts::txtdomain);
 		$ph['javascript_options'] = '
 			<div class="js_button_wrapper">
-				<span class="js_button" onclick="jQuery(\'#'.$this->id_prefix.'date_column\').val(\'post_date\');">post_date</span><br/>
-				<span class="js_button" onclick="jQuery(\'#'.$this->id_prefix.'date_column\').val(\'post_date_gmt\');">post_date_gmt</span><br/>
-				<span class="js_button" onclick="jQuery(\'#'.$this->id_prefix.'date_column\').val(\'post_modified\');">post_modified</span><br/>
-				<span class="js_button" onclick="jQuery(\'#'.$this->id_prefix.'date_column\').val(\'post_modified_gmt\');">post_modified_gmt</span><br/>
+				<span class="js_button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_column\').val(\'post_date\');">post_date</span><br/>
+				<span class="js_button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_column\').val(\'post_date_gmt\');">post_date_gmt</span><br/>
+				<span class="js_button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_column\').val(\'post_modified\');">post_modified</span><br/>
+				<span class="js_button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_column\').val(\'post_modified_gmt\');">post_modified_gmt</span><br/>
 			</div>';
-
+		$this->register_global_placeholders($ph, 'date_column');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -363,7 +371,7 @@ class GetPostsForm {
 			<span class="button" onclick="jQuery(\'#'.$ph['id_prefix'].'date_format\').val(\'d M, y\');">d M, y</span>
 			<span class="button" onclick="jQuery(\'#'.$ph['id_prefix'].'date_format\').val(\'d MM, y\');">d MM, y</span>
 			<span class="button" onclick="jQuery(\'#'.$ph['id_prefix'].'date_format\').val(\'DD, d MM, yy\');">DD, d MM, yy</span>';
-
+		$this->register_global_placeholders($ph, 'date_format');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -376,7 +384,7 @@ class GetPostsForm {
 	 */
 	private function _date_max() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'date_max';
 		$ph['id']  = 'date_max';
@@ -391,7 +399,7 @@ class GetPostsForm {
 					});
 				});
 			</script>';
-
+		$this->register_global_placeholders($ph, 'date_max');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -404,7 +412,7 @@ class GetPostsForm {
 	 */
 	private function _date_min() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'date_min';
 		$ph['id']  = 'date_min';
@@ -419,7 +427,7 @@ class GetPostsForm {
 					});
 				});
 			</script>';
-
+		$this->register_global_placeholders($ph, 'date_min');
 		return self::parse($this->text_tpl, $ph);
 
 	}
@@ -438,7 +446,7 @@ class GetPostsForm {
 		$ph['id']  = 'exclude';
 		$ph['label'] = __('Exclude', SummarizePosts::txtdomain);
 		$ph['description'] = __('List posts by their ID that you wish to exclude from search results. Comma-separate multiple values.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'exclude');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -456,7 +464,7 @@ class GetPostsForm {
 		$ph['id']  = 'include';
 		$ph['label'] = __('Include', SummarizePosts::txtdomain);
 		$ph['description'] = __('List posts by their ID that you wish to return.  Usually this option is not used with any other search options. Comma-separate multiple values.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'include');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -470,13 +478,13 @@ class GetPostsForm {
 	 */
 	private function _limit() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'limit';
 		$ph['id']  = 'limit';
 		$ph['label'] = __('Limit', SummarizePosts::txtdomain);
 		$ph['description'] = __('Limit the number of results returned. If pagination is enabled, this number will be the number of results shown per page.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'limit');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -508,7 +516,7 @@ class GetPostsForm {
 			$ph['label'] = $label;
 			$ph['options'] .=  self::parse($this->option_tpl, $ph);
 		}
-
+		$this->register_global_placeholders($ph, 'match_rule');
 		return self::parse($this->select_wrapper_tpl, $ph);
 	}
 
@@ -526,8 +534,8 @@ class GetPostsForm {
 		$ph['id']  = 'meta_key';
 		$ph['label'] = __('Meta Key', SummarizePosts::txtdomain);
 		$ph['description'] = __('Name of a custom field, to be used in conjuncture with <em>meta_value</em>.', SummarizePosts::txtdomain);
-
-		return self::parse($this->text_tpl, $ph);			
+		$this->register_global_placeholders($ph, 'meta_key');
+		return self::parse($this->text_tpl, $ph);
 	}
 
 
@@ -544,7 +552,7 @@ class GetPostsForm {
 		$ph['id']  = 'meta_value';
 		$ph['label'] = __('Meta Value', SummarizePosts::txtdomain);
 		$ph['description'] = __('Value of a custom field, to be used in conjuncture with <em>meta_key</em>.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'meta_value');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -562,7 +570,7 @@ class GetPostsForm {
 		$ph['id']  = 'offset';
 		$ph['label'] = __('Offset', SummarizePosts::txtdomain);
 		$ph['description'] = __('Number of results to skip.  Usually this is used only programmatically when pagination is enabled.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'offset');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -583,7 +591,7 @@ class GetPostsForm {
 		$ph['description'] = __('Check which post-types you wish to omit from search results.', SummarizePosts::txtdomain);
 
 		$i = 0;
-		$ph['checkboxes'] = ''; 
+		$ph['checkboxes'] = '';
 		$post_types = get_post_types();
 		foreach ($post_types as $k => $pt) {
 			$ph2 = $this->placeholders;
@@ -595,7 +603,7 @@ class GetPostsForm {
 			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
 			$i++;
 		}
-		
+		$this->register_global_placeholders($ph, 'omit_post_type');
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 	}
 
@@ -604,7 +612,7 @@ class GetPostsForm {
 	/**
 	 * Order of results: ascending, descending
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _order() {
 		$ph = $this->placeholders;
@@ -614,7 +622,7 @@ class GetPostsForm {
 		$ph['label'] = __('Order', SummarizePosts::txtdomain);
 		$ph['description'] = __('What order should search results be returned in? See also the <em>orderby</em> parameter.', SummarizePosts::txtdomain);
 		$ph['checkboxes'] = '';
-		
+
 		$ph2 = $this->placeholders;
 		$ph2['value'] = 'ASC';
 		$ph2['label'] = __('Ascending', SummarizePosts::txtdomain);
@@ -628,17 +636,20 @@ class GetPostsForm {
 		$ph2['value'] = 'DESC';
 		$ph2['label'] = __('Descending', SummarizePosts::txtdomain);
 		$ph2['id'] = 'order_desc';
-		
+
 		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph2);
-		
-		
+
+		$this->register_global_placeholders($ph, 'order');
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 
 	}
 
+
 	//------------------------------------------------------------------------------
 	/**
-	 * 
+	 *
+	 *
+	 * @return string
 	 */
 	private function _orderby() {
 		$ph = $this->placeholders;
@@ -647,18 +658,20 @@ class GetPostsForm {
 		$ph['id']  = 'orderby';
 		$ph['label'] = __('Order By', SummarizePosts::txtdomain);
 		$ph['description'] = __('Which column should results be sorted by. Default: ID', SummarizePosts::txtdomain);
-		return self::parse($this->text_tpl, $ph);	
+		$this->register_global_placeholders($ph, 'orderby');
+		return self::parse($this->text_tpl, $ph);
 	}
-	
+
+
 	//------------------------------------------------------------------------------
 	/**
 	 * Enable pagination?
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _paginate() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'paginate';
 		$ph['id']  = 'paginate';
@@ -666,6 +679,7 @@ class GetPostsForm {
 		$ph['description'] = ''; // __('.', SummarizePosts::txtdomain);
 
 		$ph['checkboxes'] = self::parse($this->checkbox_tpl, $ph);
+		$this->register_global_placeholders($ph, 'paginate');
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 	}
 
@@ -673,6 +687,8 @@ class GetPostsForm {
 	//------------------------------------------------------------------------------
 	/**
 	 * post_date
+	 *
+	 * @return unknown
 	 */
 	private function _post_date() {
 		$ph = $this->placeholders;
@@ -690,7 +706,7 @@ class GetPostsForm {
 					});
 				});
 			</script>';
-
+		$this->register_global_placeholders($ph, 'post_date');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -699,7 +715,7 @@ class GetPostsForm {
 	/**
 	 * post_mime_type
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _post_mime_type() {
 		$ph = $this->placeholders;
@@ -708,6 +724,7 @@ class GetPostsForm {
 		$ph['id']  = 'post_mime_type';
 		$ph['label'] = __('Post MIME Type', SummarizePosts::txtdomain);
 		$ph['description'] = __('This is useful for searching media posts.', SummarizePosts::txtdomain);
+		$this->register_global_placeholders($ph, 'post_mime_type');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -716,7 +733,7 @@ class GetPostsForm {
 	/**
 	 * post_modified
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	private function _post_modified() {
 		$ph = $this->placeholders;
@@ -734,7 +751,7 @@ class GetPostsForm {
 					});
 				});
 			</script>';
-
+		$this->register_global_placeholders($ph, 'post_modified');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -752,7 +769,7 @@ class GetPostsForm {
 		$ph['id']  = 'post_title';
 		$ph['label'] = __('Post Parent', SummarizePosts::txtdomain);
 		$ph['description'] = __('Retrieve all posts that are children of the post ID specified. Comma-separate multiple values.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'post_parent');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -772,7 +789,7 @@ class GetPostsForm {
 		$ph['description'] = __('Most searches will be for published posts.', SummarizePosts::txtdomain);
 
 		$i = 0;
-		$ph['checkboxes'] = ''; 
+		$ph['checkboxes'] = '';
 		$post_statuses = array('draft', 'inherit', 'publish', 'auto-draft');
 
 		foreach ($post_statuses as $ps) {
@@ -785,7 +802,7 @@ class GetPostsForm {
 			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
 			$i++;
 		}
-		
+		$this->register_global_placeholders($ph, 'post_status');
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 	}
 
@@ -803,7 +820,7 @@ class GetPostsForm {
 		$ph['id']  = 'post_title';
 		$ph['label'] = __('Post Title', SummarizePosts::txtdomain);
 		$ph['description'] = __('Retrieve posts with this exact title.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'post_title');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -824,7 +841,7 @@ class GetPostsForm {
 		$ph['description'] = __('Check which post-types you wish to search.', SummarizePosts::txtdomain);
 
 		$i = 0;
-		$ph['checkboxes'] = ''; 
+		$ph['checkboxes'] = '';
 		$post_types = get_post_types();
 		foreach ($post_types as $k => $pt) {
 			$ph2 = $this->placeholders;
@@ -836,7 +853,7 @@ class GetPostsForm {
 			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
 			$i++;
 		}
-		
+		$this->register_global_placeholders($ph, 'post_type');
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 	}
 
@@ -854,7 +871,7 @@ class GetPostsForm {
 		$ph['id']  = 'search_columns';
 		$ph['label'] = __('Search Columns', SummarizePosts::txtdomain);
 		$ph['description'] = __('When searching by a <em>search_term</em>, which define columns should be searched. Comma-separate multiple values.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'search_columns');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -863,7 +880,7 @@ class GetPostsForm {
 	/**
 	 * Generates simple search term box.
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _search_term() {
 		$ph = $this->placeholders;
@@ -872,7 +889,7 @@ class GetPostsForm {
 		$ph['id']  = 'search_term';
 		$ph['label'] = __('Search Term', SummarizePosts::txtdomain);
 		$ph['description'] = __('Search posts for this term. Use the <em>search_columns</em> parameter to specify which columns are searched for the term.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'search_term');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -881,11 +898,11 @@ class GetPostsForm {
 	/**
 	 * taxonomy
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _taxonomy() {
 		$ph = $this->placeholders;
-		
+
 		$ph['options'] = '';
 		$taxonomies = get_taxonomies();
 		foreach ($taxonomies as $t) {
@@ -901,7 +918,7 @@ class GetPostsForm {
 		$ph['label'] = __('Author', SummarizePosts::txtdomain);
 		$ph['description'] = __('Choose which taxonomy to search in. Used in conjunction with <em>taxonomy_term</em>.', SummarizePosts::txtdomain);
 		$ph['size'] = 1;
-
+		$this->register_global_placeholders($ph, 'search_taxonomy');
 		return self::parse($this->select_wrapper_tpl, $ph);
 	}
 
@@ -914,13 +931,13 @@ class GetPostsForm {
 	 */
 	private function _taxonomy_depth() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'taxonomy_depth';
 		$ph['id']  = 'taxonomy_depth';
 		$ph['label'] = __('Taxonomy Depth', SummarizePosts::txtdomain);
 		$ph['description'] = __('When doing a hierarchical taxonomical search (e.g. by sub-categories), increase this number to reflect how many levels down the hierarchical tree should be searched. For example, 1 = return posts classified with the given taxonomical term (e.g. mammals), 2 = return posts classified with the given term or with the sub-taxonomies (e.g. mammals or dogs). (default: 1).', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'taxonomy_depth');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -933,13 +950,13 @@ class GetPostsForm {
 	 */
 	private function _taxonomy_slug() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'taxonomy_slug';
 		$ph['id']  = 'taxonomy_slug';
 		$ph['label'] = __('Taxonomy Slug', SummarizePosts::txtdomain);
 		$ph['description'] = __('The taxonomy slug is the URL-friendly taxonomy term.', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'taxonomy_slug');
 		return self::parse($this->text_tpl, $ph);
 	}
 
@@ -948,17 +965,17 @@ class GetPostsForm {
 	/**
 	 * taxonomy_term
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _taxonomy_term() {
 		$ph = $this->placeholders;
-		
+
 		$ph['value'] = '';
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
 		$ph['label'] = __('Taxonomy Term', SummarizePosts::txtdomain);
 		$ph['description'] = __('', SummarizePosts::txtdomain);
-
+		$this->register_global_placeholders($ph, 'taxonomy_term');
 		return self::parse($this->text_tpl, $ph);
 
 	}
@@ -971,7 +988,7 @@ class GetPostsForm {
 	 * @return string
 	 */
 	private function _yearmonth() {
-	
+
 		$ph = $this->placeholders;
 		$ph['options'] = '';
 		global $wpdb;
@@ -993,8 +1010,8 @@ class GetPostsForm {
 		$ph['id']  = 'yearmonth';
 		$ph['label'] = __('Month', SummarizePosts::txtdomain);
 		$ph['description'] = __("Choose which month's posts you wish to view. This relies on the <em>date_column</em> parameter.", SummarizePosts::txtdomain);
-		$ph['size'] = 5;
-
+		$ph['size'] = 1;
+		$this->register_global_placeholders($ph, 'yearmonth');
 		return self::parse($this->select_wrapper_tpl, $ph);
 	}
 
@@ -1003,27 +1020,26 @@ class GetPostsForm {
 	//! Public Functions
 	//------------------------------------------------------------------------------
 	/**
-	* Format any errors in an unordered list, or returns a message saying there were no errors.
-	*/
-	public function get_errors()
-	{
+	 * Format any errors in an unordered list, or returns a message saying there were no errors.
+	 *
+	 * @return string
+	 */
+	public function get_errors() {
 
-		if (!empty($this->errors))
-		{
+		if (!empty($this->errors)) {
 			$output = '';
 			$items = '';
-			foreach ($this->errors as $id => $e)
-			{
+			foreach ($this->errors as $id => $e) {
 				$items .= '<li>'.$e.'</li>' ."\n";
 			}
 			$output = '<ul>'."\n".$items.'</ul>'."\n";
 			return $output;
 		}
-		else
-		{
+		else {
 			return __('There were no errors.');
-		}			
+		}
 	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1032,24 +1048,22 @@ class GetPostsForm {
 	 * @param array   specify which parameters you want to search by
 	 * @param array   Limit selectable options, e.g. you may want the user to search
 	 *     only some (but not all) post_types.
-	 * @param array   Hard limits. These ar invisible to the user on the generated form,
+	 * @param array   Hard limits. These are invisible to the user on the generated form,
 	 *     but if set, they ensure that the user cannot view data they aren't
 	 *     supposed to see.
 	 * @param string  string to format the output.
-	 * @param unknown $search_by (optional)
-	 * @param unknown $tpl       (optional)
-	 * @return unknown
+	 * @param array   $search_by (optional) array containing elements you want to include in the generated search form.
+	 * @param string  $tpl       (optional) formatting string containing [+placeholders+]
+	 * @return string HTML form.
 	 */
-	public function generate($search_by=array(), $tpl=null) {
+	public function generate($search_by=array()) {
 
 		static $instantiation_count = 0;
 		$instantiation_count++;
 		$this->placeholders['form_number'] = $instantiation_count;
 		$this->placeholders['css'] = $this->get_css();
-		
-		if (empty($tpl)) {
-			$tpl = $this->form_tpl;
-		}
+
+		// Defaults
 		if (!empty($search_by)) {
 			// override
 			$this->search_by = $search_by;
@@ -1057,17 +1071,19 @@ class GetPostsForm {
 
 		$output = '';
 		$this->placeholders['content'] = '';
+		// Each part of the form is generated by component functions that correspond
+		// exactly to the $search_by arguments.
 		foreach ($this->search_by as $p) {
 			$function_name = '_'.$p;
 			if (method_exists($this, $function_name)) {
 				$this->placeholders[$p] = $this->$function_name();
-				// Keep the main 'content' bit populated.
+				// Keep the main 'content' bit populated: the content is the summ total of all generated elements.
 				$this->placeholders['content'] .= $this->placeholders[$p];
 			}
 			else {
 				$this->placeholders[$p] = $this->__call($p);
 				// Keep the main 'content' bit populated.
-				$this->placeholders['content'] .= $this->placeholders[$p];		
+				$this->placeholders['content'] .= $this->placeholders[$p];
 				$this->errors['invalid_searchby_parameter'] = sprintf( __('Possible invalid search_by parameter:'), "<em>$p</em>");
 			}
 		}
@@ -1080,13 +1096,13 @@ class GetPostsForm {
 		$this->placeholders['nonce'] = $this->get_nonce_field();
 		$this->placeholders['help'] = implode(', ', $all_placeholders);
 
-		return $this->parse($tpl, $this->placeholders);
+		return $this->parse($this->form_tpl, $this->placeholders);
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Get the CSS to be used with this form. 
+	 * Get the CSS to be used with this form.
 	 *
 	 * @return string
 	 */
@@ -1119,12 +1135,12 @@ class GetPostsForm {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Set CSS for the form.  Due to WP's way of printing everything instead of 
+	 * Set CSS for the form.  Due to WP's way of printing everything instead of
 	 * returning it, we can't add stylesheets easily via a shortcode, so instead
 	 * we slurp the CSS defintions (either from a file or string), and print them
 	 * into a <style> tag above the form.  Janky-alert!
 	 *
-	 * @param string $css
+	 * @param string  $css
 	 * @param boolean $is_file (optional)
 	 */
 	public function set_css($css, $is_file=true) {
@@ -1132,7 +1148,7 @@ class GetPostsForm {
 			if (file_exists($css)) {
 				$this->css = file_get_contents($css);
 			}
-			else{
+			else {
 				$this->errors['css_file_not_found'] = sprintf(__('CSS file not found %s'), "<em>$css</em>");
 			}
 		}
@@ -1144,14 +1160,30 @@ class GetPostsForm {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * This assists us in making custom formatting templates as flexible as possible.
+	 *
+	 * @return none this populates keys in $this->placeholders
+	 * @param array   $array     contains key/value pairs corresponding to placeholder => replacement-values
+	 * @param string  $fieldname is the name of the field for which these placeholders are being generated.
+	 */
+	public function register_global_placeholders($array, $fieldname) {
+		foreach ($array as $key => $value) {
+			$ph = $fieldname.'.'.$key;
+			$this->placeholders[$ph] = $value;
+		}
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
 	 * Because there can be CSS id conflicts, this function allows the user to set
 	 * a custom prefix to all the element ids generated by this class.
 	 *
-	 * @param string $prefix used in the field id's.
+	 * @param string  $prefix used in the field id's.
 	 */
 	public function set_id_prefix($prefix) {
 		if (is_scalar($prefix)) {
-			$this->id_prefix = $prefix;
+			$this->placeholders['id_prefix'] = $prefix;
 		}
 		else {
 			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', SummarizePosts::txtdomain), __FUNCTION__);
@@ -1165,11 +1197,11 @@ class GetPostsForm {
 	 * a custom prefix to all field names generated by this class. This helps avoid
 	 * conflicts in the $_POST array.
 	 *
-	 * @param string $prefix
+	 * @param string  $prefix
 	 */
 	public function set_name_prefix($prefix) {
 		if (is_scalar($prefix)) {
-			$this->name_prefix = $prefix;
+			$this->placeholders['name_prefix'] = $prefix;
 		}
 		else {
 			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', SummarizePosts::txtdomain), __FUNCTION__);
@@ -1181,7 +1213,7 @@ class GetPostsForm {
 	/**
 	 * Sets the "No Results" message.
 	 *
-	 * @param string $msg the message you want to display if no results are found.
+	 * @param string  $msg the message you want to display if no results are found.
 	 */
 	public function set_no_results_msg($msg) {
 		if (is_scalar($msg)) {
@@ -1199,7 +1231,7 @@ class GetPostsForm {
 	 * values, e.g.
 	 * $str = wp_nonce_field('my_action', 'my_nonce_name', true, false);
 	 *
-	 * @param string $str to be used in as the nonce fields.
+	 * @param string  $str to be used in as the nonce fields.
 	 */
 	public function set_nonce_field($str) {
 		if (is_scalar($str)) {
@@ -1210,7 +1242,27 @@ class GetPostsForm {
 		}
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Set the formatting template (tpl) used to format the final output of the 
+	 * generate() method.
+	 * 
+	 * @param	string	$tpl
+	 * @return	none
+	 */
+	public function set_tpl($tpl) {
+		if (!is_scalar($tpl)) {
+			$this->errors['form_tpl_not_string'] = __('Invalid input to set_tpl() function. Input must be a string.');
+			return;
+		}
+		if (empty($tpl)) {
+			$this->errors['form_tpl_not_string'] = __('set_tpl(): Formatting string must not be empty!');
+			return;
+		}
+		
+		$this->form_tpl = $tpl;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * SYNOPSIS: a simple parsing function for basic templating.
@@ -1240,4 +1292,6 @@ class GetPostsForm {
 
 
 }
+
+
 /*EOF*/

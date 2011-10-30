@@ -10,7 +10,7 @@ if ( defined('WP_UNINSTALL_PLUGIN'))
 {
 	include_once('includes/constants.php');
 	include_once('includes/CCTM.php');
-	include_once('includes/CCTMFormElement.php');
+	include_once('includes/CCTM_FormElement.php');
 	
 	// If the custom fields modified anything, we need to give them this 
 	// opportunity to clean it up.

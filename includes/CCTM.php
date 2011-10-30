@@ -43,7 +43,7 @@ class CCTM {
 	 */
 	const menu_position = 71;
 
-	// Each class that extends either the CCTMFormElement class or the
+	// Each class that extends either the CCTM_FormElement class or the
 	// the CCTMOutputFilter class must prefix this to its class name.
 	const classname_prefix = 'CCTM_';
 
@@ -1578,7 +1578,7 @@ if ( empty(self::$data) ) {
 		}
 
 		// and Load the file...
-		include_once CCTM_PATH.'/includes/CCTMFormElement.php';
+		include_once CCTM_PATH.'/includes/CCTM_FormElement.php';
 		if (file_exists($element_file)) {
 			include_once $element_file;  // <-- this will flat-out bomb on syntax errors!
 			if ( !class_exists(self::classname_prefix.$field_type) ) {
