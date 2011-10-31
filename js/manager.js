@@ -187,9 +187,6 @@ function thickbox_searchform(id) {
 Emulates WordPress' Media Browser
 ------------------------------------------------------------------------------*/
 function thickbox_upload_image(id) {
-	// Remove any existing thickbox: this will force the thickbox to refresh if
-	// you are calling this function from within a thickbox.
-	tb_remove();
 
 	jQuery.post(
 	    cctm.ajax_url,
@@ -200,13 +197,7 @@ function thickbox_upload_image(id) {
 	    },
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#target_'+id).html(response);
-			
-			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
-			W = W - 80;
-			H = H - 84;
-			// then thickbox the div
-			tb_show( cctm.label_upload_image, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
+			jQuery('#cctm_thickbox').html(response);
 	    }
 	);	
 }
@@ -232,7 +223,6 @@ function change_page(page_number) {
 			
 	    }
 	);	
-	
 }
 
 

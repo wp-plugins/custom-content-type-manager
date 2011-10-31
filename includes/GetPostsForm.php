@@ -61,7 +61,7 @@ class GetPostsForm {
 
 	// Used for radio input
 	public $radio_tpl = '
-		<input class="[+input_class+]" type="radio" name="[+name_prefix+][+name+]" id="[+id_prefix+][+id+]" value="[+value+]" /> <label class="[+label_class+]" id="[+id+]_label" for="[+id_prefix+][+id+]">[+label+]</label>';
+		<input class="[+input_class+]" type="radio" name="[+name_prefix+][+name+]" id="[+id_prefix+][+id+]" value="[+value+]" [+is_checked+]/> <label class="[+label_class+]" id="[+id+]_label" for="[+id_prefix+][+id+]">[+label+]</label>';
 
 	// dropdowns and multiselects
 	public $select_wrapper_tpl = '
@@ -145,6 +145,11 @@ class GetPostsForm {
 
 	// Describes how we're going to search
 	public $search_by = array();
+
+	/**
+	 * Values to populate the fields with
+	 */
+	public $values = array();
 
 	/**
 	 * Any valid key from GetPostsQuery (populated @ instantiation)
@@ -282,7 +287,8 @@ class GetPostsForm {
 	 */
 	private function _append() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$val = 
+		$ph['value'] = $this->get_value('append', 'ids');
 		$ph['name'] = 'append';
 		$ph['id']  = 'append';
 		$ph['label'] = __('Append', SummarizePosts::txtdomain);
@@ -300,7 +306,7 @@ class GetPostsForm {
 	 */
 	private function _author() {
 		$ph = $this->placeholders;
-
+		$current_value = $this->get_value('author');
 		global $wpdb;
 		$authors = $wpdb->get_results("SELECT ID, display_name from $wpdb->users ORDER BY display_name");
 
@@ -308,6 +314,9 @@ class GetPostsForm {
 		foreach ($authors as $a) {
 			$ph['value'] = $a->display_name;
 			$ph['label'] = $a->display_name .'('.$a->ID.')';
+			if ($current_value == $a->display_name) {
+				$ph['is_selected'] = ' selected="selected"';
+			}		
 			$ph['options'] .=  self::parse($this->option_tpl, $ph);
 		}
 
@@ -315,7 +324,7 @@ class GetPostsForm {
 		$ph['name'] = 'author';
 		$ph['id']  = 'author';
 		$ph['label'] = __('Author', SummarizePosts::txtdomain);
-		$ph['description'] = __('List posts by their ID that you wish to include on every search.', SummarizePosts::txtdomain);
+		$ph['description'] = __('Select an author whose posts you want to see.', SummarizePosts::txtdomain);
 		$ph['size'] = 5;
 		$this->register_global_placeholders($ph, 'author');
 		return self::parse($this->select_wrapper_tpl, $ph);
@@ -332,7 +341,7 @@ class GetPostsForm {
 	private function _date_column() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('date_column', 'az_');
 		$ph['name'] = 'date_column';
 		$ph['id']  = 'date_column';
 		$ph['label'] = __('Date Columns', SummarizePosts::txtdomain);
@@ -358,7 +367,7 @@ class GetPostsForm {
 	private function _date_format() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('date_format', 'az_');
 		$ph['name'] = 'date_format';
 		$ph['id']  = 'date_format';
 		$ph['label'] = __('Date Format', SummarizePosts::txtdomain);
@@ -385,7 +394,7 @@ class GetPostsForm {
 	private function _date_max() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('date_max', 'date');
 		$ph['name'] = 'date_max';
 		$ph['id']  = 'date_max';
 		$ph['label'] = __('Date Maximum', SummarizePosts::txtdomain);
@@ -413,7 +422,7 @@ class GetPostsForm {
 	private function _date_min() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('date_min', 'date');
 		$ph['name'] = 'date_min';
 		$ph['id']  = 'date_min';
 		$ph['label'] = __('Date Minimum', SummarizePosts::txtdomain);
@@ -441,7 +450,7 @@ class GetPostsForm {
 	 */
 	private function _exclude() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('exclude', 'ids');
 		$ph['name'] = 'exclude';
 		$ph['id']  = 'exclude';
 		$ph['label'] = __('Exclude', SummarizePosts::txtdomain);
@@ -459,7 +468,7 @@ class GetPostsForm {
 	 */
 	private function _include() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('include', 'ids');
 		$ph['name'] = 'include';
 		$ph['id']  = 'include';
 		$ph['label'] = __('Include', SummarizePosts::txtdomain);
@@ -479,7 +488,7 @@ class GetPostsForm {
 	private function _limit() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('limit', 'integer');
 		$ph['name'] = 'limit';
 		$ph['id']  = 'limit';
 		$ph['label'] = __('Limit', SummarizePosts::txtdomain);
@@ -498,7 +507,7 @@ class GetPostsForm {
 	private function _match_rule() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('match_rule', 'and_or');
 		$ph['name'] = 'match_rule';
 		$ph['id']  = 'match_rule';
 		$ph['label'] = __('Match Rule', SummarizePosts::txtdomain);
@@ -529,7 +538,7 @@ class GetPostsForm {
 	 */
 	private function _meta_key() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('meta_key', 'az_');
 		$ph['name'] = 'meta_key';
 		$ph['id']  = 'meta_key';
 		$ph['label'] = __('Meta Key', SummarizePosts::txtdomain);
@@ -543,11 +552,11 @@ class GetPostsForm {
 	/**
 	 * Meta key is the name of a custom field from wp_postmeta: should be used with meta_value
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _meta_value() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = htmlspecialchars($this->get_value('meta_value'));
 		$ph['name'] = 'meta_value';
 		$ph['id']  = 'meta_value';
 		$ph['label'] = __('Meta Value', SummarizePosts::txtdomain);
@@ -565,7 +574,7 @@ class GetPostsForm {
 	 */
 	private function _offset() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('offset', 'integer');
 		$ph['name'] = 'offset';
 		$ph['id']  = 'offset';
 		$ph['label'] = __('Offset', SummarizePosts::txtdomain);
@@ -586,7 +595,7 @@ class GetPostsForm {
 
 		$ph['label'] = __('Omit Post Types', SummarizePosts::txtdomain);
 		$ph['id']  = 'omit_post_type';
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('omit_post_type', 'az_');
 		$ph['name'] = 'omit_post_type[]';
 		$ph['description'] = __('Check which post-types you wish to omit from search results.', SummarizePosts::txtdomain);
 
@@ -616,7 +625,9 @@ class GetPostsForm {
 	 */
 	private function _order() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+
+		$current_value = $this->get_value('order');
+
 		$ph['name'] = 'order';
 		$ph['id']  = 'order';
 		$ph['label'] = __('Order', SummarizePosts::txtdomain);
@@ -624,6 +635,9 @@ class GetPostsForm {
 		$ph['checkboxes'] = '';
 
 		$ph2 = $this->placeholders;
+		if ($current_value == 'ASC') {
+			$ph2['is_checked'] = ' checked="checked"';
+		}
 		$ph2['value'] = 'ASC';
 		$ph2['label'] = __('Ascending', SummarizePosts::txtdomain);
 		$ph2['id'] = 'order_asc';
@@ -632,12 +646,15 @@ class GetPostsForm {
 		$ph2['label_class'] = 'label_radio';
 		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph2);
 
-
-		$ph2['value'] = 'DESC';
-		$ph2['label'] = __('Descending', SummarizePosts::txtdomain);
-		$ph2['id'] = 'order_desc';
-
-		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph2);
+		$ph3 = $this->placeholders;
+		if ($current_value == 'DESC') {
+			$ph3['is_checked'] = ' checked="checked"';
+		}
+		$ph3['value'] = 'DESC';
+		$ph3['label'] = __('Descending', SummarizePosts::txtdomain);
+		$ph3['id'] = 'order_desc';
+		$ph3['name'] = 'order';
+		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph3);
 
 		$this->register_global_placeholders($ph, 'order');
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
@@ -653,7 +670,7 @@ class GetPostsForm {
 	 */
 	private function _orderby() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('orderby', 'az_');
 		$ph['name'] = 'orderby';
 		$ph['id']  = 'orderby';
 		$ph['label'] = __('Order By', SummarizePosts::txtdomain);
@@ -672,7 +689,7 @@ class GetPostsForm {
 	private function _paginate() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('paginate', 'integer');
 		$ph['name'] = 'paginate';
 		$ph['id']  = 'paginate';
 		$ph['label'] = __('Paginate Results', SummarizePosts::txtdomain);
@@ -688,11 +705,11 @@ class GetPostsForm {
 	/**
 	 * post_date
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	private function _post_date() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('post_date', 'date');
 		$ph['name'] = 'post_date';
 		$ph['id']  = 'post_date';
 		$ph['label'] = __('Post Date', SummarizePosts::txtdomain);
@@ -719,7 +736,7 @@ class GetPostsForm {
 	 */
 	private function _post_mime_type() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('post_mime_type', 'az_-/');
 		$ph['name'] = 'post_mime_type';
 		$ph['id']  = 'post_mime_type';
 		$ph['label'] = __('Post MIME Type', SummarizePosts::txtdomain);
@@ -737,7 +754,7 @@ class GetPostsForm {
 	 */
 	private function _post_modified() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('post_modified', 'date');
 		$ph['name'] = 'post_modified';
 		$ph['id']  = 'post_modified';
 		$ph['label'] = __('Post Modified', SummarizePosts::txtdomain);
@@ -764,7 +781,7 @@ class GetPostsForm {
 	 */
 	private function _post_parent() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('post_parent', 'ids');
 		$ph['name'] = 'post_parent';
 		$ph['id']  = 'post_title';
 		$ph['label'] = __('Post Parent', SummarizePosts::txtdomain);
@@ -782,7 +799,7 @@ class GetPostsForm {
 	 */
 	private function _post_status() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('post_status', 'post_status');
 		$ph['name'] = 'post_status';
 		$ph['id']  = 'post_status';
 		$ph['label'] = __('Post Status', SummarizePosts::txtdomain);
@@ -815,7 +832,7 @@ class GetPostsForm {
 	 */
 	private function _post_title() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = htmlspecialchars($this->get_value('post_title'));
 		$ph['name'] = 'post_title';
 		$ph['id']  = 'post_title';
 		$ph['label'] = __('Post Title', SummarizePosts::txtdomain);
@@ -836,7 +853,7 @@ class GetPostsForm {
 
 		$ph['label'] = __('Post Types', SummarizePosts::txtdomain);
 		$ph['id']  = 'post_type';
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('post_type', 'az_');
 		$ph['name'] = 'post_type[]';
 		$ph['description'] = __('Check which post-types you wish to search.', SummarizePosts::txtdomain);
 
@@ -866,7 +883,7 @@ class GetPostsForm {
 	 */
 	private function _search_columns() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('search_columns','az_,');
 		$ph['name'] = 'search_columns';
 		$ph['id']  = 'search_columns';
 		$ph['label'] = __('Search Columns', SummarizePosts::txtdomain);
@@ -884,7 +901,7 @@ class GetPostsForm {
 	 */
 	private function _search_term() {
 		$ph = $this->placeholders;
-		$ph['value'] = '';
+		$ph['value'] = htmlspecialchars($this->get_value('search_term'));
 		$ph['name'] = 'search_term';
 		$ph['id']  = 'search_term';
 		$ph['label'] = __('Search Term', SummarizePosts::txtdomain);
@@ -902,17 +919,20 @@ class GetPostsForm {
 	 */
 	private function _taxonomy() {
 		$ph = $this->placeholders;
-
+		$current_value = $this->get_value('taxonomy');
 		$ph['options'] = '';
 		$taxonomies = get_taxonomies();
 		foreach ($taxonomies as $t) {
 			$ph2 = $this->placeholders;
 			$ph2['value'] = $t;
 			$ph2['label'] = $t;
+			if ($current_value == $t) {
+				$ph2['is_selected'] = ' selected="selected"';
+			}		
 			$ph['options'] .=  self::parse($this->option_tpl, $ph2);
 		}
 
-		$ph['value'] = '';
+		$ph['value'] = $current_value;
 		$ph['name'] = 'taxonomy';
 		$ph['id']  = 'taxonomy';
 		$ph['label'] = __('Author', SummarizePosts::txtdomain);
@@ -932,7 +952,7 @@ class GetPostsForm {
 	private function _taxonomy_depth() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('taxonomy_depth');
 		$ph['name'] = 'taxonomy_depth';
 		$ph['id']  = 'taxonomy_depth';
 		$ph['label'] = __('Taxonomy Depth', SummarizePosts::txtdomain);
@@ -951,7 +971,7 @@ class GetPostsForm {
 	private function _taxonomy_slug() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('taxonomy_slug');
 		$ph['name'] = 'taxonomy_slug';
 		$ph['id']  = 'taxonomy_slug';
 		$ph['label'] = __('Taxonomy Slug', SummarizePosts::txtdomain);
@@ -970,7 +990,7 @@ class GetPostsForm {
 	private function _taxonomy_term() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = '';
+		$ph['value'] = $this->get_value('taxonomy_term');
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
 		$ph['label'] = __('Taxonomy Term', SummarizePosts::txtdomain);
@@ -988,8 +1008,9 @@ class GetPostsForm {
 	 * @return string
 	 */
 	private function _yearmonth() {
-
 		$ph = $this->placeholders;
+		$current_value = $this->get_value('yearmonth');
+		
 		$ph['options'] = '';
 		global $wpdb;
 		// if date_column is part of wp_posts: //!TODO
@@ -1002,10 +1023,13 @@ class GetPostsForm {
 			$ph2 = $this->placeholders;
 			$ph2['value'] = $ym->yearmonth;
 			$ph2['label'] = $ym->year . ' ' . $ym->month;
+			if ($current_value == $ym->yearmonth) {
+				$ph2['is_selected'] = ' selected="selected"';
+			}
 			$ph['options'] .=  self::parse($this->option_tpl, $ph2);
 		}
 
-		$ph['value'] = '';
+		$ph['value'] = $current_value;
 		$ph['name'] = 'yearmonth';
 		$ph['id']  = 'yearmonth';
 		$ph['label'] = __('Month', SummarizePosts::txtdomain);
@@ -1045,18 +1069,12 @@ class GetPostsForm {
 	/**
 	 * Generate a form.  This is the main event.
 	 *
-	 * @param array   specify which parameters you want to search by
-	 * @param array   Limit selectable options, e.g. you may want the user to search
-	 *     only some (but not all) post_types.
-	 * @param array   Hard limits. These are invisible to the user on the generated form,
-	 *     but if set, they ensure that the user cannot view data they aren't
-	 *     supposed to see.
-	 * @param string  string to format the output.
-	 * @param array   $search_by (optional) array containing elements you want to include in the generated search form.
-	 * @param string  $tpl       (optional) formatting string containing [+placeholders+]
+	 * @param array (optional) $search_by specify which parameters you want to search by
+	 * @param array	(optional) $existing_values to populate the form e.g. from $_POST.
 	 * @return string HTML form.
 	 */
-	public function generate($search_by=array()) {
+	public function generate($search_by=array(), $existing_values=array()) {
+		$this->values = $existing_values;
 
 		static $instantiation_count = 0;
 		$instantiation_count++;
@@ -1132,7 +1150,148 @@ class GetPostsForm {
 		return $this->nonce_field;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Get a filtered value.  We filter carefully because the values might be printed
+	 * back into a form (eeep!).
+	 *
+	 * @param string $key     the key to search for in the $this->values array
+	 * @param mixed (optional) $default value to return if the value is not set.
+	 * @return mixed
+	 */
+	public function get_value($key, $default='') {
+		if ( !isset($this->values[$key]) ) {
+			return $default;
+		}
+		else {
+			if ( is_array($this->values[$key]) ) {
+				return $this->values[$key];
+			}
+			else {
+				$this->values[$key] = trim($this->values[$key]);
+				
+				switch ($key) {
+					// Comma-separated integers or array of integers
+					case 'append':
+					case 'exclude':
+					case 'include':
+					case 'post_parent':
+						if (is_array($this->values[$key])) {
+							foreach($this->values[$key] as $k => $v) {
+								$this->values[$key][$k] = (int) $v;
+							}
+						}
+						else {
+							$this->values[$key] = preg_replace('/[^0-9,]/', '', $this->values[$key]);
+						}				
+						break;
 
+					// Column-/function-name friendly
+					case 'date_column':
+					case 'meta_key':
+					case 'orderby':
+					case 'taxonomy':
+					case 'taxonomy_slug':
+						$this->values[$key] = preg_replace('/[^0-9_]/', '', $this->values[$key]);
+						break;
+					
+					// Comma-separated function-friendly names, or array of them
+					case 'post_type':
+					case 'omit_post_type':
+					case 'search_columns':
+						if (is_array($this->values[$key])) {
+							foreach($this->values[$key] as $k => $v) {
+								$this->values[$key][$k] = preg_replace('/[^0-9_]/', '', $v);
+							}
+						}
+						else {
+							$this->values[$key] = preg_replace('/[^0-9,]/', '', $this->values[$key]);
+						}
+						break;
+							
+				
+					// Dates
+					case 'date_max':
+					case 'date_min':
+					case 'post_date':
+					case 'post_mime_type':
+					case 'post_modified':					
+						if (!$this->is_date($this->values[$key])) {
+							$this->values[$key] = '';
+						}
+						break;
+						
+					// Straight-up integers
+					case 'limit':
+					case 'offset':
+					case 'paginate':
+					case 'yearmonth':
+					case 'taxonomy_depth':
+						$this->values[$key] = (int) $this->values[$key];
+						break;
+									
+					case 'match_rule':
+						$this->values[$key] = strtolower($this->values[$key]);
+						if (!in_array($this->values[$key], array('and','or'))) {
+							$this->values[$key] = '';
+						}
+						break;
+						
+					case 'order':
+						$this->values[$key] = strtoupper($this->values[$key]);
+						if (!in_array($this->values[$key], array('ASC','DESC'))) {
+							$this->values[$key] = '';
+						}
+						break;
+						
+					case 'post_status':
+						$this->values[$key] = strtolower($this->values[$key]);
+						if (!in_array($this->values[$key], array('draft','inherit','publish','auto-draft'))) {
+							$this->values[$key] = '';
+						}
+						break;
+					
+					// Anything goes									
+					case 'author':
+					case 'date_format':
+					case 'meta_value':
+					case 'post_title':
+					case 'search_term':
+					case 'taxonomy_term':
+					default:
+						$this->values[$key] = wp_kses($this->values[$key], array());
+				}
+
+				
+				return $this->values[$key];
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Ensure a valid date. 0000-00-00 qualifies as valid; if you need to ensure a REAL
+	 * date (i.e. where '0000-00-00' is not allowed), then simply marking the field required
+	 * won't work because the string '0000-00-00' is not empty.  
+	 *
+	 * @param string  $date to be checked
+	 * @return boolean whether or not the input is a valid date
+	 */
+	public function is_date($date) {
+		if (empty($date)) {
+			return false;
+		}
+		list( $y, $m, $d ) = explode('-', $date );
+
+		if ( is_numeric($m) && is_numeric($d) && is_numeric($y) && checkdate( $m, $d, $y ) ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Set CSS for the form.  Due to WP's way of printing everything instead of

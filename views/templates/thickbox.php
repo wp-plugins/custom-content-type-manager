@@ -4,7 +4,7 @@
 		<?php print $data['menu']; ?>	
 	</div>
 
-	<div id="cctm_search_posts">
+	<div id="cctm_search_posts_form">
 		<?php print $data['search_form']; ?>	
 	</div>
 

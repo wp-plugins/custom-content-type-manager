@@ -217,3 +217,19 @@ img.cctm_tiny_thumb {
 	/* clear:both; 
 	float:left; */
 }
+
+.linklike {
+	cursor:pointer;
+}
+
+.linklike:hover {
+	text-decoration: underline;
+}
+
+.post_selector_pagination_active_page {
+	font-weight: bold;
+}
+
+#cctm_search_posts_form {
+	padding-bottom: 15px;
+}

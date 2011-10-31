@@ -630,12 +630,11 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Ensure a valid date. 0000-00-00 or '' qualify as valid; if you need to ensure a REAL
+	 * Ensure a valid date. 0000-00-00 qualifies as valid; if you need to ensure a REAL
 	 * date (i.e. where '0000-00-00' is not allowed), then simply marking the field required
 	 * won't work because the string '0000-00-00' is not empty.  To require a REAL date, use
 	 * the following syntax in your definitions:
 	 * 'mydatefield' => 'date["YYYY-MM-DD","required"]
-	 * (Any TRUE value for the 2nd argument will force the date to be a real, non-null date)
 	 *
 	 * @param string  $date to be checked
 	 * @return boolean whether or not the input is a valid date
@@ -1151,25 +1150,13 @@ class GetPostsQuery {
 		if ( !$this->args['yearmonth'] ) {
 			return '';
 		}
-/*
-		print '<pre>';
-		print "Join rule:".$this->args['join_rule'];
-		print "Post table: " . $wpdb->posts;
-		print "Date Column: ".$this->args['date_column'];
-		print "prepared stuff:". $wpdb->prepare('%s', $this->args['yearmonth']);
-		print '</pre>';
-		die();
-*/
 		// AND DATE_FORMAT(wp_posts.post_modified, '%Y%m') = '201102'
-/*
-		return sprintf("%s DATE_FORMAT(%s.%s, '%Y%m') = %s"
+		return sprintf("%s DATE_FORMAT(%s.%s, '%%Y%%m') = %s"
 			, $this->args['join_rule']
 			, $wpdb->posts
 			, $this->args['date_column']
 			, $wpdb->prepare('%s', $this->args['yearmonth'])
 		);
-*/
-		return $this->args['join_rule']. " DATE_FORMAT({$wpdb->posts}.{$this->args['date_column']}, '%Y%m') = ". $wpdb->prepare('%s', $this->args['yearmonth']);
 	}
 
 
