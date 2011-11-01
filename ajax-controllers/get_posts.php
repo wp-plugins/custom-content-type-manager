@@ -42,7 +42,7 @@ if (isset($_POST['search_parameters'])) {
 
 $refined_args = $Q->sanitize_args($refined_args);
 
-$results_per_page = 4;
+$results_per_page = 12;
 $args = CCTM::get_value($def, 'search_parameters', array('post_status'=> array('publish','inherit'))); // <-- read custom search parameters, if defined.
 //$args = array_merge($args, $refined_args);
 foreach ($refined_args as $k => $v) {
@@ -134,8 +134,22 @@ foreach ($results as $r){
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
 	add_image_size('tiny_thumb', 30, 30);
-	list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
-	$r['thumbnail_src'] = $src;
+	$post_type = $r['post_type'];
+	if ($post_type == 'post') {
+		$r['thumbnail_src'] = CCTM_URL . '/images/wp-post.png';
+	}
+	elseif ($post_type == 'page') {
+		$r['thumbnail_src'] = CCTM_URL . '/images/wp-page.png';	
+	}
+	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
+		$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+		$r['thumbnail_src'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
+	}
+	else {
+		list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
+		$r['thumbnail_src'] = $src;
+	}
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
 
