@@ -201,6 +201,7 @@ class GetPostsForm {
 		$this->placeholders['description_class'] = 'input_description';
 		$this->placeholders['input_class'] = 'input_field';
 		$this->placeholders['show_all_dates'] = __('Show all dates', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all_post_types'] = __('Show all post-types', CCTM_TXTDOMAIN);
 
 		$this->valid_props = array_keys(GetPostsQuery::$defaults);
 		if (empty($search_by)) {
@@ -867,6 +868,7 @@ class GetPostsForm {
 
 		$i = 0;
 		$ph['checkboxes'] = '';
+		$ph['options'] = '';
 		$post_types = get_post_types();
 		foreach ($post_types as $k => $pt) {
 			$ph2 = $this->placeholders;
@@ -883,6 +885,7 @@ class GetPostsForm {
 			$ph2['label_class'] = 'label_checkbox';
 			$ph2['id'] = 'post_type' . $i;
 			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
+			$ph['options'] .= self::parse($this->option_tpl, $ph2);
 			$i++;
 		}
 		$this->register_global_placeholders($ph, 'post_type');

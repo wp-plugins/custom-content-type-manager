@@ -141,12 +141,31 @@ function thickbox_results(id) {
 /*------------------------------------------------------------------------------
 Where the magic happens: this sends our selection back to WordPress
 @param	integer	post_id is the ID of the attachment that has been selected
-@param	string	thumbnail_html is the html that displays a thumbnail of the post_id referenced
 ------------------------------------------------------------------------------*/
-function select_post( field_id, post_id, thumbnail_html )
+function select_post( post_id )
 {
-	jQuery('#'+field_id).val(post_id);
-	jQuery('#'+field_id+'_media').html(thumbnail_html);
+	alert('here!');
+	// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+	
+	var data = {
+	        "action" : 'get_selected_posts',
+	        "fieldname" : fieldname,
+	        "post_id": post_id,
+	        "get_selected_posts_nonce" : cctm.ajax_nonce
+	    };
+
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	// Write the response to the div
+	    	alert(response);
+			jQuery('#cctm_instance_wrapper_'+field_id).html(response);
+			
+	    }
+	);
+	
 	tb_remove();
 	return false;
 }
@@ -226,7 +245,7 @@ function change_page(page_number) {
 			jQuery('#cctm_thickbox').html(response);
 			
 	    }
-	);	
+	);
 }
 
 

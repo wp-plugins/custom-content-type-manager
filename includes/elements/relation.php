@@ -82,7 +82,25 @@ class CCTM_relation extends CCTM_FormElement
 	public function get_edit_field_instance($current_value) {
 
 		$fieldtpl = $this->get_field_tpl();
+/*
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/field_id.tpl'
+				, 'fields/_type.tpl'
+				, 'fields/_default.tpl'
+			)
+		);
+*/
+/*
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/field_id.tpl'
+				, 'fields/wrappers/_type.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
+*/
 		$wrappertpl = $this->get_wrapper_tpl();
+
+
 
 		// Populate the values (i.e. properties) of this field
 		$this->props['id'] 					= $this->get_field_id();

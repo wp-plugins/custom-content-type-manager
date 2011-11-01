@@ -20,7 +20,7 @@ $displayable_types = array_merge(CCTM::$built_in_post_types , $customized_post_t
 $displayable_types = array_unique($displayable_types);
 
 $data['row_data'] = '';
-$tpl = file_get_contents(CCTM_PATH.'/tpls/settings/post_type_tr.tpl');
+
 foreach ( $displayable_types as $post_type ) {
 	$hash = array(); // populated for the tpl
 	$hash['post_type'] = $post_type;
@@ -119,7 +119,7 @@ foreach ( $displayable_types as $post_type ) {
 		}
 		break;
 	}
-	$data['row_data'] .= CCTM::parse($tpl, $hash);
+	$data['row_data'] .= CCTM::load_view('tr_post_type.php', $hash);
 }
 
 // Flag foreign post types
@@ -136,7 +136,8 @@ if (CCTM::get_setting('show_foreign_post_types')) {
 		$hash['activate_deactivate_delete_links'] = '';
 		$hash['description'] = __('This post type has been registered by some other plugin.');
 		$hash['icon'] = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
-		$data['row_data'] .= CCTM::parse($tpl, $hash);
+		// $data['row_data'] .= CCTM::parse($tpl, $hash);
+		$data['row_data'] .= CCTM::load_view('tr_post_type.php', $hash);
 	}
 }
 
