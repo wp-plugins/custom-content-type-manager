@@ -23,7 +23,8 @@
  * 		}
  * );
  * </script>
- * @package
+ *
+ * @package CCTM
  */
 
 
@@ -84,11 +85,7 @@ class CCTM_Ajax {
 		foreach ($this->controllers as $shortname => $path) {
 			add_action( 'wp_ajax_'.$shortname, array($this, $shortname) );
 		}
-
 	}
-
-
 }
-
 
 /*EOF*/

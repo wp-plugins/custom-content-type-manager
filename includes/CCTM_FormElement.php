@@ -279,15 +279,15 @@ abstract class CCTM_FormElement {
 		$backtrace = debug_backtrace();
 		$calling_function = $backtrace[1]['function'];
 		switch ($calling_function) {
-		case 'get_create_field_instance':
-		case 'get_edit_field_instance':
-		case 'wrap_label':
-			return self::css_id_prefix . $this->name;
-			break;
-		case 'get_edit_field_definition':
-		case 'get_create_field_definition':
-		default:
-			return $this->name;
+			case 'get_create_field_instance':
+			case 'get_edit_field_instance':
+			case 'wrap_label':
+				return self::css_id_prefix . $this->name;
+				break;
+			case 'get_edit_field_definition':
+			case 'get_create_field_definition':
+			default:
+				return $this->name;
 		}
 	}
 
@@ -312,20 +312,20 @@ abstract class CCTM_FormElement {
 		$calling_function = $backtrace[1]['function'];
 
 		switch ($calling_function) {
-		case 'get_create_field_instance':
-		case 'get_edit_field_instance':
-		case 'wrap_label':
-			if ($this->is_repeatable) {
-				return self::post_name_prefix . $this->name .'[]';
-			}
-			else {
-				return self::post_name_prefix . $this->name;
-			}
-			break;
-		case 'get_edit_field_definition':
-		case 'get_create_field_definition':
-		default:
-			return $this->name;
+			case 'get_create_field_instance':
+			case 'get_edit_field_instance':
+			case 'wrap_label':
+				if ($this->is_repeatable) {
+					return self::post_name_prefix . $this->name .'[]';
+				}
+				else {
+					return self::post_name_prefix . $this->name;
+				}
+				break;
+			case 'get_edit_field_definition':
+			case 'get_create_field_definition':
+			default:
+				return $this->name;
 		}
 	}
 
@@ -369,7 +369,6 @@ abstract class CCTM_FormElement {
 			// return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
 			return false;
 		}
-
 	}
 
 

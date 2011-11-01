@@ -14,8 +14,8 @@ if (empty($raw_fieldname)) {
 }
 $fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $raw_fieldname);
 
-$field_data = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
-if (empty($field_data)) {
+$def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
+if (empty($def)) {
 	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
 	return;
 }
@@ -29,74 +29,55 @@ require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
+$Q = new GetPostsQuery(); 
+
 // This gets search data that gets passed when the user refines the search.
 $refined_args = array();
 if (isset($_POST['search_parameters'])) {
 	parse_str($_POST['search_parameters'], $refined_args);
-	//print "<pre>". print_r($refined_args, true) . '</pre>'; 
-	//exit;
+	// print '<pre>'; print_r($refined_args); print '</pre>';
 }
 
+//print '<pre>'; print_r($def); print '</pre>';
 
-$results_per_page = 10;
-$args = CCTM::get_value($field_data, 'search_parameters', array()); // <-- read custom search parameters, if defined.
-$args = array_merge($args, $refined_args);
+$refined_args = $Q->sanitize_args($refined_args);
+
+$results_per_page = 4;
+$args = CCTM::get_value($def, 'search_parameters', array('post_status'=> array('publish','inherit'))); // <-- read custom search parameters, if defined.
+//$args = array_merge($args, $refined_args);
+foreach ($refined_args as $k => $v) {
+	$args[$k] = $v;
+}
+//$args = array_merge($refined_args, $args);
+//print '<pre>'; print_r($args); print '</pre>'; exit;
 $page_number = (int) CCTM::get_value($_POST, 'page_number', 0);
 $offset = 0;
 
 // Template Variables
+$d['fieldname'] = $raw_fieldname;
+$d['page_number'] = $page_number;
+$d['orderby'] = CCTM::get_value($refined_args,'orderby');
+$d['order'] = CCTM::get_value($refined_args,'order');
+
 $d['menu'] = '<span class="linklike" onclick="javascript:thickbox_upload_image(\''.$raw_fieldname.'\');">Upload</span>';
-$d['content'] =  sprintf('<input type="hidden" id="fieldname" value="%s" />', $raw_fieldname) 
-	. sprintf('<input type="hidden" id="page_number" value="%s" />', $page_number);
+$d['content'] =  '';
 $d['search_form'] = '';
 
 
 // Generate a search form
 $Form = new GetPostsForm();
-/*
-$tpl = '
-		<form id="refine_search">
-			<div id="[+search_term.id+]_wrapper" class="[+wrapper_class+]">
-				<label for="[+id_prefix+][+search_term.id+]" class="[+label_class+]" id="[+search_term.id+]_label">[+search_term.label+]</label>
-				<input class="[+input_class+] input_field" type="text" name="[+name_prefix+][+search_term.id+]" id="[+id_prefix+][+search_term.id+]" value="[+search_term.value+]" />
-			</div>
-			
-			<div id="[+yearmonth.id+]_wrapper" class="[+wrapper_class+]">
-				<label for="[+id_prefix+][+yearmonth.id+]" class="[+label_class+]" id="[+id+]_label">[+label+]</label>
-				
-				<select size="[+yearmonth.size+]" name="[+name_prefix+][+yearmonth.name+]" class="[+input_class+]" id="[+id_prefix+][+yearmonth.id+]">
-					<option value=""></option>
-					[+yearmonth.options+]
-				</select>
-			</div>
 
-			<span class="button" onclick="javascript:refine_search(\'refine_search\');">[+search+]</span>			
-		</form>';
-*/
+$search_form_tpl = CCTM::load_tpl(
+	array('post_selector/search_forms/'.$fieldname.'.tpl'
+		, 'post_selector/search_forms/_'.$def['type'].'.tpl'
+		, 'post_selector/search_forms/_default.tpl'
+	)
+);
 
-$tpl = '
-		<form id="refine_search">
-				<label for="[+id_prefix+][+search_term.id+]" class="[+label_class+]" id="[+search_term.id+]_label">[+search_term.label+]</label>
-				<input class="[+input_class+] input_field" type="text" name="[+name_prefix+][+search_term.id+]" id="[+id_prefix+][+search_term.id+]" value="[+search_term.value+]" />
-
-			
-				<label for="[+id_prefix+][+yearmonth.id+]" class="[+label_class+]" id="[+id+]_label">[+yearmonth.label+]</label>
-				
-				<select size="[+yearmonth.size+]" name="[+name_prefix+][+yearmonth.name+]" class="[+input_class+]" id="[+id_prefix+][+yearmonth.id+]">
-					<option value=""></option>
-					[+yearmonth.options+]
-				</select>
-
-			[+order+]
-
-			<span class="button" onclick="javascript:refine_search(\'refine_search\');">[+search+]</span>
-			<span class="button" onclick="javascript:change_page(0);">Show All</span>
-		</form>';
-		
-$Form->set_tpl($tpl);
+$Form->set_tpl($search_form_tpl);
 $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
-$search_by = array('search_term','yearmonth','order'); 
+$search_by = array('search_term','yearmonth','post_type'); 
 $d['search_form'] = $Form->generate($search_by, $refined_args);
 
 // Calculate offset based on page number
@@ -105,25 +86,63 @@ if (is_numeric($page_number) && $page_number > 1) {
 }
 
 // Get the results
-$Q = new GetPostsQuery($args);
+
+/*
 $Q->paginate = true;
+$Q->orderby = CCTM::get_value($refined_args,'orderby');
+$Q->order = CCTM::get_value($refined_args,'order');
 $Q->limit = $results_per_page;
 $Q->offset = $offset;
+*/
 
-$results = $Q->get_posts();
+$args['paginate'] = true;
+$args['orderby'] = CCTM::get_value($refined_args,'orderby');
+$args['order'] = CCTM::get_value($refined_args,'order');
+$args['limit'] = $results_per_page;
+$args['offset'] = $offset;
 
 
-$d['content'] .= '<ul>';
+$results = $Q->get_posts($args);
+
+$item_tpl = CCTM::load_tpl(
+	array('post_selector/items/'.$fieldname.'.tpl'
+		, 'post_selector/items/_'.$def['type'].'.tpl'
+		, 'post_selector/items/_default.tpl'
+	)
+);
+$wrapper_tpl = CCTM::load_tpl(
+	array('post_selector/wrappers/'.$fieldname.'.tpl'
+		, 'post_selector/wrappers/_'.$def['type'].'.tpl'
+		, 'post_selector/wrappers/_default.tpl'
+	)
+);
+
+
+
+// Placeholders for the wrapper tpl
+$hash = array();
+$hash['post_title'] = __('Title', CCTM_TXTDOMAIN);
+$hash['post_date'] = __('Date', CCTM_TXTDOMAIN);
+$hash['post_status'] = __('Status', CCTM_TXTDOMAIN);
+$hash['post_parent'] = __('Parent', CCTM_TXTDOMAIN);
+$hash['post_type'] = __('Post Type', CCTM_TXTDOMAIN);
+$hash['search'] = __('Filter', CCTM_TXTDOMAIN);
+
+$hash['content'] = '';
+// And the items
 foreach ($results as $r){
+	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
 	add_image_size('tiny_thumb', 30, 30);
 	list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
 	$r['thumbnail_src'] = $src;
-	$d['content'] .= CCTM::load_view('li_post_selector.php', $r);
+	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
-$d['content'] .= '</ul>';
 
-$d['content'] .= '<div class="summarize-posts-pagination-links">'.$Q->get_pagination_links().'</div>';
+
+$d['content'] .= CCTM::parse($wrapper_tpl,$hash);
+
+$d['content'] .= '<div class="cctm_pagination_links">'.$Q->get_pagination_links().'</div>';
 
 print CCTM::load_view('templates/thickbox.php', $d);
 

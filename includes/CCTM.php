@@ -1863,6 +1863,67 @@ if ( empty(self::$data) ) {
 		self::$data = get_option( CCTM::db_key, array() );
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Similar to the load_view function, this retrieves a tpl.  It allows users to
+	 * override the built-in tpls (stored in the plugin's directory) with tpls stored
+	 * in the wp uploads directory.
+	 *
+	 * If you supply an array of arguments to $name, the first tpl (in the array[0] position)
+	 * will be looked for first in the customized directories, then in the built-ins.  If nothing
+	 * is found, the array is shifted and the next item in the array is looked for, first in the 
+	 * customized locations, then in the built-in locations.  By shifting the array, you can specify
+	 * a hierarchy of "fallbacks" to look for with any tpl.
+	 *
+	 * Developers of 3rd party components can supply a $path if they wish to use tpls
+	 * in their components.
+	 *
+	 * To prevent directory transversing, tpl names may not contain '..'!
+	 *
+	 * @param	array|string	$name: singe name or array of tpl names, each relative to the path, e.g. 'fields/date.tpl'. The first one in the list found will be used.
+	 * @param	string	(optional) $override_path: this overrides the default locations. Include a trailing /
+	 * @return	string	the file contents (not parsed).
+	 */
+	public static function load_tpl($tpls, $override_path=null) {
+		if (!is_array($tpls)){
+			$tpls = array($tpls);
+		}
+		
+		$name = array_shift($tpls);
+		
+		if (preg_match('/\.\./', $name)) {
+			die( sprintf(__('Invaid tpl name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.$name.'</em>'));
+		}
+		
+		if (!preg_match('/\.tpl$/', $name)) {
+			die( sprintf(__('Invaid tpl name! %s  Name must end with .tpl!', CCTM_TXTDOMAIN), '<em>'.$name.'</em>'));
+		}		
+		
+		// If the user supplied the path, then they must know what they're doing.
+		if ($override_path) {
+			return file_get_contents($override_path . $name);	
+		}
+		
+		// First check the user's custom directory
+		$upload_dir = wp_upload_dir();
+		$path = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/tpls/post_selector/';
+		if (file_exists($path.$name)) {
+			return file_get_contents($path.$name);
+		}
+		// Then check the built-in directory
+		elseif (file_exists(CCTM_PATH.'/tpls/'.$name)) {
+			return file_get_contents(CCTM_PATH.'/tpls/'.$name);
+		}
+		// Fallback to the next item or fail
+		else {
+			if (!empty($tpls)) {
+				return self::load_tpl($tpls, $override_path);
+			}
+			else {
+				return false;
+			}			
+		}	
+	}
 
 	//------------------------------------------------------------------------------
 	/**

@@ -69,13 +69,14 @@ class GetPostsQuery {
 
 	// Stores any errors encountered
 	public $errors = array();
-
+	public static $static_errors = array(); // like $errors, but for static context.
+	
 	// Added by the set_default() function: sets default values to use for empty fields.
 	public $default_values_empty_fields = array();
 
 	// Some functions need to know which columns exist in the wp_posts, e.g.
 	// the orderby parameter can only sort by columns in this table.
-	private $wp_posts_columns = array(
+	private static $wp_posts_columns = array(
 		'ID',
 		'post_author',
 		'post_date',
@@ -195,11 +196,8 @@ class GetPostsQuery {
 
 		$tmp = shortcode_atts( self::$defaults, $raw_args );
 
-		// Run these through the filters in __set()
-		foreach ( $tmp as $k => $v ) {
-			$this->__set($k, $v);
-		}
-
+		// Scrub up for dinner
+		$this->args = self::sanitize_args($raw_args);
 	}
 
 
@@ -211,11 +209,15 @@ class GetPostsQuery {
 	 * @return mixed
 	 */
 	public function __get($var) {
-		if ( in_array($var, $this->args) ) {
+		if ( in_array($var, array_keys($this->args))) {
 			return $this->args[$var];
 		}
+		elseif (in_array($var, array_keys(self::$defaults))) {
+			return self::$defaults[$var];
+		}
 		else {
-			return __('Invalid parameter:') . $var;
+			$this->errors[] = __('Getting invalid parameter:', CCTM_TXTDOMAIN) . $var;
+			return '';
 		}
 	}
 
@@ -265,191 +267,14 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Validate/Sanitize and set parameters. We use the magic __set function to
-	 * consolidate all of our sanitizing into the same spot.
+	 * Validate/Sanitize and set parameters. 
 	 *
 	 * @param string  $var
 	 * @param mixed   $val
 	 */
 	public function __set($var, $val) {
-
-		$var = strtolower($var);
-
-		if ( in_array($var, array_keys(self::$defaults) ) ) {
-			// if the user tries to set something to empty, we default to the default settings.
-			// Without this, the query can break, e.g. no "date" column specified.
-			if (empty($val)) {
-				$this->args[$var] = self::$defaults[$var];
-				$this->errors[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");
-			}
-			switch ($var) {
-				// Integers
-			case 'limit':
-			case 'offset':
-			case 'yearmonth':
-				$this->args[$var] = (int) $val;
-				break;
-				// ASC or DESC
-			case 'order':
-
-				$val = strtoupper($val);
-				if ( $val == 'ASC' || $val == 'DESC' ) {
-					$this->args[$var] = $val;
-				}
-				break;
-			case 'orderby':
-				if ($val == 'random') {
-					$this->sort_by_random = true;
-					$this->args['order'] = ''; // blank this out
-				}
-				elseif ( !in_array( $val, $this->wp_posts_columns) ) {
-					$this->sort_by_meta_flag = true;
-					$this->args[$var] = $val;
-					$this->errors[] = __('Possible error: orderby column not a default post column: ') . $val;
-				}
-				else {
-					$this->args[$var] = $val;
-				}
-				break;
-				// List of Integers
-			case 'include':
-			case 'exclude':
-			case 'append':
-			case 'post_parent':
-				$this->args[$var] = $this->_comma_separated_to_array($val, 'integer');
-				break;
-				// Dates
-			case 'post_modified':
-			case 'post_date':
-			case 'date':
-				// if it's a date
-				if ($this->_is_date($val) ) {
-					$this->args['post_date'] = $val;
-				}
-				else {
-					$this->errors[] = sprintf( __('Invalid date argument: %s'), $var.':'.$val );
-				}
-				break;
-				// Datetimes
-			case 'date_min':
-			case 'date_max':
-				// if is a datetime
-				if ($this->_is_datetime($val) ) {
-					$this->args[$var] = $val;
-				}
-				else {
-					$this->errors[] = sprintf( __('Invalid datetime argument: %s'), $var.':'.$val );
-				}
-				break;
-				// Date formats, some short-hand (see http://php.net/manual/en/function.date.php)
-			case 'date_format':
-				switch ($val) {
-				case '1': // e.g. March 10, 2011, 5:16 pm
-					$this->args['date_format'] = 'F j, Y, g:i a';
-					break;
-				case '2': // e.g. 10 March, 2011
-					$this->args['date_format'] = 'j F, Y';
-					break;
-				case '3': // e.g. Thursday March 10th, 2011
-					$this->args['date_format'] = 'l F jS, Y';
-					break;
-				case '4': // e.g. 3/30/11
-					$this->args['date_format'] = 'n/j/y';
-					break;
-				case '5': // e.g. 3/30/2011
-					$this->args['date_format'] = 'n/j/Y';
-					break;
-				default:
-					$this->args['date_format'] = $val;
-				}
-				break;
-				// Post Types
-			case 'post_type':
-			case 'omit_post_type':
-				$this->args[$var] = $this->_comma_separated_to_array($val, 'post_type');
-				break;
-				// Post Status
-			case 'post_status':
-				$this->args[$var] = $this->_comma_separated_to_array($val, 'post_status');
-				break;
-
-				// Almost any value... prob. should use $wpdb->prepare( $query, $mime_type.'%' )
-			case 'meta_key':
-			case 'meta_value':
-			case 'post_title':
-			case 'author':
-			case 'search_term':
-				$this->args[$var] = $val;
-				break;
-
-				// Taxonomies
-			case 'taxonomy':
-				if ( taxonomy_exists($val) ) {
-					$this->args['taxonomy'] = $val;
-				}
-				else {
-					$this->args['taxonomy'] = null;
-				}
-				break;
-				// The category_description() function adds <p> tags to the value.
-			case 'taxonomy_term':
-				$this->args['taxonomy_term'] = $this->_comma_separated_to_array($val, 'no_tags');
-				break;
-			case 'taxonomy_slug':
-				$this->args['taxonomy_slug'] = $this->_comma_separated_to_array($val, 'alpha');
-				break;
-			case 'taxonomy_depth':
-				$this->args['taxonomy_depth'] =(int) $val;
-				break;
-			case 'search_columns':
-				$this->args['search_columns'] = $this->_comma_separated_to_array($val, 'search_columns');
-				break;
-
-				// And or Or
-			case 'join_rule':
-				if ( in_array($val, array('AND', 'OR')) ) {
-					$this->args['join_rule'] = $val;
-				}
-				else {
-					$this->errors[] = __('Invalid parameter for join_rule.', CCTM_TXTDOMAIN);
-				}
-				break;
-				// match rule...
-			case 'match_rule':
-				if ( in_array($val, array('contains', 'starts_with', 'ends_with')) ) {
-					$this->args['match_rule'] = $val;
-				}
-				else {
-					$this->errors[] = __('Invalid parameter for match_rule.', CCTM_TXTDOMAIN);
-				}
-				break;
-			case 'date_column':
-				// Simple case: user specifies a column from wp_posts
-				if ( in_array($val, $this->date_cols) ) {
-					$this->args['date_column'] = $val;
-				}
-				// You can't do a date sort on a built-in wp_posts column other than the ones id'd in $this->date_cols
-				elseif ( in_array($val, $this->wp_posts_columns)) {
-					$this->errors[] = __('Invalid date column.', CCTM_TXTDOMAIN);
-				}
-				// Otherwise, we're in custom-field land
-				else {
-					$this->custom_field_date_flag = true;
-					$this->args['date_column'] = $val;
-				}
-				break;
-			case 'paginate':
-				$this->args[$var] = (bool) $val;
-				break;
-				// If you're here, it's assumed that you're trying to filter on a custom field
-			default:
-				$this->args[$var] = $val;
-			}
-
-		}
-		else {
-			$this->errors[] = __('Invalid input parameter:', CCTM_TXTDOMAIN ) . $var;
-		}
+		$args = self::sanitize_args(array($var=>$val));
+		$this->args[$var] = $args[$var];
 	}
 
 
@@ -474,7 +299,7 @@ class GetPostsQuery {
 		// We start with the parent terms...
 		$parent_terms_array = $all_terms_array;
 
-		for ( $i= 1; $i <= $this->args['taxonomy_depth']; $i++ ) {
+		for ( $i= 1; $i <= $this->taxonomy_depth; $i++ ) {
 			$terms = '';
 			foreach ($parent_terms_array as &$t) {
 				$t = $wpdb->prepare('%s', $t);
@@ -492,7 +317,7 @@ class GetPostsQuery {
 					JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id
 					WHERE wp_terms.name IN $terms
 					AND {$wpdb->term_taxonomy}.taxonomy=%s
-				)", $this->args['taxonomy']);
+				)", $this->taxonomy);
 
 			$results = $wpdb->get_results( $query, ARRAY_A );
 
@@ -598,27 +423,18 @@ class GetPostsQuery {
 	 * @return mixed  result set
 	 */
 	private function _date_format($results) {
-		if ( $this->args['date_format']) {
+		if ( $this->date_format) {
 
 			$date_cols = $this->date_cols;
-			if (!in_array($this->args['date_column'], $this->date_cols)) {
-				$date_cols[] = $this->args['date_column'];
+			if (!in_array($this->date_column, $this->date_cols)) {
+				$date_cols[] = $this->date_column;
 			}
 
 			foreach ($results as &$r) {
 				foreach ($date_cols as $key) {
-
-					if ( $this->output_type == OBJECT ) {
-						if (isset($r->$key) && !empty($r->$key)) {
-							$date = date_create($r->$key);
-							$r->$key = date_format($date, $this->args['date_format']);
-						}
-					}
-					else {
-						if (isset($r[$key]) && !empty($r[$key])) {
-							$date = date_create($r[$key]);
-							$r[$key] = date_format($date, $this->args['date_format']);
-						}
+					if (isset($r[$key]) && !empty($r[$key])) {
+						$date = date_create($r[$key]);
+						$r[$key] = date_format($date, $this->date_format);
 					}
 				}
 			}
@@ -851,37 +667,37 @@ class GetPostsQuery {
 
 		// Substitute into the query.
 		$hash = array();
-		$hash['select'] = ($this->args['paginate'])? 'SQL_CALC_FOUND_ROWS' : '';
+		$hash['select'] = ($this->paginate)? 'SQL_CALC_FOUND_ROWS' : '';
 		$hash['colon_separator'] = self::colon_separator;
 		$hash['comma_separator'] = self::comma_separator;
 		$hash['caboose']  = self::caboose;
 
-		$hash['include'] = $this->_sql_filter($wpdb->posts, 'ID', 'IN', $this->args['include']);
-		$hash['exclude'] = $this->_sql_filter($wpdb->posts, 'ID', 'NOT IN', $this->args['exclude']);
+		$hash['include'] = $this->_sql_filter($wpdb->posts, 'ID', 'IN', $this->include);
+		$hash['exclude'] = $this->_sql_filter($wpdb->posts, 'ID', 'NOT IN', $this->exclude);
 		$hash['append'] = $this->_sql_append($wpdb->posts);
 
-		$hash['omit_post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'NOT IN', $this->args['omit_post_type']);
-		$hash['post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'IN', $this->args['post_type']);
+		$hash['omit_post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'NOT IN', $this->omit_post_type);
+		$hash['post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'IN', $this->post_type);
 		$hash['post_mime_type'] = $this->_sql_filter_post_mime_type();
-		$hash['post_parent'] = $this->_sql_filter($wpdb->posts, 'post_parent', 'IN', $this->args['post_parent']);
-		$hash['post_status'] = $this->_sql_filter($wpdb->posts, 'post_status', 'IN', $this->args['post_status']);
+		$hash['post_parent'] = $this->_sql_filter($wpdb->posts, 'post_parent', 'IN', $this->post_parent);
+		$hash['post_status'] = $this->_sql_filter($wpdb->posts, 'post_status', 'IN', $this->post_status);
 		$hash['yearmonth'] = $this->_sql_yearmonth();
 		$hash['meta'] = $this->_sql_meta();
-		$hash['author'] = $this->_sql_filter('author', 'display_name', '=', $this->args['author']);
+		$hash['author'] = $this->_sql_filter('author', 'display_name', '=', $this->author);
 
-		$hash['taxonomy'] = $this->_sql_filter($wpdb->term_taxonomy, 'taxonomy', '=', $this->args['taxonomy']);
-		$hash['taxonomy_term'] = $this->_sql_filter($wpdb->terms, 'name', 'IN', $this->args['taxonomy_term']);
-		$hash['taxonomy_slug'] = $this->_sql_filter($wpdb->terms, 'slug', 'IN', $this->args['taxonomy_slug']);
+		$hash['taxonomy'] = $this->_sql_filter($wpdb->term_taxonomy, 'taxonomy', '=', $this->taxonomy);
+		$hash['taxonomy_term'] = $this->_sql_filter($wpdb->terms, 'name', 'IN', $this->taxonomy_term);
+		$hash['taxonomy_slug'] = $this->_sql_filter($wpdb->terms, 'slug', 'IN', $this->taxonomy_slug);
 
 		if ($this->custom_field_date_flag) {
-			$hash['exact_date'] = $this->_sql_custom_date_filter($this->args['post_date']);
-			$hash['date_min'] = $this->_sql_custom_date_filter($this->args['date_min'], '>=');
-			$hash['date_max'] = $this->_sql_custom_date_filter($this->args['date_max'], '<=');
+			$hash['exact_date'] = $this->_sql_custom_date_filter($this->post_date);
+			$hash['date_min'] = $this->_sql_custom_date_filter($this->date_min, '>=');
+			$hash['date_max'] = $this->_sql_custom_date_filter($this->date_max, '<=');
 		}
 		else {
-			$hash['exact_date'] = $this->_sql_filter($wpdb->posts, $this->date_column, '=', $this->args['post_date']);
-			$hash['date_min'] = $this->_sql_filter($wpdb->posts, $this->date_column, '>=', $this->args['date_min']);
-			$hash['date_max'] = $this->_sql_filter($wpdb->posts, $this->date_column, '<=', $this->args['date_max']);
+			$hash['exact_date'] = $this->_sql_filter($wpdb->posts, $this->date_column, '=', $this->post_date);
+			$hash['date_min'] = $this->_sql_filter($wpdb->posts, $this->date_column, '>=', $this->date_min);
+			$hash['date_max'] = $this->_sql_filter($wpdb->posts, $this->date_column, '<=', $this->date_max);
 			//   die($hash['date_min']);
 		}
 
@@ -900,17 +716,17 @@ class GetPostsQuery {
 			$hash['select_metasortcolumn'] = ', orderbymeta.meta_value as metasortcolumn';
 			$hash['join_for_metasortcolumn'] = sprintf('LEFT JOIN wp_postmeta orderbymeta ON %s.ID=orderbymeta.post_id AND orderbymeta.meta_key = %s'
 				, $wpdb->posts
-				, $wpdb->prepare('%s', $this->args['orderby'])
+				, $wpdb->prepare('%s', $this->orderby)
 			);
 		}
 		// Standard: sort by a column in wp_posts
 		else {
-			$hash['orderby'] = $wpdb->posts.'.'.$this->args['orderby'];
+			$hash['orderby'] = $wpdb->posts.'.'.$this->orderby;
 			$hash['select_metasortcolumn'] = '';
 			$hash['join_for_metasortcolumn'] = '';
 		}
 
-		$hash['order'] = $this->args['order'];
+		$hash['order'] = $this->order;
 		$hash['limit'] = $this->_sql_limit();
 		$hash['offset'] = $this->_sql_offset();
 
@@ -932,7 +748,7 @@ class GetPostsQuery {
 	 * @return none
 	 */
 	private function _override_args_with_url_params() {
-		if ( $this->args['paginate']) {
+		if ($this->paginate) {
 			if ( isset($_GET['page'])) {
 				$this->page = (int) $_GET['page'];
 			}
@@ -954,8 +770,8 @@ class GetPostsQuery {
 	 * @return string part of the MySQL query.
 	 */
 	private function _sql_append($table) {
-		if ($this->args['append']) {
-			return "OR $table.ID IN ({$this->args['append']})";
+		if ($this->append) {
+			return "OR $table.ID IN ({$this->append})";
 		}
 	}
 
@@ -972,7 +788,7 @@ class GetPostsQuery {
 		global $wpdb;
 		if ($date_value) {
 			$query = " AND ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value $operation %s)";
-			return $wpdb->prepare( $query, $this->args['date_column'], $date_value );
+			return $wpdb->prepare( $query, $this->date_column, $date_value );
 		}
 		else {
 			return '';
@@ -1009,7 +825,7 @@ class GetPostsQuery {
 		}
 
 		return sprintf("%s %s.%s %s %s"
-			, $this->args['join_rule']
+			, $this->join_rule
 			, $table
 			, $column
 			, $operation
@@ -1025,8 +841,8 @@ class GetPostsQuery {
 	 * @return string
 	 */
 	private function _sql_limit() {
-		if ( $this->args['limit'] ) {
-			return ' LIMIT ' . $this->args['limit'];
+		if ( $this->limit ) {
+			return ' LIMIT ' . $this->limit;
 		}
 		else {
 			return '';
@@ -1041,8 +857,8 @@ class GetPostsQuery {
 	 * @return string
 	 */
 	private function _sql_offset() {
-		if ( $this->args['limit'] && $this->args['offset'] ) {
-			return ' OFFSET '. $this->args['offset'];
+		if ( $this->limit && $this->offset ) {
+			return ' OFFSET '. $this->offset;
 		}
 		else {
 			return '';
@@ -1059,9 +875,9 @@ class GetPostsQuery {
 	 */
 	private function _sql_filter_post_mime_type() {
 		global $wpdb;
-		if ( $this->args['post_mime_type']) {
+		if ( $this->post_mime_type) {
 			$query = " AND {$wpdb->posts}.post_mime_type LIKE %s";
-			return $wpdb->prepare( $query, $this->args['post_mime_type'].'%' );
+			return $wpdb->prepare( $query, $this->post_mime_type.'%' );
 		}
 		else {
 			return '';
@@ -1087,50 +903,50 @@ class GetPostsQuery {
 	private function _sql_search() {
 		global $wpdb;
 
-		if (empty($this->args['search_term'])) {
+		if (empty($this->search_term)) {
 			return '';
 		}
 
 		$criteria = array();
-		foreach ( $this->args['search_columns'] as $c ) {
+		foreach ( $this->search_columns as $c ) {
 			// For standard columns in the wp_posts table
-			if ( in_array($c, $this->wp_posts_columns ) ) {
-				switch ($this->args['match_rule']) {
+			if ( in_array($c, self::$wp_posts_columns ) ) {
+				switch ($this->match_rule) {
 				case 'contains':
-					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->args['search_term'].'%');
+					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term.'%');
 					break;
 				case 'starts_with':
-					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->args['search_term']);
+					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term);
 					break;
 				case 'ends_with':
-					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", $this->args['search_term'].'%');
+					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", $this->search_term.'%');
 					break;
 				}
 			}
 			// For custom field "columns" in the wp_postmeta table
 			else {
-				switch ($this->args['match_rule']) {
+				switch ($this->match_rule) {
 				case 'contains':
 					$criteria[] = $wpdb->prepare("{$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s"
 						, $c
-						, '%'.$this->args['search_term'].'%');
+						, '%'.$this->search_term.'%');
 					break;
 				case 'starts_with':
 					$criteria[] = $wpdb->prepare("{$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s"
 						, $c
-						, '%'.$this->args['search_term']);
+						, '%'.$this->search_term);
 					break;
 				case 'ends_with':
 					$criteria[] = $wpdb->prepare("{$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s"
 						, $c
-						, $this->args['search_term'].'%');
+						, $this->search_term.'%');
 					break;
 				}
 			}
 		}
 
 		$query = implode(' OR ', $criteria);
-		$query = $this->args['join_rule'] . " ($query)";
+		$query = $this->join_rule . " ($query)";
 		return $query;
 	}
 
@@ -1147,15 +963,15 @@ class GetPostsQuery {
 	 */
 	private function _sql_yearmonth() {
 		global $wpdb;
-		if ( !$this->args['yearmonth'] ) {
+		if ( !$this->yearmonth ) {
 			return '';
 		}
-		// AND DATE_FORMAT(wp_posts.post_modified, '%Y%m') = '201102'
+		// e.g. AND DATE_FORMAT(wp_posts.post_modified, '%Y%m') = '201102'
 		return sprintf("%s DATE_FORMAT(%s.%s, '%%Y%%m') = %s"
-			, $this->args['join_rule']
+			, $this->join_rule
 			, $wpdb->posts
-			, $this->args['date_column']
-			, $wpdb->prepare('%s', $this->args['yearmonth'])
+			, $this->date_column
+			, $wpdb->prepare('%s', $this->yearmonth)
 		);
 	}
 
@@ -1171,20 +987,20 @@ class GetPostsQuery {
 	private function _sql_meta() {
 		global $wpdb;
 
-		if ( $this->args['meta_key'] && $this->args['meta_value']) {
+		if ( $this->meta_key && $this->meta_value) {
 			return sprintf("%s (%s.meta_key=%s AND %s.meta_value=%s)"
-				, $this->args['join_rule']
+				, $this->join_rule
 				, $wpdb->postmeta
-				, $wpdb->prepare('%s', $this->args['meta_key'])
+				, $wpdb->prepare('%s', $this->meta_key)
 				, $wpdb->postmeta
-				, $wpdb->prepare('%s', $this->args['meta_value'])
+				, $wpdb->prepare('%s', $this->meta_value)
 			);
 		}
-		elseif ($this->args['meta_key']) {
-			return $this->_sql_filter($wpdb->postmeta, 'meta_key', '=', $this->args['meta_key']);
+		elseif ($this->meta_key) {
+			return $this->_sql_filter($wpdb->postmeta, 'meta_key', '=', $this->meta_key);
 		}
 		else {
-			return $this->_sql_filter($wpdb->postmeta, 'meta_value', '=', $this->args['meta_value']);
+			return $this->_sql_filter($wpdb->postmeta, 'meta_value', '=', $this->meta_value);
 		}
 	}
 
@@ -1250,7 +1066,7 @@ class GetPostsQuery {
 	 */
 	public function get_args() {
 		$output = '<ul class="summarize-posts-argument-list">'."\n";
-		//print_r($this->args); exit;
+
 		foreach ($this->args as $k => $v) {
 			if ( is_array($v) && !empty($v) ) {
 				$output .= '<li class="summarize-posts-arg"><strong>'.$k.'</strong>: Array
@@ -1332,11 +1148,11 @@ class GetPostsQuery {
 	 * @return string message detailing errors.
 	 */
 	public function get_errors() {
-
-		if ($this->errors) {
+		$errors = $this->errors;
+		if ($errors) {
 			$output = '';
 			$items = '';
-			foreach ($this->errors as $e) {
+			foreach ($errors as $e) {
 				$items .= '<li>'.$e.'</li>' ."\n";
 			}
 			$output = '<ul>'."\n".$items.'</ul>'."\n";
@@ -1393,12 +1209,15 @@ class GetPostsQuery {
 	 */
 	public function get_posts($args=array()) {
 		global $wpdb;
+		
+		//$this->args = self::sanitize_args($args);
+			
 		// Get info from the Shortcode (if called that way).
-		$tmp = shortcode_atts( $this->args, $args );
+		//$tmp = shortcode_atts( $this->args, $args );
+		$tmp = shortcode_atts( self::$defaults, $args );
+		$this->args = self::sanitize_args($tmp);
+//		print '<pre>'. print_r($this->args, true) . print '</pre>'; exit;
 
-		foreach ( $tmp as $k => $v ) {
-			$this->__set($k, $v);
-		}
 		// only kicks in when pagination is active: this is so the URL can override
 		// specific bits of the query, e.g. the OFFSET parameter.
 		$this->_override_args_with_url_params();
@@ -1406,25 +1225,24 @@ class GetPostsQuery {
 		// if we are doing hierarchical queries, we need to trace down all the components before
 		// we do our query!
 
-		if ( $this->args['taxonomy']
-			&& ($this->args['taxonomy_term'] || $this->args['taxonomy_slug'])
-			&& $this->args['taxonomy_depth'] > 1) {
-			$this->args['taxonomy_term'] = $this->_append_children_taxonomies($this->args['taxonomy_term']);
+		if ( $this->taxonomy
+			&& ($this->taxonomy_term || $this->taxonomy_slug)
+			&& $this->taxonomy_depth > 1) {
+			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
 		}
-
-
-		// ARRAY_A or OBJECT
+		
+		// Execute the big old query.
 		$results = $wpdb->get_results( $this->_get_sql(), ARRAY_A );
 
-		if ( $this->args['paginate'] ) {
+		if ( $this->paginate ) {
 			$this->found_rows = $this->_count_posts();
 			// $this->_override_args_with_url_params();
 			include_once 'CCTM_Pagination.conf.php';
 			include_once 'CCTM_Pagination.php';
 			$this->P = new CCTM_Pagination();
 			$this->P->set_base_url( self::get_current_page_url() );
-			$this->P->set_offset($this->args['offset']); //
-			$this->P->set_results_per_page($this->args['limit']);  // You can optionally expose this to the user.
+			$this->P->set_offset($this->offset); //
+			$this->P->set_results_per_page($this->limit);  // You can optionally expose this to the user.
 			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
 		}
 
@@ -1494,6 +1312,200 @@ class GetPostsQuery {
 	}
 
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Given an array of inputs (such as those posted from a Web form), this will 
+	 * sanitize those inputs.
+	 *
+	 * @param	array	$args any valid array of arguments that can be passed to the constructor or to the get_posts() function.
+	 * @return	array	same array, sanitized values.
+	 */
+	public function sanitize_args($args) {
+		if (empty($args)) {
+			return self::$defaults;
+		}
+		foreach ($args as $var => $val) {
+		
+			$var = strtolower($var);
+
+			// if the user tries to set something to empty, we default to the default settings.
+			// Without this, the query can break, e.g. no "date" column specified.
+			if (empty($val)) {
+				if (isset(self::$defaults[$var])) {
+					$args[$var] = self::$defaults[$var];
+					$this->errors[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
+				}
+			}
+			
+			switch ($var) {
+				// Integers
+			case 'limit':
+			case 'offset':
+			case 'yearmonth':
+				$args[$var] = (int) $val;
+				break;
+				// ASC or DESC
+			case 'order':
+
+				$val = strtoupper($val);
+				if ( $val == 'ASC' || $val == 'DESC' ) {
+					$args[$var] = $val;
+				}
+				break;
+			case 'orderby':
+				if ($val == 'random') {
+					$this->sort_by_random = true;
+					$args['order'] = ''; // blank this out
+				}
+				elseif ( !in_array( $val, self::$wp_posts_columns) ) {
+					$this->sort_by_meta_flag = true;
+					$args[$var] = $val;
+					$this->errors[] = __('Possible error: orderby column not a default post column: ') . $val;
+				}
+				else {
+					$args[$var] = $val;
+				}
+				break;
+				// List of Integers
+			case 'include':
+			case 'exclude':
+			case 'append':
+			case 'post_parent':
+				$args[$var] = $this->_comma_separated_to_array($val, 'integer');
+				break;
+				// Dates
+			case 'post_modified':
+			case 'post_date':
+			case 'date':
+				// if it's a date
+				if ($this->_is_date($val) ) {
+					$args['post_date'] = $val;
+				}
+				else {
+					$this->errors[] = sprintf( __('Invalid date argument: %s'), $var.':'.$val );
+				}
+				break;
+				// Datetimes
+			case 'date_min':
+			case 'date_max':
+				// if is a datetime
+				if ($this->_is_datetime($val) ) {
+					$args[$var] = $val;
+				}
+				else {
+					$this->errors[] = sprintf( __('Invalid datetime argument: %s'), $var.':'.$val );
+				}
+				break;
+				// Date formats, some short-hand (see http://php.net/manual/en/function.date.php)
+			case 'date_format':
+				switch ($val) {
+				case '1': // e.g. March 10, 2011, 5:16 pm
+					$args['date_format'] = 'F j, Y, g:i a';
+					break;
+				case '2': // e.g. 10 March, 2011
+					$args['date_format'] = 'j F, Y';
+					break;
+				case '3': // e.g. Thursday March 10th, 2011
+					$args['date_format'] = 'l F jS, Y';
+					break;
+				case '4': // e.g. 3/30/11
+					$args['date_format'] = 'n/j/y';
+					break;
+				case '5': // e.g. 3/30/2011
+					$args['date_format'] = 'n/j/Y';
+					break;
+				default:
+					$args['date_format'] = $val;
+				}
+				break;
+				// Post Types
+			case 'post_type':
+			case 'omit_post_type':
+				$args[$var] = $this->_comma_separated_to_array($val, 'post_type');
+				break;
+				// Post Status
+			case 'post_status':
+				$args[$var] = $this->_comma_separated_to_array($val, 'post_status');
+				break;
+
+				// Almost any value... prob. should use $wpdb->prepare( $query, $mime_type.'%' )
+			case 'meta_key':
+			case 'meta_value':
+			case 'post_title':
+			case 'author':
+			case 'search_term':
+				$args[$var] = $val;
+				break;
+
+				// Taxonomies
+			case 'taxonomy':
+				if ( taxonomy_exists($val) ) {
+					$args['taxonomy'] = $val;
+				}
+				else {
+					$args['taxonomy'] = null;
+				}
+				break;
+				// The category_description() function adds <p> tags to the value.
+			case 'taxonomy_term':
+				$args['taxonomy_term'] = $this->_comma_separated_to_array($val, 'no_tags');
+				break;
+			case 'taxonomy_slug':
+				$args['taxonomy_slug'] = $this->_comma_separated_to_array($val, 'alpha');
+				break;
+			case 'taxonomy_depth':
+				$args['taxonomy_depth'] =(int) $val;
+				break;
+			case 'search_columns':
+				$args['search_columns'] = $this->_comma_separated_to_array($val, 'search_columns');
+				break;
+
+				// And or Or
+			case 'join_rule':
+				if ( in_array($val, array('AND', 'OR')) ) {
+					$args['join_rule'] = $val;
+				}
+				else {
+					$this->errors[] = __('Invalid parameter for join_rule.', CCTM_TXTDOMAIN);
+				}
+				break;
+				// match rule...
+			case 'match_rule':
+				if ( in_array($val, array('contains', 'starts_with', 'ends_with')) ) {
+					$args['match_rule'] = $val;
+				}
+				else {
+					$this->errors[] = __('Invalid parameter for match_rule.', CCTM_TXTDOMAIN);
+				}
+				break;
+			case 'date_column':
+				// Simple case: user specifies a column from wp_posts
+				if ( in_array($val, $this->date_cols) ) {
+					$args['date_column'] = $val;
+				}
+				// You can't do a date sort on a built-in wp_posts column other than the ones id'd in $this->date_cols
+				elseif ( in_array($val, self::$wp_posts_columns)) {
+					$this->errors[] = __('Invalid date column.', CCTM_TXTDOMAIN);
+				}
+				// Otherwise, we're in custom-field land
+				else {
+					$this->custom_field_date_flag = true;
+					$args['date_column'] = $val;
+				}
+				break;
+			case 'paginate':
+				$args[$var] = (bool) $val;
+				break;
+				// If you're here, it's assumed that you're trying to filter on a custom field
+			default:
+				$args[$var] = wp_kses($val, array());
+				$this->errors[] = __('Possible invalid input parameter:', CCTM_TXTDOMAIN ) . $var;
+			}
+		}
+		
+		return $args;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * SYNOPSIS: a simple parsing function for basic templating.

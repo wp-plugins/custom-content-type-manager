@@ -78,6 +78,15 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+	
+= 0.9.5 =
+
+Major release!
+
+* All Relation fields can now select multiple values.
+* Integrated the [Summarize Posts](http://code.google.com/p/wordpress-summarize-posts/) plugin: this gives all kinds of power to searching for posts.
+* Cleaner Ajax implementation [Issue 226](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226).  This should make the plugin work better on sites with customized folder structures.
+
 
 = 0.9.4.5 =
 
@@ -275,6 +284,10 @@ If you are eager to see a particular feature implemented in a future release, pl
 And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N).  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
+
+= 0.9.5 =
+
+Major boost to functionality: relation fields can now select multiple values and the post-selector thickbox can now be finely tuned to select *exactly* the posts you want.
 
 = 0.9.4.5 =
 

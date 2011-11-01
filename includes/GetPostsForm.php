@@ -172,8 +172,8 @@ class GetPostsForm {
 		$ph['value'] = '';
 		$ph['name'] = $name;
 		$ph['id']  = $name;
-		$ph['label'] = __($name, SummarizePosts::txtdomain);
-		$ph['description'] = sprintf(__('Retrieve posts with this exact %s.', SummarizePosts::txtdomain), "<em>$name</em>");
+		$ph['label'] = __($name, CCTM_TXTDOMAIN);
+		$ph['description'] = sprintf(__('Retrieve posts with this exact %s.', CCTM_TXTDOMAIN), "<em>$name</em>");
 
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -192,14 +192,15 @@ class GetPostsForm {
 		$dir = dirname(dirname(__FILE__));
 		$this->set_css( $dir.'/css/searchform.css');
 
-		$this->no_results_msg = '<p>'. __('Sorry, no results matched your search criteria.', SummarizePosts::txtdomain) . '</p>';
+		$this->no_results_msg = '<p>'. __('Sorry, no results matched your search criteria.', CCTM_TXTDOMAIN) . '</p>';
 		// some localization
-		$this->placeholders['search'] = __('Search', SummarizePosts::txtdomain);
+		$this->placeholders['search'] = __('Search', CCTM_TXTDOMAIN);
+		$this->placeholders['filter'] = __('Filter', CCTM_TXTDOMAIN);
 		$this->placeholders['label_class'] = 'input_title';
 		$this->placeholders['wrapper_class'] = 'input_wrapper';
 		$this->placeholders['description_class'] = 'input_description';
 		$this->placeholders['input_class'] = 'input_field';
-
+		$this->placeholders['show_all_dates'] = __('Show all dates', CCTM_TXTDOMAIN);
 
 		$this->valid_props = array_keys(GetPostsQuery::$defaults);
 		if (empty($search_by)) {
@@ -288,11 +289,11 @@ class GetPostsForm {
 	private function _append() {
 		$ph = $this->placeholders;
 		$val = 
-		$ph['value'] = $this->get_value('append', 'ids');
+		$ph['value'] = $this->get_value('append');
 		$ph['name'] = 'append';
 		$ph['id']  = 'append';
-		$ph['label'] = __('Append', SummarizePosts::txtdomain);
-		$ph['description'] = __('List posts by their ID that you wish to include on every search. Comma-separate multiple values.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Append', CCTM_TXTDOMAIN);
+		$ph['description'] = __('List posts by their ID that you wish to include on every search. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'append');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -323,8 +324,8 @@ class GetPostsForm {
 		$ph['value'] = '';
 		$ph['name'] = 'author';
 		$ph['id']  = 'author';
-		$ph['label'] = __('Author', SummarizePosts::txtdomain);
-		$ph['description'] = __('Select an author whose posts you want to see.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Author', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Select an author whose posts you want to see.', CCTM_TXTDOMAIN);
 		$ph['size'] = 5;
 		$this->register_global_placeholders($ph, 'author');
 		return self::parse($this->select_wrapper_tpl, $ph);
@@ -344,8 +345,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('date_column', 'az_');
 		$ph['name'] = 'date_column';
 		$ph['id']  = 'date_column';
-		$ph['label'] = __('Date Columns', SummarizePosts::txtdomain);
-		$ph['description'] = __('Which column should be used for date comparisons? Select one, or write in a custom field.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Date Columns', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Which column should be used for date comparisons? Select one, or write in a custom field.', CCTM_TXTDOMAIN);
 		$ph['javascript_options'] = '
 			<div class="js_button_wrapper">
 				<span class="js_button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_column\').val(\'post_date\');">post_date</span><br/>
@@ -370,8 +371,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('date_format', 'az_');
 		$ph['name'] = 'date_format';
 		$ph['id']  = 'date_format';
-		$ph['label'] = __('Date Format', SummarizePosts::txtdomain);
-		$ph['description'] = __('How do you want the dates in the results formatted? Use one of the shortcuts, or supply a use any value valid for the <a href="http://php.net/manual/en/function.date-format.php">date_format()</a>', SummarizePosts::txtdomain);
+		$ph['label'] = __('Date Format', CCTM_TXTDOMAIN);
+		$ph['description'] = __('How do you want the dates in the results formatted? Use one of the shortcuts, or supply a use any value valid for the <a href="http://php.net/manual/en/function.date-format.php">date_format()</a>', CCTM_TXTDOMAIN);
 
 		$ph['javascript_options'] = '
 			<span class="button" onclick="jQuery(\'#'.$ph['id_prefix'].'date_format\').val(\'mm/dd/yy\');">mm/dd/yy</span>
@@ -397,8 +398,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('date_max', 'date');
 		$ph['name'] = 'date_max';
 		$ph['id']  = 'date_max';
-		$ph['label'] = __('Date Maximum', SummarizePosts::txtdomain);
-		$ph['description'] = __('Only results from this date or before will be returned', SummarizePosts::txtdomain);
+		$ph['label'] = __('Date Maximum', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Only results from this date or before will be returned', CCTM_TXTDOMAIN);
 
 		$ph['javascript_options'] = '
 	    	<script>
@@ -425,8 +426,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('date_min', 'date');
 		$ph['name'] = 'date_min';
 		$ph['id']  = 'date_min';
-		$ph['label'] = __('Date Minimum', SummarizePosts::txtdomain);
-		$ph['description'] = __('Only results from this date or after will be returned.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Date Minimum', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Only results from this date or after will be returned.', CCTM_TXTDOMAIN);
 
 		$ph['javascript_options'] = '
 	    	<script>
@@ -453,8 +454,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('exclude', 'ids');
 		$ph['name'] = 'exclude';
 		$ph['id']  = 'exclude';
-		$ph['label'] = __('Exclude', SummarizePosts::txtdomain);
-		$ph['description'] = __('List posts by their ID that you wish to exclude from search results. Comma-separate multiple values.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Exclude', CCTM_TXTDOMAIN);
+		$ph['description'] = __('List posts by their ID that you wish to exclude from search results. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'exclude');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -468,11 +469,11 @@ class GetPostsForm {
 	 */
 	private function _include() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('include', 'ids');
+		$ph['value'] = $this->get_value('include');
 		$ph['name'] = 'include';
 		$ph['id']  = 'include';
-		$ph['label'] = __('Include', SummarizePosts::txtdomain);
-		$ph['description'] = __('List posts by their ID that you wish to return.  Usually this option is not used with any other search options. Comma-separate multiple values.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Include', CCTM_TXTDOMAIN);
+		$ph['description'] = __('List posts by their ID that you wish to return.  Usually this option is not used with any other search options. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'include');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -488,11 +489,11 @@ class GetPostsForm {
 	private function _limit() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('limit', 'integer');
+		$ph['value'] = (int) $this->get_value('limit');
 		$ph['name'] = 'limit';
 		$ph['id']  = 'limit';
-		$ph['label'] = __('Limit', SummarizePosts::txtdomain);
-		$ph['description'] = __('Limit the number of results returned. If pagination is enabled, this number will be the number of results shown per page.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Limit', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Limit the number of results returned. If pagination is enabled, this number will be the number of results shown per page.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'limit');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -510,14 +511,14 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('match_rule', 'and_or');
 		$ph['name'] = 'match_rule';
 		$ph['id']  = 'match_rule';
-		$ph['label'] = __('Match Rule', SummarizePosts::txtdomain);
-		$ph['description'] = __('Define how your search term should match.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Match Rule', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Define how your search term should match.', CCTM_TXTDOMAIN);
 		$ph['size'] = 1;
 
 		$match_rules = array(
-			'contains'   => __('Contains', SummarizePosts::txtdomain),
-			'starts_with'  => __('Starts with', SummarizePosts::txtdomain),
-			'ends_with'  => __('Ends with', SummarizePosts::txtdomain),
+			'contains'   => __('Contains', CCTM_TXTDOMAIN),
+			'starts_with'  => __('Starts with', CCTM_TXTDOMAIN),
+			'ends_with'  => __('Ends with', CCTM_TXTDOMAIN),
 		);
 		$ph['options'] = '';
 		foreach ($match_rules as $value => $label) {
@@ -541,8 +542,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('meta_key', 'az_');
 		$ph['name'] = 'meta_key';
 		$ph['id']  = 'meta_key';
-		$ph['label'] = __('Meta Key', SummarizePosts::txtdomain);
-		$ph['description'] = __('Name of a custom field, to be used in conjuncture with <em>meta_value</em>.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Meta Key', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Name of a custom field, to be used in conjuncture with <em>meta_value</em>.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'meta_key');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -559,8 +560,8 @@ class GetPostsForm {
 		$ph['value'] = htmlspecialchars($this->get_value('meta_value'));
 		$ph['name'] = 'meta_value';
 		$ph['id']  = 'meta_value';
-		$ph['label'] = __('Meta Value', SummarizePosts::txtdomain);
-		$ph['description'] = __('Value of a custom field, to be used in conjuncture with <em>meta_key</em>.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Meta Value', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Value of a custom field, to be used in conjuncture with <em>meta_key</em>.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'meta_value');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -574,11 +575,11 @@ class GetPostsForm {
 	 */
 	private function _offset() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('offset', 'integer');
+		$ph['value'] = (int) $this->get_value('offset');
 		$ph['name'] = 'offset';
 		$ph['id']  = 'offset';
-		$ph['label'] = __('Offset', SummarizePosts::txtdomain);
-		$ph['description'] = __('Number of results to skip.  Usually this is used only programmatically when pagination is enabled.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Offset', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Number of results to skip.  Usually this is used only programmatically when pagination is enabled.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'offset');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -593,11 +594,11 @@ class GetPostsForm {
 	private function _omit_post_type() {
 		$ph = $this->placeholders;
 
-		$ph['label'] = __('Omit Post Types', SummarizePosts::txtdomain);
+		$ph['label'] = __('Omit Post Types', CCTM_TXTDOMAIN);
 		$ph['id']  = 'omit_post_type';
-		$ph['value'] = $this->get_value('omit_post_type', 'az_');
+		$ph['value'] = (array) $this->get_value('omit_post_type');
 		$ph['name'] = 'omit_post_type[]';
-		$ph['description'] = __('Check which post-types you wish to omit from search results.', SummarizePosts::txtdomain);
+		$ph['description'] = __('Check which post-types you wish to omit from search results.', CCTM_TXTDOMAIN);
 
 		$i = 0;
 		$ph['checkboxes'] = '';
@@ -630,16 +631,19 @@ class GetPostsForm {
 
 		$ph['name'] = 'order';
 		$ph['id']  = 'order';
-		$ph['label'] = __('Order', SummarizePosts::txtdomain);
-		$ph['description'] = __('What order should search results be returned in? See also the <em>orderby</em> parameter.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Order', CCTM_TXTDOMAIN);
+		$ph['description'] = __('What order should search results be returned in? See also the <em>orderby</em> parameter.', CCTM_TXTDOMAIN);
 		$ph['checkboxes'] = '';
 
 		$ph2 = $this->placeholders;
 		if ($current_value == 'ASC') {
 			$ph2['is_checked'] = ' checked="checked"';
+			$ph2['is_selected'] = ' selected="selected"';
+			$this->placeholders['order.ASC.is_checked'] = ' checked="checked"';
+			$this->placeholders['order.ASC.is_selected'] = ' selected="selected"';
 		}
 		$ph2['value'] = 'ASC';
-		$ph2['label'] = __('Ascending', SummarizePosts::txtdomain);
+		$ph2['label'] = __('Ascending', CCTM_TXTDOMAIN);
 		$ph2['id'] = 'order_asc';
 		$ph2['name'] = 'order';
 		$ph2['input_class'] = 'input_radio';
@@ -649,9 +653,12 @@ class GetPostsForm {
 		$ph3 = $this->placeholders;
 		if ($current_value == 'DESC') {
 			$ph3['is_checked'] = ' checked="checked"';
+			$ph3['is_selected'] = ' selected="selected"';
+			$this->placeholders['order.DESC.is_checked'] = ' checked="checked"';
+			$this->placeholders['order.DESC.is_selected'] = ' selected="selected"';
 		}
 		$ph3['value'] = 'DESC';
-		$ph3['label'] = __('Descending', SummarizePosts::txtdomain);
+		$ph3['label'] = __('Descending', CCTM_TXTDOMAIN);
 		$ph3['id'] = 'order_desc';
 		$ph3['name'] = 'order';
 		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph3);
@@ -673,8 +680,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('orderby', 'az_');
 		$ph['name'] = 'orderby';
 		$ph['id']  = 'orderby';
-		$ph['label'] = __('Order By', SummarizePosts::txtdomain);
-		$ph['description'] = __('Which column should results be sorted by. Default: ID', SummarizePosts::txtdomain);
+		$ph['label'] = __('Order By', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Which column should results be sorted by. Default: ID', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'orderby');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -689,11 +696,11 @@ class GetPostsForm {
 	private function _paginate() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('paginate', 'integer');
+		$ph['value'] = $this->get_value('paginate');
 		$ph['name'] = 'paginate';
 		$ph['id']  = 'paginate';
-		$ph['label'] = __('Paginate Results', SummarizePosts::txtdomain);
-		$ph['description'] = ''; // __('.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Paginate Results', CCTM_TXTDOMAIN);
+		$ph['description'] = ''; // __('.', CCTM_TXTDOMAIN);
 
 		$ph['checkboxes'] = self::parse($this->checkbox_tpl, $ph);
 		$this->register_global_placeholders($ph, 'paginate');
@@ -712,8 +719,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('post_date', 'date');
 		$ph['name'] = 'post_date';
 		$ph['id']  = 'post_date';
-		$ph['label'] = __('Post Date', SummarizePosts::txtdomain);
-		$ph['description'] = __('Find posts from this date.  Use the <em>date_column</em> parameter to determine which column should be considered.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Post Date', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Find posts from this date.  Use the <em>date_column</em> parameter to determine which column should be considered.', CCTM_TXTDOMAIN);
 
 		$ph['javascript_options'] = '
 	    	<script>
@@ -739,8 +746,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('post_mime_type', 'az_-/');
 		$ph['name'] = 'post_mime_type';
 		$ph['id']  = 'post_mime_type';
-		$ph['label'] = __('Post MIME Type', SummarizePosts::txtdomain);
-		$ph['description'] = __('This is useful for searching media posts.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Post MIME Type', CCTM_TXTDOMAIN);
+		$ph['description'] = __('This is useful for searching media posts.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_mime_type');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -757,8 +764,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('post_modified', 'date');
 		$ph['name'] = 'post_modified';
 		$ph['id']  = 'post_modified';
-		$ph['label'] = __('Post Modified', SummarizePosts::txtdomain);
-		$ph['description'] = __('Find posts modified on this date.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Post Modified', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Find posts modified on this date.', CCTM_TXTDOMAIN);
 
 		$ph['javascript_options'] = '
 	    	<script>
@@ -784,8 +791,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('post_parent', 'ids');
 		$ph['name'] = 'post_parent';
 		$ph['id']  = 'post_title';
-		$ph['label'] = __('Post Parent', SummarizePosts::txtdomain);
-		$ph['description'] = __('Retrieve all posts that are children of the post ID specified. Comma-separate multiple values.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Post Parent', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Retrieve all posts that are children of the post ID specified. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_parent');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -802,8 +809,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('post_status', 'post_status');
 		$ph['name'] = 'post_status';
 		$ph['id']  = 'post_status';
-		$ph['label'] = __('Post Status', SummarizePosts::txtdomain);
-		$ph['description'] = __('Most searches will be for published posts.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Post Status', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Most searches will be for published posts.', CCTM_TXTDOMAIN);
 
 		$i = 0;
 		$ph['checkboxes'] = '';
@@ -835,8 +842,8 @@ class GetPostsForm {
 		$ph['value'] = htmlspecialchars($this->get_value('post_title'));
 		$ph['name'] = 'post_title';
 		$ph['id']  = 'post_title';
-		$ph['label'] = __('Post Title', SummarizePosts::txtdomain);
-		$ph['description'] = __('Retrieve posts with this exact title.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Post Title', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Retrieve posts with this exact title.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_title');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -850,18 +857,26 @@ class GetPostsForm {
 	 */
 	private function _post_type() {
 		$ph = $this->placeholders;
-
-		$ph['label'] = __('Post Types', SummarizePosts::txtdomain);
+		$current_value = (array) $this->get_value('post_type');
+		
+		$ph['label'] = __('Post Types', CCTM_TXTDOMAIN);
 		$ph['id']  = 'post_type';
-		$ph['value'] = $this->get_value('post_type', 'az_');
+		$ph['value'] = $this->get_value('post_type');
 		$ph['name'] = 'post_type[]';
-		$ph['description'] = __('Check which post-types you wish to search.', SummarizePosts::txtdomain);
+		$ph['description'] = __('Check which post-types you wish to search.', CCTM_TXTDOMAIN);
 
 		$i = 0;
 		$ph['checkboxes'] = '';
 		$post_types = get_post_types();
 		foreach ($post_types as $k => $pt) {
 			$ph2 = $this->placeholders;
+			$ph2['name'] = 'post_type[]';
+			if (in_array($k, $current_value)) {
+				$ph2['is_selected'] = ' selected="selected"';
+				$ph2['is_checked'] = ' checked="checked"';
+				$this->placeholders['post_type.'.$k.'.is_selected'] = ' selected="selected"';
+				$this->placeholders['post_type.'.$k.'.is_checked'] = ' checked="checked"';
+			}
 			$ph2['value'] = $k;
 			$ph2['label'] = $pt;
 			$ph2['input_class'] = 'input_checkbox';
@@ -883,11 +898,11 @@ class GetPostsForm {
 	 */
 	private function _search_columns() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('search_columns','az_,');
+		$ph['value'] = (array) $this->get_value('search_columns','az_,');
 		$ph['name'] = 'search_columns';
 		$ph['id']  = 'search_columns';
-		$ph['label'] = __('Search Columns', SummarizePosts::txtdomain);
-		$ph['description'] = __('When searching by a <em>search_term</em>, which define columns should be searched. Comma-separate multiple values.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Search Columns', CCTM_TXTDOMAIN);
+		$ph['description'] = __('When searching by a <em>search_term</em>, which define columns should be searched. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'search_columns');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -904,8 +919,8 @@ class GetPostsForm {
 		$ph['value'] = htmlspecialchars($this->get_value('search_term'));
 		$ph['name'] = 'search_term';
 		$ph['id']  = 'search_term';
-		$ph['label'] = __('Search Term', SummarizePosts::txtdomain);
-		$ph['description'] = __('Search posts for this term. Use the <em>search_columns</em> parameter to specify which columns are searched for the term.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Search Term', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Search posts for this term. Use the <em>search_columns</em> parameter to specify which columns are searched for the term.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'search_term');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -935,8 +950,8 @@ class GetPostsForm {
 		$ph['value'] = $current_value;
 		$ph['name'] = 'taxonomy';
 		$ph['id']  = 'taxonomy';
-		$ph['label'] = __('Author', SummarizePosts::txtdomain);
-		$ph['description'] = __('Choose which taxonomy to search in. Used in conjunction with <em>taxonomy_term</em>.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Author', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Choose which taxonomy to search in. Used in conjunction with <em>taxonomy_term</em>.', CCTM_TXTDOMAIN);
 		$ph['size'] = 1;
 		$this->register_global_placeholders($ph, 'search_taxonomy');
 		return self::parse($this->select_wrapper_tpl, $ph);
@@ -955,8 +970,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('taxonomy_depth');
 		$ph['name'] = 'taxonomy_depth';
 		$ph['id']  = 'taxonomy_depth';
-		$ph['label'] = __('Taxonomy Depth', SummarizePosts::txtdomain);
-		$ph['description'] = __('When doing a hierarchical taxonomical search (e.g. by sub-categories), increase this number to reflect how many levels down the hierarchical tree should be searched. For example, 1 = return posts classified with the given taxonomical term (e.g. mammals), 2 = return posts classified with the given term or with the sub-taxonomies (e.g. mammals or dogs). (default: 1).', SummarizePosts::txtdomain);
+		$ph['label'] = __('Taxonomy Depth', CCTM_TXTDOMAIN);
+		$ph['description'] = __('When doing a hierarchical taxonomical search (e.g. by sub-categories), increase this number to reflect how many levels down the hierarchical tree should be searched. For example, 1 = return posts classified with the given taxonomical term (e.g. mammals), 2 = return posts classified with the given term or with the sub-taxonomies (e.g. mammals or dogs). (default: 1).', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_depth');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -974,8 +989,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('taxonomy_slug');
 		$ph['name'] = 'taxonomy_slug';
 		$ph['id']  = 'taxonomy_slug';
-		$ph['label'] = __('Taxonomy Slug', SummarizePosts::txtdomain);
-		$ph['description'] = __('The taxonomy slug is the URL-friendly taxonomy term.', SummarizePosts::txtdomain);
+		$ph['label'] = __('Taxonomy Slug', CCTM_TXTDOMAIN);
+		$ph['description'] = __('The taxonomy slug is the URL-friendly taxonomy term.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_slug');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -993,8 +1008,8 @@ class GetPostsForm {
 		$ph['value'] = $this->get_value('taxonomy_term');
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
-		$ph['label'] = __('Taxonomy Term', SummarizePosts::txtdomain);
-		$ph['description'] = __('', SummarizePosts::txtdomain);
+		$ph['label'] = __('Taxonomy Term', CCTM_TXTDOMAIN);
+		$ph['description'] = __('', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_term');
 		return self::parse($this->text_tpl, $ph);
 
@@ -1018,6 +1033,7 @@ class GetPostsForm {
 			, DATE_FORMAT(post_date,'%M') as 'month'
 			, YEAR(post_date) as 'year'
 			FROM wp_posts
+			WHERE post_status = 'publish'
 			ORDER BY yearmonth");
 		foreach ($yearmonths as $ym) {
 			$ph2 = $this->placeholders;
@@ -1025,6 +1041,8 @@ class GetPostsForm {
 			$ph2['label'] = $ym->year . ' ' . $ym->month;
 			if ($current_value == $ym->yearmonth) {
 				$ph2['is_selected'] = ' selected="selected"';
+				$this->placeholders['yearmonth.'.$ym->yearmonth.'.is_selected'] = ' selected="selected"';
+				$this->placeholders['yearmonth.'.$ym->yearmonth.'.is_checked'] = ' checked="checked"';
 			}
 			$ph['options'] .=  self::parse($this->option_tpl, $ph2);
 		}
@@ -1032,8 +1050,8 @@ class GetPostsForm {
 		$ph['value'] = $current_value;
 		$ph['name'] = 'yearmonth';
 		$ph['id']  = 'yearmonth';
-		$ph['label'] = __('Month', SummarizePosts::txtdomain);
-		$ph['description'] = __("Choose which month's posts you wish to view. This relies on the <em>date_column</em> parameter.", SummarizePosts::txtdomain);
+		$ph['label'] = __('Month', CCTM_TXTDOMAIN);
+		$ph['description'] = __("Choose which month's posts you wish to view. This relies on the <em>date_column</em> parameter.", CCTM_TXTDOMAIN);
 		$ph['size'] = 1;
 		$this->register_global_placeholders($ph, 'yearmonth');
 		return self::parse($this->select_wrapper_tpl, $ph);
@@ -1074,8 +1092,9 @@ class GetPostsForm {
 	 * @return string HTML form.
 	 */
 	public function generate($search_by=array(), $existing_values=array()) {
-		$this->values = $existing_values;
-
+		$Q = new GetPostsQuery();
+		$this->values = $Q->sanitize_args($existing_values);
+		//print '<pre>'; print_r($this->values); print '</pre>'; exit;
 		static $instantiation_count = 0;
 		$instantiation_count++;
 		$this->placeholders['form_number'] = $instantiation_count;
@@ -1152,8 +1171,7 @@ class GetPostsForm {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Get a filtered value.  We filter carefully because the values might be printed
-	 * back into a form (eeep!).
+	 * Get a value -- these should be filtered via GetPostsQuery::sanitize_args()
 	 *
 	 * @param string $key     the key to search for in the $this->values array
 	 * @param mixed (optional) $default value to return if the value is not set.
@@ -1164,107 +1182,7 @@ class GetPostsForm {
 			return $default;
 		}
 		else {
-			if ( is_array($this->values[$key]) ) {
-				return $this->values[$key];
-			}
-			else {
-				$this->values[$key] = trim($this->values[$key]);
-				
-				switch ($key) {
-					// Comma-separated integers or array of integers
-					case 'append':
-					case 'exclude':
-					case 'include':
-					case 'post_parent':
-						if (is_array($this->values[$key])) {
-							foreach($this->values[$key] as $k => $v) {
-								$this->values[$key][$k] = (int) $v;
-							}
-						}
-						else {
-							$this->values[$key] = preg_replace('/[^0-9,]/', '', $this->values[$key]);
-						}				
-						break;
-
-					// Column-/function-name friendly
-					case 'date_column':
-					case 'meta_key':
-					case 'orderby':
-					case 'taxonomy':
-					case 'taxonomy_slug':
-						$this->values[$key] = preg_replace('/[^0-9_]/', '', $this->values[$key]);
-						break;
-					
-					// Comma-separated function-friendly names, or array of them
-					case 'post_type':
-					case 'omit_post_type':
-					case 'search_columns':
-						if (is_array($this->values[$key])) {
-							foreach($this->values[$key] as $k => $v) {
-								$this->values[$key][$k] = preg_replace('/[^0-9_]/', '', $v);
-							}
-						}
-						else {
-							$this->values[$key] = preg_replace('/[^0-9,]/', '', $this->values[$key]);
-						}
-						break;
-							
-				
-					// Dates
-					case 'date_max':
-					case 'date_min':
-					case 'post_date':
-					case 'post_mime_type':
-					case 'post_modified':					
-						if (!$this->is_date($this->values[$key])) {
-							$this->values[$key] = '';
-						}
-						break;
-						
-					// Straight-up integers
-					case 'limit':
-					case 'offset':
-					case 'paginate':
-					case 'yearmonth':
-					case 'taxonomy_depth':
-						$this->values[$key] = (int) $this->values[$key];
-						break;
-									
-					case 'match_rule':
-						$this->values[$key] = strtolower($this->values[$key]);
-						if (!in_array($this->values[$key], array('and','or'))) {
-							$this->values[$key] = '';
-						}
-						break;
-						
-					case 'order':
-						$this->values[$key] = strtoupper($this->values[$key]);
-						if (!in_array($this->values[$key], array('ASC','DESC'))) {
-							$this->values[$key] = '';
-						}
-						break;
-						
-					case 'post_status':
-						$this->values[$key] = strtolower($this->values[$key]);
-						if (!in_array($this->values[$key], array('draft','inherit','publish','auto-draft'))) {
-							$this->values[$key] = '';
-						}
-						break;
-					
-					// Anything goes									
-					case 'author':
-					case 'date_format':
-					case 'meta_value':
-					case 'post_title':
-					case 'search_term':
-					case 'taxonomy_term':
-					default:
-						$this->values[$key] = wp_kses($this->values[$key], array());
-				}
-
-				
-				return $this->values[$key];
-			}
+			return $this->values[$key];
 		}
 	}
 
@@ -1345,7 +1263,7 @@ class GetPostsForm {
 			$this->placeholders['id_prefix'] = $prefix;
 		}
 		else {
-			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', SummarizePosts::txtdomain), __FUNCTION__);
+			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', CCTM_TXTDOMAIN), __FUNCTION__);
 		}
 	}
 
@@ -1363,7 +1281,7 @@ class GetPostsForm {
 			$this->placeholders['name_prefix'] = $prefix;
 		}
 		else {
-			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', SummarizePosts::txtdomain), __FUNCTION__);
+			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', CCTM_TXTDOMAIN), __FUNCTION__);
 		}
 	}
 
@@ -1379,7 +1297,7 @@ class GetPostsForm {
 			$this->no_results_msg;
 		}
 		else {
-			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', SummarizePosts::txtdomain), __FUNCTION__);
+			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', CCTM_TXTDOMAIN), __FUNCTION__);
 		}
 	}
 
@@ -1397,7 +1315,7 @@ class GetPostsForm {
 			$this->nonce_field = $str;
 		}
 		else {
-			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', SummarizePosts::txtdomain), __FUNCTION__);
+			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', CCTM_TXTDOMAIN), __FUNCTION__);
 		}
 	}
 

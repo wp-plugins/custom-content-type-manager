@@ -214,9 +214,15 @@ span.post_selector_pagination_link {
 img.cctm_tiny_thumb {
 	cursor:pointer;
 	vertical-align:middle; 
+	border: 1px solid white;
 	/* clear:both; 
 	float:left; */
 }
+
+img.cctm_tiny_thumb:hover {
+	border: 1px solid blue;
+}
+
 
 .linklike {
 	cursor:pointer;
@@ -232,4 +238,8 @@ img.cctm_tiny_thumb {
 
 #cctm_search_posts_form {
 	padding-bottom: 15px;
+}
+
+.cctm_pagination_links {
+	margin: 10px;
 }

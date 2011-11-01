@@ -209,14 +209,18 @@ function change_page(page_number) {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	
-	jQuery.post(
-	    cctm.ajax_url,
-	    {
+	var data = {
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
 	        "page_number": page_number,
 	        "get_posts_nonce" : cctm.ajax_nonce
-	    },
+	    };
+	    
+	data.search_parameters = jQuery('#select_posts_form').serialize();
+	
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
 	    function( response ) {
 	    	// Write the response to the div
 			jQuery('#cctm_thickbox').html(response);
@@ -230,7 +234,7 @@ function change_page(page_number) {
 Refining a search
 @param	string	form_id: the form which contains the additional search parameters
 ------------------------------------------------------------------------------*/
-function refine_search(form_id) {
+function refine_search() {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 
@@ -238,9 +242,39 @@ function refine_search(form_id) {
 		{
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
+	        "page_number": 0,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
-	data.search_parameters = jQuery('#'+form_id).serialize();
+	data.search_parameters = jQuery('#select_posts_form').serialize();
+	//alert(data.search_parameters); exit;
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#cctm_thickbox').html(response);
+			
+	    }
+	);	
+	
+}
+
+/*------------------------------------------------------------------------------
+Reset search -- back to the original results
+@param	string	form_id: the form which contains the additional search parameters
+------------------------------------------------------------------------------*/
+function reset_search() {
+	// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+
+	var data = 
+		{
+	        "action" : 'get_posts',
+	        "fieldname" : fieldname,
+	        "page_number": 0,
+	        "get_posts_nonce" : cctm.ajax_nonce
+	    };
+	data.search_parameters = '';
 	
 	jQuery.post(
 	    cctm.ajax_url,
@@ -252,4 +286,46 @@ function refine_search(form_id) {
 	    }
 	);	
 	
+}
+
+/*------------------------------------------------------------------------------
+Fired when a column header is clicked.
+------------------------------------------------------------------------------*/
+function sort_results(sort_column) {
+		// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+	var order = jQuery('#order').val();
+	var orderby = jQuery('#orderby').val(); 
+	// Toggle 'order' if we're already sortying by the 'orderby' column
+	if (orderby == sort_column){
+		if (order == 'DESC') {
+			jQuery('#order').val('ASC');
+		}
+		else {
+			jQuery('#order').val('DESC');
+		}
+	}
+	
+	jQuery('#orderby').val(sort_column);
+	 
+	var data = 
+		{
+	        "action" : 'get_posts',
+	        "fieldname" : fieldname,
+	        "orderby" : sort_column,
+	        "order" : order,
+	        "page_number": 0,
+	        "get_posts_nonce" : cctm.ajax_nonce
+	    };
+	data.search_parameters = jQuery('#select_posts_form').serialize();
+	
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#cctm_thickbox').html(response);
+			
+	    }
+	);	
 }

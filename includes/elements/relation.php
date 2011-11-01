@@ -102,48 +102,6 @@ class CCTM_relation extends CCTM_FormElement
 		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
 		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
 		return CCTM::parse($wrappertpl, $this->props);
-	
-/*
-		global $post;
-		
-		$media_html = '';
-		$preview_html = '';
-		#$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
-		$controller_url = CCTM_URL.'/post-selector.php?post_mime_type=';
-
-		$click_label = __('Choose Relation');
-		if ($this->props['button_label']) {
-			$click_label = $this->props['button_label'];
-		}
-		$remove_label = __('Remove');
-		
-		// It has a value
-		if ( !empty($current_value) )
-		{
-			$attachment_post = get_post($current_value, ARRAY_A);
-			$attachment_post['post_id'] = $attachment_post['ID'];
-			$attachment_post['view'] = __('View');
-			$attachment_post['site_url'] = get_site_url();			
-			$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/preview_html.tpl');
-			$attachment_post['preview_html'] = wp_get_attachment_image( $current_value, 'thumbnail', true );
-			$preview_html = CCTM::parse($tpl, $attachment_post);
-		}
-		
-		$output = $this->wrap_label();
-		$output .= '
-			<input type="hidden" id="'.$this->get_field_id().'" name="'.$this->get_field_id().'" value="'.$current_value.'" />
-			<br />
-			<div id="'.$this->get_field_id().'_media">'.$preview_html.'</div>
-			<br class="clear" />
-			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="button">'
-			.$click_label.'</a>
-			<span class="button" onclick="javascript:remove_relation(\''.$this->get_field_id().'\',\''.$this->get_field_id().'_media\')">'.$remove_label.'</span>
-			<br class="clear" /><br />';
-			
-		$output .= $this->wrap_description($this->props['description']);
-		
-		return $this->wrap_outer($output);
-*/
 	}
 
 
