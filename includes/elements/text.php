@@ -83,27 +83,36 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-		$fieldtpl = $this->get_field_tpl();
-		$wrappertpl = $this->get_wrapper_tpl();
+		return 'id:'. $this->id; 
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/'.$this->id.'.tpl'
+				, 'fields/_'.$this->type.'.tpl'
+				, 'fields/_default.tpl'
+			)
+		);
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
 
 		// Populate the values (i.e. properties) of this field
-		$this->props['id'] 					= $this->get_field_id();
-		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
-		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
-		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
-		$this->props['instance_id']			= $this->get_instance_id();
+		$this->id 					= $this->get_field_id();
+		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
+		$this->value				= htmlspecialchars( html_entity_decode($current_value) );
+		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		$this->instance_id			= $this->get_instance_id();
 		// $this->is_repeatable = 1; // testing
 				
 		if ($this->is_repeatable) {
-			$this->props['add_button'] = '<span class="button" onclick="javascript:add_instance();">Click</span>'; 
-			$this->props['delete_button'] = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
+			$this->add_button = '<span class="button" onclick="javascript:add_instance();">Click</span>'; 
+			$this->delete_button = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
 			$this->i = $this->i + 1; // increment the instance 
 		}
 		
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
-		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
-		return CCTM::parse($wrappertpl, $this->props);
+		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 	//------------------------------------------------------------------------------

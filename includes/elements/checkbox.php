@@ -99,45 +99,35 @@ class CCTM_checkbox extends CCTM_FormElement
 	 *
 	 * @param string $current_value
 	 * @return string
-	 			<input type="checkbox" name="[+name+]" class="cctm_checkbox" id="[+id+]" value="[+checked_value+]" [+is_checked+] [+extra+]/> 
-			<label for="[+id+]" class="cctm_label cctm_checkbox_label" id="cctm_label_[+name+]">[+label+]</label>';
-
-
-		$output = sprintf('
-			%s 
-			<input type="text" name="%s" class="%s" id="%s" %s value="%s"/>
-			'
-			, $this->wrap_label()
-			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
-			, $this->get_field_id()
-			, stripslashes($this->extra)
-			, $current_value
-		);
-		
-		return $this->wrap_outer($output);
-
-	 
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->props['is_checked'] = '';
+		$this->is_checked = '';
 		if ($current_value == $this->checked_value) {
-			$this->props['is_checked'] = 'checked="checked"';
+			$this->is_checked = 'checked="checked"';
 		}
 		
-		$fieldtpl = $this->get_field_tpl();
-		$wrappertpl = $this->get_wrapper_tpl();
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/'.$this->name.'.tpl'
+				, 'fields/_'.$this->type.'.tpl'
+				, 'fields/_default.tpl'
+			)
+		);
+
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
 
 		// Populate the values (i.e. properties) of this field
-		$this->props['name'] 				= $this->get_field_name();
-		$this->props['id'] 					= $this->get_field_id();
-		$this->props['class'] 				= $this->get_field_class($this->name, 'checkbox', $this->class);
-		$this->props['value']				= htmlspecialchars($this->checked_value);
+		$this->name 				= $this->get_field_name();
+		$this->id 					= $this->get_field_id();
+		$this->class 				= $this->get_field_class($this->name, 'checkbox', $this->class);
+		$this->value				= htmlspecialchars($this->checked_value);
 		
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
-		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		$this->content = CCTM::parse($fieldtpl, $this->props);
 		return CCTM::parse($wrappertpl, $this->props);
 		
 	}

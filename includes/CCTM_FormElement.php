@@ -72,7 +72,7 @@ abstract class CCTM_FormElement {
 	 *
 	 *  'type'    => the name of this class, minus the CCTM_ prefix.
 	 */
-	public $props = array(
+	private $props = array(
 		'label' => '',
 		'name' => '',
 		'description' => '',
@@ -80,6 +80,8 @@ abstract class CCTM_FormElement {
 		'extra' => '',
 		'default_value' => '',
 		'output_filter' => '',
+		'id_prefix'	=> '',
+		'css_prefix' => '',
 	);
 
 	/**
@@ -215,23 +217,6 @@ abstract class CCTM_FormElement {
 	//! Protected Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Used to populate the [+help+] placeholder
-	 *
-	 * @return string
-	 */
-	protected function get_all_placeholders() {
-		$all_placeholders = array_keys($this->props);
-		$output = '<ul>';
-		foreach ($all_placeholders as $p) {
-			$output .= "<li>&#91;+$p+&#93;</li>";
-		}
-		$output .= '</ul>';
-		return '<p>'.sprintf(__('The %s.tpl has the following placeholders available for use:', CCTM_TXTDOMAIN), $this->props['type']) . '</p>'. $output;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
 	 * Generate a CSS class for this type of field, typically keyed off the actual HTML
 	 * input type, e.g. text, textarea, submit, etc.
 	 *
@@ -332,48 +317,6 @@ abstract class CCTM_FormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Get the field tpl for this particular type of field.  The locations can be
-	 * overriden by placing a file in one of the correct directories.  The following
-	 * directories are searched (in order):
-	 *
-	 * wp-content/cctm/tpls/fields/{name-of-field}.tpl
-	 * wp-content/cctm/tpls/fieldtypes/{type-of-field}.tpl
-	 *  wp-content/plugins/custom-content-type-manager/tpls/fieldtypes/{type-of-field}.tpl
-	 *
-	 *  or last-ditch:
-	 * wp-content/plugins/custom-content-type-manager/tpls/fieldtypes/_default.tpl
-	 *
-	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
-	 *
-	 * @param string  optionally override the type
-	 * @param unknown $type (optional)
-	 * @return string the contents of the file
-	 */
-	protected function get_field_tpl($type=null) {
-		if (empty($type)) {
-			$type = $this->props['type'];
-		}
-		$upload_dir = wp_upload_dir();
-		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
-
-		if (file_exists($dir.'/fields/'.$this->props['name'].'.tpl')) {
-			return file_get_contents($dir.'/fields/'.$this->props['name'].'.tpl');
-		}
-		elseif (file_exists($dir.'/fieldtypes/'.$type.'.tpl')) {
-			return file_get_contents($dir.'/fieldtypes/'.$type.'.tpl');
-		}
-		elseif (file_exists(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl')) {
-			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl');
-		}
-		else {
-			// return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
-			return false;
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
 	 * Used when repeatable fields are enabled.  The "instance" is the instance of 
 	 * the field being repeated.
 	 *
@@ -383,92 +326,12 @@ abstract class CCTM_FormElement {
 		return 'cctm_instance_'.$this->get_field_id().'_'.$this->i;
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Get the option tpl used by some field (e.g. multiselect, dropdown).  The locations can be
-	 * overriden by placing a file in one of the correct directories.  The following
-	 * directories are searched (in order):
-	 *
-	 * wp-content/cctm/tpls/fields/{name-of-field}.tpl
-	 * wp-content/cctm/tpls/fieldoptions/{type-of-field}.tpl
-	 *  wp-content/plugins/custom-content-type-manager/tpls/fieldoptions/{type-of-field}.tpl
-	 *
-	 *  or last-ditch:
-	 * wp-content/plugins/custom-content-type-manager/tpls/fieldtypes/_default.tpl
-	 *
-	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
-	 *
-	 * @param string  optionally override the type
-	 * @param unknown $type (optional)
-	 * @return string the contents of the file
-	 */
-	protected function get_option_tpl($type=null) {
-		if (empty($type)) {
-			$type = $this->props['type'];
-		}
-		$upload_dir = wp_upload_dir();
-		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
-
-		if (file_exists($dir.'/fields/'.$this->props['name'].'.tpl')) {
-			return file_get_contents($dir.'/fields/'.$this->props['name'].'.tpl');
-		}
-		elseif (file_exists($dir.'/fieldtypes/'.$type.'.tpl')) {
-			return file_get_contents($dir.'/fieldtypes/'.$type.'.tpl');
-		}
-		elseif (file_exists(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl')) {
-			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/'.$type.'.tpl');
-		}
-		else {
-			return file_get_contents(CCTM_PATH.'/tpls/fieldtypes/_default.tpl');
-		}
-
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Get the wrapper tpl for this particular type of field.  The locations can be
-	 * overriden by placing a file in one of the correct directories.  The following
-	 * directories are searched (in order):
-	 *
-	 * wp-content/cctm/tpls/wrappers/fields/{name-of-field}.tpl
-	 * wp-content/cctm/tpls/wrappers/fieldtypes/{type-of-field}.tpl
-	 *  wp-content/plugins/custom-content-type-manager/tpls/wrappers/{type-of-field}.tpl
-	 *
-	 *  or last-ditch:
-	 * wp-content/plugins/custom-content-type-manager/tpls/wrappers/_default.tpl
-	 *
-	 * See: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML
-	 *
-	 * @return string the contents of the file
-	 */
-	protected function get_wrapper_tpl() {
-		$upload_dir = wp_upload_dir();
-		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/'.CCTM::tpls_dir;
-
-		if (file_exists($dir.'/wrappers/fields/'.$this->props['name'].'.tpl')) {
-			return file_get_contents($dir.'/wrappers/fields/'.$this->props['name'].'.tpl');
-		}
-		elseif (file_exists($dir.'/wrappers/fieldtypes/'.$this->props['type'].'.tpl')) {
-			return file_get_contents($dir.'/wrappers/fieldtypes/'.$this->props['type'].'.tpl');
-		}
-		// future ?
-		elseif (file_exists(CCTM_PATH.'/tpls/wrappers/'.$this->props['type'].'.tpl')) {
-			return file_get_contents(CCTM_PATH.'/tpls/wrappers/'.$this->props['type'].'.tpl');
-		}
-		else {
-			return file_get_contents(CCTM_PATH.'/tpls/wrappers/_default.tpl');
-		}
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Wraps a description with a unified bit of styling.
 	 *
-	 * @param unknown $str
-	 * @return unknown
+	 * @param string $str
+	 * @return string
 	 */
 	protected function wrap_description($str) {
 		return sprintf('<span class="cctm_description">%s</span>', $str);
@@ -744,6 +607,13 @@ abstract class CCTM_FormElement {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Accessor to $this->props
+	 */
+	public function get_props() {
+		return $this->props;
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -898,7 +768,20 @@ abstract class CCTM_FormElement {
 		return array_merge($posted_data, $this->immutable);
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Shepherded access to the $this->props array.
+	 */
+	public function set_props($array) {
+		if (!is_array($array)) {
+			$this->errors['improper_input_set_props'] = __('Improper input to the set_props() function.', CCTM_TXTDOMAIN);
+		}
+		
+		foreach ($array as $k => $v) {
+			$this->$k = $v;
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * If your custom field has done any customizations (e.g. of the database)
@@ -906,8 +789,6 @@ abstract class CCTM_FormElement {
 	 * the field is uninstalled or the CCTM plugin is uninstalled.
 	 */
 	public function uninstall() { }
-
-
 }
 
 

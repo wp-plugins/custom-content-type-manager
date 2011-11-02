@@ -228,12 +228,12 @@ class StandardizedCustomFields
 			$FieldObj = new $field_type_name(); // Instantiate the field element
 			
 			if ( self::_is_new_post() ) {	
-				$FieldObj->props = $def;
+				$FieldObj->set_props($def);
 				$output_this_field = $FieldObj->get_create_field_instance();
 			}
 			else {
 				$current_value = htmlspecialchars( get_post_meta( $post->ID, $def['name'], true ) );
-				$FieldObj->props = $def;
+				$FieldObj->set_props($def);
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}
 						
@@ -321,7 +321,7 @@ class StandardizedCustomFields
 				if (CCTM::include_form_element_class($field_type)) {
 					$field_type_name = CCTM::classname_prefix.$field_type;
 					$FieldObj = new $field_type_name(); // Instantiate the field element
-					$FieldObj->props = CCTM::$data['custom_field_defs'][$field_name];
+					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 					// Custom fields can return a literal null if they don't ever save data to the db.
 					if ($value !== null) {
@@ -336,8 +336,6 @@ class StandardizedCustomFields
 	}
 
 
-} // End Class
-
-
+} // End of class
 
 /*EOF*/

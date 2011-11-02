@@ -3,7 +3,12 @@
 		[+label+]
 	</label>
 	
-	[+content+]
+	[+add_button+]
+	<!-- target is used for optional thickbox content -->
+	<div id="target_[+id+]"></div>
+	<div id="cctm_instance_wrapper_[+id+]">
+		[+content+]
+	</div> 
 	
 	<span class="cctm_description">[+description+]</span>
 </div>

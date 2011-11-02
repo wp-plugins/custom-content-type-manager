@@ -1875,54 +1875,56 @@ if ( empty(self::$data) ) {
 	 * customized locations, then in the built-in locations.  By shifting the array, you can specify
 	 * a hierarchy of "fallbacks" to look for with any tpl.
 	 *
-	 * Developers of 3rd party components can supply a $path if they wish to use tpls
-	 * in their components.
+	 * Developers of 3rd party components can supply additional paths $path if they wish to use tpls
+	 * in their components: if the $additional_path is supplied, this directory will be searched for tpl in question.
 	 *
 	 * To prevent directory transversing, tpl names may not contain '..'!
 	 *
 	 * @param	array|string	$name: singe name or array of tpl names, each relative to the path, e.g. 'fields/date.tpl'. The first one in the list found will be used.
-	 * @param	string	(optional) $override_path: this overrides the default locations. Include a trailing /
-	 * @return	string	the file contents (not parsed).
+	 * @param	array|string	(optional) $additional_paths: this adds one more path to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
+	 * @return	string	the file contents (not parsed) OR a boolean false if nothing was found.
 	 */
-	public static function load_tpl($tpls, $override_path=null) {
+	public static function load_tpl($tpls, $additional_paths=null) {
+
 		if (!is_array($tpls)){
 			$tpls = array($tpls);
 		}
-		
-		$name = array_shift($tpls);
-		
-		if (preg_match('/\.\./', $name)) {
-			die( sprintf(__('Invaid tpl name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.$name.'</em>'));
+		if (!is_array($additional_paths)){
+			$additional_paths = array($additional_paths);
 		}
 		
-		if (!preg_match('/\.tpl$/', $name)) {
-			die( sprintf(__('Invaid tpl name! %s  Name must end with .tpl!', CCTM_TXTDOMAIN), '<em>'.$name.'</em>'));
+		// Populate the list of directories we will search in order. 
+		$upload_dir = wp_upload_dir();
+		$paths = array();
+		$paths[] = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/tpls';
+		$paths[] = CCTM_PATH.'/tpls';
+		$paths = array_merge($paths, $additional_paths);
+
+		// Pull the tpl off the stack
+		$tpl = array_shift($tpls);
+
+		if (preg_match('/\.\./', $tpl)) {
+			die( sprintf(__('Invaid tpl name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlentities($tpl).'</em>'));
+		}
+		
+		if (!preg_match('/\.tpl$/', $tpl)) {
+			die( sprintf(__('Invaid tpl name! %s  Name must end with .tpl!', CCTM_TXTDOMAIN), '<em>'.htmlentities($tpl).'</em>'));
 		}		
 		
-		// If the user supplied the path, then they must know what they're doing.
-		if ($override_path) {
-			return file_get_contents($override_path . $name);	
-		}
-		
-		// First check the user's custom directory
-		$upload_dir = wp_upload_dir();
-		$path = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/tpls/post_selector/';
-		if (file_exists($path.$name)) {
-			return file_get_contents($path.$name);
-		}
-		// Then check the built-in directory
-		elseif (file_exists(CCTM_PATH.'/tpls/'.$name)) {
-			return file_get_contents(CCTM_PATH.'/tpls/'.$name);
-		}
-		// Fallback to the next item or fail
-		else {
-			if (!empty($tpls)) {
-				return self::load_tpl($tpls, $override_path);
+		// Look through the directories in order.
+		foreach ($paths as $dir) {
+			if (file_exists($dir.'/'.$tpl)) { 
+				return file_get_contents($dir.'/'.$tpl);
 			}
-			else {
-				return false;
-			}			
-		}	
+		}
+
+		// Try again with the remaining tpls... or fail.
+		if (!empty($tpls)) {
+			return self::load_tpl($tpls, $additional_paths);
+		}
+		else {
+			return false;
+		}
 	}
 
 	//------------------------------------------------------------------------------
@@ -2056,11 +2058,19 @@ if ( empty(self::$data) ) {
 	 */
 	public static function parse($tpl, $hash, $preserve_unused_placeholders=false) {
 
+		// Get all placeholders in this tpl
+		$all_placeholders = array_keys($hash);
+		$hash['help'] = '<ul>';
+		foreach ($all_placeholders as $p) {
+			$hash['help'] .= "<li>&#91;+$p+&#93;</li>";
+		}
+		$hash['help'] .= '</ul>';
+
 		foreach ($hash as $key => $value) {
 			if ( !is_array($value) ) {
 				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
 			}
-		}
+		}		
 
 		// Remove any unparsed [+placeholders+]
 		if (!$preserve_unused_placeholders) {

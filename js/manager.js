@@ -144,7 +144,6 @@ Where the magic happens: this sends our selection back to WordPress
 ------------------------------------------------------------------------------*/
 function select_post( post_id )
 {
-	alert('here!');
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	
@@ -159,9 +158,9 @@ function select_post( post_id )
 	    cctm.ajax_url,
 	    data,
 	    function( response ) {
+	    	alert('cctm_instance_wrapper_'+fieldname);
 	    	// Write the response to the div
-	    	alert(response);
-			jQuery('#cctm_instance_wrapper_'+field_id).html(response);
+			jQuery('#cctm_instance_wrapper_'+fieldname).html(response);
 			
 	    }
 	);
