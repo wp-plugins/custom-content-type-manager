@@ -81,17 +81,22 @@ class CCTM_relation extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
+		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+		
+		$Q = new GetPostsQuery();
+		
 		$fieldtpl = CCTM::load_tpl(
-			array('fields/'.$this->name.'.tpl'
-				, 'fields/_'.$this->type.'.tpl'
-				, 'fields/_default.tpl'
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_relation.tpl'
 			)
 		);
 
 		$wrappertpl = CCTM::load_tpl(
 			array('fields/wrappers/'.$this->name.'.tpl'
 				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_default.tpl'
+				, 'fields/wrappers/_relation.tpl'
 			)
 		);
 
@@ -102,12 +107,20 @@ class CCTM_relation extends CCTM_FormElement
 		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 		$this->instance_id			= $this->get_instance_id();
 		// $this->is_repeatable = 1; // testing
-				
+		
+//		die('current: '. $this->value);
+		$extras = $Q->append_extra_data($this->value);
+		foreach($extras as $k => $v) {
+			$this->$k = $v;
+		}
+		print '<pre>' .print_r($this->get_props(), true) . '</pre>';		
+/*
 		if ($this->is_repeatable) {
-			$this->add_button = '<span class="button" onclick="javascript:thickbox_results(\''.$this->id.'\');">Click</span>'; 
+			$this->add_button = '<span class="button" onclick="javascript:thickbox_results(\''.$this->id.'\');">'.$this->button_label.'</span>'; 
 			$this->delete_button = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
 			$this->i = $this->i + 1; // increment the instance 
 		}
+*/
 		
 		$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		return CCTM::parse($wrappertpl, $this->get_props());

@@ -158,7 +158,7 @@ function select_post( post_id )
 	    cctm.ajax_url,
 	    data,
 	    function( response ) {
-	    	alert('cctm_instance_wrapper_'+fieldname);
+	    	//alert('cctm_instance_wrapper_'+fieldname);
 	    	// Write the response to the div
 			jQuery('#cctm_instance_wrapper_'+fieldname).html(response);
 			

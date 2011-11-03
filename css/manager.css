@@ -243,3 +243,18 @@ img.cctm_tiny_thumb:hover {
 .cctm_pagination_links {
 	margin: 10px;
 }
+
+/* X to close? PITA */
+span.cctm_close_rollover {
+	padding:0px;
+	margin:0px;
+	cursor: pointer;
+	display: block;
+	width: 20px;
+	height: 20px;
+	text-decoration: none;
+	background: url("http://cctm:8888/sub/wp-content/plugins/custom-content-type-manager/images/close.png");	
+}
+span.cctm_close_rollover:hover {
+	background-position: -20px 0;
+}

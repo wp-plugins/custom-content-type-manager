@@ -13,12 +13,6 @@
  * I've constructed a custom MySQL query that does the searching because I ran into
  * weird and whacky restrictions with the WP db API functions; this lets me
  * join on foreign tables and cut down on multiple inefficient select queries.
- * TODO: Nonces for search forms.
- * wp_create_nonce('cctm_delete_field')
- * $nonce = self::get_value($_GET, '_wpnonce');
- * if (! wp_verify_nonce($nonce, 'cctm_delete_field') ) {
- * die( __('Invalid request.', CCTM_TXTDOMAIN ) );
- * }
  *
  * @package SummarizePosts
  */
@@ -56,9 +50,6 @@ class GetPostsQuery {
 
 	// Stores the number of results available (used only when paginate is set to true)
 	public $found_rows = null;
-
-	// See http://codex.wordpress.org/Function_Reference/wpdb_Class
-	private $output_type; // ARRAY_A, OBJECT
 
 	// Contains all arguments listed in the $defaults, with any modifications passed by the user
 	// at the time of instantiation.
@@ -105,7 +96,8 @@ class GetPostsQuery {
 	// For date searches (greater than, less than)
 	private $date_cols = array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt');
 
-
+	private static $cannot_be_null = array('order','orderby','join_rule');
+	
 	//! Defaults
 	// args and defaults for get_posts()
 	public static $defaults = array(
@@ -192,9 +184,7 @@ class GetPostsQuery {
 		$this->registered_post_types = array_keys( get_post_types() );
 		$this->registered_taxonomies = array_keys( get_taxonomies() );
 
-		$this->output_type = SummarizePosts::$options['output_type'];
-
-		$tmp = shortcode_atts( self::$defaults, $raw_args );
+		//$tmp = shortcode_atts( self::$defaults, $raw_args );
 
 		// Scrub up for dinner
 		$this->args = self::sanitize_args($raw_args);
@@ -212,11 +202,10 @@ class GetPostsQuery {
 		if ( in_array($var, array_keys($this->args))) {
 			return $this->args[$var];
 		}
-		elseif (in_array($var, array_keys(self::$defaults))) {
+		elseif (in_array($var, self::$cannot_be_null)) {
 			return self::$defaults[$var];
 		}
 		else {
-			$this->errors[] = __('Getting invalid parameter:', CCTM_TXTDOMAIN) . $var;
 			return '';
 		}
 	}
@@ -267,7 +256,7 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Validate/Sanitize and set parameters. 
+	 * Validate/Sanitize and set parameters. Some parameters cannot go to null!
 	 *
 	 * @param string  $var
 	 * @param mixed   $val
@@ -277,7 +266,7 @@ class GetPostsQuery {
 		$this->args[$var] = $args[$var];
 	}
 
-
+	//------------------------------------------------------------------------------
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
@@ -341,6 +330,8 @@ class GetPostsQuery {
 	/**
 	 * Takes a comma separated string and turns it to an array, or passes the array
 	 *
+	 * BEWARE: Sometimes you get arrays like this: array('');  THOSE ARE NOT EMPTY!!!
+	 *
 	 * @param mixed   $input is either a comma-separated string or an array
 	 * @param string  $type  describing the type of input: 'integer','alpha',
 	 * @return array
@@ -352,7 +343,6 @@ class GetPostsQuery {
 		}
 		if ( is_array($input) ) {
 			$output = $input;
-
 		}
 		else {
 			$output = explode(',', $input);
@@ -361,36 +351,40 @@ class GetPostsQuery {
 		foreach ($output as $i => $item) {
 			$output[$i] = trim($item);
 			$item = trim($item);
+			if (empty($item)) {
+				unset($output[$i]); // this covers the nefarious empty arrays!
+				continue; 
+			}
 			switch ($type) {
-			case 'integer':
-				$output[$i] = (int) $item;
-				break;
-				// Only a-z, _, - is allowed.
-			case 'alpha':
-				if ( !preg_match('/[a-z_\-]/i', $item) ) {
-					$this->errors[] = __('Invalid alpha input:') . $item;
-				}
-				break;
-			case 'post_type':
-				if ( !post_type_exists($item) ) {
-					$this->errors[] = __('Invalid post_type:') . $item . ' '. print_r($this->registered_post_types, true);
-
-				}
-				break;
-			case 'post_status':
-				if ( !in_array($item, array('inherit', 'publish', 'auto-draft')) ) {
-					$this->errors[] = __('Invalid post_status:') . $item;
-				}
-				break;
-			case 'search_columns':
-				// Taking this on: http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=27
-				if ( !preg_match('/[a-z_0-9]/i', $item) ) {
-					$this->errors[] = __('Invalid column name. Column names may only contain alphanumeric characters and underscores: ') . $item;
-				}
-
-				break;
-			case 'no_tags':
-				$output[$i] = strip_tags($item);
+				case 'integer':
+					$output[$i] = (int) $item;
+					break;
+					// Only a-z, _, - is allowed.
+				case 'alpha':
+					if ( !preg_match('/[a-z_\-]/i', $item) ) {
+						$this->errors[] = __('Invalid alpha input:') . $item;
+					}
+					break;
+				case 'post_type':
+					if ( !empty($item) && !post_type_exists($item) ) {
+						$this->errors[] = __('Invalid post_type:') . $item . '<-- '. print_r($this->registered_post_types, true) . ' Line:' .__LINE__;
+	
+					}
+					break;
+				case 'post_status':
+					if ( !in_array($item, array('inherit', 'publish', 'auto-draft')) ) {
+						$this->errors[] = __('Invalid post_status:') . $item;
+					}
+					break;
+				case 'search_columns':
+					// Taking this on: http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=27
+					if ( !preg_match('/[a-z_0-9]/i', $item) ) {
+						$this->errors[] = __('Invalid column name. Column names may only contain alphanumeric characters and underscores: ') . $item;
+					}
+	
+					break;
+				case 'no_tags':
+					$output[$i] = strip_tags($item);
 			}
 		}
 
@@ -532,15 +526,8 @@ class GetPostsQuery {
 		// Ensure that each record has the same attributes
 		foreach ($records as &$r) {
 			foreach ($unique_attributes as $a) {
-				if ( $this->output_type == OBJECT ) {
-					if (!isset($r->$a)) {
-						$r->$a = '';
-					}
-				}
-				else {
-					if (!isset($r[$a])) {
-						$r[$a] = '';
-					}
+				if (!isset($r[$a])) {
+					$r[$a] = '';
 				}
 			}
 		}
@@ -549,15 +536,8 @@ class GetPostsQuery {
 		if (!empty(self::$custom_default_values)) {
 			foreach (self::$custom_default_values as $key => $value) {
 				foreach ($records as &$r) {
-					if ( $this->output_type == OBJECT ) {
-						if (empty($r->$key)) {
-							$r->$key = $value;
-						}
-					}
-					else {
-						if (empty($r[$key])) {
-							$r[$key] = $value;
-						}
+					if (empty($r[$key])) {
+						$r[$key] = $value;
 					}
 				}
 			}
@@ -833,6 +813,24 @@ class GetPostsQuery {
 		);
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Generates string to be used in the main SQL query's WHERE clause.
+	 * Construct the part of the query for searching by mime type
+	 *
+	 * @return string
+	 */
+	private function _sql_filter_post_mime_type() {
+		global $wpdb;
+		if ( $this->post_mime_type) {
+			$query = " AND {$wpdb->posts}.post_mime_type LIKE %s";
+			return $wpdb->prepare( $query, $this->post_mime_type.'%' );
+		}
+		else {
+			return '';
+		}
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -865,26 +863,6 @@ class GetPostsQuery {
 		}
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Generates string to be used in the main SQL query's WHERE clause.
-	 * Construct the part of the query for searching by mime type
-	 *
-	 * @return string
-	 */
-	private function _sql_filter_post_mime_type() {
-		global $wpdb;
-		if ( $this->post_mime_type) {
-			$query = " AND {$wpdb->posts}.post_mime_type LIKE %s";
-			return $wpdb->prepare( $query, $this->post_mime_type.'%' );
-		}
-		else {
-			return '';
-		}
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Generates the string to be used in the main SQL query's WHERE clause.
@@ -903,7 +881,7 @@ class GetPostsQuery {
 	private function _sql_search() {
 		global $wpdb;
 
-		if (empty($this->search_term)) {
+		if (empty($this->search_term) || empty($this->search_columns)) {
 			return '';
 		}
 
@@ -1009,7 +987,71 @@ class GetPostsQuery {
 	//! Public Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Debugging messages.  Same as printing the GetPostsQuery instance.
+	 * Given a post ID, append extra data to the record.
+	 *
+	 * @param	array $id post id
+	 * @param	array	record
+	 */
+	public function append_extra_data($id) {
+//die('Input: ' .$id);	
+		$r = $this->get_post($id);
+		// print '<pre>'. print_r($r, true) . '</pre>'; exit;		
+		$post_type = $r['post_type'];
+//	die($r['post_type']);
+		// Some translated labels and stuff
+		$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
+		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
+		$r['cctm_url'] = CCTM_URL;
+		
+		add_image_size('tiny_thumb', 30, 30);
+		
+		// Special handling for media attachments (i.e. photos) and for 
+		// custom post-types where the custom icon has been set.
+		if ($post_type == 'attachment') {
+			$r['preview_url'] = $r['guid'];
+	
+			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
+			$r['src_tiny_thumb'] = $src;
+			$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="30" width="30" alt="%s" />'
+				, $src, $r['preview']);
+	
+			$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true );
+			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'thumbnail', true);
+			$r['src_thumbnail'] = $src;
+		}
+		// Other post-types
+		else
+		{
+			//die('ack...');
+			$r['preview_url'] = $r['guid'].'&preview=true';
+			
+			if (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+					&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
+				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+				$r['src_tiny_thumb'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
+				$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="30" width="30" alt="%s" />'
+					, $r['src_tiny_thumb'], $r['preview']);
+				$r['img_thumbnail'] = sprintf('<img class="mini-thumbnail" src="%s" height="32" width="32" alt="%s" />'
+					, $r['src_tiny_thumb'], $r['preview']);
+				$r['src_thumbnail'] = $r['src_tiny_thumb'];
+				
+			}
+			else {
+				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
+				$r['src_tiny_thumb'] = $src;
+				$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="30" width="30" alt="" />'
+					, $src);
+		
+				$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true );
+				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'thumbnail', true);
+				$r['src_thumbnail'] = $src;
+			}
+		}
+		return $r;	
+	}
+
+	/**
+	 * Prints debugging messages for those intrepid souls who are encountering problems...
 	 *
 	 * @return string
 	 */
@@ -1030,9 +1072,6 @@ class GetPostsQuery {
 					<div class="summarize-post-arguments">%s</div>
 
 				<h2>%s</h2>
-					<div class="summarize-post-output_type">%s</div>
-
-				<h2>%s</h2>
 					<div class="summarize-posts-query"><textarea rows="20" cols="80">%s</textarea></div>
 
 				<h2>%s</h2>
@@ -1041,13 +1080,11 @@ class GetPostsQuery {
 				<h2>%s</h2>
 					<div class="summarize-posts-results"><textarea rows="20" cols="80">%s</textarea></div>
 			</div>'
-			, __('Errors', CCTM_TXTDOMAIN)
+			, __('Possible Errors', CCTM_TXTDOMAIN)
 			, $this->get_errors()
 			, __('Arguments', CCTM_TXTDOMAIN)
 			, __('For more information on how to use this function, see the documentation for the <a href="http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts">GetPostsQuery::get_posts()</a> function.', CCTM_TXTDOMAIN)
 			, $this->get_args()
-			, __('Output Type', CCTM_TXTDOMAIN)
-			, $this->output_type
 			, __('Raw Database Query', CCTM_TXTDOMAIN)
 			, $this->SQL
 			, __('Comparable Shortcode', CCTM_TXTDOMAIN)
@@ -1100,7 +1137,7 @@ class GetPostsQuery {
 		$args = array();
 		foreach ($this->args as $k => $v) {
 			// Only include info if it's not the default... save space and easier to read shortcodes
-			if (self::$defaults[$k] != $v ) { // && (!empty(self::$defaults[$k]) && !empty($v))) {
+			if (isset(self::$defaults[$k]) && self::$defaults[$k] != $v ) { // && (!empty(self::$defaults[$k]) && !empty($v))) {
 				if ($k == 'omit_post_type') {
 					print "Value: $k<br/>";
 					print 'default: '; print_r(self::$defaults[$k]); print "<br/>";
@@ -1214,12 +1251,18 @@ class GetPostsQuery {
 			
 		// Get info from the Shortcode (if called that way).
 		//$tmp = shortcode_atts( $this->args, $args );
-		$tmp = shortcode_atts( self::$defaults, $args );
-		$this->args = self::sanitize_args($tmp);
+//		$tmp = shortcode_atts( self::$defaults, $args );
+//		print_r($tmp); exit;
+		if (!empty($args)) {
+			$args = self::sanitize_args($args);
+			$this->args = array_merge($this->args, $args);
+		}
+		
+		
 //		print '<pre>'. print_r($this->args, true) . print '</pre>'; exit;
 
 		// only kicks in when pagination is active: this is so the URL can override
-		// specific bits of the query, e.g. the OFFSET parameter.
+		// specific bits of the query, e.g. the offset,limit,order,orderby parameters.
 		$this->_override_args_with_url_params();
 
 		// if we are doing hierarchical queries, we need to trace down all the components before
@@ -1259,10 +1302,9 @@ class GetPostsQuery {
 					$count = 0;
 					$r['metadata'] = preg_replace("/$caboose$/", '', $r['metadata'], -1, $count );
 					if (!$count) {
-						$this->errors[] = __('There was a problem accessing custom fields. Try increasing the group_concat_max_len setting.', CCTM_TXTDOMAIN);
+						$this->errors[] = __('There was a problem accessing custom fields. Try increasing the <code>group_concat_max_len</code> setting.', CCTM_TXTDOMAIN);
 					}
 					else {
-
 						$pairs = explode( self::comma_separator, $r['metadata'] );
 						foreach ($pairs as $p) {
 							list($key, $value) = explode(self::colon_separator, $p);
@@ -1272,13 +1314,13 @@ class GetPostsQuery {
 				}
 			}
 
-			unset($r['metadata']);
+			unset($r['metadata']); // remove the concatenated meta data.
 
 			$r['permalink']  = get_permalink( $r['ID'] );
 			$r['parent_permalink'] = get_permalink( $r['parent_ID'] );
 			// See http://stackoverflow.com/questions/3602941/why-isnt-apply-filterthe-content-outputting-anything
 			// $r['the_content']  = get_the_content(); // only works inside the !@#%! loop
-			$r['the_content']  = apply_filters('the_content', $r['post_content']);
+			$r['the_content']  = apply_filters('the_content', $r['post_content']); // this will loop and die if you hit a [summarize_posts] shortcode!
 			$r['content']   = $r['post_content'];
 			//$r['the_author'] = get_the_author(); // only works inside the !@#%! loop
 			$r['title']   = $r['post_title'];
@@ -1311,31 +1353,64 @@ class GetPostsQuery {
 		return $this->SQL;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * SYNOPSIS: a simple parsing function for basic templating.
+	 * INPUT:
+	 * $tpl (str): a string containing [+placeholders+]
+	 * $hash (array): an associative array('key' => 'value');
+	 * OUTPUT
+	 * string; placeholders corresponding to the keys of the hash will be replaced
+	 * with the values and the string will be returned.
+	 *
+	 * @param string  $tpl
+	 * @param array   $hash associative array of placeholders => values
+	 * @return string
+	 */
+	public static function parse($tpl, $hash) {
+		foreach ($hash as $key => $value) {
+			if ( !is_array($value) ) {
+				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+			}
+		}
+
+		// Remove any unparsed [+placeholders+]
+		$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
+
+		return $tpl;
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
 	 * Given an array of inputs (such as those posted from a Web form), this will 
-	 * sanitize those inputs.
+	 * sanitize those inputs.  Some argumnts cannot be null!  Those are:
+	 * 		search_columns
 	 *
 	 * @param	array	$args any valid array of arguments that can be passed to the constructor or to the get_posts() function.
 	 * @return	array	same array, sanitized values.
 	 */
 	public function sanitize_args($args) {
+/*
 		if (empty($args)) {
-			return self::$defaults;
+			// return self::$defaults;
+			return array();
 		}
+*/
 		foreach ($args as $var => $val) {
 		
 			$var = strtolower($var);
 
 			// if the user tries to set something to empty, we default to the default settings.
 			// Without this, the query can break, e.g. no "date" column specified.
+/*
 			if (empty($val)) {
 				if (isset(self::$defaults[$var])) {
 					$args[$var] = self::$defaults[$var];
 					$this->errors[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
 				}
 			}
+*/
 			
 			switch ($var) {
 				// Integers
@@ -1357,7 +1432,10 @@ class GetPostsQuery {
 					$this->sort_by_random = true;
 					$args['order'] = ''; // blank this out
 				}
-				elseif ( !in_array( $val, self::$wp_posts_columns) ) {
+				elseif(empty($val)) {
+					$args[$var] = self::$defaults['orderby'];
+				}
+				elseif (!in_array( $val, self::$wp_posts_columns) ) {
 					$this->sort_by_meta_flag = true;
 					$args[$var] = $val;
 					$this->errors[] = __('Possible error: orderby column not a default post column: ') . $val;
@@ -1505,34 +1583,6 @@ class GetPostsQuery {
 		
 		return $args;
 	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	 * SYNOPSIS: a simple parsing function for basic templating.
-	 * INPUT:
-	 * $tpl (str): a string containing [+placeholders+]
-	 * $hash (array): an associative array('key' => 'value');
-	 * OUTPUT
-	 * string; placeholders corresponding to the keys of the hash will be replaced
-	 * with the values and the string will be returned.
-	 *
-	 * @param string  $tpl
-	 * @param array   $hash associative array of placeholders => values
-	 * @return string
-	 */
-	public static function parse($tpl, $hash) {
-		foreach ($hash as $key => $value) {
-			if ( !is_array($value) ) {
-				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-			}
-		}
-
-		// Remove any unparsed [+placeholders+]
-		$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
-
-		return $tpl;
-	}
-
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1546,24 +1596,6 @@ class GetPostsQuery {
 	public function set_default($fieldname, $value) {
 		self::$custom_default_values[(string)$fieldname] = (string) $value;
 	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Sets how we return our record set: either as an array of objects or as an
-	 * array of associative arrays.
-	 *
-	 * @param string  $output_type
-	 */
-	public function set_output_type($output_type) {
-		if ( $output_type != OBJECT && $output_type != ARRAY_A ) {
-			$this->errors[] = __('Invalid output type. Output type must be either OBJECT or ARRAY_A.', CCTM_TXTDOMAIN);
-		}
-		else {
-			$this->output_type = $output_type;
-		}
-	}
-
 
 }
 

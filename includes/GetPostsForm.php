@@ -870,16 +870,17 @@ class GetPostsForm {
 		$ph['checkboxes'] = '';
 		$ph['options'] = '';
 		$post_types = get_post_types();
-		foreach ($post_types as $k => $pt) {
+		sort($post_types);
+		foreach ($post_types as $pt) {
 			$ph2 = $this->placeholders;
 			$ph2['name'] = 'post_type[]';
-			if (in_array($k, $current_value)) {
+			if (in_array($pt, $current_value)) {
 				$ph2['is_selected'] = ' selected="selected"';
 				$ph2['is_checked'] = ' checked="checked"';
-				$this->placeholders['post_type.'.$k.'.is_selected'] = ' selected="selected"';
-				$this->placeholders['post_type.'.$k.'.is_checked'] = ' checked="checked"';
+				$this->placeholders['post_type.'.$pt.'.is_selected'] = ' selected="selected"';
+				$this->placeholders['post_type.'.$pt.'.is_checked'] = ' checked="checked"';
 			}
-			$ph2['value'] = $k;
+			$ph2['value'] = $pt;
 			$ph2['label'] = $pt;
 			$ph2['input_class'] = 'input_checkbox';
 			$ph2['label_class'] = 'label_checkbox';

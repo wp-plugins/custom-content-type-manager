@@ -137,6 +137,8 @@ abstract class CCTM_FormElement {
 	public function __construct() {
 		// instantiate properties
 		$this->immutable['type'] = preg_replace('/^'. CCTM::classname_prefix.'/', '', get_class($this));
+		$this->props['id_prefix'] = self::css_id_prefix;
+		$this->props['name_prefix'] = self::post_name_prefix;
 		$this->props = array_merge($this->props, $this->immutable);
 
 		// Run-time Localization

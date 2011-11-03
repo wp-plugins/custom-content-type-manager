@@ -43,13 +43,23 @@ if (isset($_POST['search_parameters'])) {
 $refined_args = $Q->sanitize_args($refined_args);
 
 $results_per_page = 12;
-$args = CCTM::get_value($def, 'search_parameters', array('post_status'=> array('publish','inherit'))); // <-- read custom search parameters, if defined.
+
+// Default Search Parameters
+$default_search_params = array();
+$default_search_params['post_type'] = array_keys(get_post_types());
+$default_search_params['post_status'] = array('publish','inherit');
+$default_search_params['omit_post_type'] = array('revision','nav_menu_item');
+$default_search_params['orderby'] = 'ID';
+$default_search_params['order'] = 'DESC';
+$default_search_params['paginate'] = 1;
+$args = CCTM::get_value($def, 'search_parameters', $default_search_params); // <-- read custom search parameters, if defined.
+
 //$args = array_merge($args, $refined_args);
 foreach ($refined_args as $k => $v) {
 	$args[$k] = $v;
 }
 //$args = array_merge($refined_args, $args);
-//print '<pre>'; print_r($args); print '</pre>'; exit;
+//print '<pre>'; print_r(get_post_types()); print '</pre>'; exit;
 $page_number = (int) CCTM::get_value($_POST, 'page_number', 0);
 $offset = 0;
 
@@ -103,7 +113,7 @@ $args['offset'] = $offset;
 
 
 $results = $Q->get_posts($args);
-
+//print '<pre>'. $Q->debug(). '</pre>';
 $item_tpl = CCTM::load_tpl(
 	array('post_selector/items/'.$fieldname.'.tpl'
 		, 'post_selector/items/_'.$def['type'].'.tpl'
@@ -131,6 +141,7 @@ $hash['search'] = __('Filter', CCTM_TXTDOMAIN);
 $hash['content'] = '';
 // And the items
 foreach ($results as $r){
+	$r['name'] = $raw_fieldname;
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
 	add_image_size('tiny_thumb', 30, 30);

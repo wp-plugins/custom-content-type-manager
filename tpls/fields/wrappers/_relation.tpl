@@ -3,7 +3,7 @@
 		[+label+]
 	</label>
 	
-	[+add_button+]
+	<span class="button" onclick="javascript:thickbox_results('[+id+]');">[+button_label+]</span>
 	<!-- target is used for optional thickbox content -->
 	<div id="target_[+id+]"></div>
 	<div id="cctm_instance_wrapper_[+id+]">
