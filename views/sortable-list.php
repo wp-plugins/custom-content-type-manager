@@ -4,8 +4,6 @@ jQuery(function() {
 			items: "tr:not(.no-sort)"
 		});
 	jQuery( "#custom-field-list" ).disableSelection();
-
-	
 });
 </script>
 

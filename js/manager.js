@@ -111,19 +111,51 @@ function toggle_readonly()
 
 /*------------------------------------------------------------------------------
 Used to pop a thickbox containing search results -- used by relation, image, etc.
-fields.
+fields.  This also needs to read existing values for the field (id) so the 
+results don't 
 ------------------------------------------------------------------------------*/
 function thickbox_results(id) {
 	// Remove any existing thickbox: this will force the thickbox to refresh if
 	// you are calling this function from within a thickbox.
-	tb_remove();
+	// tb_remove();
 	
 	jQuery.post(
 	    cctm.ajax_url,
 	    {
-	        action : 'get_posts',
-	        fieldname : id,
-	        get_posts_nonce : cctm.ajax_nonce
+	        "action" : 'get_posts',
+	        "fieldname" : id,
+	        "get_posts_nonce" : cctm.ajax_nonce
+	    },
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#target_'+id).html(response);
+			
+			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
+			W = W - 80;
+			H = H - 84;
+			// then thickbox the div
+			tb_show( cctm.label_select_posts, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
+	    }
+	);	
+}
+
+function thickbox_results2(id) {
+	// Remove any existing thickbox: this will force the thickbox to refresh if
+	// you are calling this function from within a thickbox.
+	// tb_remove();
+
+	var existing_values = new Array();
+	jQuery('#cctm_instance_wrapper_'+id +' :input').each(function() {
+		existing_values.push(jQuery(this).val());
+	});
+
+	jQuery.post(
+	    cctm.ajax_url,
+	    {
+	        "action" : 'get_posts',
+	        "fieldname" : id,
+	        "exclude" : existing_values,
+	        "get_posts_nonce" : cctm.ajax_nonce
 	    },
 	    function( response ) {
 	    	// Write the response to the div
@@ -167,6 +199,86 @@ function select_post( post_id )
 	
 	tb_remove();
 	return false;
+}
+
+/*------------------------------------------------------------------------------
+Add the selected posts to the parent post and close the thickbox.
+------------------------------------------------------------------------------*/
+function save_and_close() {
+	add_to_post();
+	tb_remove();
+	return false;	
+}
+
+/*------------------------------------------------------------------------------
+Adds checked posts to the parent post. (used by the multi-selects)
+------------------------------------------------------------------------------*/
+function add_to_post()
+{
+	// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+	
+	var post_ids = new Array();
+	jQuery('#cctm_thickbox_content input:checked').each(function() {
+		var post_id = jQuery(this).val();
+		post_ids.push(post_id);
+		// Remove the selection from the visible form
+		jQuery('#cctm_tr_multi_select_'+post_id).remove();
+	});
+	
+	
+	// alert(post_ids); return;
+	var data = {
+	        "action" : 'get_selected_posts',
+	        "fieldname" : fieldname,
+	        "post_id": post_ids,
+	        "get_selected_posts_nonce" : cctm.ajax_nonce
+	    };
+
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	//alert('cctm_instance_wrapper_'+fieldname);
+	    	// Write the response to the div
+			jQuery('#cctm_instance_wrapper_'+fieldname).append(response);
+			
+	    }
+	);
+	
+	return false;
+}
+
+/*------------------------------------------------------------------------------
+This will do the following:
+1. read all the posts that have been checked in the post-selector
+2. generate html for the post/page
+3. Append (not overwrite) that data to the post/page
+4. Update the search form display so it now excludes the posts selected.
+------------------------------------------------------------------------------*/
+function select_post_multi()
+{
+	// It's easier to read it from a hidden field than it is to pass it to this function
+	var fieldname = jQuery('#fieldname').val();
+	
+	var data = {
+	        "action" : 'get_selected_posts',
+	        "fieldname" : fieldname,
+	        "post_id": post_id,
+	        "get_selected_posts_nonce" : cctm.ajax_nonce
+	    };
+
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	//alert('cctm_instance_wrapper_'+fieldname);
+	    	// Write the response to the div
+			jQuery('#cctm_instance_wrapper_'+fieldname).html(response);
+			
+	    }
+	);
+
 }
 
 /*------------------------------------------------------------------------------

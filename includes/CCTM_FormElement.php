@@ -683,7 +683,15 @@ abstract class CCTM_FormElement {
 	 */
 	public function save_post_filter($posted_data, $field_name) {
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
-			return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+			if (is_array($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])) {
+				foreach($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ] as &$f) {
+					$f = stripslashes(trim($f));
+				}
+				return json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]);
+			}
+			else{
+				return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+			}
 		}
 		else {
 			return '';

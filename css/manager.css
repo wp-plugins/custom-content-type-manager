@@ -249,11 +249,13 @@ span.cctm_close_rollover {
 	padding:0px;
 	margin:0px;
 	cursor: pointer;
-	display: block;
+	display: inline-block;
+	vertical-align:middle;
 	width: 20px;
 	height: 20px;
 	text-decoration: none;
 	background: url("http://cctm:8888/sub/wp-content/plugins/custom-content-type-manager/images/close.png");	
+	background-repeat:no-repeat;
 }
 span.cctm_close_rollover:hover {
 	background-position: -20px 0;

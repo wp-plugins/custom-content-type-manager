@@ -1,11 +1,21 @@
 <?php
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
-$d = array(); // <-- Template Variables
 /*------------------------------------------------------------------------------
 This controller displays a selection of posts for the user to select.
 ------------------------------------------------------------------------------*/
 
+// Template Variables Initialization
+$d = array(); 
+$d['search_parameters'] = '';
+$d['fieldname'] 		= '';
+$d['menu']				= '';
+$d['search_form']		= '';
+$d['content']			= '';
+
+//print '<pre>'.print_r($_POST, true) . '</pre>';return;
+
+//! Validation
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
 if (empty($raw_fieldname)) {
@@ -21,6 +31,28 @@ if (empty($def)) {
 }
 
 
+// This gets search data that gets passed when the user refines the search.
+$refined_args = array();
+if (isset($_POST['search_parameters'])) {
+	parse_str($_POST['search_parameters'], $refined_args);
+	// print '<pre>'; print_r($refined_args); print '</pre>';
+}
+if (!empty($_POST)) {
+	unset($_POST['action']);
+	unset($_POST['get_posts_nonce']);
+	unset($_POST['fieldname']);
+	$search_parameters = http_build_query($_POST);
+	//print '<pre>'.print_r($x, true) . '</pre>';return;	
+}
+
+
+// optionally get pages to exclude
+if (isset($_POST['exclude'])) {
+	$refined_args['exclude'] = $_POST['exclude'];
+}
+
+
+
 
 //------------------------------------------------------------------------------
 // Begin!
@@ -31,15 +63,10 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
 $Q = new GetPostsQuery(); 
 
-// This gets search data that gets passed when the user refines the search.
-$refined_args = array();
-if (isset($_POST['search_parameters'])) {
-	parse_str($_POST['search_parameters'], $refined_args);
-	// print '<pre>'; print_r($refined_args); print '</pre>';
-}
-
-//print '<pre>'; print_r($def); print '</pre>';
-
+//print '<pre>'; print_r($refined_args); print '</pre>';
+// Unsest these, otherwise the query will try to search them as custom field values.
+unset($refined_args['page_number']);
+unset($refined_args['fieldname']);
 $refined_args = $Q->sanitize_args($refined_args);
 
 $results_per_page = 12;
@@ -65,13 +92,11 @@ $offset = 0;
 
 // Template Variables
 $d['fieldname'] = $raw_fieldname;
-$d['page_number'] = $page_number;
-$d['orderby'] = CCTM::get_value($refined_args,'orderby');
-$d['order'] = CCTM::get_value($refined_args,'order');
+//$d['page_number'] = $page_number;
+//$d['orderby'] = CCTM::get_value($refined_args,'orderby');
+//$d['order'] = CCTM::get_value($refined_args,'order');
 
 $d['menu'] = '<span class="linklike" onclick="javascript:thickbox_upload_image(\''.$raw_fieldname.'\');">Upload</span>';
-$d['content'] =  '';
-$d['search_form'] = '';
 
 
 // Generate a search form
@@ -114,19 +139,41 @@ $args['offset'] = $offset;
 
 $results = $Q->get_posts($args);
 //print '<pre>'. $Q->debug(). '</pre>';
-$item_tpl = CCTM::load_tpl(
-	array('post_selector/items/'.$fieldname.'.tpl'
-		, 'post_selector/items/_'.$def['type'].'.tpl'
-		, 'post_selector/items/_default.tpl'
-	)
-);
-$wrapper_tpl = CCTM::load_tpl(
-	array('post_selector/wrappers/'.$fieldname.'.tpl'
-		, 'post_selector/wrappers/_'.$def['type'].'.tpl'
-		, 'post_selector/wrappers/_default.tpl'
-	)
-);
 
+$item_tpl = '';
+$wrapper_tpl = '';
+
+// Multi Field (contains an array of values.
+if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+
+	$item_tpl = CCTM::load_tpl(
+		array('post_selector/items/'.$fieldname.'.tpl'
+			, 'post_selector/items/_'.$def['type'].'_multi.tpl'
+			, 'post_selector/items/_default.tpl'
+		)
+	);
+	$wrapper_tpl = CCTM::load_tpl(
+		array('post_selector/wrappers/'.$fieldname.'.tpl'
+			, 'post_selector/wrappers/_'.$def['type'].'_multi.tpl'
+			, 'post_selector/wrappers/_default.tpl'
+		)
+	);
+}
+// Simple field (contains single value)
+else {	
+	$item_tpl = CCTM::load_tpl(
+		array('post_selector/items/'.$fieldname.'.tpl'
+			, 'post_selector/items/_'.$def['type'].'.tpl'
+			, 'post_selector/items/_default.tpl'
+		)
+	);
+	$wrapper_tpl = CCTM::load_tpl(
+		array('post_selector/wrappers/'.$fieldname.'.tpl'
+			, 'post_selector/wrappers/_'.$def['type'].'.tpl'
+			, 'post_selector/wrappers/_default.tpl'
+		)
+	);
+}
 
 
 // Placeholders for the wrapper tpl

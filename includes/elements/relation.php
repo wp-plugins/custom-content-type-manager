@@ -80,40 +80,27 @@ class CCTM_relation extends CCTM_FormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-
+//		var_dump($current_value); exit;
 		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 		
 		$Q = new GetPostsQuery();
 		
-		$fieldtpl = CCTM::load_tpl(
-			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
-				, 'fields/elements/_relation.tpl'
-			)
-		);
-
-		$wrappertpl = CCTM::load_tpl(
-			array('fields/wrappers/'.$this->name.'.tpl'
-				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_relation.tpl'
-			)
-		);
-
 		// Populate the values (i.e. properties) of this field
 		$this->id 					= $this->get_field_id();
 		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
-		$this->value				= (int) $current_value; // Relations only store the foreign key.
-		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+//		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 		$this->instance_id			= $this->get_instance_id();
-		// $this->is_repeatable = 1; // testing
+		$this->content = '';
 		
+		// $this->is_repeatable = 1; // testing
+		$this->post_id = $this->value;		
 //		die('current: '. $this->value);
-		$extras = $Q->append_extra_data($this->value);
-		foreach($extras as $k => $v) {
-			$this->$k = $v;
-		}
-		print '<pre>' .print_r($this->get_props(), true) . '</pre>';		
+		
+//		print '<pre>' .$this->value . '</pre>';		exit;
+//		print '<pre>' .print_r($extras, true) . '</pre>';		exit;
+
+//		print '<pre>' .print_r($this->get_props(), true) . '</pre>';		
 /*
 		if ($this->is_repeatable) {
 			$this->add_button = '<span class="button" onclick="javascript:thickbox_results(\''.$this->id.'\');">'.$this->button_label.'</span>'; 
@@ -121,8 +108,68 @@ class CCTM_relation extends CCTM_FormElement
 			$this->i = $this->i + 1; // increment the instance 
 		}
 */
+		$fieldtpl = '';
+		$wrappertpl = '';
+		// Multi field?
+		if ($this->is_repeatable) {
+
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'_multi.tpl'
+					, 'fields/elements/_relation.tpl'
+				)
+			);
+	
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_relation.tpl'
+				)
+			);		
+
+			if ($current_value) {
+				$values = (array) json_decode($current_value);
+	//			var_dump($values); exit;
+				foreach($values as $v) {
+					$this->value				= (int) $v;
+					$extras = $Q->append_extra_data($this->value);
+					
+					foreach($extras as $k => $v) {
+						$this->$k = $v;
+					}
+					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				}
+			}		
+		}
+		// Regular old Single-selection
+		else {
+			$this->value				= (int) $current_value; // Relations only store the foreign key.
+			$extras = $Q->append_extra_data($this->value);
+			
+			foreach($extras as $k => $v) {
+				$this->$k = $v;
+			}
+			
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_relation.tpl'
+				)
+			);
+	
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_relation.tpl'
+				)
+			);		
+
+			if ($this->value) {
+				$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			}		
+		}
 		
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 

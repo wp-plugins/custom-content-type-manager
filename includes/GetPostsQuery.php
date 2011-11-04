@@ -45,6 +45,10 @@ class GetPostsQuery {
 	// Goes to true if the date_column is set to something not in wp_posts
 	private $custom_field_date_flag = false;
 
+	// Goes to true if the user does a direct column search, e.g. $Q->ID = 234; 
+	private $direct_filter_flag = false;
+	private $direct_filter_columns = array(); // populated with each column that uses a direct filter
+	
 	// Set in the controller. If set to true, some helpful debugging msgs are printed.
 	public $debug = false;
 
@@ -93,9 +97,11 @@ class GetPostsQuery {
 		'comment_count'
 	);
 
-	// For date searches (greater than, less than)
+	// For date searches (greater than, less than). If the $this->date_column is not one of these values
+	// then we know we are filtering on a custom field.
 	private $date_cols = array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt');
-
+	
+	// The query requires these values for valid syntax
 	private static $cannot_be_null = array('order','orderby','join_rule');
 	
 	//! Defaults
@@ -617,6 +623,7 @@ class GetPostsQuery {
 			WHERE
 			(
 			1
+			[+direct_filter+]
 			[+include+]
 			[+exclude+]
 			[+omit_post_type+]
@@ -709,6 +716,20 @@ class GetPostsQuery {
 		$hash['order'] = $this->order;
 		$hash['limit'] = $this->_sql_limit();
 		$hash['offset'] = $this->_sql_offset();
+
+		// Direct filters (if any), e.g. 
+		$hash['direct_filter'] = '';
+		if ($this->direct_filter_flag) {
+			foreach($this->direct_filter_columns as $c) {
+				if (in_array($c, self::$wp_posts_columns)) {
+					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->args[$c]);
+				}
+				else {
+					$query = " {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value = %s)";
+					$hash['direct_filter'] .= $wpdb->prepare( $query, $c, $this->args[$c] );				
+				}
+			}
+		}
 
 
 		$this->SQL = self::parse($this->SQL, $hash);
@@ -993,7 +1014,10 @@ class GetPostsQuery {
 	 * @param	array	record
 	 */
 	public function append_extra_data($id) {
-//die('Input: ' .$id);	
+		if (empty($id) || $id == 0) {
+			return array();
+		}
+		
 		$r = $this->get_post($id);
 		// print '<pre>'. print_r($r, true) . '</pre>'; exit;		
 		$post_type = $r['post_type'];
@@ -1010,12 +1034,12 @@ class GetPostsQuery {
 		if ($post_type == 'attachment') {
 			$r['preview_url'] = $r['guid'];
 	
-			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
+			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 			$r['src_tiny_thumb'] = $src;
 			$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="30" width="30" alt="%s" />'
 				, $src, $r['preview']);
 	
-			$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true );
+			$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN), 'title' =>__('Preview', CCTM_TXTDOMAIN) ) );
 			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'thumbnail', true);
 			$r['src_thumbnail'] = $src;
 		}
@@ -1037,12 +1061,12 @@ class GetPostsQuery {
 				
 			}
 			else {
-				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
+				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 				$r['src_tiny_thumb'] = $src;
 				$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="30" width="30" alt="" />'
 					, $src);
 		
-				$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true );
+				$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)) );
 				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'thumbnail', true);
 				$r['src_thumbnail'] = $src;
 			}
@@ -1224,7 +1248,7 @@ class GetPostsQuery {
 	 */
 	public function get_post($id) {
 
-		$post = $this->get_posts(array('ID' => (int) $id ));
+		$post = $this->get_posts(array('ID' => $id ));
 		if (!empty($post) ) {
 			return $post[0]; // return first post
 		}
@@ -1263,7 +1287,7 @@ class GetPostsQuery {
 
 		// only kicks in when pagination is active: this is so the URL can override
 		// specific bits of the query, e.g. the offset,limit,order,orderby parameters.
-		$this->_override_args_with_url_params();
+		//$this->_override_args_with_url_params();
 
 		// if we are doing hierarchical queries, we need to trace down all the components before
 		// we do our query!
@@ -1316,21 +1340,14 @@ class GetPostsQuery {
 
 			unset($r['metadata']); // remove the concatenated meta data.
 
+			// Additional Data
 			$r['permalink']  = get_permalink( $r['ID'] );
 			$r['parent_permalink'] = get_permalink( $r['parent_ID'] );
 			// See http://stackoverflow.com/questions/3602941/why-isnt-apply-filterthe-content-outputting-anything
 			// $r['the_content']  = get_the_content(); // only works inside the !@#%! loop
-			$r['the_content']  = apply_filters('the_content', $r['post_content']); // this will loop and die if you hit a [summarize_posts] shortcode!
-			$r['content']   = $r['post_content'];
+			// $r['the_content']  = apply_filters('the_content', $r['post_content']); // this will loop and die if you hit a [summarize_posts] shortcode!
 			//$r['the_author'] = get_the_author(); // only works inside the !@#%! loop
-			$r['title']   = $r['post_title'];
-			// $r['date']   = $r['post_date'];
-			$r['excerpt']  = $r['post_excerpt'];
-			$r['mime_type']  = $r['post_mime_type'];
-			$r['modified']  = $r['post_modified'];
-			$r['parent']  = $r['post_parent'];
-			$r['modified_gmt'] = $r['post_modified_gmt'];
-
+			$r['post_id']  = $r['ID'];
 		}
 
 		$results = $this->_normalize_recordset($results);
@@ -1399,7 +1416,7 @@ class GetPostsQuery {
 */
 		foreach ($args as $var => $val) {
 		
-			$var = strtolower($var);
+			//$var = strtolower($var);
 
 			// if the user tries to set something to empty, we default to the default settings.
 			// Without this, the query can break, e.g. no "date" column specified.
@@ -1574,9 +1591,14 @@ class GetPostsQuery {
 			case 'paginate':
 				$args[$var] = (bool) $val;
 				break;
-				// If you're here, it's assumed that you're trying to filter on a custom field
+				
+			// If you're here, it's assumed that you're trying to filter directly on a wp_posts column or 
+			// on a custom field 
 			default:
+
 				$args[$var] = wp_kses($val, array());
+				$this->direct_filter_flag =  true;
+				$this->direct_filter_columns[] = $var;
 				$this->errors[] = __('Possible invalid input parameter:', CCTM_TXTDOMAIN ) . $var;
 			}
 		}

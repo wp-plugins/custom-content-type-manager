@@ -13,7 +13,7 @@ Note that the default tpls used here are the _relation*.tpl's:
 	_relation.tpl for single posts
 	_relation_multi.tpl for fields where "is repeatable" has been selected
 ------------------------------------------------------------------------------*/
-
+// print '<pre>'.print_r($_POST, true) . '</pre>';return;
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
 if (empty($raw_fieldname)) {
@@ -34,7 +34,7 @@ $tpl = '';
 // Might be an array
 $post_ids = CCTM::get_value($_POST,'post_id');
 if (empty($post_ids)) {
-	print '<p>'.__('Post ID required.', CCTM_TXTDOMAIN).'</p>';
+	// print '<p>'.__('Post ID required.', CCTM_TXTDOMAIN).'</p>';
 	return;	
 }
 // Multi

@@ -196,7 +196,6 @@ class StandardizedCustomFields
 		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
 			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
 			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-			// die($baseimg); 
 			if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
 				$output .= sprintf('
 				<style>
@@ -208,7 +207,6 @@ class StandardizedCustomFields
 				, CCTM_URL . '/images/icons/32x32/'. $baseimg);
 			}
 		}
-
 
 		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
 		if ( empty($custom_fields) )
@@ -232,7 +230,8 @@ class StandardizedCustomFields
 				$output_this_field = $FieldObj->get_create_field_instance();
 			}
 			else {
-				$current_value = htmlspecialchars( get_post_meta( $post->ID, $def['name'], true ) );
+				//$current_value = htmlspecialchars( get_post_meta( $post->ID, $def['name'], true ) );
+				$current_value = get_post_meta( $post->ID, $def['name'], true );
 				$FieldObj->set_props($def);
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}
