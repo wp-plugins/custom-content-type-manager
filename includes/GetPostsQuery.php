@@ -62,8 +62,12 @@ class GetPostsQuery {
 	public $registered_post_types = array();
 	public $registered_taxonomies = array();
 
-	// Stores any errors encountered
+	// Stores any errors/warnings/notices encountered.  These are all simple arrays containing localized
+	// message strings.
 	public $errors = array();
+	public $warnings = array();
+	public $noticess = array();
+	
 	public static $static_errors = array(); // like $errors, but for static context.
 	
 	// Added by the set_default() function: sets default values to use for empty fields.
@@ -102,11 +106,17 @@ class GetPostsQuery {
 	private $date_cols = array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt');
 	
 	// The query requires these values for valid syntax
-	private static $cannot_be_null = array('order','orderby','join_rule');
+	private static $cannot_be_null = array(
+		'order' => 'DESC',
+		'orderby' => 'ID',
+		'join_rule' => 'AND');
+	
+	// See set_boundaries() -- these values kick in if arguments are empty
+//	public $boundaries = array();
 	
 	//! Defaults
 	// args and defaults for get_posts()
-	public static $defaults = array(
+	public $defaults = array(
 		'limit'   => 0,
 		'offset'   => null,
 		'orderby'  => 'ID', // valid column (?) cannot be a metadata column
@@ -172,7 +182,7 @@ class GetPostsQuery {
 
 	// Accessed by the set_default function, this affects field values when the recordset is
 	// normalized.
-	private static $custom_default_values = array();
+	private $custom_default_values = array();
 
 	public $cnt; // number of search results
 	public $SQL; // store the query here for debugging.
@@ -190,10 +200,10 @@ class GetPostsQuery {
 		$this->registered_post_types = array_keys( get_post_types() );
 		$this->registered_taxonomies = array_keys( get_taxonomies() );
 
-		//$tmp = shortcode_atts( self::$defaults, $raw_args );
+		//$tmp = shortcode_atts( $this->defaults, $raw_args );
 
 		// Scrub up for dinner
-		$this->args = self::sanitize_args($raw_args);
+		$this->args = $this->sanitize_args($raw_args);
 	}
 
 
@@ -208,8 +218,8 @@ class GetPostsQuery {
 		if ( in_array($var, array_keys($this->args))) {
 			return $this->args[$var];
 		}
-		elseif (in_array($var, self::$cannot_be_null)) {
-			return self::$defaults[$var];
+		elseif (in_array($var, array_keys(self::$cannot_be_null))) {
+			return $this->defaults[$var];
 		}
 		else {
 			return '';
@@ -251,8 +261,8 @@ class GetPostsQuery {
 	 * @param string  $var
 	 */
 	public function __unset($var) {
-		if ( isset(self::$defaults[$var]) ) {
-			$this->args[$var] = self::$defaults[$var];
+		if ( isset($this->defaults[$var]) ) {
+			$this->args[$var] = $this->defaults[$var];
 		}
 		else {
 			unset($this->args[$var]);
@@ -268,8 +278,9 @@ class GetPostsQuery {
 	 * @param mixed   $val
 	 */
 	public function __set($var, $val) {
-		$args = self::sanitize_args(array($var=>$val));
+		$args = $this->sanitize_args(array($var=>$val));
 		$this->args[$var] = $args[$var];
+		//$this->args[$var] = $val;
 	}
 
 	//------------------------------------------------------------------------------
@@ -521,7 +532,7 @@ class GetPostsQuery {
 	 */
 	private function _normalize_recordset($records) {
 		// Default values will force an attribute, even if the attribute doesn't exist in the recordset
-		$unique_attributes = array_keys(self::$custom_default_values);
+		$unique_attributes = array_keys($this->custom_default_values);
 
 		// Get unique attributes
 		foreach ($records as $r) {
@@ -539,8 +550,8 @@ class GetPostsQuery {
 		}
 
 		// Set any default values
-		if (!empty(self::$custom_default_values)) {
-			foreach (self::$custom_default_values as $key => $value) {
+		if (!empty($this->custom_default_values)) {
+			foreach ($this->custom_default_values as $key => $value) {
 				foreach ($records as &$r) {
 					if (empty($r[$key])) {
 						$r[$key] = $value;
@@ -738,28 +749,6 @@ class GetPostsQuery {
 
 		return $this->SQL;
 
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This kicks in when pagination is used. It allows $_GET parameters to override
-	 * normal args when pagination is used.
-	 *
-	 * @return none
-	 */
-	private function _override_args_with_url_params() {
-		if ($this->paginate) {
-			if ( isset($_GET['page'])) {
-				$this->page = (int) $_GET['page'];
-			}
-
-			foreach ( $this->args as $k => $v ) {
-				if ( isset($_GET[$k]) ) {
-					$this->__set($k, $_GET[$k]);
-				}
-			}
-		}
 	}
 
 
@@ -966,7 +955,7 @@ class GetPostsQuery {
 			return '';
 		}
 		// e.g. AND DATE_FORMAT(wp_posts.post_modified, '%Y%m') = '201102'
-		return sprintf("%s DATE_FORMAT(%s.%s, '%%Y%%m') = %s"
+		return sprintf("%s DATE_FORMAT(%s.%s, '%%Y%%m') = %s" // note the double percentage to placate sprintf 
 			, $this->join_rule
 			, $wpdb->posts
 			, $this->date_column
@@ -1021,7 +1010,7 @@ class GetPostsQuery {
 		$r = $this->get_post($id);
 		// print '<pre>'. print_r($r, true) . '</pre>'; exit;		
 		$post_type = $r['post_type'];
-//	die($r['post_type']);
+		//	die($r['post_type']);
 		// Some translated labels and stuff
 		$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
@@ -1088,9 +1077,8 @@ class GetPostsQuery {
 			'<div class="summarize-posts-summary">
 				<h1>Summarize Posts</h1>
 
-				<h2>%s</h2>
-					<div class="summarize-posts-errors">%s</div>
-
+				%s
+				
 				<h2>%s</h2>
 				<p>%s</p>
 					<div class="summarize-post-arguments">%s</div>
@@ -1104,7 +1092,6 @@ class GetPostsQuery {
 				<h2>%s</h2>
 					<div class="summarize-posts-results"><textarea rows="20" cols="80">%s</textarea></div>
 			</div>'
-			, __('Possible Errors', CCTM_TXTDOMAIN)
 			, $this->get_errors()
 			, __('Arguments', CCTM_TXTDOMAIN)
 			, __('For more information on how to use this function, see the documentation for the <a href="http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts">GetPostsQuery::get_posts()</a> function.', CCTM_TXTDOMAIN)
@@ -1126,6 +1113,9 @@ class GetPostsQuery {
 	 * @return string
 	 */
 	public function get_args() {
+		if (empty($this->args)) {
+			return '<p>'.__('No arguments supplied.', CCTM_TXTDOMAIN) .'</p>';
+		}
 		$output = '<ul class="summarize-posts-argument-list">'."\n";
 
 		foreach ($this->args as $k => $v) {
@@ -1153,7 +1143,10 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Returns a string of a comparable shortcode for the query entered.
+	 * Returns a string of a comparable shortcode for the query entered. Note that 
+	 * this technically just shows the difference between the $this->args and the 
+	 * $this->defaults settings, so if you used the set_defaults() function to set 
+	 * a baseline for the search, the shortcode will come up [summarize-posts].
 	 *
 	 * @return string
 	 */
@@ -1161,10 +1154,10 @@ class GetPostsQuery {
 		$args = array();
 		foreach ($this->args as $k => $v) {
 			// Only include info if it's not the default... save space and easier to read shortcodes
-			if (isset(self::$defaults[$k]) && self::$defaults[$k] != $v ) { // && (!empty(self::$defaults[$k]) && !empty($v))) {
+			if (isset($this->defaults[$k]) && $this->defaults[$k] != $v ) { // && (!empty($this->defaults[$k]) && !empty($v))) {
 				if ($k == 'omit_post_type') {
 					print "Value: $k<br/>";
-					print 'default: '; print_r(self::$defaults[$k]); print "<br/>";
+					print 'default: '; print_r($this->defaults[$k]); print "<br/>";
 					print 'incoming: '; print_r($v);
 					exit;
 				}
@@ -1209,22 +1202,54 @@ class GetPostsQuery {
 	 * @return string message detailing errors.
 	 */
 	public function get_errors() {
+
+		$output = '';
+		
 		$errors = $this->errors;
+		
 		if ($errors) {
-			$output = '';
 			$items = '';
 			foreach ($errors as $e) {
 				$items .= '<li>'.$e.'</li>' ."\n";
 			}
 			$output = '<ul>'."\n".$items.'</ul>'."\n";
-			return $output;
 		}
 		else {
-			return __('There were no errors.');
+			$output = __('There were no errors.', CCTM_TXTDOMAIN);
 		}
+		return sprintf('<h2>%s</h2><div class="summarize-posts-errors">%s</div>'
+			, __('Errors', CCTM_TXTDOMAIN)
+			, $output);
 	}
 
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Format any errors in an unordered list, or returns a message saying there were no errors.
+	 *
+	 * @return string message detailing errors.
+	 */
+	public function get_notices() {
+
+		$output = '';
+		
+		$notices = $this->notices;
+		
+		if ($notices) {
+			$items = '';
+			foreach ($notices as $n) {
+				$items .= '<li>'.$n.'</li>' ."\n";
+			}
+			$output = '<ul>'."\n".$items.'</ul>'."\n";
+		}
+		else {
+			$output = __('There were no notices.', CCTM_TXTDOMAIN);
+		}
+		return sprintf('<h2>%s</h2><div class="summarize-posts-notices">%s</div>'
+			, __('Notices', CCTM_TXTDOMAIN)
+			, $output);
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Only valid if the pagination option has been set.  This is how the user should
@@ -1271,23 +1296,27 @@ class GetPostsQuery {
 	public function get_posts($args=array()) {
 		global $wpdb;
 		
-		//$this->args = self::sanitize_args($args);
+		$this->args = $this->sanitize_args($args);
 			
 		// Get info from the Shortcode (if called that way).
 		//$tmp = shortcode_atts( $this->args, $args );
-//		$tmp = shortcode_atts( self::$defaults, $args );
+//		$tmp = shortcode_atts( $this->defaults, $args );
 //		print_r($tmp); exit;
 		if (!empty($args)) {
-			$args = self::sanitize_args($args);
-			$this->args = array_merge($this->args, $args);
+
+			$args = $this->sanitize_args($args);
+//			print 'xooxxx..';
+//			print_r($args); exit;
+//			$this->args = array_merge($this->args, $args);
+//			print_r($this->args); exit;
+		}
+		else {
+			$this->args = $this->defaults;
 		}
 		
 		
 //		print '<pre>'. print_r($this->args, true) . print '</pre>'; exit;
 
-		// only kicks in when pagination is active: this is so the URL can override
-		// specific bits of the query, e.g. the offset,limit,order,orderby parameters.
-		//$this->_override_args_with_url_params();
 
 		// if we are doing hierarchical queries, we need to trace down all the components before
 		// we do our query!
@@ -1303,7 +1332,6 @@ class GetPostsQuery {
 
 		if ( $this->paginate ) {
 			$this->found_rows = $this->_count_posts();
-			// $this->_override_args_with_url_params();
 			include_once 'CCTM_Pagination.conf.php';
 			include_once 'CCTM_Pagination.php';
 			$this->P = new CCTM_Pagination();
@@ -1397,6 +1425,32 @@ class GetPostsQuery {
 		return $tpl;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Format any errors in an unordered list, or returns a message saying there were no errors.
+	 *
+	 * @return string message detailing errors.
+	 */
+	public function get_warnings() {
+
+		$output = '';
+		
+		$warnings = $this->warnings;
+		
+		if ($warnings) {
+			$items = '';
+			foreach ($warnings as $w) {
+				$items .= '<li>'.$w.'</li>' ."\n";
+			}
+			$output = '<ul>'."\n".$items.'</ul>'."\n";
+		}
+		else {
+			$output = __('There were no warnings.', CCTM_TXTDOMAIN);
+		}
+		return sprintf('<h2>%s</h2><div class="summarize-posts-warnings">%s</div>'
+			, __('Warnings', CCTM_TXTDOMAIN)
+			, $output);
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1408,26 +1462,49 @@ class GetPostsQuery {
 	 * @return	array	same array, sanitized values.
 	 */
 	public function sanitize_args($args) {
-/*
-		if (empty($args)) {
-			// return self::$defaults;
-			return array();
-		}
-*/
-		foreach ($args as $var => $val) {
-		
-			//$var = strtolower($var);
 
-			// if the user tries to set something to empty, we default to the default settings.
-			// Without this, the query can break, e.g. no "date" column specified.
-/*
-			if (empty($val)) {
-				if (isset(self::$defaults[$var])) {
-					$args[$var] = self::$defaults[$var];
-					$this->errors[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
+		if (empty($args)) {
+			return $this->defaults;
+			//return array();
+		}
+		// Testing this... : this doesn't work in this case: $this->defaults['post_type'] = 'x,y'; $args['post_type'] = array();
+		//$args = array_merge($this->defaults, $args);
+		// Manual merge
+		$tmp_args = $this->defaults;
+		foreach ($args as $k => $v) {
+			if (!empty($v)) {
+				$tmp_args[$k] = $v;
+			}		
+		}
+		$args = $tmp_args;
+		
+		
+//		print_r($args); exit;
+		foreach ($args as $var => $val) {
+
+			// fill in default value if the parameter is empty
+			// $var = strtolower($var);
+			// We gotta handle cases where the user tries to set something to null that would break the query
+			// if it went to null.
+			// beware of empty arrays
+			if (empty($val) 
+				|| (is_array($val) && isset($val[0]) && empty($val[0]))) {
+				if (isset($this->defaults[$var])) {
+					if (empty($this->defaults[$var]) && in_array($var, array_keys(self::$cannot_be_null))) {
+						$args[$var] = self::$cannot_be_null[$var];
+						$this->errors[] = sprintf(__('Empty default value for %s when empty inputs are not allowed.', CCTM_TXTDOMAIN ),  "<em>$var</em>");		
+					}
+					else {
+						$args[$var] = $this->defaults[$var];
+						$this->errors[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
+					}
 				}
 			}
-*/
+			// Now if we're still empty, we can skip it
+			if (empty($args[$var])) {
+				continue;
+			}
+			
 			
 			switch ($var) {
 				// Integers
@@ -1450,7 +1527,7 @@ class GetPostsQuery {
 					$args['order'] = ''; // blank this out
 				}
 				elseif(empty($val)) {
-					$args[$var] = self::$defaults['orderby'];
+					$args[$var] = $this->defaults['orderby'];
 				}
 				elseif (!in_array( $val, self::$wp_posts_columns) ) {
 					$this->sort_by_meta_flag = true;
@@ -1591,21 +1668,53 @@ class GetPostsQuery {
 			case 'paginate':
 				$args[$var] = (bool) $val;
 				break;
-				
+			case 'post_mime_type':
+				if (preg_match('/[^a-zA-Z0-9\/\-\_]/', $val)) {
+					
+					$this->errors[] = __('post_mime_type contains illegal characters.  Input ignored.', CCTM_TXTDOMAIN);
+				}
+				else {
+					$args[$var] = $val;				
+				}
+				break;				
 			// If you're here, it's assumed that you're trying to filter directly on a wp_posts column or 
-			// on a custom field 
+			// on a custom field.  The argument MUST be a column name.  Otherwise this might leak into 
+			// a MySQL injection attack.
 			default:
-
-				$args[$var] = wp_kses($val, array());
-				$this->direct_filter_flag =  true;
-				$this->direct_filter_columns[] = $var;
-				$this->errors[] = __('Possible invalid input parameter:', CCTM_TXTDOMAIN ) . $var;
+				if (preg_match('/[^a-zA-Z0-9\/\-\_]/', $val)) {
+					
+					$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlentities($var).'</em>');
+				}
+				else {
+					$args[$var] = wp_kses($val, array());
+					$this->direct_filter_flag =  true;
+					$this->direct_filter_columns[] = $var;
+					$this->errors[] = __('Possible invalid input parameter: ', CCTM_TXTDOMAIN ) . $var;				
+				}
 			}
 		}
 		
 		return $args;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Sets boundaries for the query.  These boundaries kick in when a search parameter
+	 * is left empty. This is especially useful for setting up limits to parameters lik
+	 * 'post_type', which if empty, will display ALL post-types from the db, registered
+	 * AND unregistered. 
+	 *
+	 * @param	array	parameters corresponding to the various search parameters
+	 */
+	public function set_defaults($args) {
+//		$this->args = $args;
+		
+		foreach ($args as $k => $v) {
+			$this->$k = $v;
+		}
+		$this->defaults = $this->args;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This sets a default value for any field.  This should kick in only if the
@@ -1616,7 +1725,7 @@ class GetPostsQuery {
 	 * @param string  $value     the value to set the attribute to
 	 */
 	public function set_default($fieldname, $value) {
-		self::$custom_default_values[(string)$fieldname] = (string) $value;
+		$this->custom_default_values[(string)$fieldname] = (string) $value;
 	}
 
 }

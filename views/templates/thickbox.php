@@ -12,13 +12,14 @@ via http_build_query() inside of the search_parameters field.
 <div id="cctm_thickbox">
 	<form id="select_posts_form">
 		<input type="hidden" name="fieldname" id="fieldname" value="<?php print $data['fieldname']; ?>" />
+		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
+		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
+		<input type="hidden" name="order" id="order" value="<?php print $data['order']; ?>" />
+
 	<?php
 /*
 	
 		
-		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
-		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
-		<input type="hidden" name="order" id="order" value="<?php print $data['order']; ?>" />
 		<?php
 			$excludes = CCTM::get_value($data, 'exclude', array());
 			foreach ($excludes as $e) {

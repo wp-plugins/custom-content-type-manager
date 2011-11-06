@@ -26,6 +26,9 @@
 
 class GetPostsForm {
 
+	// GetPostsQuery
+	public $Q;
+	
 	/**
 	 * The super simple default search form includes only a search term.
 	 */
@@ -187,7 +190,8 @@ class GetPostsForm {
 	 * @param array   $search_by (optional)
 	 */
 	public function __construct($search_by=array()) {
-
+		$this->Q = new GetPostsQuery();
+		
 		// Default CSS stuff
 		$dir = dirname(dirname(__FILE__));
 		$this->set_css( $dir.'/css/searchform.css');
@@ -203,7 +207,7 @@ class GetPostsForm {
 		$this->placeholders['show_all_dates'] = __('Show all dates', CCTM_TXTDOMAIN);
 		$this->placeholders['show_all_post_types'] = __('Show all post-types', CCTM_TXTDOMAIN);
 
-		$this->valid_props = array_keys(GetPostsQuery::$defaults);
+		$this->valid_props = array_keys($this->Q->defaults);
 		if (empty($search_by)) {
 			// push this through validation.
 			//foreach(self::$defaults as $k => $v) {
@@ -1096,8 +1100,8 @@ class GetPostsForm {
 	 * @return string HTML form.
 	 */
 	public function generate($search_by=array(), $existing_values=array()) {
-		$Q = new GetPostsQuery();
-		$this->values = $Q->sanitize_args($existing_values);
+		
+		$this->values = $this->Q->sanitize_args($existing_values);
 		//print '<pre>'; print_r($this->values); print '</pre>'; exit;
 		static $instantiation_count = 0;
 		$instantiation_count++;

@@ -419,13 +419,15 @@ function reset_search() {
 }
 
 /*------------------------------------------------------------------------------
-Fired when a column header is clicked.
+Fired when a column header is clicked.  
+@param	string	sort_column the column we want to sort by.
 ------------------------------------------------------------------------------*/
 function sort_results(sort_column) {
 		// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	var order = jQuery('#order').val();
 	var orderby = jQuery('#orderby').val(); 
+	
 	// Toggle 'order' if we're already sortying by the 'orderby' column
 	if (orderby == sort_column){
 		if (order == 'DESC') {
@@ -437,7 +439,7 @@ function sort_results(sort_column) {
 	}
 	
 	jQuery('#orderby').val(sort_column);
-	 
+	jQuery('#page_number').val('0'); // go back to first page when we resort
 	var data = 
 		{
 	        "action" : 'get_posts',
