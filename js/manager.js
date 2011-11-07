@@ -406,11 +406,13 @@ function sort_results(sort_column) {
 /*------------------------------------------------------------------------------
 Shows a search form from the edit custom field definition
 ------------------------------------------------------------------------------*/
-function display_search_form(fieldtype) {
-	
+function display_search_form(fieldname) {
+	var search_parameters = jQuery('#search_parameters').val();
+	//alert(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
-	        "fieldtype" : fieldtype,
+	        "fieldname" : fieldname,
+	        "search_parameters" : search_parameters,
 	        "get_search_form_nonce" : cctm.ajax_nonce
 	    };
 	    
@@ -435,8 +437,18 @@ function display_search_form(fieldtype) {
 }
 
 /*------------------------------------------------------------------------------
-Remove all selected posts from the field
+Remove all selected posts from the multi-field
 ------------------------------------------------------------------------------*/
 function remove_all(id) {
 	jQuery('#cctm_instance_wrapper_'+id).html('');
+}
+
+/*------------------------------------------------------------------------------
+Save the Search Parameters Form to a hidden field in the field definition page
+------------------------------------------------------------------------------*/
+function save_search_parameters(form_id) {
+	var search_parameters = jQuery('#'+form_id).serialize();
+	//alert(search_parameters);
+	jQuery('#search_parameters').val(search_parameters);
+	tb_remove();	
 }

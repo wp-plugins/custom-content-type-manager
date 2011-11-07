@@ -545,7 +545,7 @@ class GetPostsForm {
 	 */
 	private function _meta_key() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('meta_key', 'az_');
+		$ph['value'] = htmlspecialchars($this->get_value('meta_key'));
 		$ph['name'] = 'meta_key';
 		$ph['id']  = 'meta_key';
 		$ph['label'] = __('Meta Key', CCTM_TXTDOMAIN);
@@ -794,11 +794,11 @@ class GetPostsForm {
 	 */
 	private function _post_parent() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('post_parent', 'ids');
+		$ph['value'] = implode(',', $this->get_value('post_parent'));
 		$ph['name'] = 'post_parent';
-		$ph['id']  = 'post_title';
+		$ph['id']  = 'post_parent';
 		$ph['label'] = __('Post Parent', CCTM_TXTDOMAIN);
-		$ph['description'] = __('Retrieve all posts that are children of the post ID specified. Comma-separate multiple values.', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Retrieve all posts that are children of the post ID(s) specified. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_parent');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -874,6 +874,15 @@ class GetPostsForm {
 		$i = 0;
 		$ph['checkboxes'] = '';
 		$ph['options'] = '';
+		// put a blank option before all the rest
+		$ph2['name'] = 'post_type[]';
+		$ph2['input_class'] = 'input_checkbox';
+		$ph2['label_class'] = 'label_checkbox';
+		$ph2['label'] = __('Select post_type', CCTM_TXTDOMAIN);
+//		$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
+		$ph['options'] .= self::parse($this->option_tpl, $ph2);
+		
+
 		$post_types = '';
 		if (isset($this->Q->defaults['post_type'])) {
 			$post_types = $this->Q->defaults['post_type'];
@@ -952,6 +961,11 @@ class GetPostsForm {
 		$ph = $this->placeholders;
 		$current_value = $this->get_value('taxonomy');
 		$ph['options'] = '';
+		// put a blank option before all the rest
+		$ph2['name'] = 'taxonomy';
+		$ph2['label'] = __('Select taxonomy', CCTM_TXTDOMAIN);
+		$ph['options'] .= self::parse($this->option_tpl, $ph2);		
+		
 		$taxonomies = get_taxonomies();
 		foreach ($taxonomies as $t) {
 			$ph2 = $this->placeholders;
@@ -1020,12 +1034,12 @@ class GetPostsForm {
 	 */
 	private function _taxonomy_term() {
 		$ph = $this->placeholders;
-
-		$ph['value'] = $this->get_value('taxonomy_term');
+		// print '<pre>'.print_r($this->get_value('taxonomy_term'), true).'</pre>';
+		$ph['value'] = implode(',',$this->get_value('taxonomy_term'));
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
 		$ph['label'] = __('Taxonomy Term', CCTM_TXTDOMAIN);
-		$ph['description'] = __('Set a specific category or tag to include in search results.', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Set a specific category(ies) or tag(s) to include in search results. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_term');
 		return self::parse($this->text_tpl, $ph);
 
@@ -1111,9 +1125,10 @@ class GetPostsForm {
 		
 		foreach($existing_values as $k => $v) {
 			$this->Q->$k = $v;
+			//$this->values[$k] = $this->Q->$k;
 		}
 		$this->values = $this->Q->args;
-		//print '<pre>'; print_r($this->values); print '</pre>'; exit;
+		//print '<pre>'; print_r($this->values); print '</pre>'; 
 		static $instantiation_count = 0; // used to generate a unique CSS for every form on the page
 		$instantiation_count++;
 		$this->placeholders['form_number'] = $instantiation_count;
@@ -1343,7 +1358,7 @@ class GetPostsForm {
 	 * Set the formatting template (tpl) used to format the final output of the 
 	 * generate() method.
 	 * 
-	 * @param	string	$tpl
+	 * @param	string	$tpl containing the entire formatting string.
 	 * @return	none
 	 */
 	public function set_tpl($tpl) {

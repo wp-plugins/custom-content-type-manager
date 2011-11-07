@@ -641,7 +641,7 @@ class GetPostsQuery {
 		// if it went to null.
 		// beware of empty arrays
 		if (empty($val)) { 
-			if (isset($this->defaults[$arg])) {
+			if (isset($this->defaults[$arg]) && !empty($this->defaults[$arg])) {
 					return $this->defaults[$arg];
 					$this->notices[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
 			}
@@ -764,7 +764,7 @@ class GetPostsQuery {
 				return $val;
 			}
 			else {
-				$this->warning[] = sprintf(__('Taxonomy does not exist: %s',CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+				$this->warnings[] = sprintf(__('Taxonomy does not exist: %s',CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
 				return null;
 			}
 			break;
@@ -838,7 +838,7 @@ class GetPostsQuery {
 		// a MySQL injection attack.
 		default:
 			if (!$this->_is_valid_column_name($arg)) {
-				$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlentities($var).'</em>');
+				$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlentities($arg).'</em>');
 				return null;
 			}
 			else {

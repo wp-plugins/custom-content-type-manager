@@ -24,7 +24,7 @@ $results_per_page = 12;
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
 if (empty($raw_fieldname)) {
-	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</p>';
+	print '<pre>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</pre>';
 	return;
 }
 // More Template Variables
@@ -58,20 +58,24 @@ if (isset($_POST['search_parameters'])) {
 $defaults = array();
 //$defaults['post_type'] = array_keys(get_post_types());
 $defaults['post_status'] = array('publish','inherit');
-$defaults['omit_post_type'] = array('revision','nav_menu_item');
+//$defaults['omit_post_type'] = array('revision','nav_menu_item');
 $defaults['orderby'] = 'ID';
 $defaults['order'] = 'DESC';
 $defaults['limit'] = $results_per_page;
 $defaults['paginate'] = 1;
-$defaults = CCTM::get_value($def, 'search_parameters', $defaults); // <-- read custom search parameters, if defined.
 
+//print '<pre>'.print_r($defaults,true).'</pre>'; return;
 
 // optionally get pages to exclude
 if (isset($_POST['exclude'])) {
 	$defaults['exclude'] = $_POST['exclude'];
 }
-
-
+$search_parameters_str = CCTM::get_value($def, 'search_parameters'); // <-- read custom search parameters, if defined.
+$additional_defaults = array();
+parse_str($search_parameters_str, $additional_defaults);
+foreach($additional_defaults as $k => $v) {
+	$defaults[$k] = $v;
+}
 
 
 //------------------------------------------------------------------------------

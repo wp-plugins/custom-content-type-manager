@@ -36,6 +36,7 @@ class CCTM_relation extends CCTM_FormElement
 		'extra'	=> '',
 		'default_value' => '',
 		'is_repeatable' => '',
+		'search_parameters' => '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
@@ -80,7 +81,7 @@ class CCTM_relation extends CCTM_FormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-//		var_dump($current_value); exit;
+
 		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 		
@@ -93,21 +94,8 @@ class CCTM_relation extends CCTM_FormElement
 		$this->instance_id			= $this->get_instance_id();
 		$this->content = '';
 		
-		// $this->is_repeatable = 1; // testing
 		$this->post_id = $this->value;		
-//		die('current: '. $this->value);
-		
-//		print '<pre>' .$this->value . '</pre>';		exit;
-//		print '<pre>' .print_r($extras, true) . '</pre>';		exit;
 
-//		print '<pre>' .print_r($this->get_props(), true) . '</pre>';		
-/*
-		if ($this->is_repeatable) {
-			$this->add_button = '<span class="button" onclick="javascript:thickbox_results(\''.$this->id.'\');">'.$this->button_label.'</span>'; 
-			$this->delete_button = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
-			$this->i = $this->i + 1; // increment the instance 
-		}
-*/
 		$fieldtpl = '';
 		$wrappertpl = '';
 		// Multi field?
@@ -129,7 +117,6 @@ class CCTM_relation extends CCTM_FormElement
 
 			if ($current_value) {
 				$values = (array) json_decode($current_value);
-	//			var_dump($values); exit;
 				foreach($values as $v) {
 					$this->value				= (int) $v;
 					$extras = $Q->append_extra_data($this->value);
@@ -213,14 +200,9 @@ class CCTM_relation extends CCTM_FormElement
 		$remove_label = __('Remove');
 		$controller_url = CCTM_URL.'/post-selector.php?';
 			
-		// Handle the display of the Default Image thumbnail
+		// Handle the display of the default value -- this should use the same formatting stuff as the get_edit_field_instance function.
 		if ( !empty($def['default_value']) ) {
-			$preview_html = wp_get_attachment_image( $def['default_value'], 'thumbnail', true );
-			$attachment_obj = get_post($def['default_value']);
-			//$def['preview_html'] .= '<span class="cctm_label">'.$attachment_obj->post_title.'</span><br />';
-			// Wrap it
-			$preview_html .= '<span class="cctm_label">'.$attachment_obj->post_title.' <span class="cctm_id_label">('.htmlspecialchars($def['default_value']).')</span></span><br />';
-			
+			$preview_html = '';
 		}
 
 		// Button Label
@@ -233,26 +215,36 @@ class CCTM_relation extends CCTM_FormElement
 
 		// Set Search Parameters
 		$out .= '
-			<div class="cctm_element_wrapper" id="search_parameters">
+			<div class="cctm_element_wrapper" id="search_parameters_wrapper">
 				<label for="name" class="cctm_label cctm_text_label" id="search_parameters_label">'
 					. __('Search Parameters', CCTM_TXTDOMAIN) .
 			 	'</label>
-				<span class="button" onclick="javascript:display_search_form(\''.$def['type'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
+				<span class="cctm_description">'.__('Define which posts are available for selection by narrowing your search parameters.', CCTM_TXTDOMAIN).'</span>
+				<br/>
+				<span class="button" onclick="javascript:display_search_form(\''.$def['name'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
 				<div id="cctm_thickbox"></div>
+				<input type="text" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def,'search_parameters').'" />
+				<br/>
 			</div>';
 
 		// Default Value 			
+/*
 		$out .= '
-			<div class="cctm_element_wrapper" id="custom_field_wrapper_2">
-				<span class="cctm_label cctm_relation_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a>
+			<div class="cctm_element_wrapper" id="default_value_wrapper">
+				<label for="default_value" class="'.self::label_css_class.'">'
+			 			.__('Default Value', CCTM_TXTDOMAIN).'</label>
+				<span class="cctm_description">'.__('Choose a default value(s) to display on new posts using this field.', CCTM_TXTDOMAIN).'</span>
+					<span class="button" onclick="javascript:thickbox_results(\'cctm_'.$def['name'].'\');">'.$label.'</span>
 					<span class="button" onclick="javascript:remove_relation(\'default_value\',\'default_value_media\');">'.$remove_label.'</span>
-				</span> 
+				</span>
+				<div id="target_cctm_'.$def['name'].'"></div> 
 				<input type="hidden" id="default_value" name="default_value" value="'
 				.htmlspecialchars($def['default_value']).'" /><br />
-				<div id="default_value_media">'.$preview_html.'</div>
+				<div id="cctm_instance_wrapper_'.$def['name'].'">'.$preview_html.'</div>
 				
 				<br />
 			</div>';
+*/
 
 		// Is Repeatable?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
