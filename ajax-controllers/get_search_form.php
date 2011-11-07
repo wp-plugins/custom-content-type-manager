@@ -81,7 +81,7 @@ $form_tpl = '
 <style>
 [+css+]
 </style>
-<p>The following form will determine which posts will be selectable when users create or edit a post that uses this field.</p>
+<p>This form will determine which posts will be selectable when users create or edit a post that uses this field.</p>
 <form id="search_parameters_form" class="[+form_name+]">
 	[+content+]
 	<span class="button" onclick="javascript:save_search_parameters(\'search_parameters_form\');">Save</span>

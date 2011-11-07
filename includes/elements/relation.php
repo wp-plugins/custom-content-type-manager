@@ -223,7 +223,7 @@ class CCTM_relation extends CCTM_FormElement
 				<br/>
 				<span class="button" onclick="javascript:display_search_form(\''.$def['name'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
 				<div id="cctm_thickbox"></div>
-				<input type="text" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def,'search_parameters').'" />
+				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def,'search_parameters').'" />
 				<br/>
 			</div>';
 

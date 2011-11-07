@@ -1,6 +1,9 @@
 <?php
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 /*------------------------------------------------------------------------------
 This controller displays a selection of posts for the user to select.
 ------------------------------------------------------------------------------*/
@@ -17,6 +20,11 @@ $d['orderby'] 			= 'ID';
 $d['order'] 			= 'ASC';
 
 $results_per_page = 12;
+
+// Generate a search form
+// we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
+$Form = new GetPostsForm();
+
 
 //print '<pre>'.print_r($_POST, true) . '</pre>';return;
 
@@ -70,20 +78,27 @@ $defaults['paginate'] = 1;
 if (isset($_POST['exclude'])) {
 	$defaults['exclude'] = $_POST['exclude'];
 }
-$search_parameters_str = CCTM::get_value($def, 'search_parameters'); // <-- read custom search parameters, if defined.
+
+$search_parameters_str = ''; // <-- read custom search parameters, if defined.
+if (isset($def['search_parameters'])) {
+	$search_parameters_str = $def['search_parameters'];
+}
 $additional_defaults = array();
 parse_str($search_parameters_str, $additional_defaults);
+//print '<pre>'.print_r($additional_defaults,true).'</pre>';
 foreach($additional_defaults as $k => $v) {
-	$defaults[$k] = $v;
+	if (!empty($v)) {
+		$defaults[$k] = $v;
+		// $Form->Q->set_defaults(array($k,$v));
+		// $args[$k] = $v; // <-- for the "narrow results" search form
+	}
 }
 
 
 //------------------------------------------------------------------------------
 // Begin!
 //------------------------------------------------------------------------------
-require_once(CCTM_PATH.'/includes/SummarizePosts.php');
-require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
-require_once(CCTM_PATH.'/includes/GetPostsForm.php');
+
 
 $Q = new GetPostsQuery(); 
 $Q->set_defaults($defaults);
@@ -102,9 +117,6 @@ if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 $results = $Q->get_posts($args);
 //$d['content'] .= '<pre>'. $Q->get_args(). '</pre>';
 
-// Generate a search form
-// we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
-$Form = new GetPostsForm();
 
 $search_form_tpl = CCTM::load_tpl(
 	array('post_selector/search_forms/'.$fieldname.'.tpl'
