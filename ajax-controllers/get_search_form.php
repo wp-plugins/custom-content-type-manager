@@ -4,17 +4,23 @@ if (!current_user_can('edit_posts')) exit('You do not have permission to do that
 /*------------------------------------------------------------------------------
 This controller retrieves a search form
 ------------------------------------------------------------------------------*/
-$fieldname = CCTM::get_value($_POST, 'fieldname');
-if (empty($fieldname)) {
-	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
+$fieldtype = CCTM::get_value($_POST, 'fieldtype');
+if (empty($fieldtype)) {
+	print '<p>'.sprintf(__('Invalid field type: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldtype).'</em>') .'</p>';
 }
-$fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $fieldname);
+require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
-$field_data = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
-if (empty($field_data)) {
-	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
-}
-print '<pre>';
-print_r($field_data);
-print '</pre>';
-?>
+$Form = new GetPostsForm();
+
+$search_by = array();
+$search_by[] = 'post_type';
+$search_by[] = 'taxonomy';
+$search_by[] = 'taxonomy_term';
+$search_by[] = 'search_term';
+$search_by[] = 'search_columns';
+
+print $Form->generate($search_by);
+
+/*EOF*/

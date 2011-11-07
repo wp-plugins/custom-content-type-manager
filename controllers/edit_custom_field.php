@@ -39,12 +39,13 @@ self::include_form_element_class($field_type); // This will die on errors
 $field_type_name = self::classname_prefix.$field_type;
 $FieldObj = new $field_type_name(); // Instantiate the field element
 
-
-$FieldObj->props 	= $field_data;  
+$field_data['original_name'] = $field_name;
+$FieldObj->set_props($field_data);  
+//$FieldObj->props 	= $field_data;  
 // THIS is what keys us off to the fact that we're EDITING a field: 
 // the logic in CCTM_FormElement->save_definition_filter() ensures we don't overwrite other fields.
 // This attribute is nuked later
-$FieldObj->props['original_name'] = $field_name; 
+//$FieldObj->props['original_name'] = $field_name; 
 
 // Save if submitted...
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {

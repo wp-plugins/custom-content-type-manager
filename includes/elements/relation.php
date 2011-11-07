@@ -231,10 +231,20 @@ class CCTM_relation extends CCTM_FormElement
 			 		' . $this->get_translation('button_label').'
 			 	</div>';
 
+		// Set Search Parameters
+		$out .= '
+			<div class="cctm_element_wrapper" id="search_parameters">
+				<label for="name" class="cctm_label cctm_text_label" id="search_parameters_label">'
+					. __('Search Parameters', CCTM_TXTDOMAIN) .
+			 	'</label>
+				<span class="button" onclick="javascript:display_search_form(\''.$def['type'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
+				<div id="cctm_thickbox"></div>
+			</div>';
+
 		// Default Value 			
 		$out .= '
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_2">
-				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a>
+				<span class="cctm_label cctm_relation_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="default_value" class="thickbox button">'.$click_label.'</a>
 					<span class="button" onclick="javascript:remove_relation(\'default_value\',\'default_value_media\');">'.$remove_label.'</span>
 				</span> 
 				<input type="hidden" id="default_value" name="default_value" value="'

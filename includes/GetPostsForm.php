@@ -39,7 +39,7 @@ class GetPostsForm {
 	public static $small = array('search_term', 'match_rule', 'post_type', 'yearmonth');
 	public static $medium = array();
 	public static $large = array();
-
+	
 	// Used for text inputs
 	public $text_tpl = '
 		<div id="[+id+]_wrapper" class="[+wrapper_class+]">
@@ -208,6 +208,7 @@ class GetPostsForm {
 		$this->placeholders['show_all_post_types'] = __('Show all post-types', CCTM_TXTDOMAIN);
 
 		$this->valid_props = array_keys($this->Q->defaults);
+				
 		if (empty($search_by)) {
 			// push this through validation.
 			//foreach(self::$defaults as $k => $v) {
@@ -917,7 +918,7 @@ class GetPostsForm {
 		$ph['name'] = 'search_columns';
 		$ph['id']  = 'search_columns';
 		$ph['label'] = __('Search Columns', CCTM_TXTDOMAIN);
-		$ph['description'] = __('When searching by a <em>search_term</em>, which define columns should be searched. Comma-separate multiple values.', CCTM_TXTDOMAIN);
+		$ph['description'] = __('When searching by a <em>search_term</em>, which define columns should be searched. Comma-separate multiple values. You can specify custom-fields as column names.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'search_columns');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -965,7 +966,7 @@ class GetPostsForm {
 		$ph['value'] = $current_value;
 		$ph['name'] = 'taxonomy';
 		$ph['id']  = 'taxonomy';
-		$ph['label'] = __('Author', CCTM_TXTDOMAIN);
+		$ph['label'] = __('Taxonomy', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Choose which taxonomy to search in. Used in conjunction with <em>taxonomy_term</em>.', CCTM_TXTDOMAIN);
 		$ph['size'] = 1;
 		$this->register_global_placeholders($ph, 'search_taxonomy');
@@ -1024,7 +1025,7 @@ class GetPostsForm {
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
 		$ph['label'] = __('Taxonomy Term', CCTM_TXTDOMAIN);
-		$ph['description'] = __('', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Set a specific category or tag to include in search results.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_term');
 		return self::parse($this->text_tpl, $ph);
 

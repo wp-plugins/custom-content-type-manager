@@ -1,8 +1,10 @@
 <span class="cctm_relation" id="cctm_post_[+post_id+]">
+	
 	<input type="hidden" name="[+name_prefix+][+name+][]" id="[+id_prefix+][+id+][+post_id+]" value="[+post_id+]"/>
 	<table>
 		<tr>
 			<td>
+				<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 				<a href="[+preview_url+]" target="_blank" title="[+preview+]">[+img_thumbnail+]</a>				
 			</td>
 			<td>

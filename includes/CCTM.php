@@ -701,6 +701,7 @@ class CCTM {
 			$data['label_upload_image'] = __('Upload Image', CCTM_TXTDOMAIN);
 			$data['label_upload_media'] = __('Upload Media', CCTM_TXTDOMAIN);
 			$data['label_create_post'] = __('Create Post', CCTM_TXTDOMAIN);
+			$data['label_set_search_parametrs'] = __('Set Search Parameters', CCTM_TXTDOMAIN);
 			
 			wp_localize_script( 'cctm_manager', 'cctm', $data );
 

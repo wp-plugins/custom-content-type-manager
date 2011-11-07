@@ -38,7 +38,7 @@ Remove the HTML identified by the target_id
 ------------------------------------------------------------------------------*/
 function remove_html( target_id )
 {
-	jQuery('#'+target_id).remove();	
+	jQuery('#'+target_id).remove();
 }
 	
 /*------------------------------------------------------------------------------
@@ -108,38 +108,10 @@ function toggle_readonly()
     }
 }
 
-
 /*------------------------------------------------------------------------------
-Used to pop a thickbox containing search results -- used by relation, image, etc.
-fields.  This also needs to read existing values for the field (id) so the 
-results don't 
+
 ------------------------------------------------------------------------------*/
 function thickbox_results(id) {
-	// Remove any existing thickbox: this will force the thickbox to refresh if
-	// you are calling this function from within a thickbox.
-	// tb_remove();
-	
-	jQuery.post(
-	    cctm.ajax_url,
-	    {
-	        "action" : 'get_posts',
-	        "fieldname" : id,
-	        "get_posts_nonce" : cctm.ajax_nonce
-	    },
-	    function( response ) {
-	    	// Write the response to the div
-			jQuery('#target_'+id).html(response);
-			
-			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
-			W = W - 80;
-			H = H - 84;
-			// then thickbox the div
-			tb_show( cctm.label_select_posts, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
-	    }
-	);	
-}
-
-function thickbox_results2(id) {
 	// Remove any existing thickbox: this will force the thickbox to refresh if
 	// you are calling this function from within a thickbox.
 	// tb_remove();
@@ -282,38 +254,6 @@ function select_post_multi()
 }
 
 /*------------------------------------------------------------------------------
-Used to pop a thickbox containing a search form -- used by relation, image, etc.
-fields. Careful about this:
-http://wordpress.org/support/topic/iframe-on-load-thickbox-giving-up-hope
-http://rodnavarroweb.wordpress.com/2009/06/07/opencall-thickbox-without-using-the-class-attribute/
-------------------------------------------------------------------------------*/
-function thickbox_searchform(id) {
-	// Remove any existing thickbox: this will force the thickbox to refresh if
-	// you are calling this function from within a thickbox.
-	//tb_remove();
-		
-	jQuery.post(
-	    cctm.ajax_url,
-	    {
-	        "action" : "get_search_form",
-	        "fieldname" : id,
-	        "get_search_form_nonce" : cctm.ajax_nonce
-	    },
-	    function( response ) {
-	    	// Write the response to the div
-			jQuery('#target_'+id).html(response);
-			
-			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
-			W = W - 80;
-			H = H - 84;
-			// then thickbox the div
-			tb_show( cctm.label_search_posts, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+id );			
-	    }
-	);	
-}
-
-
-/*------------------------------------------------------------------------------
 Emulates WordPress' Media Browser
 ------------------------------------------------------------------------------*/
 function thickbox_upload_image(id) {
@@ -418,8 +358,7 @@ function reset_search() {
 			jQuery('#cctm_thickbox').html(response);
 			
 	    }
-	);	
-	
+	);
 }
 
 /*------------------------------------------------------------------------------
@@ -450,6 +389,7 @@ function sort_results(sort_column) {
 	        "fieldname" : fieldname,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
+
 	data.search_parameters = jQuery('#select_posts_form').serialize();
 	
 	jQuery.post(
@@ -461,4 +401,42 @@ function sort_results(sort_column) {
 			
 	    }
 	);	
+}
+
+/*------------------------------------------------------------------------------
+Shows a search form from the edit custom field definition
+------------------------------------------------------------------------------*/
+function display_search_form(fieldtype) {
+	
+	var data = {
+	        "action" : 'get_search_form',
+	        "fieldtype" : fieldtype,
+	        "get_search_form_nonce" : cctm.ajax_nonce
+	    };
+	    
+	// data.search_parameters = jQuery('#select_posts_form').serialize();
+	
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#cctm_thickbox').html(response);	
+
+			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
+			W = W - 80;
+			H = H - 84;
+			// then thickbox the div
+			tb_show( cctm.label_set_search_parametrs, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=cctm_thickbox' );			
+
+
+	    }
+	);
+}
+
+/*------------------------------------------------------------------------------
+Remove all selected posts from the field
+------------------------------------------------------------------------------*/
+function remove_all(id) {
+	jQuery('#cctm_instance_wrapper_'+id).html('');
 }
