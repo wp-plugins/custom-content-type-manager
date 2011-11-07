@@ -339,10 +339,11 @@ function change_page(page_number) {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	
+	jQuery('#page_number').val(page_number);
+	
 	var data = {
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
-	        "page_number": page_number,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	    
@@ -367,16 +368,18 @@ Refining a search
 function refine_search() {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
-
+	
+	jQuery('#page_number').val(page_number);
+	
 	var data = 
 		{
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
-	        "page_number": 0,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
+
 	data.search_parameters = jQuery('#select_posts_form').serialize();
-	//alert(data.search_parameters); exit;
+
 	jQuery.post(
 	    cctm.ajax_url,
 	    data,
@@ -396,12 +399,13 @@ Reset search -- back to the original results
 function reset_search() {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
-
+	
+	jQuery('#page_number').val(page_number);
+	
 	var data = 
 		{
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
-	        "page_number": 0,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	data.search_parameters = '';
@@ -444,9 +448,6 @@ function sort_results(sort_column) {
 		{
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
-	        //"orderby" : sort_column,
-	        //"order" : order,
-	        //"page_number": 0,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	data.search_parameters = jQuery('#select_posts_form').serialize();

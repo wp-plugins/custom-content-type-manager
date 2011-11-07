@@ -873,7 +873,10 @@ class GetPostsForm {
 		$i = 0;
 		$ph['checkboxes'] = '';
 		$ph['options'] = '';
-		$post_types = $this->Q->post_type;
+		$post_types = '';
+		if (isset($this->Q->defaults['post_type'])) {
+			$post_types = $this->Q->defaults['post_type'];
+		}
 		if(empty($post_types)) {
 			$post_types = get_post_types(array('public'=>true));
 		}

@@ -16,6 +16,8 @@ $d['page_number']		= '0';
 $d['orderby'] 			= 'ID';
 $d['order'] 			= 'ASC';
 
+$results_per_page = 12;
+
 //print '<pre>'.print_r($_POST, true) . '</pre>';return;
 
 //! Validation
@@ -40,7 +42,7 @@ if (empty($def)) {
 // This gets subsequent search data that gets passed when the user refines the search.
 $args = array();
 if (isset($_POST['search_parameters'])) {
-	print '<pre>'. print_r($_POST['search_parameters'], true).'</pre>';
+	// $d['content'] .= '<pre>'. print_r($_POST['search_parameters'], true).'</pre>';
 	parse_str($_POST['search_parameters'], $args);
 	// Pass the "view" parameters to the view
 	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
@@ -59,6 +61,7 @@ $defaults['post_status'] = array('publish','inherit');
 $defaults['omit_post_type'] = array('revision','nav_menu_item');
 $defaults['orderby'] = 'ID';
 $defaults['order'] = 'DESC';
+$defaults['limit'] = $results_per_page;
 $defaults['paginate'] = 1;
 $defaults = CCTM::get_value($def, 'search_parameters', $defaults); // <-- read custom search parameters, if defined.
 
@@ -78,8 +81,6 @@ require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
-$results_per_page = 12;
-
 $Q = new GetPostsQuery(); 
 $Q->set_defaults($defaults);
 //print '<pre>'; print_r($refined_args); print '</pre>';
@@ -88,8 +89,8 @@ $Q->set_defaults($defaults);
 $page_number = CCTM::get_value($args, 'page_number', 0);
 $args['offset'] = 0; // assume 0
 // Calculate offset based on page number
-if (is_numeric($page_number) && $page_number > 1) {
-	$args['offset'] = ($page_number - 1) * $results_per_page;
+if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
+	$args['offset'] = ($d['page_number'] - 1) * $results_per_page;
 }
 
 
