@@ -25,6 +25,9 @@ if (empty($raw_fieldname)) {
 	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</p>';
 	return;
 }
+// More Template Variables
+$d['fieldname'] = $raw_fieldname;
+
 $fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $raw_fieldname);
 
 $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
@@ -37,6 +40,7 @@ if (empty($def)) {
 // This gets subsequent search data that gets passed when the user refines the search.
 $args = array();
 if (isset($_POST['search_parameters'])) {
+	print '<pre>'. print_r($_POST['search_parameters'], true).'</pre>';
 	parse_str($_POST['search_parameters'], $args);
 	// Pass the "view" parameters to the view
 	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
@@ -49,19 +53,19 @@ if (isset($_POST['search_parameters'])) {
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
-$boundary_args = array();
-$boundary_args['post_type'] = array_keys(get_post_types());
-$boundary_args['post_status'] = array('publish','inherit');
-$boundary_args['omit_post_type'] = array('revision','nav_menu_item');
-$boundary_args['orderby'] = 'ID';
-$boundary_args['order'] = 'DESC';
-$boundary_args['paginate'] = 1;
-$boundary_args = CCTM::get_value($def, 'search_parameters', $boundary_args); // <-- read custom search parameters, if defined.
+$defaults = array();
+//$defaults['post_type'] = array_keys(get_post_types());
+$defaults['post_status'] = array('publish','inherit');
+$defaults['omit_post_type'] = array('revision','nav_menu_item');
+$defaults['orderby'] = 'ID';
+$defaults['order'] = 'DESC';
+$defaults['paginate'] = 1;
+$defaults = CCTM::get_value($def, 'search_parameters', $defaults); // <-- read custom search parameters, if defined.
 
 
 // optionally get pages to exclude
 if (isset($_POST['exclude'])) {
-	$boundary_args['exclude'] = $_POST['exclude'];
+	$defaults['exclude'] = $_POST['exclude'];
 }
 
 
@@ -77,23 +81,24 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 $results_per_page = 12;
 
 $Q = new GetPostsQuery(); 
-$Q->set_defaults($boundary_args);
+$Q->set_defaults($defaults);
 //print '<pre>'; print_r($refined_args); print '</pre>';
-
-$args = $Q->sanitize_args($args);
-
-
-
-
-$offset = 0;
-
-// Template Variables
-$d['fieldname'] = $raw_fieldname;
-
 //$d['menu'] = '<span class="linklike" onclick="javascript:thickbox_upload_image(\''.$raw_fieldname.'\');">Upload</span>';
 
+$page_number = CCTM::get_value($args, 'page_number', 0);
+$args['offset'] = 0; // assume 0
+// Calculate offset based on page number
+if (is_numeric($page_number) && $page_number > 1) {
+	$args['offset'] = ($page_number - 1) * $results_per_page;
+}
+
+
+// Get the results
+$results = $Q->get_posts($args);
+//$d['content'] .= '<pre>'. $Q->get_args(). '</pre>';
 
 // Generate a search form
+// we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
 $Form = new GetPostsForm();
 
 $search_form_tpl = CCTM::load_tpl(
@@ -109,24 +114,6 @@ $Form->set_id_prefix('');
 $search_by = array('search_term','yearmonth','post_type'); 
 $d['search_form'] = $Form->generate($search_by, $args);
 
-$page_number = CCTM::get_value($args, 'page_number', 0);
-// Calculate offset based on page number
-if (is_numeric($page_number) && $page_number > 1) {
-	$offset = ($page_number - 1) * $results_per_page;
-}
-
-// Get the results
-/*
-$args['paginate'] = true;
-$args['orderby'] = CCTM::get_value($args,'orderby');
-$args['order'] = CCTM::get_value($args,'order');
-$args['limit'] = $results_per_page;
-$args['offset'] = $offset;
-*/
-
-
-$results = $Q->get_posts($args);
-//print '<pre>'. $Q->get_args(). '</pre>';
 
 $item_tpl = '';
 $wrapper_tpl = '';

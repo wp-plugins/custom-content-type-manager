@@ -26,10 +26,10 @@ via http_build_query() inside of the search_parameters field.
 				print '<input type="hidden" name="exclude[]" id="exclude'.$e.'" value="'.$e.'" />';
 			}
 		?>
-	
+	<input type="hidden" name="search_parameters" id="search_parameters" value="<?php print $data['search_parameters']; ?>" />
 */	
 	?>	
-		<input type="hidden" name="search_parameters" id="search_parameters" value="<?php print $data['search_parameters']; ?>" />
+		
 		
 		<div id="cctm_thickbox_menu">
 			<?php print $data['menu']; ?>	

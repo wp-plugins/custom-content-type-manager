@@ -66,15 +66,15 @@ class GetPostsQuery {
 	// message strings.
 	public $errors = array();
 	public $warnings = array();
-	public $noticess = array();
+	public $notices = array();
 	
 	public static $static_errors = array(); // like $errors, but for static context.
 	
 	// Added by the set_default() function: sets default values to use for empty fields.
 	public $default_values_empty_fields = array();
 
-	// Some functions need to know which columns exist in the wp_posts, e.g.
-	// the orderby parameter can only sort by columns in this table.
+	// Some functions need to know which columns exist in the wp_posts, e.g. the orderby SQL
+	// changes when it is a column in the wp_posts table vs. when it is a virtual column from wp_postmeta
 	private static $wp_posts_columns = array(
 		'ID',
 		'post_author',
@@ -105,14 +105,13 @@ class GetPostsQuery {
 	// then we know we are filtering on a custom field.
 	private $date_cols = array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt');
 	
-	// The query requires these values for valid syntax
-	private static $cannot_be_null = array(
-		'order' => 'DESC',
-		'orderby' => 'ID',
-		'join_rule' => 'AND');
-	
 	// See set_boundaries() -- these values kick in if arguments are empty
-//	public $boundaries = array();
+	public $boundaries = array();
+	
+	// Used to time execution
+	private $start_time;
+	private $stop_time;
+	private $duration;
 	
 	//! Defaults
 	// args and defaults for get_posts()
@@ -132,10 +131,10 @@ class GetPostsQuery {
 
 		// Direct searches (mostly by direct column matches)
 		'post_type'   => '',   // comma-sparated string or array
-		'omit_post_type' => array('revision','nav_menu_item'), // comma-sparated string or array
+		'omit_post_type' => '*non-public*', // comma-sparated string or array; SET AT RUN-TIME to any non-public post-types
 		'post_mime_type'  => '',    // comma-sparated string or array
 		'post_parent'  => '',   // comma-sparated string or array
-		'post_status'   => array('publish'), // comma-sparated string or array
+		'post_status'   => array('publish','inherit'), // comma-sparated string or array
 		'post_title'  => '',    // for exact match
 		'author'   => '',    // search by author's display name
 		'post_date'   => '',   // matches YYYY-MM-DD.
@@ -150,13 +149,15 @@ class GetPostsQuery {
 		// post_date, post_date_gmt, post_modified, post_modified_gmt
 		// The default is the standard MySQL YYYY-MM-DD.
 		// Internally, the native YYYY-MM-DD is used.
-		// 'mm/dd/yy'
-		// 'yyyy-mm-dd'
-		// 'yy-mm-dd'
-		// 'd M, y'
-		// 'd MM, y'
-		// 'DD, d MM, yy'
-		// 'day' d 'of' MM 'in the year' yy
+		// Use these short-cuts:
+		// --------------------------------------------------
+		// 		Verbose				Sample
+		// --------------------------------------------------
+		// 1 =	'F j, Y, g:i a' 	March 10, 2011, 5:16 pm
+		// 2 =	'j F, Y'			10 March, 2011
+		// 3 =	'l F jS, Y'			Thursday March 10th, 2011
+		// 4 =	'n/j/y'				3/30/11
+		// 5 =	'n/j/Y'				3/30/2011		
 		// or write in your own value.
 		'date_format' => null,
 
@@ -197,19 +198,29 @@ class GetPostsQuery {
 	 * @param array   $raw_args (optional)
 	 */
 	public function __construct($raw_args=array()) {
+		$a = explode (' ',microtime()); 
+    	$this->start_time = (double) $a[0] + $a[1];
+    
 		$this->registered_post_types = array_keys( get_post_types() );
 		$this->registered_taxonomies = array_keys( get_taxonomies() );
-
-		//$tmp = shortcode_atts( $this->defaults, $raw_args );
-
+	
+		// Skip the non-public post-types
+		$this->defaults['omit_post_type'] = array_keys(get_post_types(array('public' => false)));
+		
+		// Default operation is to use the default args
+		$this->args = $this->defaults; 
+		
 		// Scrub up for dinner
-		$this->args = $this->sanitize_args($raw_args);
+		foreach ($raw_args as $k => $v) {
+			$this->$k = $v; // this will utilize the _sanitize_arg() function.
+		}
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Accessor to the object's "blessed" attributes.
+	 * Accessor to the object's "blessed" attributes.  Some attributes cannot be 
+	 * null, lest the query break.
 	 *
 	 * @param string  $var
 	 * @return mixed
@@ -218,8 +229,14 @@ class GetPostsQuery {
 		if ( in_array($var, array_keys($this->args))) {
 			return $this->args[$var];
 		}
-		elseif (in_array($var, array_keys(self::$cannot_be_null))) {
+		elseif(isset($this->defaults[$var])) {
 			return $this->defaults[$var];
+		}
+		elseif ($var == 'orderby') {
+			return 'ID';
+		}
+		elseif ($var == 'join_rule') {
+			return 'AND';
 		}
 		else {
 			return '';
@@ -272,15 +289,19 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Validate/Sanitize and set parameters. Some parameters cannot go to null!
+	 * Validate/Sanitize and set parameters. Problems in the sanitizing process will
+	 * be indicated by flagging an error/warning/notice and returning a literal null,
+	 * so we don't bother setting any arg that comes back as a null.
 	 *
 	 * @param string  $var
 	 * @param mixed   $val
 	 */
 	public function __set($var, $val) {
-		$args = $this->sanitize_args(array($var=>$val));
-		$this->args[$var] = $args[$var];
-		//$this->args[$var] = $val;
+//		die('Var: '.$var.'Val: ' .$val);
+		$test = $this->_sanitize_arg($var,$val);
+		if ($test !== null) {
+			$this->args[$var] = $test;
+		}
 	}
 
 	//------------------------------------------------------------------------------
@@ -368,6 +389,13 @@ class GetPostsQuery {
 		foreach ($output as $i => $item) {
 			$output[$i] = trim($item);
 			$item = trim($item);
+			
+			// Remove quotes, e.g. $input = '"1","2","3"'
+			$item = preg_replace('/^"/', '', $item);
+			$item = preg_replace('/"$/', '', $item);
+			$item = preg_replace("/^'/", '', $item);
+			$item = preg_replace("/'$/", '', $item);
+			
 			if (empty($item)) {
 				unset($output[$i]); // this covers the nefarious empty arrays!
 				continue; 
@@ -389,7 +417,7 @@ class GetPostsQuery {
 					}
 					break;
 				case 'post_status':
-					if ( !in_array($item, array('inherit', 'publish', 'auto-draft')) ) {
+					if ( !in_array($item, array('inherit', 'publish', 'auto-draft', 'draft')) ) {
 						$this->errors[] = __('Invalid post_status:') . $item;
 					}
 					break;
@@ -519,7 +547,22 @@ class GetPostsQuery {
 
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Tests whether a string is valid for use as a MySQL column name.  This isn't 
+	 * 100% accurate, but the postmeta virtual columns can be more flexible.
+	 * @param	string
+	 * @return	boolean
+	 */
+	private function _is_valid_column_name($str) {
+		if (preg_match('/[^a-zA-Z0-9\/\-\_]/', $str)) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This makes each record in the recordset have the same attributes.  This helps
@@ -563,6 +606,256 @@ class GetPostsQuery {
 		return $records;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Filter an argument.  All inputs hinge on this function: it ensures valid input.
+	 *
+	 * @param	string	$arg name of the argument being set 
+	 * @param	mixed	$val value to set it to
+	 * @return	mixed	sanitized argument or literal null on error
+	 */
+	private function _sanitize_arg($arg, $val) {
+
+		if (is_array($arg)) {
+			$this->warnings[] = __('Invalid input argument.  Arrays not allowed as argument names.', CCTM_TXTDOMAIN);
+			return null;
+		}
+		
+		if (empty($arg)) {
+			$this->warnings[] = __('Empty input argument.', CCTM_TXTDOMAIN);
+			return null;
+		}
+
+		// Filter out "empty" arrays, e.g. array('') -- these arise from certain form submissions.
+		if (is_array($val)) {
+			foreach ($val as $k => $v) {
+				if (empty($v)) {
+					unset($val[$k]);
+				}			
+			}
+		}
+
+		// fill in default value if the parameter is empty
+		// $var = strtolower($var);
+		// We gotta handle cases where the user tries to set something to null that would break the query
+		// if it went to null.
+		// beware of empty arrays
+		if (empty($val)) { 
+			if (isset($this->defaults[$arg])) {
+					return $this->defaults[$arg];
+					$this->notices[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
+			}
+		}
+		
+		switch ($arg) {
+		// Integers
+		case 'limit':
+		case 'offset':
+		case 'yearmonth':
+			return (int) $val;
+			break;
+		// ASC or DESC
+		case 'order':
+			$val = strtoupper($val);
+			if ( $val == 'ASC' || $val == 'DESC' ) {
+				return $val;
+			}
+			else {
+				$this->errors[] = sprintf(__('Invalid order: %s. Order may only be "ASC" or "DESC".'), '<em>'.htmlentities($val).'</em>');
+			}
+			break;
+		case 'orderby':
+			if ($val == 'random') {
+				$this->sort_by_random = true;
+				// $args['order'] = ''; // blank this out
+			}
+			elseif (!in_array( $val, self::$wp_posts_columns) ) {
+				$this->sort_by_meta_flag = true;
+				if ($this->_is_valid_column_name($val)) {					
+					$this->notices[] = sprintf(__('orderby column not a default post column: %s', CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+					return $val;
+				}
+				else {
+					$this->errors[] = sprintf(__('Invalid column name supplied for orderby: %s', CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+					return null;
+				}
+				
+			}
+			else {
+				return $val;
+			}
+			break;
+		// List of Integers
+		case 'include':
+		case 'exclude':
+		case 'append':
+		case 'post_parent':
+			return $this->_comma_separated_to_array($val, 'integer');
+			break;
+			// Dates
+		case 'post_modified':
+		case 'post_date':
+		case 'date':
+			// if it's a date
+			if ($this->_is_date($val) ) {
+				return $val;
+			}
+			else {
+				$this->errors[] = sprintf( __('Invalid date argument: %s', CCTM_TXTDOMAIN), $arg.':'.htmlentities($val) );
+				return null;
+			}
+			break;
+		// Datetimes
+		case 'date_min':
+		case 'date_max':
+			// if is a datetime
+			if ($this->_is_datetime($val) ) {
+				return $val;
+			}
+			else {
+				$this->errors[] = sprintf( __('Invalid datetime argument: %s', CCTM_TXTDOMAIN), $var.':'.htmlentities($val) );
+				return null;
+			}
+			break;
+		// Date formats, some short-hand (see http://php.net/manual/en/function.date.php)
+		case 'date_format':
+			switch ($val) {
+			case '1': // e.g. March 10, 2011, 5:16 pm
+				return 'F j, Y, g:i a';
+				break;
+			case '2': // e.g. 10 March, 2011
+				return 'j F, Y';
+				break;
+			case '3': // e.g. Thursday March 10th, 2011
+				return 'l F jS, Y';
+				break;
+			case '4': // e.g. 3/30/11
+				return 'n/j/y';
+				break;
+			case '5': // e.g. 3/30/2011
+				return 'n/j/Y';
+				break;
+			default:
+				return $val;
+			}
+			break;
+		// Post Types
+		case 'post_type':
+		case 'omit_post_type':
+			return $this->_comma_separated_to_array($val, 'post_type');
+			break;
+		// Post Status
+		case 'post_status':
+			return $this->_comma_separated_to_array($val, 'post_status');
+			break;
+
+		// Almost any value... prob. should use $wpdb->prepare( $query, $val )
+		case 'meta_key':
+		case 'meta_value':
+		case 'post_title':
+		case 'author':
+		case 'search_term':
+			return $val;
+			break;
+
+		// Taxonomies
+		case 'taxonomy':
+			if ( taxonomy_exists($val) ) {
+				return $val;
+			}
+			else {
+				$this->warning[] = sprintf(__('Taxonomy does not exist: %s',CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+				return null;
+			}
+			break;
+			// The category_description() function adds <p> tags to the value.
+		case 'taxonomy_term':
+			return $this->_comma_separated_to_array($val, 'no_tags');
+			break;
+		case 'taxonomy_slug':
+			return $this->_comma_separated_to_array($val, 'alpha');
+			break;
+		case 'taxonomy_depth':
+			return (int) $val;
+			break;
+		case 'search_columns':
+			return $this->_comma_separated_to_array($val, 'search_columns');
+			break;
+
+			// And or Or
+		case 'join_rule':
+			$val = strtoupper($val);
+			if ( in_array($val, array('AND', 'OR')) ) {
+				return $val;
+			}
+			else {
+				$this->errors[] = __('Invalid parameter for join_rule. join_rule must be "AND" or "OR"', CCTM_TXTDOMAIN);
+				return null;
+			}
+			break;
+			// match rule...
+		case 'match_rule':
+			$val = strtolower($val);
+			if ( in_array($val, array('contains', 'starts_with', 'ends_with')) ) {
+				return $val;
+			}
+			else {
+				$this->errors[] = __('Invalid parameter for match_rule. match_rule may be "contains", "starts_with", or "ends_with"', CCTM_TXTDOMAIN);
+				return null;
+			}
+			break;
+		case 'date_column':
+			// Simple case: user specifies a column from wp_posts
+			if ( in_array($val, $this->date_cols) ) {
+				$this->custom_field_date_flag = false; // redundant setting in case the user sets this parameter repeatedly
+				return $val;
+			}
+			// You can't do a date sort on a built-in wp_posts column other than the ones id'd in $this->date_cols
+			elseif ( in_array($val, self::$wp_posts_columns)) {
+				$this->errors[] = __('Invalid date column.', CCTM_TXTDOMAIN);
+				return null;
+			}
+			// Otherwise, we're in custom-field land
+			else {
+				$this->custom_field_date_flag = true;
+				return $val;
+			}
+			break;
+		case 'paginate':
+			return (bool) $val;
+			break;
+		case 'post_mime_type':
+			if (preg_match('/[^a-zA-Z0-9\/\-\_]/', $val)) {
+				$this->errors[] = __('post_mime_type contains illegal characters.  Input ignored.', CCTM_TXTDOMAIN);
+				return null;
+			}
+			else {
+				return $val;				
+			}
+			break;				
+		// If you're here, it's assumed that you're trying to filter directly on a wp_posts column or 
+		// on a custom field.  The argument MUST be a valid column name.  Otherwise this might leak into 
+		// a MySQL injection attack.
+		default:
+			if (!$this->_is_valid_column_name($arg)) {
+				$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlentities($var).'</em>');
+				return null;
+			}
+			else {
+				
+				$this->direct_filter_flag =  true;
+				$this->direct_filter_columns[] = $arg;
+				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.':'.htmlentities($val).'</em>');
+				// We can easily filter for integers...
+				if (in_array($arg, array('ID','post_parent','menu_order','comment_count'))) {
+					return (int) $val;
+				}
+				// TO-DO: filter for other data-types?  Or should this just be moved to the above?
+				return wp_kses($val, array());
+			}
+		}
+	}
+
 
 	//! SQL
 	/**------------------------------------------------------------------------------
@@ -585,12 +878,6 @@ class GetPostsQuery {
 	 * http://shibashake.com/wordpress-theme/wordpress-query_posts-and-get_posts
 	 *
 	 * @return string
-	 */
-
-	/**
-	 *
-	 *
-	 * @return unknown
 	 */
 	private function _get_sql() {
 		global $wpdb;
@@ -701,10 +988,13 @@ class GetPostsQuery {
 
 		$hash['search'] = $this->_sql_search();
 
+		$hash['order'] = $this->order;
+		
 		// Custom handling for sorting on custom fields
 		// http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=12
 		if ($this->sort_by_random) {
 			$hash['orderby'] = 'RAND()';
+			$hash['order'] = ''; // <-- blanks this out!
 			$hash['select_metasortcolumn'] = '';
 			$hash['join_for_metasortcolumn'] = '';
 		}
@@ -724,7 +1014,6 @@ class GetPostsQuery {
 			$hash['join_for_metasortcolumn'] = '';
 		}
 
-		$hash['order'] = $this->order;
 		$hash['limit'] = $this->_sql_limit();
 		$hash['offset'] = $this->_sql_offset();
 
@@ -892,33 +1181,30 @@ class GetPostsQuery {
 		global $wpdb;
 
 		if (empty($this->search_term) || empty($this->search_columns)) {
+			$this->warnings[] = __('Search parameters ignored: search_term and search_columns must be set.', CCTM_TXTDOMAIN);
 			return '';
 		}
 
 		$criteria = array();
+//		print_r($this->search_term); exit;
 		foreach ( $this->search_columns as $c ) {
 			// For standard columns in the wp_posts table
 			if ( in_array($c, self::$wp_posts_columns ) ) {
 				switch ($this->match_rule) {
-				case 'contains':
-					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term.'%');
-					break;
 				case 'starts_with':
 					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term);
 					break;
 				case 'ends_with':
 					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", $this->search_term.'%');
 					break;
+				case 'contains':
+				default:
+					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term.'%');
 				}
 			}
 			// For custom field "columns" in the wp_postmeta table
 			else {
 				switch ($this->match_rule) {
-				case 'contains':
-					$criteria[] = $wpdb->prepare("{$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s"
-						, $c
-						, '%'.$this->search_term.'%');
-					break;
 				case 'starts_with':
 					$criteria[] = $wpdb->prepare("{$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s"
 						, $c
@@ -929,6 +1215,11 @@ class GetPostsQuery {
 						, $c
 						, $this->search_term.'%');
 					break;
+				case 'contains':
+				default:
+					$criteria[] = $wpdb->prepare("{$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s"
+						, $c
+						, '%'.$this->search_term.'%');
 				}
 			}
 		}
@@ -1072,11 +1363,16 @@ class GetPostsQuery {
 		if ( empty($this->SQL) ) {
 			$this->SQL = $this->_get_sql();
 		}
-
+    
 		return sprintf(
 			'<div class="summarize-posts-summary">
 				<h1>Summarize Posts</h1>
 
+				<!-- errors, warnings, notices-->
+				%s
+				%s
+				%s
+				<!-- duration -->
 				%s
 				
 				<h2>%s</h2>
@@ -1093,6 +1389,9 @@ class GetPostsQuery {
 					<div class="summarize-posts-results"><textarea rows="20" cols="80">%s</textarea></div>
 			</div>'
 			, $this->get_errors()
+			, $this->get_warnings()
+			, $this->get_notices()
+			, $this->get_duration()
 			, __('Arguments', CCTM_TXTDOMAIN)
 			, __('For more information on how to use this function, see the documentation for the <a href="http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts">GetPostsQuery::get_posts()</a> function.', CCTM_TXTDOMAIN)
 			, $this->get_args()
@@ -1194,7 +1493,20 @@ class GetPostsQuery {
 		return wp_kses($_SERVER['REQUEST_URI'], '');
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Gets script execution time (since instantiation) for debugging purposes
+	 */
+	public function get_duration() {
+		$a = explode (' ',microtime()); 
+    	$this->stop_time = (double) $a[0] + $a[1];
+    	$this->duration = number_format(($this->stop_time - $this->start_time),2);
 
+		return sprintf('<h2>%s</h2><div class="summarize-posts-errors">%s</div>'
+			, __('Execution Time', CCTM_TXTDOMAIN)
+			, sprintf(__('%s seconds', CCTM_TXTDOMAIN), $this->duration));
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Format any errors in an unordered list, or returns a message saying there were no errors.
@@ -1296,24 +1608,9 @@ class GetPostsQuery {
 	public function get_posts($args=array()) {
 		global $wpdb;
 		
-		$this->args = $this->sanitize_args($args);
-			
-		// Get info from the Shortcode (if called that way).
-		//$tmp = shortcode_atts( $this->args, $args );
-//		$tmp = shortcode_atts( $this->defaults, $args );
-//		print_r($tmp); exit;
-		if (!empty($args)) {
-
-			$args = $this->sanitize_args($args);
-//			print 'xooxxx..';
-//			print_r($args); exit;
-//			$this->args = array_merge($this->args, $args);
-//			print_r($this->args); exit;
+		foreach ($args as $k => $v) {
+			$this->$k = $v; // this will utilize the _sanitize_arg() function.
 		}
-		else {
-			$this->args = $this->defaults;
-		}
-		
 		
 //		print '<pre>'. print_r($this->args, true) . print '</pre>'; exit;
 
@@ -1454,269 +1751,6 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Given an array of inputs (such as those posted from a Web form), this will 
-	 * sanitize those inputs.  Some argumnts cannot be null!  Those are:
-	 * 		search_columns
-	 *
-	 * @param	array	$args any valid array of arguments that can be passed to the constructor or to the get_posts() function.
-	 * @return	array	same array, sanitized values.
-	 */
-	public function sanitize_args($args) {
-
-		if (empty($args)) {
-			return $this->defaults;
-			//return array();
-		}
-		// Testing this... : this doesn't work in this case: $this->defaults['post_type'] = 'x,y'; $args['post_type'] = array();
-		//$args = array_merge($this->defaults, $args);
-		// Manual merge
-		$tmp_args = $this->defaults;
-		foreach ($args as $k => $v) {
-			if (!empty($v)) {
-				$tmp_args[$k] = $v;
-			}		
-		}
-		$args = $tmp_args;
-		
-		
-//		print_r($args); exit;
-		foreach ($args as $var => $val) {
-
-			// fill in default value if the parameter is empty
-			// $var = strtolower($var);
-			// We gotta handle cases where the user tries to set something to null that would break the query
-			// if it went to null.
-			// beware of empty arrays
-			if (empty($val) 
-				|| (is_array($val) && isset($val[0]) && empty($val[0]))) {
-				if (isset($this->defaults[$var])) {
-					if (empty($this->defaults[$var]) && in_array($var, array_keys(self::$cannot_be_null))) {
-						$args[$var] = self::$cannot_be_null[$var];
-						$this->errors[] = sprintf(__('Empty default value for %s when empty inputs are not allowed.', CCTM_TXTDOMAIN ),  "<em>$var</em>");		
-					}
-					else {
-						$args[$var] = $this->defaults[$var];
-						$this->errors[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
-					}
-				}
-			}
-			// Now if we're still empty, we can skip it
-			if (empty($args[$var])) {
-				continue;
-			}
-			
-			
-			switch ($var) {
-				// Integers
-			case 'limit':
-			case 'offset':
-			case 'yearmonth':
-				$args[$var] = (int) $val;
-				break;
-				// ASC or DESC
-			case 'order':
-
-				$val = strtoupper($val);
-				if ( $val == 'ASC' || $val == 'DESC' ) {
-					$args[$var] = $val;
-				}
-				break;
-			case 'orderby':
-				if ($val == 'random') {
-					$this->sort_by_random = true;
-					$args['order'] = ''; // blank this out
-				}
-				elseif(empty($val)) {
-					$args[$var] = $this->defaults['orderby'];
-				}
-				elseif (!in_array( $val, self::$wp_posts_columns) ) {
-					$this->sort_by_meta_flag = true;
-					$args[$var] = $val;
-					$this->errors[] = __('Possible error: orderby column not a default post column: ') . $val;
-				}
-				else {
-					$args[$var] = $val;
-				}
-				break;
-				// List of Integers
-			case 'include':
-			case 'exclude':
-			case 'append':
-			case 'post_parent':
-				$args[$var] = $this->_comma_separated_to_array($val, 'integer');
-				break;
-				// Dates
-			case 'post_modified':
-			case 'post_date':
-			case 'date':
-				// if it's a date
-				if ($this->_is_date($val) ) {
-					$args['post_date'] = $val;
-				}
-				else {
-					$this->errors[] = sprintf( __('Invalid date argument: %s'), $var.':'.$val );
-				}
-				break;
-				// Datetimes
-			case 'date_min':
-			case 'date_max':
-				// if is a datetime
-				if ($this->_is_datetime($val) ) {
-					$args[$var] = $val;
-				}
-				else {
-					$this->errors[] = sprintf( __('Invalid datetime argument: %s'), $var.':'.$val );
-				}
-				break;
-				// Date formats, some short-hand (see http://php.net/manual/en/function.date.php)
-			case 'date_format':
-				switch ($val) {
-				case '1': // e.g. March 10, 2011, 5:16 pm
-					$args['date_format'] = 'F j, Y, g:i a';
-					break;
-				case '2': // e.g. 10 March, 2011
-					$args['date_format'] = 'j F, Y';
-					break;
-				case '3': // e.g. Thursday March 10th, 2011
-					$args['date_format'] = 'l F jS, Y';
-					break;
-				case '4': // e.g. 3/30/11
-					$args['date_format'] = 'n/j/y';
-					break;
-				case '5': // e.g. 3/30/2011
-					$args['date_format'] = 'n/j/Y';
-					break;
-				default:
-					$args['date_format'] = $val;
-				}
-				break;
-				// Post Types
-			case 'post_type':
-			case 'omit_post_type':
-				$args[$var] = $this->_comma_separated_to_array($val, 'post_type');
-				break;
-				// Post Status
-			case 'post_status':
-				$args[$var] = $this->_comma_separated_to_array($val, 'post_status');
-				break;
-
-				// Almost any value... prob. should use $wpdb->prepare( $query, $mime_type.'%' )
-			case 'meta_key':
-			case 'meta_value':
-			case 'post_title':
-			case 'author':
-			case 'search_term':
-				$args[$var] = $val;
-				break;
-
-				// Taxonomies
-			case 'taxonomy':
-				if ( taxonomy_exists($val) ) {
-					$args['taxonomy'] = $val;
-				}
-				else {
-					$args['taxonomy'] = null;
-				}
-				break;
-				// The category_description() function adds <p> tags to the value.
-			case 'taxonomy_term':
-				$args['taxonomy_term'] = $this->_comma_separated_to_array($val, 'no_tags');
-				break;
-			case 'taxonomy_slug':
-				$args['taxonomy_slug'] = $this->_comma_separated_to_array($val, 'alpha');
-				break;
-			case 'taxonomy_depth':
-				$args['taxonomy_depth'] =(int) $val;
-				break;
-			case 'search_columns':
-				$args['search_columns'] = $this->_comma_separated_to_array($val, 'search_columns');
-				break;
-
-				// And or Or
-			case 'join_rule':
-				if ( in_array($val, array('AND', 'OR')) ) {
-					$args['join_rule'] = $val;
-				}
-				else {
-					$this->errors[] = __('Invalid parameter for join_rule.', CCTM_TXTDOMAIN);
-				}
-				break;
-				// match rule...
-			case 'match_rule':
-				if ( in_array($val, array('contains', 'starts_with', 'ends_with')) ) {
-					$args['match_rule'] = $val;
-				}
-				else {
-					$this->errors[] = __('Invalid parameter for match_rule.', CCTM_TXTDOMAIN);
-				}
-				break;
-			case 'date_column':
-				// Simple case: user specifies a column from wp_posts
-				if ( in_array($val, $this->date_cols) ) {
-					$args['date_column'] = $val;
-				}
-				// You can't do a date sort on a built-in wp_posts column other than the ones id'd in $this->date_cols
-				elseif ( in_array($val, self::$wp_posts_columns)) {
-					$this->errors[] = __('Invalid date column.', CCTM_TXTDOMAIN);
-				}
-				// Otherwise, we're in custom-field land
-				else {
-					$this->custom_field_date_flag = true;
-					$args['date_column'] = $val;
-				}
-				break;
-			case 'paginate':
-				$args[$var] = (bool) $val;
-				break;
-			case 'post_mime_type':
-				if (preg_match('/[^a-zA-Z0-9\/\-\_]/', $val)) {
-					
-					$this->errors[] = __('post_mime_type contains illegal characters.  Input ignored.', CCTM_TXTDOMAIN);
-				}
-				else {
-					$args[$var] = $val;				
-				}
-				break;				
-			// If you're here, it's assumed that you're trying to filter directly on a wp_posts column or 
-			// on a custom field.  The argument MUST be a column name.  Otherwise this might leak into 
-			// a MySQL injection attack.
-			default:
-				if (preg_match('/[^a-zA-Z0-9\/\-\_]/', $val)) {
-					
-					$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlentities($var).'</em>');
-				}
-				else {
-					$args[$var] = wp_kses($val, array());
-					$this->direct_filter_flag =  true;
-					$this->direct_filter_columns[] = $var;
-					$this->errors[] = __('Possible invalid input parameter: ', CCTM_TXTDOMAIN ) . $var;				
-				}
-			}
-		}
-		
-		return $args;
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Sets boundaries for the query.  These boundaries kick in when a search parameter
-	 * is left empty. This is especially useful for setting up limits to parameters lik
-	 * 'post_type', which if empty, will display ALL post-types from the db, registered
-	 * AND unregistered. 
-	 *
-	 * @param	array	parameters corresponding to the various search parameters
-	 */
-	public function set_defaults($args) {
-//		$this->args = $args;
-		
-		foreach ($args as $k => $v) {
-			$this->$k = $v;
-		}
-		$this->defaults = $this->args;
-	}
-	
-	//------------------------------------------------------------------------------
-	/**
 	 * This sets a default value for any field.  This should kick in only if the
 	 * field is empty when we normalize the recordset in the _normalize_recordset
 	 * function
@@ -1727,6 +1761,36 @@ class GetPostsQuery {
 	public function set_default($fieldname, $value) {
 		$this->custom_default_values[(string)$fieldname] = (string) $value;
 	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Sets defaults for the query.  These defaults kick in when a search parameter
+	 * is left empty. This is especially useful for setting up limits to parameters like
+	 * 'post_type', which if empty, will display ALL post-types from the db, registered
+	 * AND unregistered. 
+	 *
+	 * By setting the optional 2nd parameter, you can overwrite the entire defaults array.
+	 * Default behavior is to "merge" the arguments.
+	 *
+	 * @param	array	parameters corresponding to the various search parameters
+	 * @param	boolean	(optional) $overwrite: if true
+	 */
+	public function set_defaults($args, $overwrite=false) {
+		if ($overwrite) {
+			$this->defaults = $args;		
+			foreach ($args as $k => $v) {
+				$this->$k = $v; // set the args
+			}
+		}
+		else {
+			foreach ($args as $k => $v) {
+				$this->defaults[$k] = $v;
+				$this->$k = $v; // set the args
+			}
+		}		
+	}
+	
 
 }
 

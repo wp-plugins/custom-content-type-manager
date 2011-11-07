@@ -873,7 +873,11 @@ class GetPostsForm {
 		$i = 0;
 		$ph['checkboxes'] = '';
 		$ph['options'] = '';
-		$post_types = get_post_types();
+		$post_types = $this->Q->post_type;
+		if(empty($post_types)) {
+			$post_types = get_post_types(array('public'=>true));
+		}
+		
 		sort($post_types);
 		foreach ($post_types as $pt) {
 			$ph2 = $this->placeholders;
@@ -1101,9 +1105,12 @@ class GetPostsForm {
 	 */
 	public function generate($search_by=array(), $existing_values=array()) {
 		
-		$this->values = $this->Q->sanitize_args($existing_values);
+		foreach($existing_values as $k => $v) {
+			$this->Q->$k = $v;
+		}
+		$this->values = $this->Q->args;
 		//print '<pre>'; print_r($this->values); print '</pre>'; exit;
-		static $instantiation_count = 0;
+		static $instantiation_count = 0; // used to generate a unique CSS for every form on the page
 		$instantiation_count++;
 		$this->placeholders['form_number'] = $instantiation_count;
 		$this->placeholders['css'] = $this->get_css();

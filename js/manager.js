@@ -444,9 +444,9 @@ function sort_results(sort_column) {
 		{
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
-	        "orderby" : sort_column,
-	        "order" : order,
-	        "page_number": 0,
+	        //"orderby" : sort_column,
+	        //"order" : order,
+	        //"page_number": 0,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	data.search_parameters = jQuery('#select_posts_form').serialize();
