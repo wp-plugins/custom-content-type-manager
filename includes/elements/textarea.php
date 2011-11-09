@@ -95,6 +95,15 @@ class CCTM_textarea extends CCTM_FormElement
 			)
 		);
 		
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'textarea', $this->class);
+		$this->props['value']				= $current_value;
+		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+				
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		return CCTM::parse($wrappertpl, $this->props);
+/*
+		
 		$output = sprintf('
 			%s
 			<textarea name="%s" class="%s" id="%s" %s>%s</textarea>
@@ -110,6 +119,7 @@ class CCTM_textarea extends CCTM_FormElement
 		$output .= $this->wrap_description($this->props['description']);
 		
 		return $this->wrap_outer($output);
+*/
 	}
 
 	//------------------------------------------------------------------------------

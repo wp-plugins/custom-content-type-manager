@@ -34,8 +34,9 @@ class CCTM_media extends CCTM_FormElement
 		'class' => '',
 		'extra'	=> '',
 		'default_value' => '',
-		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
+		'is_repeatable' => '',
+		'search_parameters' => '',
+		'output_filter' => 'to_image_src',
 	);
 
 	public $supported_output_filters = array('to_src');

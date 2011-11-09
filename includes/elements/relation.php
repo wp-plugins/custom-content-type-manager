@@ -34,9 +34,9 @@ class CCTM_relation extends CCTM_FormElement
 		'description' => '',
 		'class' => '',
 		'extra'	=> '',
-		'default_value' => '',
 		'is_repeatable' => '',
 		'search_parameters' => '',
+		'output_filter' => 'to_link_href',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
@@ -198,7 +198,7 @@ class CCTM_relation extends CCTM_FormElement
 		$click_label = __('Choose Relation');
 		$label = __('Default Value', CCTM_TXTDOMAIN);
 		$remove_label = __('Remove');
-		$controller_url = CCTM_URL.'/post-selector.php?';
+
 			
 		// Handle the display of the default value -- this should use the same formatting stuff as the get_edit_field_instance function.
 		if ( !empty($def['default_value']) ) {

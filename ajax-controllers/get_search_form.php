@@ -2,37 +2,6 @@
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
 
-function proper_parse_str($str) {
-  # result array
-  $arr = array();
-
-  # split on outer delimiter
-  $pairs = explode('&', $str);
-
-  # loop through each pair
-  foreach ($pairs as $i) {
-    # split into name and value
-    list($name,$value) = explode('=', $i, 2);
-    
-    # if name already exists
-    if( isset($arr[$name]) ) {
-      # stick multiple values into an array
-      if( is_array($arr[$name]) ) {
-        $arr[$name][] = $value;
-      }
-      else {
-        $arr[$name] = array($arr[$name], $value);
-      }
-    }
-    # otherwise, simply stick it in a scalar
-    else {
-      $arr[$name] = $value;
-    }
-  }
-
-  # return result array
-  return $arr;
-}
 /*------------------------------------------------------------------------------
 This controller retrieves a search form
 It expects the fieldname (without the cctm_ prefix).

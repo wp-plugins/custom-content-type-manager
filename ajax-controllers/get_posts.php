@@ -64,11 +64,31 @@ if (isset($_POST['search_parameters'])) {
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
 $defaults = array();
-//$defaults['post_type'] = array_keys(get_post_types());
-$defaults['post_status'] = array('publish','inherit');
-//$defaults['omit_post_type'] = array('revision','nav_menu_item');
-$defaults['orderby'] = 'ID';
-$defaults['order'] = 'DESC';
+
+switch ($def['type']) {
+	case 'image':
+		$defaults['post_type'] = 'attachment';
+		$defaults['post_mime_type'] = 'image';
+		$defaults['post_status'] = array('publish','inherit');
+		$defaults['orderby'] = 'ID';
+		$defaults['order'] = 'DESC';
+		break;
+		
+	case 'media':
+		$defaults['post_type'] = 'attachment';
+		$defaults['post_mime_type'] = 'attachment';
+		$defaults['post_status'] = array('publish','inherit');
+		$defaults['orderby'] = 'ID';
+		$defaults['order'] = 'DESC';
+		break;
+		
+	default:
+		//$defaults['post_type'] = array_keys(get_post_types());
+		$defaults['post_status'] = array('publish','inherit');
+		//$defaults['omit_post_type'] = array('revision','nav_menu_item');
+		$defaults['orderby'] = 'ID';
+		$defaults['order'] = 'DESC';
+}
 $defaults['limit'] = $results_per_page;
 $defaults['paginate'] = 1;
 

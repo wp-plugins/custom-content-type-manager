@@ -81,98 +81,34 @@ class CCTM_wysiwyg extends CCTM_FormElement
 			<textarea name="[+name+]" class="cctm_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
 	 */
 	public function get_edit_field_instance($current_value) {
+
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_default.tpl'
+			)
+		);
 		
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
+
+
+		$this->props['id'] 					= $this->get_field_id();
+		$this->props['class'] 				= $this->get_field_class($this->name, 'textarea', $this->class);
+		$this->props['value']				= $current_value;
+		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+				
+		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
+		return CCTM::parse($wrappertpl, $this->props);
+				
 		// print "Here------->".$current_value; exit;
 		// See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138
 		// See http://keighl.com/2010/04/switching-visualhtml-modes-with-tinymce/
-		ob_start();
-		wp_tiny_mce(false, // true makes the editor "teeny"
-		    array(
-		    "editor_selector" => $this->get_field_name(),
-		    "height" => 150,
-		    )
-		  );
-		$output = ob_get_contents();
-		ob_end_clean();
-
-		$output .= sprintf('
-			<script type="text/javascript">
-				jQuery( document ).ready( function() {
-					jQuery( "%s" ).addClass( "mceEditor" );
-					if ( typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" ) {
-						tinyMCE.execCommand( "mceAddControl", false, "%s" );
-					}
-				});
-			</script>		
-			<p align="right">
-			  <a class="button" onclick="javascript:show_rtf_view(\'%s\');">Visual</a>
-			  <a class="button" onclick="javascript:show_html_view(\'%s\');">HTML</a>
-			</p>
-			%s
-			<textarea name="%s" class="%s " id="%s" %s>%s</textarea>
-
-			<br />
-			'
-			, $this->get_field_name()
-			, $this->get_field_name()
-
-			, $this->get_field_id()
-			, $this->get_field_id()
-			, $this->wrap_label()
-			, $this->get_field_name()
-			// They all must have the same class name.
-			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=171
-			, 'cctm_wysiwyg' // $this->get_field_class($this->name, 'wysiwyg') . ' ' . $this->class
-			, $this->get_field_id()
-			, $this->extra
-			, $current_value
-		);
-		
-		$output .= $this->wrap_description($this->props['description']);
-		
-		return $this->wrap_outer($output);
 	}
-
-/*
-		ob_start();
-		wp_tiny_mce(false, // true makes the editor "teeny"
-		    array(
-		    "editor_selector" => $this->get_field_name(),
-		    "height" => 150
-		    )
-		  );
-		$output = ob_get_contents();
-		ob_end_clean();
-
-		$output .= sprintf('
-			%s
-			<textarea name="%s" class="%s " id="%s" %s>%s</textarea>
-			<script type="text/javascript">
-				jQuery( document ).ready( function() {
-					jQuery( "%s" ).addClass( "mceEditor" );
-					if ( typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" ) {
-						tinyMCE.execCommand( "mceAddControl", false, "%s" );
-					}
-				});
-			</script>
-			'
-			, $this->wrap_label()
-			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'wysiwyg') . ' ' . $this->class
-			, $this->get_field_id()
-			, $this->extra
-			, $current_value
-			, $this->get_field_name()
-			, $this->get_field_name()
-		);
-		
-		$output .= $this->wrap_description($this->props['description']);
-		
-		return $this->wrap_outer($output);
-	}
-*/
-
-
 
 	//------------------------------------------------------------------------------
 	/**

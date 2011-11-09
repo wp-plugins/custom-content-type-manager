@@ -794,7 +794,10 @@ class GetPostsForm {
 	 */
 	private function _post_parent() {
 		$ph = $this->placeholders;
-		$ph['value'] = implode(',', $this->get_value('post_parent'));
+		$val = $this->get_value('post_parent');
+		if (!empty($val) && is_array($val)) {
+			$ph['value'] = implode(',',$val);
+		}		
 		$ph['name'] = 'post_parent';
 		$ph['id']  = 'post_parent';
 		$ph['label'] = __('Post Parent', CCTM_TXTDOMAIN);
@@ -1035,7 +1038,10 @@ class GetPostsForm {
 	private function _taxonomy_term() {
 		$ph = $this->placeholders;
 		// print '<pre>'.print_r($this->get_value('taxonomy_term'), true).'</pre>';
-		$ph['value'] = implode(',',$this->get_value('taxonomy_term'));
+		$val = $this->get_value('taxonomy_term');
+		if (!empty($val) && is_array($val)) {
+			$ph['value'] = implode(',',$val);
+		}
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
 		$ph['label'] = __('Taxonomy Term', CCTM_TXTDOMAIN);

@@ -1,21 +1,14 @@
-<h2>[+icon+] WYSIWYG Field</h2>
+<script type="text/javascript">
+	jQuery( document ).ready( function() {
+		jQuery("[+name+]").addClass( "mceEditor" );
+		if ( typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" ) {
+			tinyMCE.execCommand( "mceAddControl", false, "[+name+]" );
+		}
+	});
+</script>		
+<p align="right">
+  <a class="button" onclick="javascript:show_rtf_view('[+id+]');">Visual</a>
+  <a class="button" onclick="javascript:show_html_view('[+id+]');">HTML</a>
+</p>
 
-[+label+]
-
-[+name+]
-
-[+description+]
-
-<input type="hidden" name="[+type.name+]" id="[+type.id+]" value="[+type.value+]" />				
-
-
-<div class="formgenerator_element_wrapper" id="custom_field_wrapper_4">
-
-<label for="[+default_value.id+]" class="formgenerator_label formgenerator_text_label" id="formgenerator_label_default_value">[+default_value.label+]</label>
-<textarea name="[+default_value.name+]" id="[+default_value.id+]" rows="3" cols="60">[+default_value.value+]</textarea>
-<span class="formgenerator_description">[+default_value.description+]</span>
-</div>
-
-
-<!-- this is a hidden parameter -->
-[+sort_param+]
+<textarea name="[+name+]" class="[+class+]" id="[+id+]" %s>[+value+]</textarea>

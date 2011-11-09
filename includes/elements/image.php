@@ -33,7 +33,9 @@ class CCTM_image extends CCTM_FormElement
 		'description' => '',
 		'class' => '',
 		'extra'	=> '',
-		'default_value' => '',
+		'default_value' => '',	
+		'is_repeatable' => '',
+		'search_parameters' => '',
 		'output_filter' => 'to_image_src',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
@@ -81,43 +83,83 @@ class CCTM_image extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 	
-		global $post;
+		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 		
-		$media_html = '';
-		$preview_html = '';
-		#$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=';
-		$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=image';
-		$click_label = __('Choose Image');
-		if ($this->props['button_label']) {
-			$click_label = $this->props['button_label'];
+		$Q = new GetPostsQuery();
+		
+		// Populate the values (i.e. properties) of this field
+		$this->id 					= $this->get_field_id();
+		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
+//		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		$this->instance_id			= $this->get_instance_id();
+		$this->content = '';
+		
+		$this->post_id = $this->value;		
+
+		$fieldtpl = '';
+		$wrappertpl = '';
+		// Multi field?
+		if ($this->is_repeatable) {
+
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'_multi.tpl'
+					, 'fields/elements/_relation.tpl'
+				)
+			);
+	
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_relation.tpl'
+				)
+			);		
+
+			if ($current_value) {
+				$values = (array) json_decode($current_value);
+				foreach($values as $v) {
+					$this->value				= (int) $v;
+					$extras = $Q->append_extra_data($this->value);
+					
+					foreach($extras as $k => $v) {
+						$this->$k = $v;
+					}
+					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				}
+			}		
 		}
-		$remove_label = __('Remove');
-		
-		// It has a value
-		if ( !empty($current_value) )
-		{
-			$attachment_post = get_post($current_value, ARRAY_A);
-			$attachment_post['post_id'] = $attachment_post['ID'];
-			$attachment_post['view'] = __('View');
-			$attachment_post['site_url'] = get_site_url();			
-			$tpl = file_get_contents( CCTM_PATH.'/tpls/post_selector/preview_html.tpl');
-			$attachment_post['preview_html'] = wp_get_attachment_image( $current_value, 'thumbnail', true );
-			$preview_html = CCTM::parse($tpl, $attachment_post);
+		// Regular old Single-selection
+		else {
+			$this->value				= (int) $current_value; // Relations only store the foreign key.
+			$extras = $Q->append_extra_data($this->value);
+			
+			foreach($extras as $k => $v) {
+				$this->$k = $v;
+			}
+			
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_relation.tpl'
+				)
+			);
+	
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_relation.tpl'
+				)
+			);		
+
+			if ($this->value) {
+				$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			}		
 		}
 		
-		$output = $this->wrap_label();
-		$output .= '
-			<input type="hidden" id="'.$this->get_field_id().'" name="'.$this->get_field_id().'" value="'.$current_value.'" />
-			<br />
-			<div id="'.$this->get_field_id().'_media">'.$preview_html.'</div>
-			<br class="clear" />
-			<a href="'.$controller_url.'&fieldname='.$this->get_field_id().'" name="'.$click_label.'" class="thickbox button">'
-			.$click_label.'</a> 
-			<span class="button" onclick="javascript:remove_relation(\''.$this->get_field_id().'\',\''.$this->get_field_id().'_media\')">'.$remove_label.'</span>
-			<br class="clear" /><br />';
-		$output .= $this->wrap_description($this->props['description']);
-		
-		return $this->wrap_outer($output);
+
+		return CCTM::parse($wrappertpl, $this->get_props());
+
 	}
 
 
@@ -133,6 +175,10 @@ class CCTM_image extends CCTM_FormElement
 	 * @return	string	HTML input fields
 	 */
 	public function get_edit_field_definition($def) {
+		$is_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_checked = 'checked="checked"';
+		}
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -152,19 +198,14 @@ class CCTM_image extends CCTM_FormElement
 		// Initialize / defaults
 		$preview_html = '';
 		$click_label = __('Choose Image');
+		$label = __('Default Value', CCTM_TXTDOMAIN);
 		$remove_label = __('Remove');
-		$label = __('Default Image', CCTM_TXTDOMAIN);
-		$controller_url = CCTM_URL.'/post-selector.php?post_type=attachment&b=1&post_mime_type=image';
-			
-		// Handle the display of the Default Image thumbnail
-		if ( !empty($def['default_value']) ) {
-			$preview_html = wp_get_attachment_image( $def['default_value'], 'thumbnail', true );
-			$attachment_obj = get_post($def['default_value']);
-			// Wrap it... the default value *should* just be an integer
-			$preview_html .= '<span class="cctm_label">'.$attachment_obj->post_title.' <span class="cctm_id_label">('.htmlspecialchars($def['default_value']).')</span></span><br />';
-			
-		}
 
+			
+		// Handle the display of the default value -- this should use the same formatting stuff as the get_edit_field_instance function.
+		if ( !empty($def['default_value']) ) {
+			$preview_html = '';
+		}
 
 		// Button Label
 		$out .= '<div class="'.self::wrapper_css_class .'" id="button_label_wrapper">
@@ -173,40 +214,64 @@ class CCTM_image extends CCTM_FormElement
 			 		<input type="text" name="button_label" class="'.self::css_class_prefix.'text" id="button_label" value="'.htmlspecialchars($def['button_label']) .'"/>
 			 		' . $this->get_translation('button_label').'
 			 	</div>';
-			 	
-		// Default Value 			
+
+		// Set Search Parameters
 		$out .= '
-			<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-				<span class="cctm_label cctm_media_label" id="cctm_label_default_value">'.$label.' <a href="'.$controller_url.'&fieldname=default_value" name="'.$label.'" class="thickbox button">'.$click_label.'</a>
-				<span class="button" onclick="javascript:remove_relation(\'default_value\',\'default_value_media\');">'.$remove_label.'</span>
-				</span> 
-				
+			<div class="cctm_element_wrapper" id="search_parameters_wrapper">
+				<label for="name" class="cctm_label cctm_text_label" id="search_parameters_label">'
+					. __('Search Parameters', CCTM_TXTDOMAIN) .
+			 	'</label>
+				<span class="cctm_description">'.__('Define which posts are available for selection by narrowing your search parameters.', CCTM_TXTDOMAIN).'</span>
+				<br/>
+				<span class="button" onclick="javascript:display_search_form(\''.$def['name'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
+				<div id="cctm_thickbox"></div>
+				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def,'search_parameters').'" />
+				<br/>
+			</div>';
+
+		// Default Value 			
+/*
+		$out .= '
+			<div class="cctm_element_wrapper" id="default_value_wrapper">
+				<label for="default_value" class="'.self::label_css_class.'">'
+			 			.__('Default Value', CCTM_TXTDOMAIN).'</label>
+				<span class="cctm_description">'.__('Choose a default value(s) to display on new posts using this field.', CCTM_TXTDOMAIN).'</span>
+					<span class="button" onclick="javascript:thickbox_results(\'cctm_'.$def['name'].'\');">'.$label.'</span>
+					<span class="button" onclick="javascript:remove_relation(\'default_value\',\'default_value_media\');">'.$remove_label.'</span>
+				</span>
+				<div id="target_cctm_'.$def['name'].'"></div> 
 				<input type="hidden" id="default_value" name="default_value" value="'
-					.htmlspecialchars($def['default_value']).'" /><br />
-				<div id="default_value_media">'.$preview_html.'</div>
+				.htmlspecialchars($def['default_value']).'" /><br />
+				<div id="cctm_instance_wrapper_'.$def['name'].'">'.$preview_html.'</div>
 				
 				<br />
 			</div>';
+*/
 
+		// Is Repeatable?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="is_repeatable" class="'.$this->get_field_class('is_repeatable','checkbox').'" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
+			 	</div>';
 			
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
-			 		. htmlspecialchars($def['description'])
-			 		.'</textarea>
+			 		. htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 			 	
 		// Output Filter
 		if ( !empty($this->supported_output_filters) ) { 
 			$out .= $this->get_available_output_filters($def);
-		}	 
-
-		return $out;
+		}		 
+			 return $out;
 	}
-
 }
 
 
