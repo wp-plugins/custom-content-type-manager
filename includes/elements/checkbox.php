@@ -108,9 +108,9 @@ class CCTM_checkbox extends CCTM_FormElement
 		}
 		
 		$fieldtpl = CCTM::load_tpl(
-			array('fields/'.$this->name.'.tpl'
-				, 'fields/_'.$this->type.'.tpl'
-				, 'fields/_default.tpl'
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_default.tpl'
 			)
 		);
 
@@ -139,7 +139,7 @@ class CCTM_checkbox extends CCTM_FormElement
 	 */
 	public function get_edit_field_definition($def) {
 		$is_checked = '';
-		if ($def['checked_by_default']) {
+		if (isset($def['checked_by_default']) && $def['checked_by_default']==1) {
 			$is_checked = 'checked="checked"';
 		}		
 	

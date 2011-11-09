@@ -89,8 +89,19 @@ class CCTM_colorselector extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 		
-		$fieldtpl = $this->get_field_tpl();
-		$wrappertpl = $this->get_wrapper_tpl();
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_default.tpl'
+			)
+		);
+		
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
 
 		// Populate the values (i.e. properties) of this field
 		$this->props['id'] 					= $this->get_field_id();
@@ -106,9 +117,7 @@ class CCTM_colorselector extends CCTM_FormElement
 			$this->i = $this->i + 1; // increment the instance 
 		}
 		
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
 		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
 		return CCTM::parse($wrappertpl, $this->props);
 
 	}

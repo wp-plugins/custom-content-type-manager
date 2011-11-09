@@ -72,7 +72,7 @@ abstract class CCTM_FormElement {
 	 *
 	 *  'type'    => the name of this class, minus the CCTM_ prefix.
 	 */
-	private $props = array(
+	protected $props = array(
 		'label' => '',
 		'name' => '',
 		'description' => '',

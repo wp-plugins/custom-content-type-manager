@@ -85,6 +85,48 @@ class CCTM_dropdown extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
+		// Format for Radio buttons
+		if ( $this->display_type == 'radio' ) {
+		
+			$optiontpl = CCTM::load_tpl(
+				array('fields/options/'.$this->name.'.tpl'
+					, 'fields/options/_radio.tpl'
+				)
+			);
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_radio.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_radio.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);			
+		}
+		// For regular selects / dropdowns
+		else {
+			$optiontpl = CCTM::load_tpl(
+				array('fields/options/'.$this->name.'.tpl'
+					, 'fields/options/_option.tpl'
+				)
+			);
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_dropdown.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);					
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+		}
+
 		// Some error messaging: the options thing is enforced at time of def creation, so 
 		// we shouldn't ever need to enforce it here, but just in case...
 		if ( !isset($this->options) || !is_array($this->options) ) {
@@ -95,69 +137,46 @@ class CCTM_dropdown extends CCTM_FormElement
 			);
 		}
 		
-		// Default tpls
-		$fieldtpl = $this->get_field_tpl();
-		$wrappertpl = $this->get_wrapper_tpl();
-
 		
 		// Get the options.  This currently is not skinnable.
 		// $this->props['options'] is already bogarted by the definition.
 		$this->props['all_options'] = '';
 		// <!-- option value="">'.__('Pick One').'</option -->
 		$opt_cnt = count($this->options);
-		
-		// Format for Radio buttons
-		if ( $this->display_type == 'radio' ) {
-			for ( $i = 0; $i < $opt_cnt; $i++ ) {
-				// just in case the array isn't set
-				$option = '';
-				if (isset($this->options[$i])) {
-					$option = htmlspecialchars($this->options[$i]);
-				}
-				$value = '';
-				if (isset($this->values[$i])) {
-					$value = htmlspecialchars($this->values[$i]);
-				}
-				// Simplistic behavior if we don't use key=>value pairs
-				if ( !$this->use_key_values ) {
-					$value = $option;
-				}
 	
-				$is_selected = '';
-				if ( trim($current_value) == trim($value) ) {
-					$is_selected = 'checked="checked"';
-				}
-				$id = $this->get_field_id() . '_option_' .$i;
-				$name = $this->get_field_name();
-				$this->props['all_options'] .= '<input type="radio" name="'.$name.'" id="'.$id.'" value="'.$value.'" '.$is_selected.'> <label for="'.$id.'" class="cctm_radio_label">'.$option . '</label><br />';
+		
+		// Populate the options
+		for ( $i = 0; $i < $opt_cnt; $i++ ) {
+			$hash = array();
+			
+			// just in case the array isn't set
+			$hash['option'] = '';
+			if (isset($this->options[$i])) {
+				$hash['option'] = htmlspecialchars($this->options[$i]);
+			}
+			$hash['value'] = '';
+			if (isset($this->values[$i])) {
+				$hash['value'] = htmlspecialchars($this->values[$i]);
+			}
+			// Simplistic behavior if we don't use key=>value pairs
+			if ( !$this->use_key_values ) {
+				$hash['value'] = $hash['option'];
+			}
+
+			$hash['is_selected'] = '';
+			$hash['is_checked'] = '';
+			if ( trim($current_value) == trim($hash['value']) ) {
+				$hash['is_checked'] = 'checked="checked"';
+				$hash['is_selected'] = 'selected="selected"';
 			}
 			
-			$fieldtpl = $this->get_field_tpl('radio');
+			$hash['i'] = $i;
+			$hash['id'] = $this->get_field_id();
+			$hash['name'] = $this->get_field_name();
+			$this->props['all_options'] .= CCTM::parse($optiontpl, $hash);
 		}
-		// Format for Dropdown
-		else {
-			for ( $i = 0; $i < $opt_cnt; $i++ ) {
-				// just in case the array isn't set
-				$option = '';
-				if (isset($this->options[$i])) {
-					$option = htmlspecialchars($this->options[$i]);
-				}
-				$value = '';
-				if (isset($this->values[$i])) {
-					$value = htmlspecialchars($this->values[$i]);
-				}
-				// Simplistic behavior if we don't use key=>value pairs
-				if ( !$this->use_key_values ) {
-					$value = $option;
-				}
-	
-				$is_selected = '';
-				if ( trim($current_value) == trim($value) ) {
-					$is_selected = 'selected="selected"';
-				}
-				$this->props['all_options'] .= '<option value="'.$value.'" '.$is_selected.'>'.$option.'</option>';
-			}
-		}
+			
+
 
 		// Populate the values (i.e. properties) of this field
 		$this->props['id'] 					= $this->get_field_id();
@@ -165,10 +184,8 @@ class CCTM_dropdown extends CCTM_FormElement
 		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
 		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 		$this->props['instance_id']			= $this->get_instance_id();
-		
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
+		// wrap
 		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
 		return CCTM::parse($wrappertpl, $this->props);		
 		
 	}

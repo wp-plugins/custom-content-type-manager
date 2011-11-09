@@ -41,7 +41,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 	// Validate and sanitize any submitted data
 	$field_data   = $FieldObj->save_definition_filter($_POST, $post_type);
-	$FieldObj->props  = $field_data;  // This is how we repopulate data in the create forms
+	$FieldObj->set_props($field_data);  // This is how we repopulate data in the create forms
 
 	// Any errors?
 	if ( !empty($FieldObj->errors) ) {

@@ -104,8 +104,19 @@ class CCTM_date extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$fieldtpl = $this->get_field_tpl();
-		$wrappertpl = $this->get_wrapper_tpl();
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_default.tpl'
+			)
+		);
+		
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
 
 		// Populate the values (i.e. properties) of this field
 		$this->props['id'] 					= $this->get_field_id();
@@ -113,9 +124,7 @@ class CCTM_date extends CCTM_FormElement
 		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
 		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 				
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
 		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		$this->props['help'] = $this->get_all_placeholders(); // <-- must be immediately prior to parse
 		return CCTM::parse($wrappertpl, $this->props);		
 	}
 
@@ -215,6 +224,7 @@ class CCTM_date extends CCTM_FormElement
 						<option value="DD, d MM, yy" '.$date_format['DD, d MM, yy'].'>Full - DD, d MM, yy</option>
 						<option value="\'day\' d \'of\' MM \'in the year\' yy" '.$date_format["'day' d 'of' MM 'in the year' yy"].'>With text - \'day\' d \'of\' MM \'in the year\' yy</option>
 					</select>
+					<span class="cctm_description">'.__('If you need to sort your dates, it is recommended to use the MySQL date format. Change how the date displays using Output Filters in your template files.', CCTM_TXTDOMAIN).'</span>
 				</div>';
 
 		// Class

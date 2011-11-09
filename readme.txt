@@ -83,10 +83,9 @@ or by going to your wp-content/plugins directory and executing the following com
 
 Major release!
 
-* All Relation fields can now select multiple values.
 * Integrated the [Summarize Posts](http://code.google.com/p/wordpress-summarize-posts/) plugin: this gives all kinds of power to searching for posts.
+* All Relation fields can now select multiple values.
 * Cleaner Ajax implementation [Issue 226](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226).  This should make the plugin work better on sites with customized folder structures.
-
 
 = 0.9.4.5 =
 

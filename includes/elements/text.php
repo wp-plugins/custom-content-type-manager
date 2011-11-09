@@ -83,11 +83,11 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-		return 'id:'. $this->id; 
+		
 		$fieldtpl = CCTM::load_tpl(
-			array('fields/'.$this->id.'.tpl'
-				, 'fields/_'.$this->type.'.tpl'
-				, 'fields/_default.tpl'
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_default.tpl'
 			)
 		);
 		$wrappertpl = CCTM::load_tpl(

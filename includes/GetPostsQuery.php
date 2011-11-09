@@ -458,8 +458,8 @@ class GetPostsQuery {
 	 * option was set.
 	 *
 	 * @param mixed   result set
-	 * @param unknown $results
-	 * @return mixed  result set
+	 * @param array $results -- a record set.
+	 * @return array  result set
 	 */
 	private function _date_format($results) {
 		if ( $this->date_format) {
