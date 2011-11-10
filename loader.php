@@ -46,29 +46,36 @@ if ( empty(CCTM::$errors) )
 	// Load up the CCTM data from wp_options, populates CCTM::$data
 	CCTM::load_data();
 
-	
-	
 	// Run any updates for this version.
 	add_action('init', 'CCTM::check_for_updates', 0 );	
 	
-	// Generate admin menu, bootstrap CSS/JS
-	add_action('admin_init', 'CCTM::admin_init');	
 	
 	// Register any custom post-types (a.k.a. content types)
 	add_action('init', 'CCTM::register_custom_post_types', 11 );
 	
-	// Create custom plugin settings menu
-	add_action('admin_menu', 'CCTM::create_admin_menu');
-	add_filter('plugin_action_links', 'CCTM::add_plugin_settings_link', 10, 2 );
+	if( is_admin()) {	
+		// Generate admin menu, bootstrap CSS/JS
+		add_action('admin_init', 'CCTM::admin_init');	
 	
+		// Create custom plugin settings menu
+		add_action('admin_menu', 'CCTM::create_admin_menu');
+		add_filter('plugin_action_links', 'CCTM::add_plugin_settings_link', 10, 2 );
 	
-	// Standardize Fields
-	add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
-	add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
-	add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
+		// Standardize Fields
+		add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
+		add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
+		add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
 	
-	// Customize the page-attribute box for custom page hierarchies
-	add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
+		// Customize the page-attribute box for custom page hierarchies
+		add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
+
+		// FUTURE: Highlght which themes are CCTM-compatible (if any)
+		// add_filter('theme_action_links', 'CCTM::highlight_cctm_compatible_themes');
+		add_action('admin_notices', 'CCTM::print_warnings');
+
+		// Used to modify the large post icon
+		add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
+	}
 	
 	// Enable archives for custom post types
 	add_filter('getarchives_where', 'CCTM::get_archives_where_filter' , 10 , 2);
@@ -80,12 +87,8 @@ if ( empty(CCTM::$errors) )
 	// Forces front-end searches to return results for all registered post_types
 	add_filter('pre_get_posts','CCTM::search_filter');
 	
-	// FUTURE: Highlght which themes are CCTM-compatible (if any)
-	// add_filter('theme_action_links', 'CCTM::highlight_cctm_compatible_themes');
-	add_action('admin_notices', 'CCTM::print_warnings');
+
 	
-	// Used to modify the large post icon
-	add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
 	
 	// Modifies the "Right Now" widget
 	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');

@@ -76,7 +76,7 @@ switch ($def['type']) {
 		
 	case 'media':
 		$defaults['post_type'] = 'attachment';
-		$defaults['post_mime_type'] = 'attachment';
+		$defaults['post_mime_type'] = 'application';
 		$defaults['post_status'] = array('publish','inherit');
 		$defaults['orderby'] = 'ID';
 		$defaults['order'] = 'DESC';

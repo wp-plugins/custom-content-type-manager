@@ -36,15 +36,38 @@ $Form = new GetPostsForm();
 // How should we search?
 $search_by = array();
 
-$search_by[] = 'post_type';
-$search_by[] = 'taxonomy';
-$search_by[] = 'taxonomy_term';
-$search_by[] = 'post_parent';
-$search_by[] = 'meta_key';
-$search_by[] = 'meta_value';
-//$search_by[] = 'search_term';
-//$search_by[] = 'search_columns';
-
+switch ($def['type']) {
+	case 'image':
+		$search_by[] = 'post_mime_type';
+		$search_by[] = 'taxonomy';
+		$search_by[] = 'taxonomy_term';
+		$search_by[] = 'post_parent';
+		$search_by[] = 'meta_key';
+		$search_by[] = 'meta_value';		
+		//$search_by[] = 'search_term';
+		//$search_by[] = 'search_columns';	
+		break;
+		
+	case 'media':
+		$search_by[] = 'post_mime_type';
+		$search_by[] = 'taxonomy';
+		$search_by[] = 'taxonomy_term';
+		$search_by[] = 'post_parent';
+		$search_by[] = 'meta_key';
+		$search_by[] = 'meta_value';
+		break;
+		
+	default:
+		$search_by[] = 'post_type';
+		$search_by[] = 'taxonomy';
+		$search_by[] = 'taxonomy_term';
+		$search_by[] = 'post_parent';
+		$search_by[] = 'meta_key';
+		$search_by[] = 'meta_value';
+		
+		//$search_by[] = 'search_term';
+		//$search_by[] = 'search_columns';
+}
 
 $form_tpl = '
 <style>
