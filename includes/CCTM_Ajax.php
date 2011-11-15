@@ -1,10 +1,12 @@
 <?php
 //------------------------------------------------------------------------------
 /**
- * This class handles Ajax requests. The problem here is that WP doesn't allow
- * for enough flexibility when calling these requests -- it requires that actions
- * be hard-coded, and you can't add arguments to them.  So it's difficult to
- * know when CCTM should "pick up the phone".
+ * This class handles Ajax requests. The problem here is that WP requires that 
+ * actions be hard-coded, and you can't add arguments to them.  So what we do
+ * here is on instatiation, this class dynamically creates action-handlers 
+ * for each controller file inside of the ajax-controllers directory, and 
+ * this class does nonce-checking in order to make the ajax controllers 
+ * as simplified as possible.
  *
  * This class is designed to be a pass-thru, so any Ajax request
  * gets routed here to the appropriate Ajax controller. Ajax calls should be

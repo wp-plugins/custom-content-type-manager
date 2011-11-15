@@ -44,6 +44,17 @@ class CCTM_relation extends CCTM_FormElement
 	
 	//------------------------------------------------------------------------------
 	/**
+	 * 
+	 */
+	public function admin_init() {
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
+		wp_register_script('cctm_relation', CCTM_URL.'/js/relation.js', array('jquery','media-upload','thickbox'));
+		wp_enqueue_script('cctm_relation');
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	* This function provides a name for this type of field. This should return plain
 	* text (no HTML). The returned value should be localized using the __() function.
 	* @return	string
