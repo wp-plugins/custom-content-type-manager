@@ -195,12 +195,12 @@ class SP_Post {
 		
 		// Delete any revisions, e.g.
 		// DELETE a FROM wp_posts a INNER JOIN wp_posts b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type='post'
-		$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_id=%s"
+		$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.ID=%s"
 			, $post_id);
 		$wpdb->query($query);
 				
 		// Delete the posts
-		$query = $wpdb->prepare("DELETE FROM {$wpdb->posts} WHERE post_id=%s;"
+		$query = $wpdb->prepare("DELETE FROM {$wpdb->posts} WHERE ID=%s;"
 			, $post_id);
 		$wpdb->query($query);		
 		
@@ -289,6 +289,9 @@ class SP_Post {
 			$query = "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES ";
 			$meta_rows = array();
 			foreach ($postmeta_args as $k => $v) {
+				if (is_array($v)) {
+					$v = json_encode($v);
+				}
 				$meta_rows[] = $wpdb->prepare('(%d, %s, %s)', $post_id, $k, $v);
 			}
 			
@@ -343,7 +346,7 @@ class SP_Post {
 			}
 		}
 		
-		if (isset($args['ID'])) {
+		if (isset($args['ID']) && !empty($args['ID'])) {
 			$post_id = $args['ID'];
 		}
 		else {
@@ -361,6 +364,9 @@ class SP_Post {
 		}
 		
 		foreach ($postmeta_args as $k => $v) {
+			if (is_array($v)) {
+				$v = json_encode($v);
+			}
 			if ($wpdb->update( $wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) == false ) {
 				// it's a new row, so we insert
 				if ($wpdb->insert($wpdb->postmeta, array('post_id' => $post_id, 'meta_key' => $k, 'meta_value'=>$v)) == false) {
