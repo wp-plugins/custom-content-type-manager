@@ -9,16 +9,23 @@ All other search parameters (offset, limit, search_term, etc) are stored
 via http_build_query() inside of the search_parameters field.
 ------------------------------------------------------------------------------*/
 ?>
-<script type="text/javascript">
-/* Disable the enter key for submit */
-function submit_handler() {
-	console.log('here..??');
-    return false;
-}
+<script language="JavaScript">
+	// http://www.bloggingdeveloper.com/post/Disable-Form-Submit-on-Enter-Key-Press.aspx
+	function disableEnterKey(e)
+	{
+	     var key;      
+	     if(window.event)
+	          key = window.event.keyCode; //IE
+	     else
+	          key = e.which; //firefox      
+	
+	     return (key != 13);
+	}
+
 </script>
 
 <div id="cctm_thickbox">
-	<form id="select_posts_form" onkeypress="return noenter(event)">
+	<form id="select_posts_form" onkeypress="return disableEnterKey(event)">
 		<input type="hidden" name="fieldname" id="fieldname" value="<?php print $data['fieldname']; ?>" />
 		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
 		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
