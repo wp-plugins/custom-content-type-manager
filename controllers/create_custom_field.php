@@ -97,7 +97,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 }
 
 $data['fields'] = $FieldObj->get_create_field_definition();
-
+$data['associations'] = '';
 $data['icon'] = sprintf('<img src="%s" class="cctm-field-icon" id="cctm-field-icon-%s"/>'
 	, $FieldObj->get_icon(), $field_type);
 $data['url'] = $FieldObj->get_url();

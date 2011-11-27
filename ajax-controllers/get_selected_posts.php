@@ -1,6 +1,11 @@
 <?php
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+
+require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
+require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+//require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 $d = array(); // <-- Template Variables
 /*------------------------------------------------------------------------------
 This controller grabs one or many post by the $_POST['post_id'], formats them
@@ -34,7 +39,7 @@ $tpl = '';
 // Might be an array
 $post_ids = CCTM::get_value($_POST,'post_id');
 if (empty($post_ids)) {
-	// print '<p>'.__('Post ID required.', CCTM_TXTDOMAIN).'</p>';
+	print '<p>'.__('Post ID required.', CCTM_TXTDOMAIN).'</p>';
 	return;	
 }
 // Multi
@@ -67,10 +72,6 @@ if (empty($tpl)) {
 //------------------------------------------------------------------------------
 // Begin!
 //------------------------------------------------------------------------------
-require_once(CCTM_PATH.'/includes/SummarizePosts.php');
-require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
-//require_once(CCTM_PATH.'/includes/GetPostsForm.php');
-
 
 $Q = new GetPostsQuery(); 
 //$args['include'] = $post_ids;

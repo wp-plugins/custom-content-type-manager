@@ -1,6 +1,7 @@
 <?php
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 require_once(CCTM_PATH.'/includes/GetPostsForm.php');
@@ -201,7 +202,8 @@ $hash['content'] = '';
 // And the items
 foreach ($results as $r){
 	$r['name'] = $raw_fieldname;
-	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);	
+	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
+	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
 	add_image_size('tiny_thumb', 30, 30);
 	$post_type = $r['post_type'];

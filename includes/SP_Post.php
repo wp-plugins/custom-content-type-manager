@@ -311,7 +311,7 @@ class SP_Post {
 	 * @return	integer post id on success, false on failure
 	 */
 	public function save($args) {
-		if (isset($args['ID'])) {
+		if (isset($args['ID']) && $args['ID'] != 0) {
 			$post = get_post($args['ID'], ARRAY_A);
 			if (!empty($post)) {
 				return $this->update($args);

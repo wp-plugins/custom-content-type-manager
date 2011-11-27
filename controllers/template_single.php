@@ -139,6 +139,11 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 	}
 }
 
+// Reminder to the users
+if (empty($custom_fields_str)) {
+	$custom_fields_str = '<!-- '.__('You have not associated any custom fields with this post-type. Be sure to add any desired custom fields to this post-type by clicking on the "Manage Custom Fields" link under the Custom Content Type menu and checking the fields that you want.', CCTM_TXTDOMAIN).' -->';
+}
+
 // Populate placeholders
 $hash['post_type'] = $post_type;
 $hash['built_in_fields'] = $builtin_fields_str;

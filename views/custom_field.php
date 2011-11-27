@@ -25,6 +25,10 @@
 	
 	<?php print $data['fields']; ?>
 	
+	<!-- h3><?php _e('Associations', CCTM_TXTDOMAIN); ?></h3-->
+	
+	<?php print $data['associations']; ?>
+	
 	<br />
 	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" />
 

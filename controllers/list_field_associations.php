@@ -109,9 +109,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 }
 
 
-//print "<pre>"; print_r($post_type_defs); print "</pre>"; exit;
-// is_active
-
+// List Associations
 $data['content'] .= '<table>';
 foreach ($displayable_types as $post_type) {
 	$def = array();
@@ -177,6 +175,7 @@ foreach ($displayable_types as $post_type) {
 	
 	// print_r($def); exit;
 }
+
 $data['content'] .= '</table>';
 
 $data['content'] = CCTM::load_view('basic_form.php', $data);

@@ -109,7 +109,7 @@ function toggle_readonly()
 }
 
 /*------------------------------------------------------------------------------
-
+@param	id	string	fieldname, e.g. cctm_pics
 ------------------------------------------------------------------------------*/
 function thickbox_results(id) {
 	// Remove any existing thickbox: this will force the thickbox to refresh if
@@ -309,7 +309,7 @@ function refine_search() {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	
-	jQuery('#page_number').val(page_number);
+	jQuery('#page_number').val('0');
 	
 	var data = 
 		{
@@ -340,7 +340,7 @@ function reset_search() {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	
-	jQuery('#page_number').val(page_number);
+	jQuery('#page_number').val('0');
 	
 	var data = 
 		{
@@ -405,13 +405,15 @@ function sort_results(sort_column) {
 
 /*------------------------------------------------------------------------------
 Shows a search form from the edit custom field definition
+We send along the fieldname and fieldtype to allow for customizations.
 ------------------------------------------------------------------------------*/
-function display_search_form(fieldname) {
+function display_search_form(fieldname,fieldtype) {
 	var search_parameters = jQuery('#search_parameters').val();
 	//alert(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "search_parameters" : search_parameters,
 	        "get_search_form_nonce" : cctm.ajax_nonce
 	    };

@@ -452,17 +452,18 @@ class CCTM {
 	 * @return mixed filtered $_POST data (only white-listed are passed thru to output)
 	 */
 	private static function _sanitize_post_type_def($raw) {
+		$sanitized = array();
 
 		unset($raw['custom_content_type_mgr_create_new_content_type_nonce']);
 		unset($raw['custom_content_type_mgr_edit_content_type_nonce']);
-
 
 		$raw = CCTM::striptags_deep(($raw));
 
 		// WP always adds slashes: see http://kovshenin.com/archives/wordpress-and-magic-quotes/
 		$raw = CCTM::stripslashes_deep(($raw));
 
-		$sanitized = array();
+
+		
 		// Handle unchecked checkboxes
 		if ( empty($raw['cctm_hierarchical_custom'])) {
 			$sanitized['cctm_hierarchical_custom'] = '';
@@ -505,6 +506,8 @@ class CCTM {
 		}
 
 		// Specific overrides below:
+		$sanitized['description'] = strip_tags($raw['description']);
+		
 		// post_type is the only required field
 		$sanitized['post_type'] = self::get_value($raw, 'post_type');
 		$sanitized['post_type'] = strtolower($sanitized['post_type']);
@@ -636,22 +639,6 @@ class CCTM {
 
 		update_option( self::db_key, self::$data );
 	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Used when creating or editing Post Types
-	 * I had to put this here in a function rather than in a config file so I could
-	 * take advantage of the WP translation functions __()
-	 *
-	 * @param string  $post_type_label (optional)
-	 */
-	private static function _set_post_type_form_definition($post_type_label='sample_post_type') {
-		$def = array();
-		include 'form_defs/post_type.php';
-		self::$post_type_form_definition = $def;
-	}
-
 
 	//! Public Functions
 	//------------------------------------------------------------------------------
@@ -1656,7 +1643,7 @@ if ( empty(self::$data) ) {
 	/**
 	 * Each custom field can optionally do stuff during the admin_init event -- this
 	 * was designed so custom fields could include their own JS & CSS, but it could
-	 * be used for other purposes (?).
+	 * be used for other purposes I suppose (?).
 	 *
 	 * Custom field classes will be included and initialized only in the following
 	 * two cases:
@@ -1672,7 +1659,31 @@ if ( empty(self::$data) ) {
 
 		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
 		$page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
-		$post_type = self::get_value($_GET, 'post_type', 'post');
+		// Bail if we're not on the relevant pages
+		if (!in_array($page,array('post.php','post-new.php','admin.php'))) {
+			return;
+		}
+		
+		if ($page == 'post-new.php') {
+			$post_type = self::get_value($_GET, 'post_type', 'post'); // post_type is only set for NEW posts
+		}
+		else { // ( $page == 'post.php') {
+			$post_id = self::get_value($_POST, 'post_ID');
+			// TODO: wouldn't you think the post_type was already defined somewhere?
+			if (empty($post_id)) {
+				$post_id = self::get_value($_GET, 'post');		
+			}
+			
+			$post = get_post($post_id);
+			if (!empty($post)) {
+				$post_type = $post->post_type;
+			}		
+		}
+		
+		if (empty($post_type)) {
+			return;
+		}
+		
 		$fieldtype = self::get_value($_GET, 'type');
 		$fieldname = self::get_value($_GET, 'field');
 		$action = self::get_value($_GET, 'a');
@@ -1682,6 +1693,7 @@ if ( empty(self::$data) ) {
 			if ( ($page == 'post.php') || ($page == 'post-new.php') ) {
 				if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
 					$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_fields', array() );
+//					die(print_r($custom_fields, true));
 					$field_types = array();
 					// We gotta convert the fieldname to fieldtype
 					foreach ($custom_fields as $cf) {

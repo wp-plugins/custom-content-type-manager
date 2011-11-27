@@ -95,7 +95,18 @@ if ( empty(CCTM::$errors) )
 	
 	// Handle Ajax Requests
 	add_action('wp_ajax_get_search_form', 'CCTM::get_search_form');
- 
 }
+
+//media_upload_form();
+/*
+function my_media_upload_tabs($tabs) {
+	$tabs = array(
+		'type' => __('From Computer'), // handler action suffix => tab text
+	);
+	return array();
+	return $tabs;
+}
+add_filter('media_upload_tabs', 'my_media_upload_tabs');
+*/
 
 /*EOF*/

@@ -4,18 +4,27 @@ if (!current_user_can('edit_posts')) exit('You do not have permission to do that
 
 /*------------------------------------------------------------------------------
 This controller retrieves a search form
-It expects the fieldname (without the cctm_ prefix).
+It expects the fieldname (without the cctm_ prefix), but it also needs to handle 
+setting search parameters for a new field (which won't have a fieldname yet)
 It also accepts the search_parameters (serialized data describing existing values)
+
+@param	$_POST['fieldname']
+@param	$_POST['fieldtype'] (optional)
+@param	$_POST['search_parameters'] (optional)
 ------------------------------------------------------------------------------*/
 $fieldname = CCTM::get_value($_POST, 'fieldname');
-if (empty($fieldname)) {
-	print '<p>'.sprintf(__('Invalid field name: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
+$fieldtype = CCTM::get_value($_POST, 'fieldtype');
+$type = ''; // set once we know if we've got a fieldname or a fieldtype
+
+if (empty($fieldname) && empty($fieldtype)) {
+	print '<p>'.__('fieldname or fieldtype required.', CCTM_TXTDOMAIN) .'</p>';
+	return;
 }
 
 $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
+
 if (empty($def)) {
-	print '<p>'.sprintf(__('Invalid field name: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
-	return;
+	$type = $fieldtype;
 }
 
 $search_parameters_str = '';
@@ -36,7 +45,7 @@ $Form = new GetPostsForm();
 // How should we search?
 $search_by = array();
 
-switch ($def['type']) {
+switch ($type) {
 	case 'image':
 		$search_by[] = 'post_mime_type';
 		$search_by[] = 'taxonomy';
@@ -56,7 +65,8 @@ switch ($def['type']) {
 		$search_by[] = 'meta_key';
 		$search_by[] = 'meta_value';
 		break;
-		
+	
+	// Relation etc.	
 	default:
 		$search_by[] = 'post_type';
 		$search_by[] = 'taxonomy';

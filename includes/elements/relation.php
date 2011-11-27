@@ -46,7 +46,7 @@ class CCTM_relation extends CCTM_FormElement
 	/**
 	 * 
 	 */
-	public function admin_init() {
+	public function admin_init() {	
 		wp_enqueue_script('media-upload');
 		wp_enqueue_script('thickbox');
 		wp_register_script('cctm_relation', CCTM_URL.'/js/relation.js', array('jquery','media-upload','thickbox'));
@@ -104,6 +104,10 @@ class CCTM_relation extends CCTM_FormElement
 //		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 		$this->instance_id			= $this->get_instance_id();
 		$this->content = '';
+		
+		if (empty($this->button_label)) {
+			$this->button_label = __('Choose Relation', CCTM_TXTDOMAIN);
+		}
 		
 		$this->post_id = $this->value;		
 
@@ -232,7 +236,7 @@ class CCTM_relation extends CCTM_FormElement
 			 	'</label>
 				<span class="cctm_description">'.__('Define which posts are available for selection by narrowing your search parameters.', CCTM_TXTDOMAIN).'</span>
 				<br/>
-				<span class="button" onclick="javascript:display_search_form(\''.$def['name'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
+				<span class="button" onclick="javascript:display_search_form(\''.$def['name'].'\',\''.$def['type'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
 				<div id="cctm_thickbox"></div>
 				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def,'search_parameters').'" />
 				<br/>

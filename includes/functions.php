@@ -114,6 +114,19 @@ function get_custom_image($fieldname) {
 	return wp_get_attachment_image($id, 'full');
 }
 
+//------------------------------------------------------------------------------
+/**
+ * Gets the link href (guid) of the post referenced.
+ * @param	integer	$post_id
+ */
+/*
+function get_link(int $post_id) {
+	$post = get_post($post_id);
+	if (!empty($post)) {
+		return $post->guid;
+	}
+}
+*/
 
 //------------------------------------------------------------------------------
 /**
@@ -131,8 +144,7 @@ and if the custom field *is* a list of items, then attach it as such.
 @param	integer	$id is valid ID of a post (regardless of post_type).
 @return	object	post object with all attributes, including custom fields.
 */
-function get_post_complete($id)
-{
+function get_post_complete($id) {
 	$complete_post = get_post($id, OBJECT);
 	if ( empty($complete_post) )
 	{
@@ -183,8 +195,7 @@ USAGE:
 
 This is a hefty, db-intensive function... (bummer).
 */
-function get_posts_sharing_custom_field_value($fieldname, $value)
-{
+function get_posts_sharing_custom_field_value($fieldname, $value) {
 	global $wpdb;
 	$query = "SELECT DISTINCT {$wpdb->posts}.ID 
 		FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id  
@@ -213,8 +224,7 @@ INPUT:
 OUTPUT:
 	post object
 */
-function get_relation($fieldname)
-{
+function get_relation($fieldname) {
 	return get_post_complete( get_custom_field($fieldname.':raw') );
 }
 
@@ -243,8 +253,7 @@ field that defines your favorite cartoon named 'favorite_cartoon':
 		Array ( 'Family Guy', 'South Park', 'The Simpsons' );
 
 */
-function get_unique_values_this_custom_field($fieldname, $order='ASC')
-{
+function get_unique_values_this_custom_field($fieldname, $order='ASC') {
 	global $wpdb;
 
 	$order = strtoupper($order);
@@ -287,8 +296,7 @@ INPUT:
 OUTPUT:
 	The contents of that custom field for the current post.
 */
-function print_custom_field($fieldname, $extra=null)
-{
+function print_custom_field($fieldname, $extra=null) {
 	print get_custom_field($fieldname, $extra);
 }
 
@@ -297,8 +305,7 @@ function print_custom_field($fieldname, $extra=null)
 * Convenience function to print the result of get_custom_field_meta().  See
 * get_custom_field_meta.
 */
-function print_custom_field_meta($fieldname, $item, $post_type=null)
-{
+function print_custom_field_meta($fieldname, $item, $post_type=null) {
 	print call_user_func_array('get_custom_field_meta', func_get_args());
 }
 

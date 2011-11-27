@@ -126,7 +126,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_description">
 					
 			<label for="description" class="cctm_label cctm_textarea_label" id="cctm_label_description">Description</label>
-			<textarea name="description" class="cctm_textarea" id="description" rows="4" cols="60"><?php print htmlentities($data['def']['description']); ?></textarea>
+			<textarea name="description" class="cctm_textarea" id="description" rows="4" cols="60"><?php print htmlspecialchars($data['def']['description']); ?></textarea>
 		</div>
 		
 		<!--!Use Default Menu Icon -->
