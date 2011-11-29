@@ -2,9 +2,9 @@ function preview_def(filename){
 	jQuery.post(
 	    cctm.ajax_url,
 	    {
-	        action : 'preview_def',
-	        file: filename,
-	        preview_def_nonce : cctm.ajax_nonce
+	        "action" : 'preview_def',
+	        "file": filename,
+	        "preview_def_nonce" : cctm.ajax_nonce
 	    },
 	    function( response ) { 
 		    jQuery('#cctm_def_preview_target').html(response);

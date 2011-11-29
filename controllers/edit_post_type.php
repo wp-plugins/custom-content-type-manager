@@ -1,8 +1,7 @@
 <?php
-if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('administrator')) exit('Admins only.');
-//------------------------------------------------------------------------------
-/**
+/*------------------------------------------------------------------------------
+
+
 * Manager Page -- called by page_main_controller()
 * Edit an existing post type. 
 * @param string $post_type
@@ -20,7 +19,11 @@ if (!self::_is_existing_post_type($post_type, false ) ) {
 	self::format_errors();
 	return;
 }
-*/
+------------------------------------------------------------------------------*/
+
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
+require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
 
 // Variables for our template
 $data = array();
@@ -66,12 +69,13 @@ $d['msg']    = '';  // Any validation errors
 
 // Save data if it was properly submitted
 if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) ) {
-	$sanitized_vals = self::_sanitize_post_type_def($_POST);
 
-	$error_msg = self::_post_type_name_has_errors($sanitized_vals);
+	$sanitized_vals	= CCTM_PostTypeDef::sanitize_post_type_def($_POST);
+	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals);
+	
 	if ( empty($error_msg) ) {
 
-		// post_type name was changed
+		// post_type name was changed (!!!)
 		if ($sanitized_vals['post_type'] != $sanitized_vals['original_post_type_name']) {
 			// update the db
 			global $wpdb;
@@ -90,7 +94,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 			$oldfilename = $dir . '/single-'.$sanitized_vals['original_post_type_name'].'.php';
 			$newfilename = $dir . '/single-'.$sanitized_vals['post_type'].'.php';
 			if ( file_exists($oldfilename)) {
-				// May generate "Permission denied " warning, so we use @ to suppress it.
+				// May generate "Permission denied" warning, so we use @ to suppress it.
 				if (!@rename($oldfilename, $dir . '/single-'.$sanitized_vals['post_type'].'.php')) {
 					$warning = sprintf( __('You have changed the name of your post_type, so you must also rename your template file! Rename %s to %s.', CCTM_TXTDOMAIN)
 						, $oldfilename
@@ -101,7 +105,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 			}
 		}
 		
-		self::_save_post_type_settings($sanitized_vals);
+		CCTM_PostTypeDef::save_post_type_settings($sanitized_vals);
 		
 
 		$data['msg'] .= '<div class="updated"><p>'
@@ -123,6 +127,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 	}		
 }
 
+$data['icons'] = CCTM_PostTypeDef::get_post_type_icons();
 $data['content'] = CCTM::load_view('post_type.php', $d);
 print CCTM::load_view('templates/default.php', $data);
 

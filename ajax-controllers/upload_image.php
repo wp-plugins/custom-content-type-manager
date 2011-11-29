@@ -1,5 +1,7 @@
 <?php
 /*------------------------------------------------------------------------------
+Ugh. TODO: make an image uploader that does not suck. MVC
+
 Abstraction of the media-upload.php file.
 We have to abstract it so we can conditionally filter the contents WP's 
 media-upload thickbox.

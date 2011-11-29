@@ -1,11 +1,12 @@
 <?php
-if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 Returned on errors. Future: accept an argument identifying an error
 
 @param string $msg_id identifies the error.
 ------------------------------------------------------------------------------*/
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
+
 $msg = '';
 switch ($msg_id) {
 	case 'invalid_field_name':

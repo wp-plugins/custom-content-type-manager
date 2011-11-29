@@ -89,6 +89,7 @@ Major release!
 
 = 0.9.4.5 =
 
+* Now supports "repeatable" fields: you can select multiple images, media items, or relations.
 * Code-cleanup in preparation for supporting 3rd party custom fields and the merging of the Summarize Posts plugin.
 * Fixed bug with tags/categories and the "getarchives_where" filter.
 

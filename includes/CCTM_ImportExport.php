@@ -7,7 +7,7 @@
  */
 
 
-class ImportExport {
+class CCTM_ImportExport {
 
 	/**
 	 * API for dedicated CCTM pastebin user.
@@ -200,7 +200,7 @@ class ImportExport {
 			return true;
 		}
 		else {
-			CCTM::$errors['file_exists'] = sprintf(__('An error was encountered while trying to write to the definition library directory (%). Please check the permissions on your server.', CCTM_TXTDOMAIN)
+			CCTM::$errors['file_exists'] = sprintf(__('An error was encountered while trying to write to the definition library directory (%s). Please check the permissions on your server.', CCTM_TXTDOMAIN)
 				, "<code>$dir</code>");
 			return false;
 		}

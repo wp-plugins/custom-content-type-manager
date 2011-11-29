@@ -1,9 +1,11 @@
 <?php
+/*------------------------------------------------------------------------------
+Create a new post type.
+------------------------------------------------------------------------------*/
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
-/*------------------------------------------------------------------------------
-Create a new post type
-------------------------------------------------------------------------------*/
+require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
+
 $data=array();
 $data['page_title'] = __('Create Custom Content Type', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
@@ -26,11 +28,13 @@ $data['def'] = self::$default_post_type_def;
 
 // Save data if it was properly submitted
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
-	$sanitized_vals = self::_sanitize_post_type_def($_POST);
-	$error_msg = self::_post_type_name_has_errors($sanitized_vals, true);
+	$sanitized_vals	= CCTM_PostTypeDef::sanitize_post_type_def($_POST);
+	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals, true);
 
 	if ( empty($error_msg) ) {
-		self::_save_post_type_settings($sanitized_vals);
+	
+		CCTM_PostTypeDef::save_post_type_settings($sanitized_vals);
+		
 		$data['msg'] = CCTM::format_msg( sprintf(__('The content type %s has been created', CCTM_TXTDOMAIN), '<em>'.$sanitized_vals['post_type'].'</em>'));
 		self::set_flash($data['msg']);
 		include CCTM_PATH . '/controllers/list_post_types.php';
@@ -44,7 +48,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		$data['msg'] = CCTM::format_error_msg($error_msg);
 	}
 }
-
+$data['icons'] = CCTM_PostTypeDef::get_post_type_icons();
 $data['content'] = CCTM::load_view('post_type.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 /*EOF*/

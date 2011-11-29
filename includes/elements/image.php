@@ -45,6 +45,18 @@ class CCTM_image extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Thickbox support
+	 */
+	public function admin_init() {	
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
+		wp_register_script('cctm_relation', CCTM_URL.'/js/relation.js', array('jquery','media-upload','thickbox'));
+		wp_enqueue_script('cctm_relation');
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
 	* This function provides a name for this type of field. This should return plain
 	* text (no HTML). The returned value should be localized using the __() function.
 	* @return	string
@@ -223,7 +235,7 @@ class CCTM_image extends CCTM_FormElement
 			 	'</label>
 				<span class="cctm_description">'.__('Define which posts are available for selection by narrowing your search parameters.', CCTM_TXTDOMAIN).'</span>
 				<br/>
-				<span class="button" onclick="javascript:display_search_form(\''.$def['name'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
+				<span class="button" onclick="javascript:search_form_display(\''.$def['name'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
 				<div id="cctm_thickbox"></div>
 				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def,'search_parameters').'" />
 				<br/>

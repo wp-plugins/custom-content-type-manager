@@ -146,7 +146,7 @@ just want to make sure that the form is presented uncorrupted.
 			</div>
 		
 			<div style="width:700px; margin-top:10px;">
-				<?php print CCTM::_get_post_type_icons(); ?>
+				<?php print $data['icons']; ?>
 			</div>
 		</div>
 	</div>

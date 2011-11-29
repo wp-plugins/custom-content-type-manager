@@ -26,6 +26,9 @@ $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
 if (empty($def)) {
 	$type = $fieldtype;
 }
+else {
+	$type = CCTM::get_value($def,'type');
+}
 
 $search_parameters_str = '';
 if (isset($_POST['search_parameters'])) {
@@ -46,24 +49,24 @@ $Form = new GetPostsForm();
 $search_by = array();
 
 switch ($type) {
+	/**
+	 * WP doesn't support  taxonomies for media items, and the custom fields aren't useful: 
+	 * _wp_attached_file, _wp_attachment_metadata (serialized)
+	 */
 	case 'image':
 		$search_by[] = 'post_mime_type';
-		$search_by[] = 'taxonomy';
-		$search_by[] = 'taxonomy_term';
+		$search_by[] = 'search_term';
+		$search_by[] = 'search_columns';
+		$search_by[] = 'match_rule';
 		$search_by[] = 'post_parent';
-		$search_by[] = 'meta_key';
-		$search_by[] = 'meta_value';		
-		//$search_by[] = 'search_term';
-		//$search_by[] = 'search_columns';	
 		break;
 		
 	case 'media':
 		$search_by[] = 'post_mime_type';
-		$search_by[] = 'taxonomy';
-		$search_by[] = 'taxonomy_term';
+		$search_by[] = 'search_term';
+		$search_by[] = 'search_columns';
+		$search_by[] = 'match_rule';
 		$search_by[] = 'post_parent';
-		$search_by[] = 'meta_key';
-		$search_by[] = 'meta_value';
 		break;
 	
 	// Relation etc.	
@@ -86,7 +89,7 @@ $form_tpl = '
 <p>This form will determine which posts will be selectable when users create or edit a post that uses this field.</p>
 <form id="search_parameters_form" class="[+form_name+]">
 	[+content+]
-	<span class="button" onclick="javascript:save_search_parameters(\'search_parameters_form\');">Save</span>
+	<span class="button" onclick="javascript:search_parameters_save(\'search_parameters_form\');">Save</span>
 	<span class="button" onclick="javascript:tb_remove();">Cancel</span>
 </form>
 ';

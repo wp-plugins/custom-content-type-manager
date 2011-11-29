@@ -197,15 +197,18 @@ class GetPostsForm {
 		$this->set_css( $dir.'/css/searchform.css');
 
 		$this->no_results_msg = '<p>'. __('Sorry, no results matched your search criteria.', CCTM_TXTDOMAIN) . '</p>';
+
 		// some localization
-		$this->placeholders['search'] = __('Search', CCTM_TXTDOMAIN);
-		$this->placeholders['filter'] = __('Filter', CCTM_TXTDOMAIN);
-		$this->placeholders['label_class'] = 'input_title';
-		$this->placeholders['wrapper_class'] = 'input_wrapper';
-		$this->placeholders['description_class'] = 'input_description';
-		$this->placeholders['input_class'] = 'input_field';
-		$this->placeholders['show_all_dates'] = __('Show all dates', CCTM_TXTDOMAIN);
-		$this->placeholders['show_all_post_types'] = __('Show all post-types', CCTM_TXTDOMAIN);
+		$this->placeholders['search'] 				= __('Search', CCTM_TXTDOMAIN);
+		$this->placeholders['filter'] 				= __('Filter', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all'] 			= __('Show All', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all_dates'] 		= __('Show all dates', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all_post_types'] 	= __('Show all post-types', CCTM_TXTDOMAIN);
+
+		$this->placeholders['label_class'] 			= 'input_title';
+		$this->placeholders['wrapper_class'] 		= 'input_wrapper';
+		$this->placeholders['description_class'] 	= 'input_description';
+		$this->placeholders['input_class'] 			= 'input_field';
 
 		$this->valid_props = array_keys($this->Q->defaults);
 				
@@ -528,9 +531,9 @@ class GetPostsForm {
 		);
 		$ph['options'] = '';
 		foreach ($match_rules as $value => $label) {
-			$ph['value'] = $value;
-			$ph['label'] = $label;
-			$ph['options'] .=  self::parse($this->option_tpl, $ph);
+			$ph2['value'] = $value;
+			$ph2['label'] = $label;
+			$ph['options'] .=  self::parse($this->option_tpl, $ph2);
 		}
 		$this->register_global_placeholders($ph, 'match_rule');
 		return self::parse($this->select_wrapper_tpl, $ph);

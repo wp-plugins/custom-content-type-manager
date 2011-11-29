@@ -1,6 +1,4 @@
 <?php
-if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('administrator')) exit('Admins only.');
 //------------------------------------------------------------------------------
 /**
  * Manager Page -- called by page_main_controller()
@@ -13,6 +11,10 @@ if (!current_user_can('administrator')) exit('Admins only.');
  * @param string  $post_type
  * @package
  */
+ 
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
+require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
 
 
 $data     = array();
@@ -24,8 +26,8 @@ $data['msg']  = '';
 $data['post_type'] = $post_type;
 
 // Validate post type
-if (!self::_is_existing_post_type($post_type) ) {
-	self::_page_display_error();
+if (!CCTM_PostTypeDef::is_existing_post_type($post_type) ) {
+	include(CCTM_PATH.'/controllers/error.php');
 	return;
 }
 

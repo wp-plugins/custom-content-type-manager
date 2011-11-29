@@ -1,11 +1,12 @@
 <?php
-if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('administrator')) exit('Admins only.');
-//------------------------------------------------------------------------------
 /**
 * Duplicate an existing post type. 
 * @param string $post_type
 */
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
+require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
+
 // Variables for our template
 $data = array();
 $d = array();
@@ -60,8 +61,8 @@ $d['msg']    = '';  // Any validation errors
 
 // Save data if it was properly submitted
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
-	$sanitized_vals = self::_sanitize_post_type_def($_POST);
-	$error_msg = self::_post_type_name_has_errors($sanitized_vals, true);
+	$sanitized_vals = CCTM_PostTypeDef::sanitize_post_type_def($_POST);
+	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals, true);
 
 	if ( empty($error_msg) ) {
 		self::_save_post_type_settings($sanitized_vals);

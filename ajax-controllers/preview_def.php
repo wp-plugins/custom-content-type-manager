@@ -1,8 +1,8 @@
 <?php
-print '<pre>';
-print_r(get_declared_classes());
-print '</pre>';
-exit;
+//print '<pre>';
+//print_r(get_declared_classes());
+//print '</pre>';
+//exit;
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('manage_options')) exit('Admins only.');
 /*------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ the entire request: if it were handled by WP, headers() would be sent.
 //@require_once( realpath('../../../../').'/wp-load.php' );
 //include_once('../includes/constants.php');
 //include_once(CCTM_PATH.'/includes/CCTM.php');
-include_once(CCTM_PATH.'/includes/ImportExport.php');
+include_once(CCTM_PATH.'/includes/CCTM_ImportExport.php');
 
 // Make sure a file was specified
 $filename = CCTM::get_value($_REQUEST,'file');
@@ -25,7 +25,7 @@ if (empty($filename)) {
 }
 
 // Make sure the filename is legit
-if (!ImportExport::is_valid_basename($filename)) {
+if (!CCTM_ImportExport::is_valid_basename($filename)) {
 	CCTM::format_error_msg( __('Invalid filename: the definition filename should not contain spaces and should use an extension of <code>.cctm.json</code>.', CCTM_TXTDOMAIN));
 	exit;
 }
@@ -34,7 +34,7 @@ if (!ImportExport::is_valid_basename($filename)) {
 $upload_dir = wp_upload_dir();
 $dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::def_dir .'/';
 
-$data = ImportExport::load_def_file($dir.$filename);
+$data = CCTM_ImportExport::load_def_file($dir.$filename);
 
 // Bail if there were errors
 if (!empty(CCTM::$errors)) {

@@ -212,182 +212,9 @@ class CCTM {
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * This allows us to dynamically change the field classes in our forms.
-	 * Normally, the output is only 'cctm_text', but if there is an error
-	 * in self::$errors[$fieldname], then the class becomes
-	 * 'cctm_text cctm_error'.
-	 *
-	 * @param unknown $fieldname
-	 * @param unknown $fieldtype (optional)
-	 * @return unknown
-	 */
-	private static function _get_class($fieldname, $fieldtype='text') {
-		if ( isset(self::$errors[$fieldname]) ) {
-			return "cctm_$fieldtype cctm_error";
-		}
-		else {
-			return "cctm_$fieldtype";
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 *
-	 *
-	 * @return string representing all img tags for all post-type icons
-	 */
-	private static function _get_post_type_icons() {
-
-		$icons = array();
-		if ($handle = opendir(CCTM_PATH.'/images/icons/16x16')) {
-			while (false !== ($file = readdir($handle))) {
-				if ( !preg_match('/^\./', $file) ) {
-					$icons[] = $file;
-				}
-			}
-			closedir($handle);
-		}
-
-		$output = '';
-
-		foreach ( $icons as $img ) {
-			$output .= sprintf('
-				<span class="cctm-icon">
-					<img src="%s" title="%s" onclick="javascript:send_to_menu_icon(\'%s\');"/>
-				</span>'
-				, CCTM_URL.'/images/icons/32x32/'.$img
-				, $img
-				, CCTM_URL.'/images/icons/16x16/'.$img
-			);
-		}
-
-		return $output;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * SYNOPSIS: checks the custom content data array to see $post_type exists as one
-	 * of CCTM's defined post types (it doesn't check against post types defined
-	 * elsewhwere).
-	 *
-	 * See http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DataStructures
-	 *
-	 * Built-in post types 'page' and 'post' are considered valid (i.e. existing) by
-	 * default, even if they haven't been explicitly defined for use by this plugin
-	 * so long as the 2nd argument, $search_built_ins, is not overridden to false.
-	 * We do this because sometimes we need to consider posts and pages, and other times
-	 * not.
-	 *
-	 * $built_in_post_types array.
-	 *
-	 * @param string  $post_type        the lowercase database slug identifying a post type.
-	 * @param boolean $search_built_ins (optional) whether or not to search inside the
-	 * @return boolean indicating whether this is a valid post-type
-	 */
-	private static function _is_existing_post_type($post_type, $search_built_ins=true) {
-
-		// If there is no existing data, check against the built-ins
-		if ( empty(self::$data['post_type_defs']) && $search_built_ins ) {
-			return in_array($post_type, self::$built_in_post_types);
-		}
-		// If there's no existing $data and we omit the built-ins...
-		elseif ( empty(self::$data['post_type_defs']) && !$search_built_ins ) {
-			return false;
-		}
-		// Check to see if we've stored this $post_type before
-		elseif ( array_key_exists($post_type, self::$data['post_type_defs']) ) {
-			return true;
-		}
-		// Check the built-ins
-		elseif ( $search_built_ins && in_array($post_type, self::$built_in_post_types) ) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Check for errors: ensure that $post_type is a valid post_type name.
-	 *
-	 * @param mixed   $data describes a post type (this will be input to the register_post_type() function
-	 * @param boolean $new  (optional) whether or not the post_type is new (default=false)
-	 * @return mixed  returns null if there are no errors, otherwise returns a string describing an error.
-	 */
-	private static function _post_type_name_has_errors($data, $new=false) {
-
-		$errors = null;
-
-		$taxonomy_names_array = get_taxonomies('', 'names');
-
-		if ( empty($data['post_type']) ) {
-			return __('Name is required.', CCTM_TXTDOMAIN);
-		}
-		if ( empty($data['labels']['menu_name'])) // remember: the location in the $_POST array is different from the name of the option in the form-def.
-			{
-			return __('Menu Name is required.', CCTM_TXTDOMAIN);
-		}
-
-		foreach ( self::$reserved_prefixes as $rp ) {
-			if ( preg_match('/^'.preg_quote($rp).'.*/', $data['post_type']) ) {
-				return sprintf( __('The post type name cannot begin with %s because that is a reserved prefix.', CCTM_TXTDOMAIN)
-					, $rp);
-			}
-		}
-
-		$registered_post_types = get_post_types();
-		$cctm_post_types = array_keys(self::$data['post_type_defs']);
-		$other_post_types = array_diff($registered_post_types, $cctm_post_types);
-		$other_post_types = array_diff($other_post_types, self::$reserved_post_types);
-
-		// Is reserved name?
-		if ( in_array($data['post_type'], self::$reserved_post_types) ) {
-			$msg = __('Please choose another name.', CCTM_TXTDOMAIN );
-			$msg .= ' ';
-			$msg .= sprintf( __('%s is a reserved name.', CCTM_TXTDOMAIN )
-				, '<strong>'.$post_type.'</strong>' );
-			return $msg;
-		}
-		// Make sure the post-type name does not conflict with any registered taxonomies
-		elseif ( in_array( $data['post_type'], $taxonomy_names_array) ) {
-			$msg = __('Please choose another name.', CCTM_TXTDOMAIN );
-			$msg .= ' ';
-			$msg .= sprintf( __('%s is already in use as a registered taxonomy name.', CCTM_TXTDOMAIN)
-				, $post_type );
-			return $msg;
-		}
-		// If this is a new post_type or if the $post_type name has been changed,
-		// ensure that it is not going to overwrite an existing post type name.
-		elseif ( $new && is_array(self::$data['post_type_defs']) && in_array($data['post_type'], $cctm_post_types ) ) {
-			return sprintf( __('The name %s is already in use.', CCTM_TXTDOMAIN), htmlentities($data['post_type']) );
-		}
-		// Is the name taken by an existing post type registered by some other plugin?
-		elseif (in_array($data['post_type'], $other_post_types) ) {
-			return sprintf( __('The name %s has been registered by some other plugin.', CCTM_TXTDOMAIN), htmlentities($data['post_type']) );
-		}
-		// Make sure there's not an unsuspecting theme file named single-my_post_type.php
-		/*
-		$dir = get_stylesheet_directory();
-		if ( file_exists($dir . '/single-'.$data['post_type'].'.php')) {
-			return sprintf( __('There is a template file named single-%s.php in your theme directory (%s).', CCTM_TXTDOMAIN)
-				, htmlentities($data['post_type'])
-				, get_stylesheet_directory());
-		}
-*/
-
-		return; // no errors
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Prepare a post type definition for registration.  This gets run immediatlye before
-	 * the register_post_type() function is called.  It allows us to abstract the
-	 * stored definition from what gets passed to the WP function.
+	 * Prepare a post type definition for registration.  This gets run immediately 
+	 * before the register_post_type() function is called.  It allows us to abstract 
+	 * what WP gets from the stored definition a bit.
 	 *
 	 * @param mixed   the CCTM definition for a post type
 	 * @param unknown $def
@@ -412,7 +239,7 @@ class CCTM {
 			$def['exclude_from_search'] = false;
 		}
 
-		// retro-support... if public is checked, then the following options are inferred
+		// TODO: retro-support... if public is checked, then the following options are inferred
 		/*
 		if (isset($def['public']) && $def['public']) {
 			$def['publicly_queriable'] = true;
@@ -420,7 +247,8 @@ class CCTM {
 			$def['show_in_nav_menus'] = true;
 			$def['exclude_from_search'] = false;
 		}
-*/
+		*/
+
 		// Verbosely check to see if "public" is inferred
 		if (isset($def['publicly_queriable']) && $def['publicly_queriable']
 			&& isset($def['show_ui']) && $def['show_ui']
@@ -429,216 +257,14 @@ class CCTM {
 		) {
 			$def['public'] = true;
 		}
-		//die(print_r($def,true));
+
 		unset($def['custom_orderby']);
 
-		//  die(print_r($def,true));
 		return $def;
 	}
 
 
-	//------------------------------------------------------------------------------
-	/**
-	 * Every form element when creating a new post type must be filtered here.
-	 *
-	 * Problems with:
-	 *  hierarchical
-	 *  rewrite_with_front
-	 *
-	 * This is janky... sorta doesn't work how it's supposed when combined with _save_post_type_settings().
-	 *
-	 *
-	 * @param mixed   $raw unsanitized $_POST data
-	 * @return mixed filtered $_POST data (only white-listed are passed thru to output)
-	 */
-	private static function _sanitize_post_type_def($raw) {
-		$sanitized = array();
 
-		unset($raw['custom_content_type_mgr_create_new_content_type_nonce']);
-		unset($raw['custom_content_type_mgr_edit_content_type_nonce']);
-
-		$raw = CCTM::striptags_deep(($raw));
-
-		// WP always adds slashes: see http://kovshenin.com/archives/wordpress-and-magic-quotes/
-		$raw = CCTM::stripslashes_deep(($raw));
-
-
-		
-		// Handle unchecked checkboxes
-		if ( empty($raw['cctm_hierarchical_custom'])) {
-			$sanitized['cctm_hierarchical_custom'] = '';
-		}
-		if ( empty($raw['cctm_hierarchical_includes_drafts'])) {
-			$sanitized['cctm_hierarchical_includes_drafts'] = '';
-		}
-		if ( empty($raw['cctm_hierarchical_post_types'])) {
-			$sanitized['cctm_hierarchical_post_types'] = array();
-		}
-
-		// This will be empty if no "supports" items are checked.
-		if (!empty($raw['supports']) ) {
-			$sanitized['supports'] = $raw['supports'];
-			unset($raw['supports']);
-		}
-		else {
-			$sanitized['supports'] = array();
-		}
-
-		if (!empty($raw['taxonomies']) ) {
-			$sanitized['taxonomies'] = $raw['taxonomies'];
-		}
-		else {
-			// do this so this will take precedence when you merge the existing array with the new one in the _save_post_type_settings() function.
-			$sanitized['taxonomies'] = array();
-		}
-		// You gotta unset arrays if you want the foreach thing below to work.
-		unset($raw['taxonomies']);
-
-		// Temporary thing... ????
-		unset($sanitized['rewrite_slug']);
-
-		// The main event
-		// We grab everything except stuff that begins with '_', then override specific $keys as needed.
-		foreach ($raw as $key => $value ) {
-			if ( !preg_match('/^_.*/', $key) ) {
-				$sanitized[$key] = self::get_value($raw, $key);
-			}
-		}
-
-		// Specific overrides below:
-		$sanitized['description'] = strip_tags($raw['description']);
-		
-		// post_type is the only required field
-		$sanitized['post_type'] = self::get_value($raw, 'post_type');
-		$sanitized['post_type'] = strtolower($sanitized['post_type']);
-		$sanitized['post_type'] = preg_replace('/[^a-z0-9_\-]/', '_', $sanitized['post_type']);
-		$sanitized['post_type'] = substr($sanitized['post_type'], 0, 20);
-
-		// Our form passes integers and strings, but WP req's literal booleans,
-		// so we do some type-casting here to ensure literal booleans.
-		$sanitized['public']    = (bool) self::get_value($raw, 'public');
-		$sanitized['rewrite_with_front']     = (bool) self::get_value($raw, 'rewrite_with_front');
-		$sanitized['show_ui']     = (bool) self::get_value($raw, 'show_ui');
-		$sanitized['public']     = (bool) self::get_value($raw, 'public');
-		$sanitized['show_in_nav_menus']  = (bool) self::get_value($raw, 'show_in_nav_menus');
-		$sanitized['can_export']    = (bool) self::get_value($raw, 'can_export');
-		$sanitized['use_default_menu_icon'] = (bool) self::get_value($raw, 'use_default_menu_icon');
-		$sanitized['hierarchical']    = (bool) self::get_value($raw, 'hierarchical');
-		$sanitized['include_in_search']    = (bool) self::get_value($raw, 'include_in_search');
-		$sanitized['publicly_queryable']    = (bool) self::get_value($raw, 'publicly_queryable');
-		$sanitized['include_in_rss']    = (bool) self::get_value($raw, 'include_in_rss');
-
-		if ( empty($sanitized['has_archive']) ) {
-			$sanitized['has_archive'] = false;
-		}
-		else {
-			$sanitized['has_archive'] = true;
-		}
-
-		// *facepalm*... Special handling req'd here for menu_position because 0
-		// is handled differently than a literal null.
-		if ( (int) self::get_value($raw, 'menu_position') ) {
-			$sanitized['menu_position'] = (int) self::get_value($raw, 'menu_position', null);
-		}
-		else {
-			$sanitized['menu_position'] = null;
-		}
-		$sanitized['show_in_menu']    = self::get_value($raw, 'show_in_menu');
-
-		$sanitized['cctm_show_in_menu']    = self::get_value($raw, 'cctm_show_in_menu');
-
-
-		// menu_icon... the user will lose any custom Menu Icon URL if they save with this checked!
-		// TODO: let this value persist.
-		if ( $sanitized['use_default_menu_icon'] ) {
-			unset($sanitized['menu_icon']); // === null;
-		}
-
-		if (empty($sanitized['query_var'])) {
-			$sanitized['query_var'] = false;
-		}
-
-		// Cleaning up the labels
-		if ( empty($sanitized['label']) ) {
-			$sanitized['label'] = ucfirst($sanitized['post_type']);
-		}
-		if ( empty($sanitized['labels']['singular_name']) ) {
-			$sanitized['labels']['singular_name'] = ucfirst($sanitized['post_type']);
-		}
-		if ( empty($sanitized['labels']['add_new']) ) {
-			$sanitized['labels']['add_new'] = __('Add New');
-		}
-		if ( empty($sanitized['labels']['add_new_item']) ) {
-			$sanitized['labels']['add_new_item'] = __('Add New') . ' ' .ucfirst($sanitized['post_type']);
-		}
-		if ( empty($sanitized['labels']['edit_item']) ) {
-			$sanitized['labels']['edit_item'] = __('Edit'). ' ' .ucfirst($sanitized['post_type']);
-		}
-		if ( empty($sanitized['labels']['new_item']) ) {
-			$sanitized['labels']['new_item'] = __('New'). ' ' .ucfirst($sanitized['post_type']);
-		}
-		if ( empty($sanitized['labels']['view_item']) ) {
-			$sanitized['labels']['view_item'] = __('View'). ' ' .ucfirst($sanitized['post_type']);
-		}
-		if ( empty($sanitized['labels']['search_items']) ) {
-			$sanitized['labels']['search_items'] = __('Search'). ' ' .ucfirst($sanitized['labels']['menu_name']);
-		}
-		if ( empty($sanitized['labels']['not_found']) ) {
-			$sanitized['labels']['not_found'] = sprintf( __('No %s found', CCTM_TXTDOMAIN), strtolower($raw['labels']['menu_name']) );
-		}
-		if ( empty($sanitized['labels']['not_found_in_trash']) ) {
-			$sanitized['labels']['not_found_in_trash'] = sprintf( __('No %s found in trash', CCTM_TXTDOMAIN), strtolower($raw['labels']['menu_name']) );
-		}
-		if ( empty($sanitized['labels']['parent_item_colon']) ) {
-			$sanitized['labels']['parent_item_colon'] = __('Parent Page');
-		}
-
-
-		// Rewrites. TODO: make this work like the built-in post-type permalinks
-		switch ($sanitized['permalink_action']) {
-		case '/%postname%/':
-			$sanitized['rewrite'] = true;
-			break;
-		case 'Custom':
-			$sanitized['rewrite']['slug'] = $raw['rewrite_slug'];
-			$sanitized['rewrite']['with_front'] = (bool) $raw['rewrite_with_front'];
-			break;
-		case 'Off':
-		default:
-			$sanitized['rewrite'] = false;
-		}
-
-		return $sanitized;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * this saves a serialized data structure (arrays of arrays) to the db
-	 *
-	 * @return
-	 * @param mixed   $def associative array definition describing a single post-type.
-	 */
-	private static function _save_post_type_settings($def) {
-
-		$key = $def['post_type'];
-
-		unset(self::$data['post_type_defs'][$key]['original_post_type_name']);
-
-		// Update existing settings if this post-type has already been added
-		if ( isset(self::$data['post_type_defs'][$key]) ) {
-			self::$data['post_type_defs'][$key] = array_merge(self::$data['post_type_defs'][$key], $def);
-		}
-		// OR, create a new node in the data structure for our new post-type
-		else {
-			self::$data['post_type_defs'][$key] = $def;
-		}
-		if (self::$data['post_type_defs'][$key]['use_default_menu_icon']) {
-			unset(self::$data['post_type_defs'][$key]['menu_icon']);
-		}
-
-		update_option( self::db_key, self::$data );
-	}
 
 	//! Public Functions
 	//------------------------------------------------------------------------------
@@ -776,18 +402,8 @@ class CCTM {
 	 *
 	 */
 	public static function check_for_updates() {
-		// check to see if it's a new install and not an update
-		/*
-if ( empty(self::$data) ) {
-			self::$data['cctm_installation_timestamp'] = time();
-			update_option( self::db_key, self::$data );
-			return;
-		}
-*/
-		//  print self::get_stored_version();
-		//  print self::get_current_version();
-
-		// if it's not a new install, we check for updates
+		
+		// If it's not a new install, we check for updates
 		if ( version_compare( self::get_stored_version(), self::get_current_version(), '<' ) ) {
 			// set the flag
 			define('CCTM_UPDATE_MODE', 1);
@@ -818,6 +434,7 @@ if ( empty(self::$data) ) {
 		// If this is empty, then it is a first install, so we timestamp it
 		// and prep the data structure
 		if (empty(CCTM::$data)) {
+			// TODO: run tests
 			CCTM::$data['cctm_installation_timestamp'] = time();
 			CCTM::$data['cctm_version'] = CCTM::get_current_version();
 			CCTM::$data['export_info'] = array(
@@ -981,12 +598,9 @@ if ( empty(self::$data) ) {
 	/**
 	 * The static invocation of filtering an input through an Output Filter
 	 *
-	 * @param mixed   some kinda input
-	 * @param string  shortname of output filter
-	 * @param mixed   optional options
-	 * @param unknown $value
-	 * @param unknown $outputfilter
-	 * @param unknown $options      (optional)
+	 * @param mixed $value
+	 * @param string $outputfilter
+	 * @param mixed $options      (optional)
 	 * @return mixed dependent on output filter
 	 */
 	public static function filter($value, $outputfilter, $options=null) {
@@ -1651,14 +1265,20 @@ if ( empty(self::$data) ) {
 	 *  2. when creating/editing a field definition of the type indicated.
 	 * E.g.
 	 *  post-new.php
-	 *   post.php?post_type=page
+	 *  post-new.php?post_type=page
+	 * 	post.php?post=807
 	 *  admin.php?page=cctm_fields&a=create_custom_field
 	 *  admin.php?page=cctm_fields&a=edit_custom_field
 	 */
 	public static function initialize_custom_fields() {
 
+		// Look around/read variables to get our bearings
 		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
 		$page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
+		$fieldtype = self::get_value($_GET, 'type');
+		$fieldname = self::get_value($_GET, 'field');
+		$action = self::get_value($_GET, 'a');
+		
 		// Bail if we're not on the relevant pages
 		if (!in_array($page,array('post.php','post-new.php','admin.php'))) {
 			return;
@@ -1677,23 +1297,15 @@ if ( empty(self::$data) ) {
 			$post = get_post($post_id);
 			if (!empty($post)) {
 				$post_type = $post->post_type;
-			}		
+			}
+			
 		}
-		
-		if (empty($post_type)) {
-			return;
-		}
-		
-		$fieldtype = self::get_value($_GET, 'type');
-		$fieldname = self::get_value($_GET, 'field');
-		$action = self::get_value($_GET, 'a');
 
 		foreach ( $available_custom_field_files as $shortname => $file ) {
 			// Create/edit posts
 			if ( ($page == 'post.php') || ($page == 'post-new.php') ) {
 				if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
 					$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_fields', array() );
-//					die(print_r($custom_fields, true));
 					$field_types = array();
 					// We gotta convert the fieldname to fieldtype
 					foreach ($custom_fields as $cf) {

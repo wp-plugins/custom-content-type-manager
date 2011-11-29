@@ -33,7 +33,7 @@ $function_names_used = array('get_custom_field','get_custom_field_meta','get_cus
 	,'uninstall_cctm');
 $class_names_used = array('CCTM', 'ImportExport','StandardizedCustomFields'
 	,'CCTMtests','PostSelector','CCTM_FormElement','CCTM_Ajax', 'CCTM_Pagination'
-	,'GetPostsQuery','GetPostsForm');
+	,'GetPostsQuery','GetPostsForm', 'SummarizePosts', 'GetPostsQuery', 'GetPostsForm','SP_Post', 'CCTM_PostTypeDef', 'CCTM_ImportExport');
 	
 // Not class constants: constants declared via define():
 $constants_used = array('CCTM_PATH','CCTM_URL');

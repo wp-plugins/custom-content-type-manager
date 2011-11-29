@@ -43,6 +43,15 @@ class CCTM_dropdown extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Register the appropriatejs
+	 */
+	public function admin_init() {
+		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dopdown.js', array('jquery'));
+		wp_enqueue_script('cctm_dropdown');
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
 	* This function provides a name for this type of field. This should return plain
 	* text (no HTML). The returned value should be localized using the __() function.
 	* @return	string

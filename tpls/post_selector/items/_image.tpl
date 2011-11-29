@@ -1,5 +1,5 @@
 <tr>
-	<td><img class="cctm_tiny_thumb" src="[+thumbnail_src+]" height="30" width="30" alt="" onclick="javascript:select_post('[+field_id+]','[+ID+]','');"/></td> 
+	<td><img class="cctm_tiny_thumb" src="[+thumbnail_src+]" height="30" width="30" alt="" onclick="javascript:send_single_post_to_wp('[+ID+]');"/></td> 
 	<td>[+post_title+]</td>
 	<td>[+ID+]</td>
 	<td>[+post_date+]</td>

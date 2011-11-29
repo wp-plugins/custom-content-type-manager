@@ -32,7 +32,7 @@ if (!isset($data['help']) || empty($data['help'])) {
 ?>
 <div class="wrap">
 
-	<?php /*---------------- HEADER --------------------------- */ ?>
+	<?php /*---------------- HEADER and TABS --------------------------- */ ?>
 	<div id="cctm_header">
 		<img src="<?php print CCTM_URL; ?>/images/cctm-logo.jpg" alt="custom-content-type-manager-logo" width="88" height="55" style="float:left; margin-right:20px;"/>
 		<p class="cctm_header_text">Custom Content Type Manager <span class="cctm_version">[<?php print CCTM::get_current_version(); ?>]</span>
@@ -53,41 +53,40 @@ if (!isset($data['help']) || empty($data['help'])) {
 		<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm&a=info" class="cctm_tab<?php print $active['cctm_info']; ?>"><?php _e('Info', CCTM_TXTDOMAIN); ?></a>
 	</div>
 
-	<?php print $data['msg']; ?>
+	<?php 
+	/* Any Message (e.g. notices and errors) */
+	print $data['msg']; 
+	?>
 
 	<div id="cctm_nav"><?php print $data['menu']; ?></div>
 
-	<?php print $data['content']; ?>
+	<?php 
+	/* ----------------- MAIN PAGE CONTENT -------------------------------*/
+	print $data['content']; 
+	/* -------------------------------------------------------------------*/
+	?>
 
 	<?php /*--------------- FOOTER --------------------------*/ ?>
 	<div id="cctm_footer">
 		<p style="margin:10px;">
 			<span class="cctm-link">
-				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/heart.png" height="32" width="32" alt="heart"/>
-					<?php _e('Support this Plugin', CCTM_TXTDOMAIN); ?>
-				</a>
+				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/heart.png" height="32" width="32" alt="heart"/></a>
+				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><?php _e('Support this Plugin', CCTM_TXTDOMAIN); ?></a>
 			</span>
 			<span class="cctm-link">
-				<a href="?page=cctm&a=help">
-					<img class="cctm-img" src="<?php print CCTM_URL; ?>/images/help.png" height="32" width="32" alt="help"/>
-					<?php _e('Help', CCTM_TXTDOMAIN); ?>
-				</a>
+				<a href="?page=cctm&a=help"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/help.png" height="32" width="32" alt="help"/></a>
+				<a href="?page=cctm&a=help"><?php _e('Help', CCTM_TXTDOMAIN); ?></a>
 			</span>
 			<span class="cctm-link">
-				<a href="?page=cctm&a=bug_report">
-					<img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/>
-					<?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a></span>
+				<a href="?page=cctm&a=bug_report"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/></a>
+				<a href="?page=cctm&a=bug_report"><?php _e('Report a Bug', CCTM_TXTDOMAIN); ?></a></span>
 			<span class="cctm-link">
-				<a href="http://eepurl.com/dlfHg" target="_blank">
-					<img class="cctm-img" src="<?php print CCTM_URL; ?>/images/newspaper.png" height="32" width="32" alt="Newsletter"/>
-					<?php _e('Get eMail Updates', CCTM_TXTDOMAIN); ?>
-				</a>
+				<a href="http://eepurl.com/dlfHg" target="_blank"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/newspaper.png" height="32" width="32" alt="Newsletter"/></a>
+				<a href="http://eepurl.com/dlfHg" target="_blank"><?php _e('Get eMail Updates', CCTM_TXTDOMAIN); ?></a>
 			</span>
 			<span class="cctm-link">
-				<a href="http://wordpress.org/tags/custom-content-type-manager?forum_id=10" target="_blank">
-					<img class="cctm-img" src="<?php print CCTM_URL; ?>/images/forum.png" height="32" width="32" alt="forum"/>
-					<?php _e('Forum', CCTM_TXTDOMAIN); ?>
-				</a>
+				<a href="http://wordpress.org/tags/custom-content-type-manager?forum_id=10" target="_blank"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/forum.png" height="32" width="32" alt="forum"/></a>
+				<a href="http://wordpress.org/tags/custom-content-type-manager?forum_id=10" target="_blank"><?php _e('Forum', CCTM_TXTDOMAIN); ?></a>
 			</span>
 		</p>
 	</div>

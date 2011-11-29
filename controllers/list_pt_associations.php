@@ -1,7 +1,4 @@
 <?php
-if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('administrator')) exit('Admins only.');
-//------------------------------------------------------------------------------
 /**
  * Manage custom fields for the given $post_type.
  *
@@ -9,6 +6,10 @@ if (!current_user_can('administrator')) exit('Admins only.');
  * @param boolen  $reset     true only if we've just reset all custom fields
  * @package
  */
+
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('administrator')) exit('Admins only.');
+require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
 
 
 $data     = array();
@@ -20,7 +21,7 @@ $data['msg']  = CCTM::get_flash();
 
 
 // Validate post type
-if (!self::_is_existing_post_type($post_type) ) {
+if (!CCTM_PostTypeDef::is_existing_post_type($post_type) ) {
 	$msg_id = 'invalid_post_type';
 	include 'error.php';
 	return;

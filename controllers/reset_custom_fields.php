@@ -1,15 +1,16 @@
 <?php
+/*------------------------------------------------------------------------------
+Deletes all custom field definitions for a given post_type.
+@param string $post_type
+------------------------------------------------------------------------------*/
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
-//------------------------------------------------------------------------------
-/**
-Deletes all custom field definitions for a given post_type.
- * @param string $post_type
- */
+require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
+
 
 // We can't delete built-in post types
-if (!self::_is_existing_post_type($post_type, true ) ) {
-	self::_page_display_error();
+if (!CCTM_PostTypeDef::is_existing_post_type($post_type, true ) ) {
+	include(CCTM_PATH.'/controllers/error.php');
 	return;
 }
 

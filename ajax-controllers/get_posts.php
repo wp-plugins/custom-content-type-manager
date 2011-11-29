@@ -1,6 +1,6 @@
 <?php
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+if (!current_user_can('edit_posts')) die('You do not have permission to do that.');
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
@@ -64,6 +64,7 @@ if (isset($_POST['search_parameters'])) {
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
+// TODO: make this configurable
 $defaults = array();
 
 switch ($def['type']) {
@@ -191,12 +192,13 @@ else {
 
 // Placeholders for the wrapper tpl
 $hash = array();
-$hash['post_title'] = __('Title', CCTM_TXTDOMAIN);
-$hash['post_date'] = __('Date', CCTM_TXTDOMAIN);
-$hash['post_status'] = __('Status', CCTM_TXTDOMAIN);
-$hash['post_parent'] = __('Parent', CCTM_TXTDOMAIN);
-$hash['post_type'] = __('Post Type', CCTM_TXTDOMAIN);
-$hash['search'] = __('Filter', CCTM_TXTDOMAIN);
+$hash['post_title'] 	= __('Title', CCTM_TXTDOMAIN);
+$hash['post_date'] 		= __('Date', CCTM_TXTDOMAIN);
+$hash['post_status'] 	= __('Status', CCTM_TXTDOMAIN);
+$hash['post_parent'] 	= __('Parent', CCTM_TXTDOMAIN);
+$hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
+//$hash['filter'] 		= __('Filter', CCTM_TXTDOMAIN);
+//$hash['show_all']		= __('Show All', CCTM_TXTDOMAIN);
 
 $hash['content'] = '';
 // And the items
@@ -219,13 +221,13 @@ foreach ($results as $r){
 		$r['thumbnail_src'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
 	}
 	else {
-		list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true);
+		list($src, $w, $h) = wp_get_attachment_image_src($r['ID'], 'tiny_thumb', true);
 		$r['thumbnail_src'] = $src;
 	}
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
 
-
+// die(print_r($hash,true));
 $d['content'] .= CCTM::parse($wrapper_tpl,$hash);
 
 $d['content'] .= '<div class="cctm_pagination_links">'.$Q->get_pagination_links().'</div>';

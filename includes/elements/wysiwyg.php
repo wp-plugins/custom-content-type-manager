@@ -40,6 +40,15 @@ class CCTM_wysiwyg extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Register the appropriate js
+	 */
+	public function admin_init() {
+		wp_register_script('cctm_wysiwyg', CCTM_URL.'/js/wysiwyg.js', array('jquery'));
+		wp_enqueue_script('cctm_wysiwyg');
+	}
+
+	//------------------------------------------------------------------------------
+	/**
 	* This function provides a name for this type of field. This should return plain
 	* text (no HTML). The returned value should be localized using the __() function.
 	* @return	string
