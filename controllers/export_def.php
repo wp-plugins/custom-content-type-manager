@@ -35,7 +35,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		$save_me = json_encode($save_me);
 		
 		$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'
-			, sprintf(__('Your Custom Content Type definition %s should begin downloading shortly.  If there is a problem downloading, you can copy the text below and save it with a <code>.cctm.json</code> extension.', CCTM_TXTDOMAIN)
+			, sprintf(__('Your Custom Content Type definition %s should begin downloading shortly.  If there is a problem downloading, you can copy the text below into a text editor and save it with a <code>.cctm.json</code> extension.', CCTM_TXTDOMAIN)
 			, '<strong>'.CCTM_ImportExport::get_download_title($sanitized['title']).'</strong>')
 		);
 		$data['msg'] .= "<textarea rows='10' cols='100'>$save_me</textarea>";
@@ -45,7 +45,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		update_option(self::db_key, self::$data);
 
 		// Fire off a request to download the file:
-		$data['msg'] .= sprintf('<script type="text/javascript" src="%s"></script>', CCTM_URL.'/js/download_def.js');
+		//$data['msg'] .= sprintf('<script type="text/javascript" src="%s"></script>', CCTM_URL.'/js/download_def.js');
+		$data['msg'] .= sprintf('<script type="text/javascript">window.location="%s"</script>', CCTM_URL.'/ajax-controllers/download_def.php');
 	}
 	elseif($_POST['export_type'] == 'to_library') {
 		// Save the options: anything that's in the form is considered a valid "info" key.

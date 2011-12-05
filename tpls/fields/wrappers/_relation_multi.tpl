@@ -1,7 +1,7 @@
 <script>
-  jQuery(document).ready(function() {
-    jQuery('#cctm_instance_wrapper_[+id+]').sortable();
-  });
+	jQuery(document).ready(function() {
+		jQuery('#cctm_instance_wrapper_[+id+]').sortable();
+	});
 </script>
 
 <div class="cctm_element_wrapper" id="custom_field_[+id+]">

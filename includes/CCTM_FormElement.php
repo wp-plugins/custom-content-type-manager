@@ -52,7 +52,7 @@ abstract class CCTM_FormElement {
 	public $errors = array();
 
 	// tracks field instances
-	public $i = 0;
+	//public $i = 0;
 
 	/**
 	 * The $props array acts as a template which defines the properties for each instance of this type of field.
@@ -82,6 +82,7 @@ abstract class CCTM_FormElement {
 		'output_filter' => '',
 		'id_prefix'	=> '',
 		'css_prefix' => '',
+		'i' => 0,
 	);
 
 	/**

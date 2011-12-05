@@ -255,9 +255,16 @@ span.cctm_close_rollover {
 	width: 20px;
 	height: 20px;
 	text-decoration: none;
-	background: url("http://cctm:8888/sub/wp-content/plugins/custom-content-type-manager/images/close.png");	
+	background: url("../images/close.png");	
 	background-repeat:no-repeat;
 }
 span.cctm_close_rollover:hover {
 	background-position: -20px 0;
+}
+
+.cctm_sortable {
+	display: block;
+	padding-left: 10px;
+	vertical-align: middle;
+	background: url("../images/sortable.png") no-repeat left center;
 }

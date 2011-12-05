@@ -117,14 +117,14 @@ class CCTM_image extends CCTM_FormElement
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
-					, 'fields/elements/_relation.tpl'
+					, 'fields/elements/_relation_multi.tpl'
 				)
 			);
 	
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-					, 'fields/wrappers/_relation.tpl'
+					, 'fields/wrappers/_relation_multi.tpl'
 				)
 			);		
 

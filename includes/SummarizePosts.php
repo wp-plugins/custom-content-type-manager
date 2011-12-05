@@ -22,10 +22,8 @@ class SummarizePosts
 	const db_key			= 'summarize_posts';
 	const admin_menu_slug 	= 'summarize_posts';
 	
-	public static $default_options = array(
-		'group_concat_max_len' 	=> 4096,	// integer
-		'output_type'			=> ARRAY_A, // ARRAY_A, OBJECT
-	);
+	public static $group_concat_max_len	= 4096;  // bump this if you've got a lot of custom fields
+	
 	// The default options after being read from get_option()
 	public static $options; 
 	
@@ -82,7 +80,7 @@ class SummarizePosts
 			}
 			else
 			{
-				// throw an error
+				// TODO: throw an error
 			}
 		}
 		// Read from between [summarize-posts]in between[/summarize-posts]
@@ -133,6 +131,7 @@ class SummarizePosts
 	/**
 	* 
 	*/
+/*
 	public static function get_admin_page()
 	{
 		$msg = '';
@@ -162,6 +161,7 @@ class SummarizePosts
 		include('admin_page.php');
 	
 	}
+*/
 
 		
 	//------------------------------------------------------------------------------

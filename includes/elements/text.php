@@ -34,11 +34,21 @@ class CCTM_text extends CCTM_FormElement
 		'class' => '',
 		'extra'	=> '',
 		'default_value' => '',
+		'is_repeatable' => '',
 		'output_filter'	=> '',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
 	public $supported_output_filters = array('email');
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Multi/repeatable support
+	 */
+	public function admin_init() {	
+		wp_register_script('cctm_text', CCTM_URL.'/js/text.js');
+		wp_enqueue_script('cctm_text');
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -83,35 +93,64 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string	
 	 */
 	public function get_edit_field_instance($current_value) {
-		
-		$fieldtpl = CCTM::load_tpl(
-			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
-				, 'fields/elements/_default.tpl'
-			)
-		);
-		$wrappertpl = CCTM::load_tpl(
-			array('fields/wrappers/'.$this->name.'.tpl'
-				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_default.tpl'
-			)
-		);
 
 		// Populate the values (i.e. properties) of this field
 		$this->id 					= $this->get_field_id();
 		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
-		$this->value				= htmlspecialchars( html_entity_decode($current_value) );
-		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		
+//		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 		$this->instance_id			= $this->get_instance_id();
-		// $this->is_repeatable = 1; // testing
-				
+		
 		if ($this->is_repeatable) {
-			$this->add_button = '<span class="button" onclick="javascript:add_instance();">Click</span>'; 
-			$this->delete_button = '<span class="button" onclick="javascript:remove_html(\''.$this->get_instance_id().'\');">Delete</span>';
-			$this->i = $this->i + 1; // increment the instance 
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'_multi.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+			
+			$i = 0;
+			if ($current_value) {
+				$values = (array) json_decode($current_value);
+				//die(print_r($values,true));
+				$content = '';
+				foreach($values as $v) {
+					$props = $this->get_props();
+					$props['value']				= htmlspecialchars( html_entity_decode($v) );
+					$content .= CCTM::parse($fieldtpl, $props);
+					$i = $i + 1;
+				}
+				$this->i = $i;
+				$this->content = $content;
+			}			
+		}
+		// Normal text field
+		else {
+			$this->value				= htmlspecialchars( html_entity_decode($current_value) );
+			
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+			$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		}
 		
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		
+		$this->add_label = __('Add', CCTM_TXTDOMAIN);
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 
@@ -120,7 +159,11 @@ class CCTM_text extends CCTM_FormElement
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
-		//print_r($def); exit;
+		$is_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_checked = 'checked="checked"';
+		}
+
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -162,6 +205,15 @@ class CCTM_text extends CCTM_FormElement
 			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		// Is Repeatable?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="is_repeatable" class="'.$this->get_field_class('is_repeatable','checkbox').'" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
 
 		// Description	 

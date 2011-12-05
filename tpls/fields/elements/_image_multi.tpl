@@ -1,4 +1,4 @@
-<span class="cctm_relation cctm_sortable" id="cctm_post_[+name+][+post_id+]">
+<span class="cctm_image cctm_sortable" id="cctm_post_[+name+][+post_id+]">
 	
 	<input type="hidden" name="[+name_prefix+][+name+][]" id="[+id_prefix+][+id+][+post_id+]" value="[+post_id+]"/>
 	<table>

@@ -46,8 +46,8 @@ class CCTM_Ajax {
 	 * some kind of HTML tag, otherwise you can't use jQuery('#target_id').html(x)
 	 * to write it.
 	 *
-	 * @param unknown $name
-	 * @param unknown $args
+	 * @param string $name of the method being called
+	 * @param mixed $args sent to that method
 	 */
 	public function __call($name, $args) {
 

@@ -2,16 +2,19 @@
 	jQuery(document).ready(function() {
 		jQuery('#cctm_instance_wrapper_[+id+]').sortable();
 	});
+	// counts iterations of multiple instances
+	if (cctm["[+id+]"] == undefined) {
+		cctm["[+id+]"] = '[+i+]';
+	}
 </script>
 
 <div class="cctm_element_wrapper" id="custom_field_[+id+]">
 	<label for="[+id+]" class="cctm_label cctm_[+type+]" id="cctm_label_[+id+]">[+label+]</label><br/>
 	
-	<span class="button" onclick="javascript:thickbox_results('[+id+]');">[+button_label+]</span>
+	<span class="button" onclick="javascript:add_textfield_instance('[+id+]');">[+add_label+]</span>
 	<span class="button" onclick="javascript:remove_all_relations('[+id+]');">Remove All</span>
-	<span class="button" onclick="javascript:cctm_upload('[+id+]','append');">Upload</span>
-	<!-- target is where the thickbox will be generated -->
-	<div id="target_[+id+]"></div>
+
+	<br/><br/>
 	<div id="cctm_instance_wrapper_[+id+]">
 		[+content+]
 	</div> 

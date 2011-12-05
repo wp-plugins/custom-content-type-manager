@@ -635,12 +635,26 @@ class GetPostsQuery {
 			}
 		}
 
+		if ($arg == 'post_type') {
+			if (in_array($val, $this->omit_post_type)) {
+				
+				$new_omits = array();
+				foreach ($this->omit_post_type as $pt) {
+					if ($pt != $val) {
+						$new_omits[] = $pt;		
+					}
+				}
+//				die(print_r($new_omits, true));
+				$this->omit_post_type = $new_omits;
+			}
+		} 
+
 		// fill in default value if the parameter is empty
 		// $var = strtolower($var);
 		// We gotta handle cases where the user tries to set something to null that would break the query
 		// if it went to null.
 		// beware of empty arrays
-		if (empty($val)) { 
+		if (empty($val)) {
 			if (isset($this->defaults[$arg]) && !empty($this->defaults[$arg])) {
 					return $this->defaults[$arg];
 					$this->notices[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
@@ -1407,7 +1421,7 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Returns an HTML formatted version of filtered input arguments.
+	 * Returns an HTML formatted version of filtered input arguments for debugging.
 	 *
 	 * @return string
 	 */
@@ -1454,12 +1468,14 @@ class GetPostsQuery {
 		foreach ($this->args as $k => $v) {
 			// Only include info if it's not the default... save space and easier to read shortcodes
 			if (isset($this->defaults[$k]) && $this->defaults[$k] != $v ) { // && (!empty($this->defaults[$k]) && !empty($v))) {
+/*
 				if ($k == 'omit_post_type') {
 					print "Value: $k<br/>";
 					print 'default: '; print_r($this->defaults[$k]); print "<br/>";
 					print 'incoming: '; print_r($v);
 					exit;
 				}
+*/
 				if ( !empty($v) ) {
 					if ( is_array($v) ) {
 						$args[] = $k.'="'.implode(',', $v).'"';
@@ -1624,6 +1640,13 @@ class GetPostsQuery {
 			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
 		}
 		
+		// Bump the group_concat_max_len unless the user has selected to manually select it.
+		if ( !SummarizePosts::$manually_select_postmeta ) {
+			$query = $wpdb->prepare("SET SESSION group_concat_max_len=%d", SummarizePosts::$group_concat_max_len);
+			$wpdb->query($query);			
+			//TODO: run a simplified query... ugh... all the filters required would suck.
+		}
+			
 		// Execute the big old query.
 		$results = $wpdb->get_results( $this->_get_sql(), ARRAY_A );
 
@@ -1652,6 +1675,7 @@ class GetPostsQuery {
 					$r['metadata'] = preg_replace("/$caboose$/", '', $r['metadata'], -1, $count );
 					if (!$count) {
 						$this->errors[] = __('There was a problem accessing custom fields. Try increasing the <code>group_concat_max_len</code> setting.', CCTM_TXTDOMAIN);
+						$r = SummarizePosts::get_post_complete($r['ID']);
 					}
 					else {
 						$pairs = explode( self::comma_separator, $r['metadata'] );

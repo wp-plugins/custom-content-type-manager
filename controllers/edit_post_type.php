@@ -127,7 +127,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 	}		
 }
 
-$data['icons'] = CCTM_PostTypeDef::get_post_type_icons();
+$d['icons'] = CCTM_PostTypeDef::get_post_type_icons();
 $data['content'] = CCTM::load_view('post_type.php', $d);
 print CCTM::load_view('templates/default.php', $data);
 

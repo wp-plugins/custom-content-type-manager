@@ -41,7 +41,7 @@ class CCTM {
 	 * with menu items, so the parameter is listed here for easier editing.
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=203
 	 */
-	const menu_position = 71;
+	const menu_position = 73;
 
 	// Each class that extends either the CCTM_FormElement class or the
 	// the CCTMOutputFilter class must prefix this to its class name.
@@ -1556,12 +1556,9 @@ class CCTM {
 	/**
 	 * Load up a PHP file into a string via an include statement. MVC type usage here.
 	 *
-	 * @param string  filename (relative to the views/ directory)
-	 * @param array   (optional) associative array of data
-	 * @param string  (optional) pathname. Can be overridden.
-	 * @param unknown $filename
-	 * @param unknown $data     (optional)
-	 * @param unknown $path     (optional)
+	 * @param string  $filename (relative to the views/ directory)
+	 * @param array   $data (optional) associative array of data
+	 * @param string  $path (optional) pathname. Can be overridden for 3rd party fields
 	 * @return string the parsed contents of that file
 	 */
 	public static function load_view($filename, $data=array(), $path=null) {

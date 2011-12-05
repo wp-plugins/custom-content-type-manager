@@ -158,6 +158,7 @@ class CCTM_ImportExport {
 			header("Cache-Control: no-cache, must-revalidate");
 			header("Pragma: no-cache");
 			print $download;
+			exit;
 		}
 		else {
 			print __('There was a problem exporting your CCTM definition.', CCTM_TXTDOMAIN);
@@ -276,7 +277,7 @@ class CCTM_ImportExport {
 		$payload = array();
 		
 		// Grab the important stuff
-		$payload['export_info'] = $data['export_info'];
+		$payload['export_info'] = CCTM::get_value($data,'export_info');
 		$payload['post_type_defs'] = CCTM::get_value($data, 'post_type_defs', array() );
 		$payload['custom_field_defs'] = CCTM::get_value($data, 'custom_field_defs', array() );
 		
