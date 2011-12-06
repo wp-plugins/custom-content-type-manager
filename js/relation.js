@@ -1,23 +1,35 @@
 /*------------------------------------------------------------------------------
 The relation fields require a lot of Javascript to handle the Ajax functionality
 that goes into the Thickbox.
+
+Note that the cctm_upload function overrides WP's send_to_editor() function!!!
+
+The 'html' bit has something like this when you click "Insert into Post" 
+(but NOT if you click "Save all Changes"):
+
+<a href="http://cctm:8888/sub/?attachment_id=603" rel="attachment wp-att-603"><img src="http://cctm:8888/sub/wp-content/uploads/2011/11/Photo-on-2011-07-14-at-23.01-300x225.jpg" alt="" title="Photo on 2011-07-14 at 23.01" width="300" height="225" class="alignnone size-medium wp-image-603" /></a>
+
+When finished, the function redefines the send_to_editor() function back to what
+it was before (i.e. I copied the definition from wp-admin/js/media-upload.dev.js
+and I feed that back into the DOM).
 ------------------------------------------------------------------------------*/
 
 // Global storage for the fieldname we're uploading a file for.
 var cctm_fieldname;
 var append_or_replace = 'append';
 
+//------------------------------------------------------------------------------
+//! FUNCTIONS
+//------------------------------------------------------------------------------
 
 /*------------------------------------------------------------------------------
-Overrides the send_to_editor() function in the media-upload script
+This pops WP's media uploader
+http://www.webmaster-source.com/2010/01/08/using-the-wordpress-uploader-in-your-plugin-or-theme/
 
-The 'html' bit has something like this when you click "Insert into Post" 
-(but NOT if you click "Save all Changes"):
-
-<a href="http://cctm:8888/sub/?attachment_id=603" rel="attachment wp-att-603"><img src="http://cctm:8888/sub/wp-content/uploads/2011/11/Photo-on-2011-07-14-at-23.01-300x225.jpg" alt="" title="Photo on 2011-07-14 at 23.01" width="300" height="225" class="alignnone size-medium wp-image-603" /></a>
+TODO: Redo this to use our own uploader that doesn't suck.
 ------------------------------------------------------------------------------*/
-jQuery(document).ready(function() {
-	// Override WP's "Insert into Post" function: we want our own preview html for this.
+function cctm_upload(fieldname, upload_type) {
+	// Override the send_to_editor() function from wp-admin/js/media-upload.js
 	window.send_to_editor = function(html) {
 	
 		var attachment_id; 
@@ -50,19 +62,40 @@ jQuery(document).ready(function() {
 		);
 		
 		tb_remove();
+		
+		// Restore the function back to normal
+		window.send_to_editor = function(h) {
+			var ed;
+		
+			if ( typeof tinyMCE != 'undefined' && ( ed = tinyMCE.activeEditor ) && !ed.isHidden() ) {
+				// restore caret position on IE
+				if ( tinymce.isIE && ed.windowManager.insertimagebookmark )
+					ed.selection.moveToBookmark(ed.windowManager.insertimagebookmark);
+		
+				if ( h.indexOf('[caption') === 0 ) {
+					if ( ed.plugins.wpeditimage )
+						h = ed.plugins.wpeditimage._do_shcode(h);
+				} else if ( h.indexOf('[gallery') === 0 ) {
+					if ( ed.plugins.wpgallery )
+						h = ed.plugins.wpgallery._do_gallery(h);
+				} else if ( h.indexOf('[embed') === 0 ) {
+					if ( ed.plugins.wordpress )
+						h = ed.plugins.wordpress._setEmbed(h);
+				}
+		
+				ed.execCommand('mceInsertContent', false, h);
+		
+			} else if ( typeof edInsertContent == 'function' ) {
+				edInsertContent(edCanvas, h);
+			} else {
+				jQuery( edCanvas ).val( jQuery( edCanvas ).val() + h );
+			}
+		
+			tb_remove();
+		}
+		// end of function restoration
 	}
-});
-//------------------------------------------------------------------------------
-//! FUNCTIONS
-//------------------------------------------------------------------------------
 
-/*------------------------------------------------------------------------------
-This pops WP's media uploader
-http://www.webmaster-source.com/2010/01/08/using-the-wordpress-uploader-in-your-plugin-or-theme/
-
-TODO: Redo this to use our own uploader that doesn't suck.
-------------------------------------------------------------------------------*/
-function cctm_upload(fieldname, upload_type) {
 	cctm_fieldname = fieldname; // pass this to global scope
 	append_or_replace = upload_type; // pass this to global scope
 	
