@@ -80,7 +80,9 @@ abstract class CCTM_FormElement {
 		'extra' => '',
 		'default_value' => '',
 		'output_filter' => '',
-		'id_prefix'	=> '',
+		// set in the __construct
+		'id_prefix'	=> '', 
+		'name_prefix' => '',
 		'css_prefix' => '',
 		'i' => 0,
 	);
@@ -610,6 +612,8 @@ abstract class CCTM_FormElement {
 	 */
 	public function save_post_filter($posted_data, $field_name) {
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+
+		
 			if (is_array($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])) {
 				foreach($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ] as &$f) {
 					$f = stripslashes(trim($f));

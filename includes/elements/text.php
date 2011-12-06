@@ -95,7 +95,7 @@ class CCTM_text extends CCTM_FormElement
 	public function get_edit_field_instance($current_value) {
 
 		// Populate the values (i.e. properties) of this field
-		$this->id 					= $this->get_field_id();
+		//$this->id 					= $this->get_field_id();
 		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
 		
 //		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
