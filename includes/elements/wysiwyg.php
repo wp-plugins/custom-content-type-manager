@@ -37,14 +37,33 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
 	);
-
+	
+	/**
+	 * See http://dannyvankooten.com/450/tinymce-wysiwyg-editor-in-wordpress-plugin/
+	 */ 
+	public function load_tiny_mce() {
+		wp_tiny_mce( false );
+	}
+	
+	public function preload_dialogs() {
+		wp_quicktags();
+		//wp_preload_dialogs( array( 'plugins' => 'wpdialogs,wplink,wpfullscreen' ) );
+	}
 	//------------------------------------------------------------------------------
 	/**
-	 * Register the appropriate js
+	 * Register the appropriate js: array('jquery', 'editor', 'thickbox', 'media-upload')
+	 http://codex.wordpress.org/Function_Reference/wp_register_script
 	 */
 	public function admin_init() {
-		wp_register_script('cctm_wysiwyg', CCTM_URL.'/js/wysiwyg.js', array('jquery'));
+		wp_register_script('cctm_wysiwyg', CCTM_URL.'/js/wysiwyg.js', array('jquery', 'editor', 'thickbox', 'media-upload'));
 		wp_enqueue_script('cctm_wysiwyg');
+		wp_enqueue_style('thickbox');
+		
+		add_action('admin_head','wp_tiny_mce');
+		//add_action('admin_head',array($this,'load_tiny_mce'));
+		//add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 25 );
+		// wp_preload_dialogs( array( 'plugins' => 'wpdialogs,wplink,wpfullscreen' ) );
+		add_action( 'admin_print_footer_scripts', array($this,'preload_dialogs'));
 	}
 
 	//------------------------------------------------------------------------------
@@ -106,13 +125,13 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		);
 
 
-		$this->props['id'] 					= $this->get_field_id();
-		$this->props['class'] 				= $this->get_field_class($this->name, 'textarea', $this->class);
-		$this->props['value']				= $current_value;
-		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		$this->id 					= $this->get_field_id();
+		$this->class 				= $this->get_field_class($this->name, 'textarea', $this->class);
+		$this->value				= $current_value;
+		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 				
-		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		return CCTM::parse($wrappertpl, $this->props);
+		$this->content = CCTM::parse($fieldtpl, $this->get_props() );
+		return CCTM::parse($wrappertpl, $this->get_props());
 				
 		// print "Here------->".$current_value; exit;
 		// See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138

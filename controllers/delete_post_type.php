@@ -5,6 +5,8 @@ if (!current_user_can('administrator')) exit('Admins only.');
 * Confirm Delete/Deletes a custom post type definition. 
 * @param string $post_type
 ------------------------------------------------------------------------------*/
+require_once(CCTM_PATH .'/includes/CCTM_PostTypeDef.php');
+
 
 $data 				= array();
 $data['page_title']	= sprintf( __('Delete Content Type: %s', CCTM_TXTDOMAIN), $post_type );
@@ -17,7 +19,7 @@ $data['submit']   = __('Delete', CCTM_TXTDOMAIN);
 $data['fields']   = '';
 
 // We can't delete built-in post types
-if (!self::_is_existing_post_type($post_type, false ) ) {
+if (!CCTM_PostTypeDef::is_existing_post_type($post_type, false ) ) {
 	include(CCTM_PATH.'/controllers/error.php');
 	return;
 }

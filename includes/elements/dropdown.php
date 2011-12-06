@@ -46,7 +46,7 @@ class CCTM_dropdown extends CCTM_FormElement
 	 * Register the appropriatejs
 	 */
 	public function admin_init() {
-		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dopdown.js', array('jquery'));
+		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
 		wp_enqueue_script('cctm_dropdown');
 	}
 	

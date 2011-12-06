@@ -1257,7 +1257,7 @@ class CCTM {
 	/**
 	 * Each custom field can optionally do stuff during the admin_init event -- this
 	 * was designed so custom fields could include their own JS & CSS, but it could
-	 * be used for other purposes I suppose (?).
+	 * be used for other purposes I suppose, e.g. registering other actions/filters.
 	 *
 	 * Custom field classes will be included and initialized only in the following
 	 * two cases:
@@ -1301,40 +1301,42 @@ class CCTM {
 			
 		}
 
-		foreach ( $available_custom_field_files as $shortname => $file ) {
-			// Create/edit posts
-			if ( ($page == 'post.php') || ($page == 'post-new.php') ) {
-				if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
-					$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_fields', array() );
-					$field_types = array();
-					// We gotta convert the fieldname to fieldtype
-					foreach ($custom_fields as $cf) {
-						$fieldtype = self::get_value(self::$data['custom_field_defs'][$cf], 'type');
-						if (!empty($fieldtype)) {
-							$field_types[] = $fieldtype;
-						}
+		//foreach ( $available_custom_field_files as $shortname => $file ) {
+		
+		// Here's where we will load up all the field-types that are active on this particular post or page.
+		$field_types = array();
+		
+		// Create/edit posts
+		if ( ($page == 'post.php') || ($page == 'post-new.php') ) {
+			if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
+				$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_fields', array() );
+				
+				// We gotta convert the fieldname to fieldtype
+				foreach ($custom_fields as $cf) {
+					if (!isset(self::$data['custom_field_defs'][$cf])) {
+						// unset this? 
+						continue; // we shouldn't get here, but just in case...
 					}
-
-					if (!in_array($shortname, $field_types)) {
-						continue;
+					// Get an array of field-types for this 
+					$fieldtype = self::get_value(self::$data['custom_field_defs'][$cf], 'type');
+					if (!empty($fieldtype)) {
+						$field_types[] = $fieldtype;
 					}
 				}
 			}
-			// Create custom field definitions
-			elseif ( $page == 'admin.php' && $action == 'create_custom_field') {
-				if ($shortname != $fieldtype) {
-					continue;
-				}
-			}
-			// Edit custom field definitions (the name is specified, not the type)
-			elseif ( $page == 'admin.php' && $action == 'edit_custom_field' && isset(self::$data['custom_field_defs'][$fieldname])) {
-				$fieldtype = self::get_value(self::$data['custom_field_defs'][$fieldname], 'type');
-				if ($shortname != $fieldtype) {
-					continue;
-				}
-			}
+		}
+		// Create custom field definitions
+		elseif ( $page == 'admin.php' && $action == 'create_custom_field') {
+			$field_types[] = $fieldtype;
+		}
+		// Edit custom field definitions (the name is specified, not the type)
+		elseif ( $page == 'admin.php' && $action == 'edit_custom_field' && isset(self::$data['custom_field_defs'][$fieldname])) {
+			$fieldtype = self::get_value(self::$data['custom_field_defs'][$fieldname], 'type');
+			$field_types[] = $fieldtype;
+		}
 
-			// We only get here if we survived the gauntlet above
+		// We only get here if we survived the gauntlet above
+		foreach ($field_types as $shortname) {
 			if (self::include_form_element_class($shortname)) {
 				// the filenames/classnames are validated in the get_available_custom_field_types() function
 				$classname = self::classname_prefix . $shortname;
@@ -1342,6 +1344,7 @@ class CCTM {
 				$Obj->admin_init();
 			}
 		}
+		//}
 
 		if (!empty(CCTM::$errors)) {
 			self::print_notices();

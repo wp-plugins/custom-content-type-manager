@@ -8,10 +8,6 @@ if ( ! defined('WP_CONTENT_DIR')) exit('No direct script access allowed');
 */
 
 /*
-I manually encoded the characters to Special HTML Characters, and created a field containing those characters. Next I headed to /includes/elements/multiselect.php and on line 145 and changed htmlspecialchars($opt) to htmlspecialchars_decode($opt). On my template file I uncluded the field with the following code: $g = get_custom_field('genre', ', '); echo htmlspecialchars_decode($g); and it worked.
-
-I know it's not a very good idea to encode to HTML Characters, but it's the only way to avoid problems with UTF-8 encoding. I believe it's possible to encode the field characters to HTML Characters before they go into database (though I couldn't find where it's done). The problem lies in including the field on the template file, because  get/print_custom_field is not a part of the plugin, but I'm sure it's possible to work this around.
-
 Run tests only upon activation
 http://codex.wordpress.org/Function_Reference/register_activation_hook
 */
@@ -45,7 +41,8 @@ if ( empty(CCTM::$errors) )
 {
 	// Load up the CCTM data from wp_options, populates CCTM::$data
 	CCTM::load_data();
-
+	//print_r(CCTM::$data); exit;
+	
 	// Run any updates for this version.
 	add_action('init', 'CCTM::check_for_updates', 0 );	
 	
@@ -87,8 +84,6 @@ if ( empty(CCTM::$errors) )
 	// Forces front-end searches to return results for all registered post_types
 	add_filter('pre_get_posts','CCTM::search_filter');
 	
-
-	
 	
 	// Modifies the "Right Now" widget
 	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');
@@ -96,17 +91,5 @@ if ( empty(CCTM::$errors) )
 	// Handle Ajax Requests
 	add_action('wp_ajax_get_search_form', 'CCTM::get_search_form');
 }
-
-//media_upload_form();
-/*
-function my_media_upload_tabs($tabs) {
-	$tabs = array(
-		'type' => __('From Computer'), // handler action suffix => tab text
-	);
-	return array();
-	return $tabs;
-}
-add_filter('media_upload_tabs', 'my_media_upload_tabs');
-*/
 
 /*EOF*/

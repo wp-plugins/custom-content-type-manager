@@ -1252,6 +1252,47 @@ class GetPostsForm {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * SYNOPSIS: a simple parsing function for basic templating.
+	 *
+	 * @param boolean if true, will not remove unused [+placeholders+]
+	 *
+	 * with the values and the string will be returned.
+	 * @param string  $tpl:                         a string containing [+placeholders+]
+	 * @param array   $hash:                        an associative array('key' => 'value');
+	 * @param boolean $preserve_unused_placeholders (optional)
+	 * @return string placeholders corresponding to the keys of the hash will be replaced
+	 */
+	public static function parse($tpl, $hash, $preserve_unused_placeholders=false) {
+
+		foreach ($hash as $key => $value) {
+			if ( !is_array($value) ) {
+				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+			}
+		}
+
+		// Remove any unparsed [+placeholders+]
+		if (!$preserve_unused_placeholders) {
+			$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
+		}
+		return $tpl;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This assists us in making custom formatting templates as flexible as possible.
+	 *
+	 * @return none this populates keys in $this->placeholders
+	 * @param array   $array     contains key/value pairs corresponding to placeholder => replacement-values
+	 * @param string  $fieldname is the name of the field for which these placeholders are being generated.
+	 */
+	public function register_global_placeholders($array, $fieldname) {
+		foreach ($array as $key => $value) {
+			$ph = $fieldname.'.'.$key;
+			$this->placeholders[$ph] = $value;
+		}
+	}
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -1274,22 +1315,6 @@ class GetPostsForm {
 		}
 		else {
 			$this->css = $css;
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This assists us in making custom formatting templates as flexible as possible.
-	 *
-	 * @return none this populates keys in $this->placeholders
-	 * @param array   $array     contains key/value pairs corresponding to placeholder => replacement-values
-	 * @param string  $fieldname is the name of the field for which these placeholders are being generated.
-	 */
-	public function register_global_placeholders($array, $fieldname) {
-		foreach ($array as $key => $value) {
-			$ph = $fieldname.'.'.$key;
-			$this->placeholders[$ph] = $value;
 		}
 	}
 
@@ -1382,35 +1407,6 @@ class GetPostsForm {
 		
 		$this->form_tpl = $tpl;
 	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	 * SYNOPSIS: a simple parsing function for basic templating.
-	 *
-	 * @param boolean if true, will not remove unused [+placeholders+]
-	 *
-	 * with the values and the string will be returned.
-	 * @param string  $tpl:                         a string containing [+placeholders+]
-	 * @param array   $hash:                        an associative array('key' => 'value');
-	 * @param boolean $preserve_unused_placeholders (optional)
-	 * @return string placeholders corresponding to the keys of the hash will be replaced
-	 */
-	public static function parse($tpl, $hash, $preserve_unused_placeholders=false) {
-
-		foreach ($hash as $key => $value) {
-			if ( !is_array($value) ) {
-				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-			}
-		}
-
-		// Remove any unparsed [+placeholders+]
-		if (!$preserve_unused_placeholders) {
-			$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
-		}
-		return $tpl;
-	}
-
-
 }
 
 

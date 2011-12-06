@@ -89,7 +89,7 @@ $data['name'] = $FieldObj->get_name();
 $data['description'] = htmlentities($FieldObj->get_description());
 
 $data['fields'] = $FieldObj->get_edit_field_definition($field_data);
-$data['associations'] = '';
+$data['associations'] = ''; // TODO
 
 $data['content'] = CCTM::load_view('custom_field.php', $data);
 print CCTM::load_view('templates/default.php', $data);

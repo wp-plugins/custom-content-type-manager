@@ -137,33 +137,28 @@ architectural headaches).
 
 At the end of this, I want a post object that can work like this:
 
-print $post->post_title;
-print $post->my_custom_field; // no $post->my_custom_fields[0];
+print $post['post_title'];
+print $post['my_custom_field']; // not $post['my_custom_fields'][0];
 
 and if the custom field *is* a list of items, then attach it as such.
 @param	integer	$id is valid ID of a post (regardless of post_type).
-@return	object	post object with all attributes, including custom fields.
+@return	array	associative array of post with all attributes, including custom fields.
 */
 function get_post_complete($id) {
-	$complete_post = get_post($id, OBJECT);
-	if ( empty($complete_post) )
-	{
+	$complete_post = get_post($id, ARRAY_A);
+	if ( empty($complete_post) ) {
 		return array();
 	}
 	$custom_fields = get_post_custom($id);
-	if (empty($custom_fields))
-	{
+	if (empty($custom_fields)) {
 		return $complete_post;
 	}
-	foreach ( $custom_fields as $fieldname => $value )
-	{
-		if ( count($value) == 1 )
-		{
-			$complete_post->$fieldname = $value[0];
+	foreach ( $custom_fields as $fieldname => $value ) {
+		if ( count($value) == 1 ) {
+			$complete_post[$fieldname] = $value[0];
 		}
-		else
-		{
-			$complete_post->$fieldname = $value[0];		
+		else {
+			$complete_post[$fieldname] = $value[0];		
 		}
 	}
 	

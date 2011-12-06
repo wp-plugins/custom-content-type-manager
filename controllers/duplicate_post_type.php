@@ -30,12 +30,13 @@ if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
 	// except for this one
 	$d['def']['labels']['menu_name'] = $menu_name;
 	
+	// print_r($d); exit;
+	
 }
-
 // Oops... bail.
 else {
 	$data['msg'] = sprintf('<div class="error"><p>%s</p></div>', __('Unrecognized post_type.', CCTM_TXTDOMAIN));
-	$data['page_title']  = __('Unrecognized Content type');
+	$data['page_title']  = __('Unrecognized post-type', CCTM_TXTDOMAIN);
 	$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
 	$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm" title="%s" class="button">%s</a>', __('Back'), __('Back'));
 	$data['content'] = '';
@@ -60,12 +61,13 @@ $d['msg']    = '';  // Any validation errors
 
 
 // Save data if it was properly submitted
-if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
+if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) ) {
 	$sanitized_vals = CCTM_PostTypeDef::sanitize_post_type_def($_POST);
+	$sanitized_vals['custom_fields'] = $d['def']['custom_fields'];
 	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals, true);
 
 	if ( empty($error_msg) ) {
-		self::_save_post_type_settings($sanitized_vals);
+		CCTM_PostTypeDef::save_post_type_settings($sanitized_vals);
 		$data['msg'] = '
 		<div class="updated">
 			<p>'
@@ -85,6 +87,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	}
 }
 
+$d['icons'] = CCTM_PostTypeDef::get_post_type_icons();
 $data['content'] = CCTM::load_view('post_type.php', $d);
 print CCTM::load_view('templates/default.php', $data);
 /*EOF*/

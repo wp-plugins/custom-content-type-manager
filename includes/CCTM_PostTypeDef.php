@@ -163,7 +163,7 @@ class CCTM_PostTypeDef {
 	 *  hierarchical
 	 *  rewrite_with_front
 	 *
-	 * This is janky... sorta doesn't work how it's supposed when combined with _save_post_type_settings().
+	 * This is janky... sorta doesn't work how it's supposed when combined with save_post_type_settings().
 	 *
 	 *
 	 * @param mixed   $raw unsanitized $_POST data
@@ -206,7 +206,7 @@ class CCTM_PostTypeDef {
 			$sanitized['taxonomies'] = $raw['taxonomies'];
 		}
 		else {
-			// do this so this will take precedence when you merge the existing array with the new one in the _save_post_type_settings() function.
+			// do this so this will take precedence when you merge the existing array with the new one in the save_post_type_settings() function.
 			$sanitized['taxonomies'] = array();
 		}
 		// You gotta unset arrays if you want the foreach thing below to work.
