@@ -365,8 +365,8 @@ class CCTM {
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
 	 * Solution from Squirrelmail, see http://pa2.php.net/manual/en/function.utf8-decode.php
 	 *
-	 * @param unknown $string
-	 * @return unknown
+	 * @param string $string
+	 * @return string
 	 */
 	public static function charset_decode_utf_8($string) {
 		$string = htmlspecialchars($string); // htmlentities will NOT work here.

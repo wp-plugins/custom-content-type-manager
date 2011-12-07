@@ -87,9 +87,15 @@ class CCTM_date extends CCTM_FormElement
 	* Optionally evals the default value
 	*/
 	public function get_create_field_instance() {
-		if( isset($this->props['evaluate_default_value']) && $this->props['evaluate_default_value'] ) {			
+	
+		if($this->evaluate_default_value ) {			
 			$default_value = $this->default_value;
-			$this->default_value = eval("return $default_value;"); 
+			$this->default_value = eval("return $default_value;");
+						
+		}
+
+		if($this->is_repeatable) {			
+			$this->default_value = json_encode(array($this->default_value));
 		}
 		
 		return $this->get_edit_field_instance($this->default_value); 
@@ -103,26 +109,61 @@ class CCTM_date extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
+	
+		$this->id 					= $this->name; 
 
-		$fieldtpl = CCTM::load_tpl(
-			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
-				, 'fields/elements/_default.tpl'
-			)
-		);
+		$fieldtpl = '';
+		$wrappertpl = '';
 		
-		$wrappertpl = CCTM::load_tpl(
-			array('fields/wrappers/'.$this->name.'.tpl'
-				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_default.tpl'
-			)
-		);
+		// Multi-version of the field
+		if ($this->is_repeatable) {
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'_multi.tpl'
+				)
+			);
+			
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_text_multi.tpl'
+				)
+			);
+			
+			$this->i = 0;
+			$values = (array) json_decode($current_value);
+			//die(print_r($values,true));
+			$this->content = '';
+			foreach($values as $v) {
+				$this->value	= htmlspecialchars( html_entity_decode($v) );
+				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->i 		= $this->i + 1;
+			}
+		
+		}
+		// Singular
+		else {				
 
-		// Populate the values (i.e. properties) of this field
-		$this->id 		= $this->name;
-		$this->value	= htmlspecialchars( html_entity_decode($current_value) );
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
 
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			$this->value	= htmlspecialchars( html_entity_decode($current_value) );
+			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		}
+		
+	
+		$this->add_label = __('Add', CCTM_TXTDOMAIN);
 		return CCTM::parse($wrappertpl, $this->get_props());		
 	}
 
@@ -132,9 +173,15 @@ class CCTM_date extends CCTM_FormElement
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
+
 		$is_checked = '';
 		if (isset($def['evaluate_default_value'])) {
 			$is_checked = 'checked="checked"';
+		}
+		
+		$is_repeatable_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_repeatable_checked = 'checked="checked"';
 		}
 		
 		// Option - select
@@ -178,7 +225,7 @@ class CCTM_date extends CCTM_FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -186,7 +233,7 @@ class CCTM_date extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. htmlspecialchars($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -196,7 +243,7 @@ class CCTM_date extends CCTM_FormElement
 					. __('Use PHP eval to calculate the default value? (Omit the php tags, e.g. <code>date(\'Y-m-d\')</code>).', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
-				 <input type="checkbox" name="evaluate_default_value" class="'.$this->get_field_class('evaluate_default_value','checkbox').'" id="evaluate_default_value" value="1" '. $is_checked.'/> '
+				 <input type="checkbox" name="evaluate_default_value" class="cctm_checkbox" id="evaluate_default_value" value="1" '. $is_checked.'/> '
 				 	.$this->descriptions['evaluate_default_value'].'
 			 	</div>';
 
@@ -205,8 +252,8 @@ class CCTM_date extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
-			 			.htmlentities($def['extra']).'"/>
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
+			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
@@ -229,16 +276,25 @@ class CCTM_date extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
+			 	</div>';
+			 	
+		// Is Repeatable?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_repeatable_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
 
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
 			 		.htmlspecialchars($def['description'])
 			 	.'</textarea>
 			 	' . $this->get_translation('description').'

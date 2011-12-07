@@ -251,13 +251,14 @@ span.cctm_close_rollover {
 	margin:0px;
 	cursor: pointer;
 	display: inline-block;
-	vertical-align:middle;
+	vertical-align:top;
 	width: 20px;
 	height: 20px;
 	text-decoration: none;
 	background: url("../images/close.png");	
 	background-repeat:no-repeat;
 }
+
 span.cctm_close_rollover:hover {
 	background-position: -20px 0;
 }

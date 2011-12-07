@@ -127,8 +127,8 @@ class CCTM_checkbox extends CCTM_FormElement
 		//$this->class 				= $this->get_field_class($this->name, 'checkbox', $this->class);
 		$this->value				= htmlspecialchars($this->checked_value);
 		
-		$this->content = CCTM::parse($fieldtpl, $this->props);
-		return CCTM::parse($wrappertpl, $this->props);
+		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		return CCTM::parse($wrappertpl, $this->get_props());
 		
 	}
 
@@ -155,7 +155,7 @@ class CCTM_checkbox extends CCTM_FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 
@@ -164,7 +164,7 @@ class CCTM_checkbox extends CCTM_FormElement
 				 <label for="checked_value" class="cctm_label cctm_text_label" id="checked_value_label">'
 					. __('Value when checked', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="checked_value" size="8" class="'.$this->get_field_class('checked_value','text').'" id="checked_value" value="'.htmlspecialchars($def['checked_value']) .'"/>'
+				 <input type="text" name="checked_value" size="8" class="cctm_text" id="checked_value" value="'.htmlspecialchars($def['checked_value']) .'"/>'
 				 . $this->get_translation('checked_value') .'
 			 	</div>';
 			 	
@@ -173,7 +173,7 @@ class CCTM_checkbox extends CCTM_FormElement
 				 <label for="unchecked_value" class="cctm_label cctm_text_label" id="unchecked_value_label">'
 					. __('Value when Unchecked', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="unchecked_value" size="8" class="'.$this->get_field_class('unchecked_value','text').'" id="unchecked_value" value="'.htmlspecialchars($def['unchecked_value']) .'"/>'
+				 <input type="text" name="unchecked_value" size="8" class="cctm_text" id="unchecked_value" value="'.htmlspecialchars($def['unchecked_value']) .'"/>'
 				 . $this->get_translation('unchecked_value') .'
 			 	</div>';
 		// Is Checked by Default?
@@ -182,13 +182,13 @@ class CCTM_checkbox extends CCTM_FormElement
 					. __('Checked by default?', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
-				 <input type="checkbox" name="checked_by_default" class="'.$this->get_field_class('checked_by_default','checkbox').'" id="checked_by_default" value="1" '. $is_checked.'/> <span>'.$this->descriptions['checked_by_default'].'</span>
+				 <input type="checkbox" name="checked_by_default" class="cctm_checkbox" id="checked_by_default" value="1" '. $is_checked.'/> <span>'.$this->descriptions['checked_by_default'].'</span>
 			 	</div>';
 		// Extra
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
 			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
@@ -197,7 +197,7 @@ class CCTM_checkbox extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
@@ -206,7 +206,7 @@ class CCTM_checkbox extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
 			 		. htmlspecialchars($def['description'])
 			 	.'</textarea>
 			 	' . $this->get_translation('description').'

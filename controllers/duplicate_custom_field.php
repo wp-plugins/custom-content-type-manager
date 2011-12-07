@@ -83,7 +83,7 @@ $data['icon'] = sprintf('<img src="%s" class="cctm-field-icon" id="cctm-field-ic
 				, $FieldObj->get_icon(), $field_type);
 $data['url'] = $FieldObj->get_url();
 $data['name'] = $FieldObj->get_name();
-$data['description'] = htmlentities($FieldObj->get_description());
+$data['description'] = htmlspecialchars($FieldObj->get_description());
 
 $data['fields'] = $FieldObj->get_edit_field_definition($field_data);
 $data['associations'] = '';

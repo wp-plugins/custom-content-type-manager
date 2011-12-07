@@ -98,7 +98,6 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	public function get_url() {
 		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/WYSIWYG';
 	}
-	
 
 	//------------------------------------------------------------------------------
 	/**
@@ -110,24 +109,61 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$fieldtpl = CCTM::load_tpl(
-			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
-				, 'fields/elements/_default.tpl'
-			)
-		);
+		$this->id 					= $this->name; 
+
+		$fieldtpl = '';
+		$wrappertpl = '';
 		
-		$wrappertpl = CCTM::load_tpl(
-			array('fields/wrappers/'.$this->name.'.tpl'
-				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_default.tpl'
-			)
-		);
+		// Multi-version of the field
+		if ($this->is_repeatable) {
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'_multi.tpl'
+				)
+			);
+			
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_text_multi.tpl'
+				)
+			);
+			
+			$this->i = 0;
+			// print 'here...'; print_r(json_decode($current_value)); exit;
+			$values = (array) json_decode($current_value,true);
+			//die(print_r($values,true));
+			$this->content = '';
+			foreach($values as $v) {
+				$this->value	= htmlspecialchars( html_entity_decode($v) );
+				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->i 		= $this->i + 1;
+			}
 		
-		$this->id 					= $this->name;
-		$this->value				= $current_value;
-				
-		$this->content = CCTM::parse($fieldtpl, $this->get_props() );
+		}
+		// Singular
+		else {
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+			
+			$this->value				= $current_value;			
+			$this->content = CCTM::parse($fieldtpl, $this->get_props() );
+		}		
+
+
+		$this->add_label = __('Add', CCTM_TXTDOMAIN);		
+
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 
@@ -137,12 +173,17 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
-		
+
+		$is_repeatable_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_repeatable_checked = 'checked="checked"';
+		}
+				
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
+			 		<input type="text" name="label" class="cctm_text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
@@ -150,7 +191,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -158,7 +199,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. htmlspecialchars($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -167,7 +208,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
 			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
@@ -176,16 +217,25 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		// Is Repeatable?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_repeatable_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
 
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'.htmlspecialchars($def['description']).'</textarea>
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'.htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 		return $out;
@@ -209,11 +259,36 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	 * @param string	$field_name: the unique name for this instance of the field
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
+/*
 	public function save_post_filter($posted_data, $field_name) {
-		$value = $posted_data[ CCTM_FormElement::post_name_prefix . $field_name ];
-		return wpautop( $value ); // Auto-paragraphs for any WYSIWYG
-	}
+		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
 
+		
+			if (is_array($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])) {
+				foreach($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ] as &$f) {
+					$f = wpautop($f);
+				}
+				return json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]);
+			}
+			else{
+				return wpautop($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]);
+			}
+		}
+		else {
+			return '';
+		}
+*/
+
+/*
+		if ($this->is_repeatable) {
+			die('holy smokes');
+		}
+		else {
+			$value = $posted_data[ CCTM_FormElement::post_name_prefix . $field_name ];
+			return wpautop( $value ); // Auto-paragraphs for any WYSIWYG		
+		}
+*/
+	//}
 }
 
 

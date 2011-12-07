@@ -675,7 +675,7 @@ class GetPostsQuery {
 				return $val;
 			}
 			else {
-				$this->errors[] = sprintf(__('Invalid order: %s. Order may only be "ASC" or "DESC".'), '<em>'.htmlentities($val).'</em>');
+				$this->errors[] = sprintf(__('Invalid order: %s. Order may only be "ASC" or "DESC".'), '<em>'.htmlspecialchars($val).'</em>');
 			}
 			break;
 		case 'orderby':
@@ -686,11 +686,11 @@ class GetPostsQuery {
 			elseif (!in_array( $val, self::$wp_posts_columns) ) {
 				$this->sort_by_meta_flag = true;
 				if ($this->_is_valid_column_name($val)) {					
-					$this->notices[] = sprintf(__('orderby column not a default post column: %s', CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+					$this->notices[] = sprintf(__('orderby column not a default post column: %s', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($val).'</em>');
 					return $val;
 				}
 				else {
-					$this->errors[] = sprintf(__('Invalid column name supplied for orderby: %s', CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+					$this->errors[] = sprintf(__('Invalid column name supplied for orderby: %s', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($val).'</em>');
 					return null;
 				}
 				
@@ -715,7 +715,7 @@ class GetPostsQuery {
 				return $val;
 			}
 			else {
-				$this->errors[] = sprintf( __('Invalid date argument: %s', CCTM_TXTDOMAIN), $arg.':'.htmlentities($val) );
+				$this->errors[] = sprintf( __('Invalid date argument: %s', CCTM_TXTDOMAIN), $arg.':'.htmlspecialchars($val) );
 				return null;
 			}
 			break;
@@ -727,7 +727,7 @@ class GetPostsQuery {
 				return $val;
 			}
 			else {
-				$this->errors[] = sprintf( __('Invalid datetime argument: %s', CCTM_TXTDOMAIN), $var.':'.htmlentities($val) );
+				$this->errors[] = sprintf( __('Invalid datetime argument: %s', CCTM_TXTDOMAIN), $var.':'.htmlspecialchars($val) );
 				return null;
 			}
 			break;
@@ -778,7 +778,7 @@ class GetPostsQuery {
 				return $val;
 			}
 			else {
-				$this->warnings[] = sprintf(__('Taxonomy does not exist: %s',CCTM_TXTDOMAIN), '<em>'.htmlentities($val).'</em>');
+				$this->warnings[] = sprintf(__('Taxonomy does not exist: %s',CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($val).'</em>');
 				return null;
 			}
 			break;
@@ -852,14 +852,14 @@ class GetPostsQuery {
 		// a MySQL injection attack.
 		default:
 			if (!$this->_is_valid_column_name($arg)) {
-				$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlentities($arg).'</em>');
+				$this->errors[] = sprintf(__('Invalid argument name %s.  Input ignored.', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($arg).'</em>');
 				return null;
 			}
 			else {
 				
 				$this->direct_filter_flag =  true;
 				$this->direct_filter_columns[] = $arg;
-				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.':'.htmlentities($val).'</em>');
+				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.':'.htmlspecialchars($val).'</em>');
 				// We can easily filter for integers...
 				if (in_array($arg, array('ID','post_parent','menu_order','comment_count'))) {
 					return (int) $val;

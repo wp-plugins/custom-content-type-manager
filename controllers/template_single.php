@@ -37,7 +37,7 @@ $current_theme_path = get_stylesheet_directory();
 $hash = array();
 
 $tpl = file_get_contents( CCTM_PATH.'/tpls/samples/single_post.tpl');
-$tpl = htmlentities($tpl);
+$tpl = htmlspecialchars($tpl);
 
 $data['single_page_msg'] = sprintf( __('WordPress supports a custom theme file for each registered post-type (content-type). Copy the text below into a file named <strong>%s</strong> and save it into your active theme.', CCTM_TXTDOMAIN)
 	, 'single-'.$post_type.'.php'

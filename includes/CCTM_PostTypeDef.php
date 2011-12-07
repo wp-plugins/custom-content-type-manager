@@ -136,18 +136,18 @@ class CCTM_PostTypeDef {
 		// If this is a new post_type or if the $post_type name has been changed,
 		// ensure that it is not going to overwrite an existing post type name.
 		elseif ( $new && is_array(CCTM::$data['post_type_defs']) && in_array($data['post_type'], $cctm_post_types ) ) {
-			return sprintf( __('The name %s is already in use.', CCTM_TXTDOMAIN), htmlentities($data['post_type']) );
+			return sprintf( __('The name %s is already in use.', CCTM_TXTDOMAIN), htmlspecialchars($data['post_type']) );
 		}
 		// Is the name taken by an existing post type registered by some other plugin?
 		elseif (in_array($data['post_type'], $other_post_types) ) {
-			return sprintf( __('The name %s has been registered by some other plugin.', CCTM_TXTDOMAIN), htmlentities($data['post_type']) );
+			return sprintf( __('The name %s has been registered by some other plugin.', CCTM_TXTDOMAIN), htmlspecialchars($data['post_type']) );
 		}
 		// Make sure there's not an unsuspecting theme file named single-my_post_type.php
 		/*
 		$dir = get_stylesheet_directory();
 		if ( file_exists($dir . '/single-'.$data['post_type'].'.php')) {
 			return sprintf( __('There is a template file named single-%s.php in your theme directory (%s).', CCTM_TXTDOMAIN)
-				, htmlentities($data['post_type'])
+				, htmlspecialchars($data['post_type'])
 				, get_stylesheet_directory());
 		}
 */

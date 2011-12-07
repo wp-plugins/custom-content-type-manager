@@ -607,11 +607,11 @@ class CCTM_ImportExport {
 		}
 
 		// HTML entities cleanup
-		$sanitized['title'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['title']) ), 0, 64) );
-		$sanitized['author'] = htmlentities( substr( preg_replace('/[^a-z\s\-_0-9\.@]/i', '', trim($raw['author']) ), 0, 64) );
-		$sanitized['url'] = htmlentities( substr( trim($raw['url']), 0, 255) );
-		$sanitized['template_url'] = htmlentities( substr( trim($raw['template_url']), 0, 255) );
-		$sanitized['description'] = htmlentities( substr( strip_tags( trim($raw['description']) ), 0, 1024) );
+		$sanitized['title'] 		= htmlspecialchars( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['title']) ), 0, 64) );
+		$sanitized['author'] 		= htmlspecialchars( substr( preg_replace('/[^a-z\s\-_0-9\.@]/i', '', trim($raw['author']) ), 0, 64) );
+		$sanitized['url'] 			= htmlspecialchars( substr( trim($raw['url']), 0, 255) );
+		$sanitized['template_url'] 	= htmlspecialchars( substr( trim($raw['template_url']), 0, 255) );
+		$sanitized['description'] 	= htmlspecialchars( substr( strip_tags( trim($raw['description']) ), 0, 1024) );
 		
 		return $sanitized;
 	}

@@ -4,13 +4,13 @@ if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 @param	string	local name of the uploaded file (stored in wp-content/uploads/cctm/defs)
 ------------------------------------------------------------------------------*/
-require_once('ImportExport.php');
+require_once(CCTM_PATH.'/includes/CCTM_ImportExport.php');
 // Validate: check file name
-if ( !ImportExport::is_valid_basename($file) ) {
+if ( !CCTM_ImportExport::is_valid_basename($file) ) {
 	$msg = '<div class="error"><p>'
 		. sprintf( 
 			__('Bad filename: %s. No special characters or spaces allowed.', CCTM_TXTDOMAIN)
-			, '<strong>'.htmlentities($filename).'</strong>'
+			, '<strong>'.htmlspecialchars($filename).'</strong>'
 			)
 		.'</p></div>';
 	self::set_flash($msg);
@@ -23,10 +23,10 @@ $data_raw = file_get_contents($dir.'/'.$file);
 $data = json_decode($data_raw, true);
 
 // Check the contents of the array
-if ( !ImportExport::is_valid_upload_structure($data) ) {
+if ( !CCTM_ImportExport::is_valid_upload_structure($data) ) {
 	$msg = '<div class="error"><p>'
 		. sprintf( __('%s contained an incompatible data structure.', CCTM_TXTDOMAIN)
-			, '<strong>'.htmlentities($file).'</strong>'
+			, '<strong>'.htmlspecialchars($file).'</strong>'
 			)
 		. '</p></div>';
 	self::set_flash($msg);

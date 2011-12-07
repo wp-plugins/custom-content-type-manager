@@ -152,7 +152,7 @@ abstract class CCTM_FormElement {
 		$this->descriptions['default_value'] = __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
 		$this->descriptions['description'] .= __('The following html tags are allowed:')
-			. '<code>'.htmlentities(CCTM::$allowed_html_tags).'</code>';
+			. '<code>'.htmlspecialchars(CCTM::$allowed_html_tags).'</code>';
 		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
@@ -270,9 +270,12 @@ abstract class CCTM_FormElement {
 	 * @return string HTML field(s)
 	 */
 	public function get_create_field_instance() {
-		return $this->get_edit_field_instance($this->default_value);
+		if($this->is_repeatable) {			
+			$this->default_value = json_encode(array($this->default_value));
+		}
+		
+		return $this->get_edit_field_instance($this->default_value); 
 	}
-
 
 	//------------------------------------------------------------------------------
 	/**
@@ -377,8 +380,7 @@ abstract class CCTM_FormElement {
 			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
 			 		</label>';
 
-		$out .= '<select name="output_filter" class="'
-			.$this->get_field_class($this->name, 'select') . ' ' . $this->class.'" id="'.$this->get_field_id().'">
+		$out .= '<select name="output_filter" class="cctm_select" id="output_filter">
 				<option value="">'.__('None (raw)').'</option>
 				';
 

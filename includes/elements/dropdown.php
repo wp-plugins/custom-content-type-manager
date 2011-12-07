@@ -200,7 +200,7 @@ class CCTM_dropdown extends CCTM_FormElement
 	//------------------------------------------------------------------------------
 	/**
 	 * Note that the HTML in $option_html should match the JavaScript version of 
-	 * the same HTML in js/manager.js (see the append_dropdown_option() function).
+	 * the same HTML in js/dropdown.js (see the append_dropdown_option() function).
 	 * I couldn't think of a clean way to do this, but the fundamental problem is 
 	 * that both PHP and JS need to draw the same HTML into this form:
 	 * PHP draws it when an existing definition is *edited*, whereas JS draws it
@@ -234,7 +234,7 @@ class CCTM_dropdown extends CCTM_FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -242,7 +242,7 @@ class CCTM_dropdown extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. htmlspecialchars($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -251,7 +251,7 @@ class CCTM_dropdown extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
 			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
@@ -260,7 +260,7 @@ class CCTM_dropdown extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
@@ -271,7 +271,7 @@ class CCTM_dropdown extends CCTM_FormElement
 					. __('Distinct options/values?', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
-				 <input type="checkbox" name="use_key_values" class="'.$this->get_field_class('use_key_values','checkbox').'" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
+				 <input type="checkbox" name="use_key_values" class="cctm_checkbox" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
 			 	</div>';
 			
 		// OPTIONS
@@ -301,7 +301,7 @@ class CCTM_dropdown extends CCTM_FormElement
 				
 		$out .= CCTM::parse($tpl, $hash);
 		
-		// this html should match up with the js html in manager.js
+		// this html should match up with the js html in dropdown.js
 		$option_html = '
 			<tr id="%s">
 				<td><input type="text" name="options[]" id="option_%s" value="%s"/></td>
