@@ -102,11 +102,11 @@ class CCTM_wysiwyg extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138
+	 * and this one: http://keighl.com/2010/04/switching-visualhtml-modes-with-tinymce/
 	 *
 	 * @param string $current_value	current value for this field.
 	 * @return string	
-	 <label for="[+name+]" class="cctm_label cctm_textarea_label" id="cctm_label_[+name+]">[+label+]</label>
-			<textarea name="[+name+]" class="cctm_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
 	 */
 	public function get_edit_field_instance($current_value) {
 
@@ -123,19 +123,12 @@ class CCTM_wysiwyg extends CCTM_FormElement
 				, 'fields/wrappers/_default.tpl'
 			)
 		);
-
-
-		$this->id 					= $this->get_field_id();
-		$this->class 				= $this->get_field_class($this->name, 'textarea', $this->class);
+		
+		$this->id 					= $this->name;
 		$this->value				= $current_value;
-		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
 				
 		$this->content = CCTM::parse($fieldtpl, $this->get_props() );
 		return CCTM::parse($wrappertpl, $this->get_props());
-				
-		// print "Here------->".$current_value; exit;
-		// See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138
-		// See http://keighl.com/2010/04/switching-visualhtml-modes-with-tinymce/
 	}
 
 	//------------------------------------------------------------------------------

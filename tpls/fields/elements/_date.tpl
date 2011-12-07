@@ -1,9 +1,9 @@
 <script>
 	jQuery(function() {
-		jQuery("#[+id+]").datepicker({
+		jQuery("#[+id_prefix+][+id+]").datepicker({
 			dateFormat : "[+date_format+]"
 		});
 	});
 </script>
 
-<input type="text" name="[+name+]" class="[+class+]" id="[+id+]"  value="[+value+]" [+extra+]/>
+<input type="text" name="[+name_prefix+][+name+]" class="cctm_date [+class+]" id="[+id_prefix+][+id+]"  value="[+value+]" [+extra+]/>

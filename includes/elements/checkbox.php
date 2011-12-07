@@ -84,11 +84,11 @@ class CCTM_checkbox extends CCTM_FormElement
 	 * @param string HTML to be used in the WP manager for an instance of this type of element.
 	 */
 	public function get_create_field_instance() {
-		if ( $this->props['checked_by_default']) {
-			$current_value = $this->props['checked_value'];
+		if ( $this->checked_by_default) {
+			$current_value = $this->checked_value;
 		}
 		else {
-			$current_value = $this->props['unchecked_value'];		
+			$current_value = $this->unchecked_value;		
 		}
 		return $this->get_edit_field_instance($current_value); // pass on to 
 	}
@@ -122,9 +122,9 @@ class CCTM_checkbox extends CCTM_FormElement
 		);
 
 		// Populate the values (i.e. properties) of this field
-		$this->name 				= $this->get_field_name();
-		$this->id 					= $this->get_field_id();
-		$this->class 				= $this->get_field_class($this->name, 'checkbox', $this->class);
+		//$this->name 				= $this->get_field_name();
+		//$this->id 					= $this->get_field_id();
+		//$this->class 				= $this->get_field_class($this->name, 'checkbox', $this->class);
 		$this->value				= htmlspecialchars($this->checked_value);
 		
 		$this->content = CCTM::parse($fieldtpl, $this->props);

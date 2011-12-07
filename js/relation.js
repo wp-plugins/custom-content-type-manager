@@ -147,14 +147,6 @@ function remove_relation( target_id, target_html ) {
 }
 
 /*------------------------------------------------------------------------------
-Remove all selected posts from the repeatable field
-@param	string	CSS field id, e.g. cctm_myimage
-------------------------------------------------------------------------------*/
-function remove_all_relations(field_id) {
-	jQuery('#cctm_instance_wrapper_'+field_id).html('');
-}
-
-/*------------------------------------------------------------------------------
 Add the selected posts to the parent post and close the thickbox.
 ------------------------------------------------------------------------------*/
 function save_and_close() {

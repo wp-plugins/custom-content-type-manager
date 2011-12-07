@@ -217,120 +217,6 @@ abstract class CCTM_FormElement {
 		}
 	}
 
-
-	//------------------------------------------------------------------------------
-	//! Protected Functions
-	//------------------------------------------------------------------------------
-	/**
-	 * Generate a CSS class for this type of field, typically keyed off the actual HTML
-	 * input type, e.g. text, textarea, submit, etc.
-	 *
-	 * This is dynamic so we can flag fields that have failed error validation.
-	 * cctm_text
-	 * cctm_my_text_field
-	 * cctm_error
-	 *
-	 *
-	 * @param string  $id:         unique id for the field
-	 * @param string  $input_type: identifies the type of field
-	 * @param string  $additional: optional user-supplied class
-	 * @return string a string representing a CSS class.
-	 */
-	protected function get_field_class( $id, $input_type='text', $additional=null ) {
-		// cctm_text
-		// TODO!!!
-		$css_arr = array();
-		// in_array(mixed needle, array haystack [, bool strict])
-		$errors = array_keys($this->errors);
-		if ( in_array( $id, $errors ) ) {
-			$css_arr[] = self::error_css;
-		}
-
-		$css_arr[] = self::css_class_prefix . $id;
-		$css_arr[] = self::css_class_prefix . $input_type;
-
-		if (!empty($additional)) {
-			$css_arr[] = $additional;
-		}
-
-		return implode(' ', $css_arr);
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * We need special behavior when we are creating and editing posts because
-	 * WP uses all kinds of form inputs and classes, so it's easy for names and
-	 * CSS classes to collide.
-	 *
-	 * @return string
-	 */
-	protected function get_field_id() {
-		$backtrace = debug_backtrace();
-		$calling_function = $backtrace[1]['function'];
-		switch ($calling_function) {
-			case 'get_create_field_instance':
-			case 'get_edit_field_instance':
-			case 'wrap_label':
-				return self::css_id_prefix . $this->name;
-				break;
-			case 'get_edit_field_definition':
-			case 'get_create_field_definition':
-			default:
-				return $this->name;
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * get_field_name
-	 *
-	 * This function gets an input's name for use while a post is being edited or created.
-	 * We offer this function so we can OPTIONALLY pre-pend the names with a custom prefix to ensure
-	 * that no naming collisions occur inside the $_POST array. Sometimes we just want to
-	 * get the raw name.
-	 *
-	 * Behavior is determined by the function that calls this: see
-	 * http://bytes.com/topic/php/answers/221-function-global-var-return-name-calling-function
-	 *
-	 * @param string  $name is the name of a field, e.g. 'my_name' in <input type="text" name="my_name" />
-	 * @return string A name safe for the context in which it was called.
-	 */
-	protected function get_field_name() {
-		$backtrace = debug_backtrace();
-		$calling_function = $backtrace[1]['function'];
-
-		switch ($calling_function) {
-			case 'get_create_field_instance':
-			case 'get_edit_field_instance':
-			case 'wrap_label':
-				if ($this->is_repeatable) {
-					return self::post_name_prefix . $this->name .'[]';
-				}
-				else {
-					return self::post_name_prefix . $this->name;
-				}
-				break;
-			case 'get_edit_field_definition':
-			case 'get_create_field_definition':
-			default:
-				return $this->name;
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Used when repeatable fields are enabled.  The "instance" is the instance of 
-	 * the field being repeated.
-	 *
-	 * @return string
-	 */
-	protected function get_instance_id() {
-		return 'cctm_instance_'.$this->get_field_id().'_'.$this->i;
-	}
-
 	//------------------------------------------------------------------------------
 	//! Abstract and Public Functions... Implement Me!
 	//------------------------------------------------------------------------------
@@ -441,6 +327,7 @@ abstract class CCTM_FormElement {
 	 * This function should return the URL where users can read more information about
 	 * the type of field that they want to add to their post_type. The string may
 	 * be localized using __() if necessary (e.g. for language-specific pages)
+	 * 3rd party field devs can use this to point to their awesome docs!
 	 *
 	 * @return string  e.g. http://www.yoursite.com/some/page.html
 	 */
@@ -449,7 +336,8 @@ abstract class CCTM_FormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Formats errors
+	 * Formats errors.  This function is useful only for devs as they develop their
+	 * own types of custom fields.
 	 *
 	 * @return string HTML describing any errors tracked in the class $errors variable
 	 */
@@ -479,7 +367,7 @@ abstract class CCTM_FormElement {
 	 * Generate select dropdown for listing and selecting the active output filter.
 	 *
 	 * @param mixed   $def is the existing field definition
-	 * @return unknown
+	 * @return string	html dropdown
 	 */
 	public function get_available_output_filters($def) {
 
@@ -520,8 +408,9 @@ abstract class CCTM_FormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Return http path to a 48x48 PNG image that should represent this type of field.
-	 * Default behavior is to look inside the images/custom-fields directory
+	 * Return URL to a 48x48 PNG image that should represent this type of field.
+	 * Looks inside the images/custom-fields directory.  3rd party devs should
+	 * override this function.
 	 *
 	 * @return string URL for image, e.g. http://mysite/images/coolio.png
 	 */
@@ -530,9 +419,11 @@ abstract class CCTM_FormElement {
 			CCTM::classname_prefix,
 			'',
 			get_class($this) );
+		// Default image
 		if (file_exists(CCTM_PATH.'/images/custom-fields/'.$field_type.'.png')) {
 			return CCTM_URL.'/images/custom-fields/'.$field_type.'.png';
 		}
+		// Snap, we can't find it.
 		else {
 			return CCTM_URL.'/images/custom-fields/default.png';
 		}

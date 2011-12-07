@@ -46,8 +46,8 @@ class CCTM_text extends CCTM_FormElement
 	 * Multi/repeatable support
 	 */
 	public function admin_init() {	
-		wp_register_script('cctm_text', CCTM_URL.'/js/text.js');
-		wp_enqueue_script('cctm_text');
+//		wp_register_script('cctm_text', CCTM_URL.'/js/text.js');
+//		wp_enqueue_script('cctm_text');
 	}
 
 	//------------------------------------------------------------------------------
@@ -95,12 +95,11 @@ class CCTM_text extends CCTM_FormElement
 	public function get_edit_field_instance($current_value) {
 
 		// Populate the values (i.e. properties) of this field
-		//$this->id 					= $this->get_field_id();
-		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
-		
-//		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
-		$this->instance_id			= $this->get_instance_id();
-		
+		$this->id 					= $this->name; 
+
+		$fieldtpl = '';
+		$wrappertpl = '';
+				
 		if ($this->is_repeatable) {
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
@@ -115,24 +114,19 @@ class CCTM_text extends CCTM_FormElement
 				)
 			);
 			
-			$i = 0;
-			if ($current_value) {
-				$values = (array) json_decode($current_value);
-				//die(print_r($values,true));
-				$content = '';
-				foreach($values as $v) {
-					$props = $this->get_props();
-					$props['value']				= htmlspecialchars( html_entity_decode($v) );
-					$content .= CCTM::parse($fieldtpl, $props);
-					$i = $i + 1;
-				}
-				$this->i = $i;
-				$this->content = $content;
-			}			
+			$this->i = 0;
+			$values = (array) json_decode($current_value);
+			//die(print_r($values,true));
+			$content = '';
+			foreach($values as $v) {
+				$this->value	= htmlspecialchars( html_entity_decode($v) );
+				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->i 		= $this->i + 1;
+			}
 		}
 		// Normal text field
 		else {
-			$this->value				= htmlspecialchars( html_entity_decode($current_value) );
+			$this->value		= htmlspecialchars( html_entity_decode($current_value) );
 			
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'

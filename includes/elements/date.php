@@ -119,13 +119,11 @@ class CCTM_date extends CCTM_FormElement
 		);
 
 		// Populate the values (i.e. properties) of this field
-		$this->props['id'] 					= $this->get_field_id();
-		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
-		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
-		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
-				
-		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		return CCTM::parse($wrappertpl, $this->props);		
+		$this->id 		= $this->name;
+		$this->value	= htmlspecialchars( html_entity_decode($current_value) );
+
+		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		return CCTM::parse($wrappertpl, $this->get_props());		
 	}
 
 	//------------------------------------------------------------------------------

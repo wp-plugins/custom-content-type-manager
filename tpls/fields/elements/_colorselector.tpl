@@ -1,3 +1,1 @@
-<div id="[+instance_id+]">
-	<input type="color" name="[+name+]" class="[+class+]" id="[+id+]" value="[+value+]" data-hex="true" [+extra+]/> [+delete_button+]
-</div>
+<input type="color" name="[+name_prefix+][+name+]" class="cctm_colorselector [+class+]" id="[+id_prefix+][+id+]" value="[+value+]" data-hex="true" [+extra+]/>

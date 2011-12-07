@@ -98,11 +98,8 @@ class CCTM_media extends CCTM_FormElement
 		$Q = new GetPostsQuery();
 		
 		// Populate the values (i.e. properties) of this field
-		$this->id 					= $this->get_field_id();
-		$this->class 				= $this->get_field_class($this->name, 'text', $this->class);
-//		$this->name 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
-		$this->instance_id			= $this->get_instance_id();
-		$this->content = '';
+		$this->id 		= $this->name;
+		$this->content 	= '';
 		
 		$this->post_id = $this->value;		
 

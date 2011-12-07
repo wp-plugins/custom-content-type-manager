@@ -149,7 +149,7 @@ class CCTM_dropdown extends CCTM_FormElement
 		
 		// Get the options.  This currently is not skinnable.
 		// $this->props['options'] is already bogarted by the definition.
-		$this->props['all_options'] = '';
+		$this->all_options = '';
 		// <!-- option value="">'.__('Pick One').'</option -->
 		$opt_cnt = count($this->options);
 	
@@ -180,22 +180,20 @@ class CCTM_dropdown extends CCTM_FormElement
 			}
 			
 			$hash['i'] = $i;
-			$hash['id'] = $this->get_field_id();
-			$hash['name'] = $this->get_field_name();
-			$this->props['all_options'] .= CCTM::parse($optiontpl, $hash);
+			$hash['id'] = $this->name;
+
+			$this->all_options .= CCTM::parse($optiontpl, $hash);
 		}
 			
 
 
 		// Populate the values (i.e. properties) of this field
-		$this->props['id'] 					= $this->get_field_id();
-		$this->props['class'] 				= $this->get_field_class($this->name, 'text', $this->class);
-		$this->props['value']				= htmlspecialchars( html_entity_decode($current_value) );
-		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
-		$this->props['instance_id']			= $this->get_instance_id();
+		$this->id 					= $this->name;
+		$this->value				= htmlspecialchars( html_entity_decode($current_value) );
+
 		// wrap
-		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		return CCTM::parse($wrappertpl, $this->props);		
+		$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		return CCTM::parse($wrappertpl, $this->get_props());		
 		
 	}
 

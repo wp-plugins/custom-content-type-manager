@@ -37,7 +37,15 @@ class CCTM_textarea extends CCTM_FormElement
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 		// 'sort_param' => '', // handled automatically
 	);
-
+	
+	/**
+	 * Multi/repeatable support
+	 */
+	public function admin_init() {	
+		// we double-up on the text fields.
+		wp_register_script('cctm_text', CCTM_URL.'/js/text.js');
+		wp_enqueue_script('cctm_text');
+	}
 	//------------------------------------------------------------------------------
 	/**
 	* This function provides a name for this type of field. This should return plain
@@ -81,45 +89,59 @@ class CCTM_textarea extends CCTM_FormElement
 			<textarea name="[+name+]" class="cctm_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
 	 */
 	public function get_edit_field_instance($current_value) {
-		$fieldtpl = CCTM::load_tpl(
-			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
-				, 'fields/elements/_default.tpl'
-			)
-		);
 		
-		$wrappertpl = CCTM::load_tpl(
-			array('fields/wrappers/'.$this->name.'.tpl'
-				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_default.tpl'
-			)
-		);
+		$this->id 		= $this->name;
+		$this->value	= $current_value;
+
+		$fieldtpl = '';
+		$wrappertpl = '';
 		
-		$this->props['id'] 					= $this->get_field_id();
-		$this->props['class'] 				= $this->get_field_class($this->name, 'textarea', $this->class);
-		$this->props['value']				= $current_value;
-		$this->props['name'] 				= $this->get_field_name(); // will be named my_field[] if 'is_repeatable' is checked.
+		// Multi-versions
+		if ($this->is_repeatable) {
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'_multi.tpl'
+				)
+			);
+
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+				)
+			);
+
+			$this->i = 0;
+
+			$values = (array) json_decode($current_value);
+
+			foreach($values as $v) {
+				$this->value	= htmlspecialchars( html_entity_decode($v) );
+				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->i 		= $this->i + 1;
+			}
+		}
+		// Simple stuff
+		else {
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+			
+			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+		}
 				
-		$this->props['content'] = CCTM::parse($fieldtpl, $this->props);
-		return CCTM::parse($wrappertpl, $this->props);
-/*
-		
-		$output = sprintf('
-			%s
-			<textarea name="%s" class="%s" id="%s" %s>%s</textarea>
-			'
-			, $this->wrap_label()
-			, $this->get_field_name()
-			, $this->get_field_class($this->name, 'text') . ' ' . $this->class
-			, $this->get_field_id()
-			, $this->extra
-			, $current_value
-		);
-		
-		$output .= $this->wrap_description($this->props['description']);
-		
-		return $this->wrap_outer($output);
-*/
+		// wrap it.
+		$this->add_label = __('Add', CCTM_TXTDOMAIN);
+		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 	//------------------------------------------------------------------------------
@@ -128,6 +150,11 @@ class CCTM_textarea extends CCTM_FormElement
 	 * @param mixed $def	field definition; see the $props array
 	 */
 	public function get_edit_field_definition($def) {
+		$is_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_checked = 'checked="checked"';
+		}
+		
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -140,7 +167,7 @@ class CCTM_textarea extends CCTM_FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -148,7 +175,7 @@ class CCTM_textarea extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. htmlspecialchars($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -157,7 +184,7 @@ class CCTM_textarea extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
 			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
@@ -166,16 +193,25 @@ class CCTM_textarea extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		// Is Repeatable?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+			 	'</label>
+				 <br />
+				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
 
 		// Description	 
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
 			 		. htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
