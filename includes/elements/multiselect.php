@@ -377,42 +377,6 @@ class CCTM_multiselect extends CCTM_FormElement
 		}
 		return $posted_data; // filtered data
 	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * This function allows for custom handling of submitted post/page data just before
-	 * it is saved to the database. Data validation and filtering should happen here,
-	 * although it's difficult to enforce any validation errors.
-	 *
-	 * Note that the field name in the $_POST array is prefixed by CCTM_FormElement::post_name_prefix,
-	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
-	 * (where CCTM_FormElement::post_name_prefix = 'cctm_').
-	 *
-	 * Output should be whatever string value you want to store in the wp_postmeta table
-	 * for the post in question. This function will be called after the post/page has
-	 * been submitted: this can be loosely thought of as the "on save" event
-	 *
-	 * @param mixed   	$posted_data  $_POST data
-	 * @param string	$field_name: the unique name for this instance of the field
-	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
-	 */
-/*
-	public function save_post_filter($posted_data, $field_name) {
-		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
-			// Use this for Create Posts (yes, seriously we have to doubleslash it)
-			if (isset($posted_data['_cctm_is_create'])) {
-				return addslashes(addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])));
-			}
-			// Use this for Edit Posts (don't need to double-slash it ???)
-			else {
-				return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
-			}
-		}
-		else {
-			return '';
-		}
-	}
-*/
 }
 
 
