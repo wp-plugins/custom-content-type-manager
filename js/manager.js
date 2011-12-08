@@ -32,6 +32,7 @@ Generic function. Remove the HTML identified by the target_id
 ------------------------------------------------------------------------------*/
 function remove_html( target_id ) {
 	jQuery('#'+target_id).remove();
+	jQuery('#default_value').val(''); // <-- used in the field definitions
 }
 
 /*------------------------------------------------------------------------------

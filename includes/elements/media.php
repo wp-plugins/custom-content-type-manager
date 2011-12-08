@@ -122,7 +122,8 @@ class CCTM_media extends CCTM_FormElement
 				)
 			);		
 
-			if ($current_value) {
+			// Test for an empty JSON array
+			if ($current_value != '[""]') {
 				$values = (array) json_decode($current_value);
 				foreach($values as $v) {
 					$this->value				= (int) $v;

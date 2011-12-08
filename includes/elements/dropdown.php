@@ -349,11 +349,11 @@ class CCTM_dropdown extends CCTM_FormElement
 					. __('How should the field display?', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
-				 <input type="radio" name="display_type" class="'.$this->get_field_class('display_type','radio').'" id="display_type_dropdown" value="dropdown" '. CCTM::is_radio_selected('dropdown', CCTM::get_value($this->props, 'display_type', 'dropdown') ).'/> 
+				 <input type="radio" name="display_type" class="cctm_radio" id="display_type_dropdown" value="dropdown" '. CCTM::is_radio_selected('dropdown', CCTM::get_value($this->props, 'display_type', 'dropdown') ).'/> 
 				 <label for="display_type_dropdown" class="cctm_label cctm_radio_label" id="display_type_dropdown_label">'
 					. __('Dropdown', CCTM_TXTDOMAIN) .
 			 	'</label><br />
-				 <input type="radio" name="display_type" class="'.$this->get_field_class('display_type','radio').'" id="display_type_radio" value="radio" '. CCTM::is_radio_selected('radio', CCTM::get_value($this->props, 'display_type', 'dropdown')).'/> 
+				 <input type="radio" name="display_type" class="cctm_radio" id="display_type_radio" value="radio" '. CCTM::is_radio_selected('radio', CCTM::get_value($this->props, 'display_type', 'dropdown')).'/> 
 				 <label for="display_type_radio" class="cctm_label cctm_radio_label" id="display_type_radio_label">'
 					. __('Radio Button', CCTM_TXTDOMAIN) .
 			 	'</label><br />
@@ -363,7 +363,7 @@ class CCTM_dropdown extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
 			 		.htmlspecialchars($def['description'])
 			 		.'</textarea>
 			 	' . $this->get_translation('description').'
