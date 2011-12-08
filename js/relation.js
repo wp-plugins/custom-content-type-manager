@@ -188,7 +188,7 @@ function search_form_display(fieldname,fieldtype) {
 			W = W - 80;
 			H = H - 84;
 			// then thickbox the div
-			tb_show( cctm.label_set_search_parametrs, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=cctm_thickbox' );			
+			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=cctm_thickbox' );			
 
 
 	    }
@@ -286,8 +286,9 @@ function send_single_post_to_wp( post_id ) {
 			
 	    }
 	);
-	
+
 	tb_remove();
+	jQuery('#default_value').val(post_id); //<-- used when setting default values in field defs
 	return false;
 }
 
@@ -388,7 +389,7 @@ function thickbox_results(css_field_id) {
 			W = W - 80;
 			H = H - 84;
 			// then thickbox the div
-			tb_show( cctm.label_select_posts, '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+css_field_id );			
+			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+css_field_id );			
 	    }
 	);	
 }

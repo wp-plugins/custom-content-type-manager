@@ -84,7 +84,7 @@ or by going to your wp-content/plugins directory and executing the following com
 Major release!
 
 * Integrated the [Summarize Posts](http://code.google.com/p/wordpress-summarize-posts/) plugin: this gives all kinds of power to searching for posts.
-* All Relation fields can now select multiple values.
+* All fields can now be "repeatable" so you can select multiple values, e.g. images, relations, textareas...
 * Cleaner Ajax implementation [Issue 226](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226).  This should make the plugin work better on sites with customized folder structures.
 
 = 0.9.4.5 =
@@ -287,7 +287,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.5 =
 
-Major boost to functionality: relation fields can now select multiple values and the post-selector thickbox can now be finely tuned to select *exactly* the posts you want.
+Major boost to functionality: all fields are not "repeatable" so you can select multiple images, textareas, etc. for a single field. The post-selector thickbox can now be finely tuned to select *exactly* the posts you want for any relation field.
 
 = 0.9.4.5 =
 

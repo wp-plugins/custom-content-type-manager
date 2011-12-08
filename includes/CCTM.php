@@ -308,14 +308,7 @@ class CCTM {
 			$data = array();
 			$data['cctm_url'] = CCTM_URL;
 			$data['ajax_url'] = admin_url( 'admin-ajax.php' );
-			$data['ajax_nonce'] = wp_create_nonce('ajax_nonce');
-			$data['label_search_posts'] = __('Search Posts', CCTM_TXTDOMAIN);
-			$data['label_select_posts'] = __('Select Posts', CCTM_TXTDOMAIN);
-			$data['label_upload_image'] = __('Upload Image', CCTM_TXTDOMAIN);
-			$data['label_upload_media'] = __('Upload Media', CCTM_TXTDOMAIN);
-			$data['label_create_post'] = __('Create Post', CCTM_TXTDOMAIN);
-			$data['label_set_search_parametrs'] = __('Set Search Parameters', CCTM_TXTDOMAIN);
-			
+			$data['ajax_nonce'] = wp_create_nonce('ajax_nonce');			
 			wp_localize_script( 'cctm_manager', 'cctm', $data );
 
 		}

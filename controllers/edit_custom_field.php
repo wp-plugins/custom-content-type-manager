@@ -56,7 +56,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	// Validate and sanitize any submitted data
 	$field_data 		= $FieldObj->save_definition_filter($_POST);
 	$field_data['type'] = $field_type; // same effect as adding a hidden field
-	$FieldObj->props 	= $field_data; // used for repopulating on errors
+	$FieldObj->set_props($field_data); // used for repopulating on errors
 
 	// Any errors?
 	if ( !empty($FieldObj->errors) ) {
@@ -88,7 +88,7 @@ $data['url'] = $FieldObj->get_url();
 $data['name'] = $FieldObj->get_name();
 $data['description'] = htmlentities($FieldObj->get_description());
 
-$data['fields'] = $FieldObj->get_edit_field_definition($field_data);
+$data['fields'] = $FieldObj->get_edit_field_definition($FieldObj->get_props());
 $data['associations'] = ''; // TODO
 
 $data['content'] = CCTM::load_view('custom_field.php', $data);
