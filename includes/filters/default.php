@@ -1,11 +1,11 @@
 <?php
 /**
- * @package CCTM_default
+ * @package CCTM_OutputFilter
  * 
  * Adds a default value if the input value is empty.
  */
 
-class CCTM_default extends CCTMOutputFilter {
+class CCTM_default extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.

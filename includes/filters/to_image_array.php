@@ -1,12 +1,12 @@
 <?php
 /**
- * @package CCTM_to_image_array
+ * @package CCTM_OutputFilter
  * 
  * Obscures a string (e.g. an to_image_array address) to make it more difficult for it to 
  * be harvested by bots.
  */
 
-class CCTM_to_image_array extends CCTMOutputFilter {
+class CCTM_to_image_array extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.

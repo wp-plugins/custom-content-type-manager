@@ -1,12 +1,12 @@
 <?php
 /**
- * @package CCTM_to_link
+ * @package CCTM_OutputFilter
  * 
  * Obscures a string (e.g. an to_link address) to make it more difficult for it to 
  * be harvested by bots.
  */
 
-class CCTM_to_link extends CCTMOutputFilter {
+class CCTM_to_link extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.

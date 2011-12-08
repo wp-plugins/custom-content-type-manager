@@ -1,5 +1,7 @@
 <?php
 /**
+ * @package CCTM_OutputFilter
+ *
  * Filter takes an array (JSON or PHP) and formats it into a string.   Arrays can be
  * simple lists, or associative key/value pairs.
  *
@@ -7,7 +9,7 @@
  */
 
 
-class CCTM_formatted_list extends CCTMOutputFilter {
+class CCTM_formatted_list extends CCTM_OutputFilter {
 
 	/**
 	 * Checks whether a given array is a regular array or an associative array.

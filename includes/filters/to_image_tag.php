@@ -1,11 +1,11 @@
 <?php
 /**
- * @package CCTM_to_image_tag
+ * @package CCTM_OutputFilter
  * 
  * Converts input (usually a JSON encoded string) into an array
  */
 
-class CCTM_to_image_tag extends CCTMOutputFilter {
+class CCTM_to_image_tag extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.

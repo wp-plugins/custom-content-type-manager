@@ -1,11 +1,11 @@
 <?php
 /**
- * @package CCTM_get_post
+ * @package CCTM_OutputFilter
  * 
  * Converts input (usually a JSON encoded string) into an array
  */
 
-class CCTM_get_post extends CCTMOutputFilter {
+class CCTM_get_post extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.

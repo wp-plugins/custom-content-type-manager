@@ -1,12 +1,12 @@
 <?php
 /**
- * @package CCTM_email
+ * @package CCTM_OutputFilter
  * 
  * Obscures a string (e.g. an email address) to make it more difficult for it to 
  * be harvested by bots.
  */
 
-class CCTM_email extends CCTMOutputFilter {
+class CCTM_email extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.

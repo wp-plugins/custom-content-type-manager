@@ -18,7 +18,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.5.0';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'rc'; // dev, rc (release candidate), pl (public release)
 
 
 	// Required versions (referenced in the CCTMtest class).
@@ -44,7 +44,7 @@ class CCTM {
 	const menu_position = 73;
 
 	// Each class that extends either the CCTM_FormElement class or the
-	// the CCTMOutputFilter class must prefix this to its class name.
+	// the CCTM_OutputFilter class must prefix this to its class name.
 	const classname_prefix = 'CCTM_';
 
 	// used to control the uploading of the .cctm.json files
@@ -1232,7 +1232,7 @@ class CCTM {
 		}
 
 		// and Load the file...
-		include_once CCTM_PATH.'/includes/CCTMOutputFilter.php';
+		include_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
 		include_once $filter_file;  // <-- this will flat-out bomb on syntax errors!
 		if ( !class_exists(self::classname_prefix.$filter) ) {
 			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
