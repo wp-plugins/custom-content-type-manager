@@ -42,6 +42,15 @@ class CCTM_multiselect extends CCTM_FormElement
 	);
 
 	public $supported_output_filters = array('to_array','formatted_list');
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Register the appropriatejs
+	 */
+	public function admin_init() {
+		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
+		wp_enqueue_script('cctm_dropdown');
+	}
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -75,113 +84,121 @@ class CCTM_multiselect extends CCTM_FormElement
 	public function get_url() {
 		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/MultiSelect';
 	}
-
+	
 	//------------------------------------------------------------------------------
 	/**
-	 * get_create_field_instance
-	 * 
-	 * We have to do this because of how WP handles inserting meta data
-	 * verses how it handles updating meta data.
-	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
-	 * @return string HTML field(s)
-	 */
-	public function get_create_field_instance() {
-		$this->is_create_flag = true;
-		return $this->get_edit_field_instance($this->default_value); 
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Very similar to the dropdown, but this accepts arrays.
+	 * This is the odd duck... it could (should?) be implemented as a variation of 
+	 * the dropbox field (it is similar), but conceptually, the multi-select is a
+	 * different animal.  It doesn't get "repeated" like the other fields, instead
+	 * it always stores an array of values.  Notably, this field uses only the 
+	 * option and wrapper .tpl's.
 	 *
-	 * @param string json-encrypted $current_value of the field for the current post
+	 * This is hands-down the most complex field due to the way we have to do 
+	 * literal comparisions of foreign comparisons.  Whereas the other fields 
+	 * are fine if we store a "&agrave;" or "ˆ" so long as it displays correctly,
+	 * the multiselect fields must get the $current_value to be EXACTLY equal
+	 * to the available options, otherwise we won't know whether or not 
+	 * to check the checkbox.
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
+	 *
+	 * @param string $current_value json-encoded array of selected values for the current post
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$current_values_arr = json_decode(html_entity_decode($current_value), true );
+		$this->id 					= $this->name; 
+
+		$optiontpl = '';
+		$fieldtpl = '';
+		$wrappertpl = '';
+
+		$optiontpl = CCTM::load_tpl(
+			array('fields/options/'.$this->name.'.tpl'
+				, 'fields/options/_'.$this->type.'.tpl'
+				, 'fields/options/_checkbox.tpl'
+			)
+		);
+
+/*
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_default.tpl'
+			)
+		);
+*/
+		
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
+		
+		// $current_values_arr: represents what's actually been selected.
+		$current_values_arr = (array) json_decode(html_entity_decode($current_value), true );
 	
+		// Bring the foreign characters back from the dead.  We need this extra step 
+		// because we have to do exact comparisons to see if the options are selected or not.
 		if ( $current_values_arr and is_array($current_values_arr) ) {
 			foreach ( $current_values_arr as $i => $v ) {
 				$current_values_arr[$i] = trim(CCTM::charset_decode_utf_8($v));
 			}
 		}
 
-		// Some error messaging: the options thing is enforced at time of def creation too
+		// $this->options: represents what's _available_ to be selected.
+		// Some error messaging: the options thing is enforced at time of def creation too,
+		// but we're doing it here too just to play it safe.
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
 				, __('Custom Content Error', CCTM_TXTDOMAIN)
 				, __('No options supplied for the following custom field: ', CCTM_TXTDOMAIN)
-				, $data['name']
+				, $this->name
 			);
 		}
 
-		// ListBox: problem with CSS styling in WP manager (shows only 1 line)
-		// Note the [] after the name: this is important to let this input accept multiple values
-/*
-		$output = $this->wrap_label();
-		$output .= '<select multiple="multiple" name="'.$this->get_field_name().'[]" class="'
-				.$this->get_field_class($this->name, 'multiselect') . ' ' . $this->class.'" id="'.$this->get_field_id().'" '.$this->extra.'>
-				<!-- option value="">'.__('Pick One').'</option -->
-				';
-			foreach ($this->options as $opt) {
-				$opt = htmlspecialchars($opt); // Filter the values
-				$is_selected = '';
-				if ( $current_value == $opt ) {
-					$is_selected = 'selected="selected"';
-				}
-				$output .= '<option value="'.$opt.'" '.$is_selected.'>'.$opt.'</option>';
-			}
-		$output .= '</select>';
-*/
-
-		// Multiple Checkboxes
-		$output = $this->wrap_label('cctm_multiselect_checkbox') . '<br/>';
-		
-		$i = 0; // used for labels
-		$name = $this->get_field_name();
-		$id = $this->get_field_id();
-		$class = $this->get_field_class($this->name, 'muticheckbox');
-
-
+		// Get the options!
 		// we use a for loop so we can read places out of 2 similar arrays: values & options
 		$opt_cnt = count($this->options);
 		for ( $i = 0; $i < $opt_cnt; $i++ ) {
-			$is_checked = '';
-
-			$option = '';
+			
+			// initialize
+			$hash = $this->get_props();
+			$hash['is_checked'] = '';
+			$hash['is_selected'] = '';
+			$hash['option'] = '';
+			$hash['value'] = '';
+			$hash['i'] = $i;
+			
 			if (isset($this->options[$i])) {
-				$option = CCTM::charset_decode_utf_8($this->options[$i]);
+				$hash['option'] = CCTM::charset_decode_utf_8($this->options[$i]);
 			}
-			$value = '';
+			
 			if (isset($this->values[$i])) {
-				$value = CCTM::charset_decode_utf_8($this->values[$i]);
+				$hash['value'] = CCTM::charset_decode_utf_8($this->values[$i]);
 			}
 			// Simplistic behavior if we don't use key=>value pairs
 			if ( !$this->use_key_values ) {
-				$value = $option;
+				$hash['value'] = $hash['option'];
 			}
 
-			if ( is_array($current_values_arr) && in_array( trim($value), $current_values_arr) ) {
-				$is_checked = 'checked="checked"';
+			if ( is_array($current_values_arr) && in_array( trim($hash['value']), $current_values_arr) ) {
+				$hash['is_checked'] = 'checked="checked"';
+				$hash['is_selected'] = 'selected="selected"';
+				
 			}
-			//  <input type="checkbox" name="vehicle" value="Car" checked="checked" />
-			$output .= '<div class="cctm_muticheckbox_wrapper"><input type="checkbox" name="'.$name.'[]" class="'.$class.'" id="'.$id.$i.'" value="'.$value.'" '.$is_checked.'> <label class="cctm_muticheckbox" for="'.$id.$i.'">'.$option.'</label></div><br/>';
-//			$opt_i = $opt_i + 1;
-		}
 		
-		$output .= $this->wrap_description($this->props['description']);
-		if ($this->is_create_flag) {
-			$output .= '<input type="hidden" name="_cctm_is_create" value="1" />';
+			$this->content .= CCTM::parse($optiontpl, $hash);
 		}
-		return $this->wrap_outer($output);
+
+		return CCTM::parse($wrappertpl, $this->get_props());
+
 	}
 
 	//------------------------------------------------------------------------------
 	/**
 	 * Note that the HTML in $option_html should match the JavaScript version of 
-	 * the same HTML in js/manager.js (see the append_dropdown_option() function).
+	 * the same HTML in js/dropdown.js (see the append_dropdown_option() function).
 	 * I couldn't think of a clean way to do this, but the fundamental problem is 
 	 * that both PHP and JS need to draw the same HTML into this form:
 	 * PHP draws it when an existing definition is *edited*, whereas JS draws it
@@ -216,7 +233,7 @@ class CCTM_multiselect extends CCTM_FormElement
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
 					. __('Name', CCTM_TXTDOMAIN) .
 			 	'</label>
-				 <input type="text" name="name" class="'.$this->get_field_class('name','text').'" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
 				 . $this->get_translation('name') .'
 			 	</div>';
 			 	
@@ -224,7 +241,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
 			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="'.$this->get_field_class('default_value','text').'" id="default_value" value="'. CCTM::charset_decode_utf_8($def['default_value'])
+			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. CCTM::charset_decode_utf_8($def['default_value'])
 			 		.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
@@ -233,7 +250,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
 			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="'.$this->get_field_class('extra','text').'" id="extra" value="'
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
 			 			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
@@ -242,7 +259,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
 			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="'.$this->get_field_class('class','text').'" id="class" value="'
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
@@ -253,7 +270,7 @@ class CCTM_multiselect extends CCTM_FormElement
 					. __('Distinct options/values?', CCTM_TXTDOMAIN) .
 			 	'</label>
 				 <br />
-				 <input type="checkbox" name="use_key_values" class="'.$this->get_field_class('use_key_values','checkbox').'" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
+				 <input type="checkbox" name="use_key_values" class="cctm_checkbox" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
 			 	</div>';
 			
 		// OPTIONS
@@ -329,7 +346,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="'.$this->get_field_class('description','textarea').'" id="description" rows="5" cols="60">'
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
 			 		.htmlspecialchars($def['description'])
 			 		.'</textarea>
 			 	' . $this->get_translation('description').'
@@ -379,13 +396,14 @@ class CCTM_multiselect extends CCTM_FormElement
 	 * @param string	$field_name: the unique name for this instance of the field
 	 * @return	string	whatever value you want to store in the wp_postmeta table where meta_key = $field_name	
 	 */
+/*
 	public function save_post_filter($posted_data, $field_name) {
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
-			// Use this for Create Posts (yes, seriously we have doubleslash it)
-			if (isset($posted_data['_cctm_is_create'])) {			
+			// Use this for Create Posts (yes, seriously we have to doubleslash it)
+			if (isset($posted_data['_cctm_is_create'])) {
 				return addslashes(addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])));
 			}
-			// Use this for Edit Posts 
+			// Use this for Edit Posts (don't need to double-slash it ???)
 			else {
 				return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
 			}
@@ -394,6 +412,7 @@ class CCTM_multiselect extends CCTM_FormElement
 			return '';
 		}
 	}
+*/
 }
 
 

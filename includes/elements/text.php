@@ -222,11 +222,9 @@ class CCTM_text extends CCTM_FormElement
 		if ( !empty($this->supported_output_filters) ) { 
 			$out .= $this->get_available_output_filters($def);
 		}
-			 	
+					 	
 		return $out;
 	}
 
 }
-
-
 /*EOF*/

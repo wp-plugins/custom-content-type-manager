@@ -270,11 +270,14 @@ abstract class CCTM_FormElement {
 	 * @return string HTML field(s)
 	 */
 	public function get_create_field_instance() {
+		
 		if($this->is_repeatable) {			
 			$this->default_value = json_encode(array($this->default_value));
 		}
 		
-		return $this->get_edit_field_instance($this->default_value); 
+		// Add this to flag that it's a new post.
+		return $this->get_edit_field_instance($this->default_value) 
+			. '<input type="hidden" name="_cctm_is_create" value="1" />';
 	}
 
 	//------------------------------------------------------------------------------
@@ -504,15 +507,24 @@ abstract class CCTM_FormElement {
 	 * @return string whatever value you want to store in the wp_postmeta table where meta_key = $field_name
 	 */
 	public function save_post_filter($posted_data, $field_name) {
+	
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
 
-		
+			// is_array is equivalent to "is_repeatable"
 			if (is_array($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])) {
 				foreach($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ] as &$f) {
 					$f = stripslashes(trim($f));
 				}
-				return json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]);
+				// This is what preserves the foreign characters while they traverse the json and WP gauntlet
+				// (yes, seriously we have to doubleslash it when we create a new post)
+				if (isset($posted_data['_cctm_is_create'])) {
+					return addslashes(addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])));
+				}
+				else {
+					return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+				}				
 			}
+			// Normal single field
 			else{
 				return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
 			}
@@ -521,6 +533,7 @@ abstract class CCTM_FormElement {
 			return '';
 		}
 	}
+
 
 
 	//------------------------------------------------------------------------------
