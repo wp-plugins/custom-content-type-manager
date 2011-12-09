@@ -1,15 +1,15 @@
 <?php
+/*------------------------------------------------------------------------------
+Manage post_types for the given $field_name.  This is one of two controllers
+that provides an access point for editing the associations between post_types
+and fields.  This one lets you choose which post_types should contain the 
+given custom field.
+
+@param string $field_name
+------------------------------------------------------------------------------*/
+
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
-//------------------------------------------------------------------------------
-/**
- * Manage post_types for the given $field_name.  This is one of two controllers
- * that provides an access point for editing the associations between post_types
- * and fields.  This one lets you choose which post_types should contain the 
- * given custom field.
- *
- * @param string $field_name
- */
 
 $data 				= array();
 $data['page_title']	= sprintf( __('Content Types using Custom Field %s', CCTM_TXTDOMAIN), "<em>$field_name</em>" );

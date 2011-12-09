@@ -1,32 +1,14 @@
 <?php
 /**
-* CCTM_wysiwyg
-*
-* Implements a color selector input (a text field with special javascript attached).
-* http://blog.meta100.com/post/600571131/mcolorpicker
-*
-*/
+ * CCTM_wysiwyg
+ *
+ * Implements a color selector input (a text field with special javascript attached).
+ * http://blog.meta100.com/post/600571131/mcolorpicker
+ *
+ * @package CCTM_FormElement
+ */
 class CCTM_colorselector extends CCTM_FormElement
 {
-
-	/** 
-	* The $props array acts as a template which defines the properties for each instance of this type of field.
-	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
-	* Some properties are required of all fields (see below), some are automatically generated (see below), but
-	* each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
-	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
-	* 
-	* 
-	*
-	* The following properties MUST be implemented:
-	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
-	*	'label'	=> 
-	*	'description'	=> a description of this type of field.
-	*
-	* The following properties are set automatically:
-	*
-	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
-	*/
 	public $props = array(
 		'label' => '',
 		'name' => '',
@@ -83,9 +65,7 @@ class CCTM_colorselector extends CCTM_FormElement
 	/**
 	 *
 	 * @param string $current_value	current value for this field.
-	 * @return string	
-	 <label for="[+name+]" class="cctm_label cctm_textarea_label" id="cctm_label_[+name+]">[+label+]</label>
-			<textarea name="[+name+]" class="cctm_textarea" id="[+name+]" [+extra+]>[+value+]</textarea>
+	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
 		// Populate the values (i.e. properties) of this field
@@ -110,7 +90,7 @@ class CCTM_colorselector extends CCTM_FormElement
 			
 			$this->i = 0;
 			$values = (array) json_decode($current_value);
-			//die(print_r($values,true));
+
 			$this->content = '';
 			foreach($values as $v) {
 				$this->value	= htmlspecialchars( html_entity_decode($v) );
@@ -215,6 +195,10 @@ class CCTM_colorselector extends CCTM_FormElement
 			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'.htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
+
+		// Output Filter
+		$out .= $this->get_available_output_filters($def);
+			 	
 		return $out;
 	}
 }

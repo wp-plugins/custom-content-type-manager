@@ -1,31 +1,14 @@
 <?php
 /**
-* CCTM_multiselect
-*
-* Implements an HTML multi-select element with options (multiple select).
-*
-*/
+ * CCTM_multiselect
+ *
+ * Implements an HTML multi-select element with options (multiple select).
+ *
+ * @package CCTM_FormElement
+ */
+ 
 class CCTM_multiselect extends CCTM_FormElement
 {
-	/** 
-	* The $props array acts as a template which defines the properties for each instance of this type of field.
-	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
-	* Some properties are required of all fields (see below), some are automatically generated (see below), but
-	* each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
-	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
-	* 
-	* 
-	*
-	* The following properties MUST be implemented:
-	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
-	*	'label'	=> 
-	*	'description'	=> a description of this type of field.
-	*
-	* The following properties are set automatically:
-	*
-	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
-	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
-	*/
 	public $props = array(
 		'label' => '',
 		'name' => '',
@@ -38,7 +21,6 @@ class CCTM_multiselect extends CCTM_FormElement
 		'use_key_values' => 0, // if 1, then 'options' will use key => value pairs.
 		'output_filter' => 'to_array',
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
 	);
 
 	public $supported_output_filters = array('to_array','formatted_list');
@@ -79,6 +61,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	* This function should return the URL where users can read more information about
 	* the type of field that they want to add to their post_type. The string may
 	* be localized using __() if necessary (e.g. for language-specific pages)
+	*
 	* @return	string 	e.g. http://www.yoursite.com/some/page.html
 	*/
 	public function get_url() {
@@ -88,9 +71,9 @@ class CCTM_multiselect extends CCTM_FormElement
 	//------------------------------------------------------------------------------
 	/**
 	 * This is the odd duck... it could (should?) be implemented as a variation of 
-	 * the dropbox field (it is similar), but conceptually, the multi-select is a
+	 * the dropbox field (it is so similar), but conceptually, the multi-select is a
 	 * different animal.  It doesn't get "repeated" like the other fields, instead
-	 * it always stores an array of values.  Notably, this field uses only the 
+	 * it _always_ stores an array of values.  Notably, this field uses only the 
 	 * option and wrapper .tpl's.
 	 *
 	 * This is hands-down the most complex field due to the way we have to do 
@@ -99,6 +82,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	 * the multiselect fields must get the $current_value to be EXACTLY equal
 	 * to the available options, otherwise we won't know whether or not 
 	 * to check the checkbox.
+	 *
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=88
 	 *
 	 * @param string $current_value json-encoded array of selected values for the current post
@@ -204,12 +188,6 @@ class CCTM_multiselect extends CCTM_FormElement
 	 * PHP draws it when an existing definition is *edited*, whereas JS draws it
 	 * when you dynamically *create* new dropdown options.
 	 *
-
-			<style>
-			input.cctm_error { 
-				background: #fed; border: 1px solid red;
-			}
-			</style>
 	 * @param mixed $def	nested array of existing definition.
 	 */
 	public function get_edit_field_definition($def) {
@@ -353,11 +331,9 @@ class CCTM_multiselect extends CCTM_FormElement
 			 	</div>';
 
 		// Output Filter
-		if ( !empty($this->supported_output_filters) ) { 
-			$out .= $this->get_available_output_filters($def);
-		}	 
+		$out .= $this->get_available_output_filters($def);
 		 
-		 return $out;
+		return $out;
 	}
 
 	//------------------------------------------------------------------------------

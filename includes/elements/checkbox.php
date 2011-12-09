@@ -4,32 +4,12 @@
  *
  * Implements an HTML text input.
  *
- * @package
+ * @package CCTM_FormElement
  */
 
 
 class CCTM_checkbox extends CCTM_FormElement
 {
-
-	/**
-	 * The $props array acts as a template which defines the properties for each instance of this type of field.
-	 * When added to a post_type, an instance of this data structure is stored in the array of custom_fields.
-	 * Some properties are required of all fields (see below), some are automatically generated (see below), but
-	 * each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
-	 * in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
-	 *
-	 *
-	 *
-	 * The following properties MUST be implemented:
-	 * 'name'  => Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
-	 * 'label' =>
-	 * 'description' => a description of this type of field.
-	 *
-	 * The following properties are set automatically:
-	 *
-	 *  'type'    => the name of this class, minus the CCTM_ prefix.
-	 *  'sort_param'  => populated via the drag-and-drop behavior on "Manage Custom Fields" page.
-	 */
 	public $props = array(
 		'label' => '',
 		'name' => '',
@@ -43,7 +23,6 @@ class CCTM_checkbox extends CCTM_FormElement
 		'extra' => '',
 		'is_checked' => '',
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		// 'sort_param' => '', // handled automatically
 	);
 
 	//------------------------------------------------------------------------------
@@ -220,6 +199,10 @@ class CCTM_checkbox extends CCTM_FormElement
 			.'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
+
+		// Output Filter
+		$out .= $this->get_available_output_filters($def);
+
 		return $out;
 	}
 

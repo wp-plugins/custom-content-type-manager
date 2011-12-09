@@ -859,7 +859,7 @@ class CCTM {
 	 * 3rd party directory will be registered: this allows developers to override
 	 * the built-in output filter classes.
 	 *
-	 * @param unknown $scandir (optional)
+	 * @param boolean $scandir (optional) whether or not to force a scan of the directory
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
 	public static function get_available_output_filters($scandir=false) {
@@ -1002,7 +1002,7 @@ class CCTM {
 	/**
 	 * Used to identify the current user for flash messages and screen locks
 	 *
-	 * @return unknown
+	 * @return integer
 	 */
 	public static function get_identifier() {
 		global $current_user;

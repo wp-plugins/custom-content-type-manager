@@ -1,10 +1,14 @@
 <?php
+/*------------------------------------------------------------------------------
+Settings Page:
+
+Lets users configure global options.
+
+------------------------------------------------------------------------------*/
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
+require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 
-/*------------------------------------------------------------------------------
-Settings Page
-------------------------------------------------------------------------------*/
 $data 				= array();
 $data['page_title']	= __('Settings', CCTM_TXTDOMAIN);
 $data['help'] 		= 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Settings';
@@ -65,7 +69,7 @@ foreach ( $checkboxes as $k) {
 $element_files = CCTM::get_available_custom_field_types();
 $flag = false;
 foreach ( $element_files as $shortname => $file ) {
-	include_once($file);
+	require_once($file);
 
 	if ( class_exists(CCTM::classname_prefix.$shortname) )
 	{

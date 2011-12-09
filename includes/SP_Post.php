@@ -66,38 +66,6 @@ class SP_Post {
 	public function __construct($props=array()) {
 		
 	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	public function __get($k){
-		
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	public function __isset($k) {
-	
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	public function __unset($k) {
-	
-	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	public function __set($k,$v){
-		
-	}
 	
 	//------------------------------------------------------------------------------
 	//! Private Functions
@@ -193,8 +161,7 @@ class SP_Post {
 			, $post_id);
 		$wpdb->query($query);		
 		
-		// Delete any revisions, e.g.
-		// DELETE a FROM wp_posts a INNER JOIN wp_posts b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type='post'
+		// Delete any revisions
 		$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.ID=%s"
 			, $post_id);
 		$wpdb->query($query);

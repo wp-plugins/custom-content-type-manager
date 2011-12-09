@@ -1,43 +1,25 @@
 <?php
 /**
-* CCTM_dropdown
-*
-* Implements an HTML select element with options (single select).
-*
-*/
+ * CCTM_dropdown
+ *
+ * Implements an HTML select element with options (single select).
+ *
+ * @package CCTM_FormElement
+ */
 class CCTM_dropdown extends CCTM_FormElement
 {
-	/** 
-	* The $props array acts as a template which defines the properties for each instance of this type of field.
-	* When added to a post_type, an instance of this data structure is stored in the array of custom_fields. 
-	* Some properties are required of all fields (see below), some are automatically generated (see below), but
-	* each type of custom field (i.e. each class that extends CCTM_FormElement) can have whatever properties it needs
-	* in order to work, e.g. a dropdown field uses an 'options' property to define a list of possible values.
-	* 
-	* 
-	*
-	* The following properties MUST be implemented:
-	*	'name' 	=> Unique name for an instance of this type of field; corresponds to wp_postmeta.meta_key for each post
-	*	'label'	=> 
-	*	'description'	=> a description of this type of field.
-	*
-	* The following properties are set automatically:
-	*
-	* 	'type' 			=> the name of this class, minus the CCTM_ prefix.
-	* 	'sort_param' 	=> populated via the drag-and-drop behavior on "Manage Custom Fields" page.
-	*/
 	public $props = array(
 		'label' => '',
 		'name' => '',
 		'description' => '',
 		'class' => '',
-		'extra'	=> '',
+		'extra' => '',
 		'default_value' => '',
-		'options'	=> array(), 
-		'values'	=> array(), // only used if use_key_values = 1
+		'options' => array(),
+		'values' => array(), // only used if use_key_values = 1
 		'use_key_values' => 0, // if 1, then 'options' will use key => value pairs.
 		'display_type' => 'dropdown', // dropdown|radio
-		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
+		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 
 	);
 
@@ -49,36 +31,42 @@ class CCTM_dropdown extends CCTM_FormElement
 		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
 		wp_enqueue_script('cctm_dropdown');
 	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	* This function provides a name for this type of field. This should return plain
-	* text (no HTML). The returned value should be localized using the __() function.
-	* @return	string
-	*/
-	public function get_name() {
-		return __('Dropdown',CCTM_TXTDOMAIN);	
-	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	* This function gives a description of this type of field so users will know 
-	* whether or not they want to add this type of field to their custom content
-	* type. The returned value should be localized using the __() function.
-	* @return	string text description
-	*/
-	public function get_description() {
-		return __('Dropdown fields implement a <select> element which lets you select a single item.
-			"Extra" parameters, e.g. "alt" can be specified in the definition.',CCTM_TXTDOMAIN);
-	}
+
 
 	//------------------------------------------------------------------------------
 	/**
-	* This function should return the URL where users can read more information about
-	* the type of field that they want to add to their post_type. The string may
-	* be localized using __() if necessary (e.g. for language-specific pages)
-	* @return	string 	e.g. http://www.yoursite.com/some/page.html
-	*/
+	 * This function provides a name for this type of field. This should return plain
+	 * text (no HTML). The returned value should be localized using the __() function.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __('Dropdown', CCTM_TXTDOMAIN);
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This function gives a description of this type of field so users will know
+	 * whether or not they want to add this type of field to their custom content
+	 * type. The returned value should be localized using the __() function.
+	 *
+	 * @return string text description
+	 */
+	public function get_description() {
+		return __('Dropdown fields implement a <select> element which lets you select a single item.
+			"Extra" parameters, e.g. "alt" can be specified in the definition.', CCTM_TXTDOMAIN);
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This function should return the URL where users can read more information about
+	 * the type of field that they want to add to their post_type. The string may
+	 * be localized using __() if necessary (e.g. for language-specific pages)
+	 *
+	 * @return string  e.g. http://www.yoursite.com/some/page.html
+	 */
 	public function get_url() {
 		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Dropdown';
 	}
@@ -89,14 +77,14 @@ class CCTM_dropdown extends CCTM_FormElement
 	 * Get an instance of this field (used when you are creating or editing a post
 	 * that uses this type of custom field).
 	 *
-	 * @param string $current_value of the field for the current post
+	 * @param string  $current_value of the field for the current post
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
 
 		// Format for Radio buttons
 		if ( $this->display_type == 'radio' ) {
-		
+
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_radio.tpl'
@@ -113,7 +101,7 @@ class CCTM_dropdown extends CCTM_FormElement
 					, 'fields/wrappers/_radio.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
-			);			
+			);
 		}
 		// For regular selects / dropdowns
 		else {
@@ -127,7 +115,7 @@ class CCTM_dropdown extends CCTM_FormElement
 					, 'fields/elements/_dropdown.tpl'
 					, 'fields/elements/_default.tpl'
 				)
-			);					
+			);
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
@@ -136,7 +124,7 @@ class CCTM_dropdown extends CCTM_FormElement
 			);
 		}
 
-		// Some error messaging: the options thing is enforced at time of def creation, so 
+		// Some error messaging: the options thing is enforced at time of def creation, so
 		// we shouldn't ever need to enforce it here, but just in case...
 		if ( !isset($this->options) || !is_array($this->options) ) {
 			return sprintf('<p><strong>%$1s</strong> %$2s %$3s</p>'
@@ -145,19 +133,19 @@ class CCTM_dropdown extends CCTM_FormElement
 				, $data['name']
 			);
 		}
-		
-		
+
+
 		// Get the options.  This currently is not skinnable.
 		// $this->props['options'] is already bogarted by the definition.
 		$this->all_options = '';
 		// <!-- option value="">'.__('Pick One').'</option -->
 		$opt_cnt = count($this->options);
-	
-		
+
+
 		// Populate the options
 		for ( $i = 0; $i < $opt_cnt; $i++ ) {
 			$hash = array();
-			
+
 			// just in case the array isn't set
 			$hash['option'] = '';
 			if (isset($this->options[$i])) {
@@ -178,41 +166,37 @@ class CCTM_dropdown extends CCTM_FormElement
 				$hash['is_checked'] = 'checked="checked"';
 				$hash['is_selected'] = 'selected="selected"';
 			}
-			
+
 			$hash['i'] = $i;
 			$hash['id'] = $this->name;
 
 			$this->all_options .= CCTM::parse($optiontpl, $hash);
 		}
-			
+
 
 
 		// Populate the values (i.e. properties) of this field
-		$this->id 					= $this->name;
-		$this->value				= htmlspecialchars( html_entity_decode($current_value) );
+		$this->id      = $this->name;
+		$this->value    = htmlspecialchars( html_entity_decode($current_value) );
 
 		// wrap
 		$this->content = CCTM::parse($fieldtpl, $this->get_props());
-		return CCTM::parse($wrappertpl, $this->get_props());		
-		
+		return CCTM::parse($wrappertpl, $this->get_props());
+
 	}
+
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Note that the HTML in $option_html should match the JavaScript version of 
+	 * Note that the HTML in $option_html should match the JavaScript version of
 	 * the same HTML in js/dropdown.js (see the append_dropdown_option() function).
-	 * I couldn't think of a clean way to do this, but the fundamental problem is 
+	 * I couldn't think of a clean way to do this, but the fundamental problem is
 	 * that both PHP and JS need to draw the same HTML into this form:
 	 * PHP draws it when an existing definition is *edited*, whereas JS draws it
 	 * when you dynamically *create* new dropdown options.
 	 *
-
-			<style>
-			input.cctm_error { 
-				background: #fed; border: 1px solid red;
-			}
-			</style>
-	 * @param mixed $def	nested array of existing definition.
+	 * @param array   $def nested array of existing definition.
+	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
 		$is_checked = '';
@@ -221,59 +205,59 @@ class CCTM_dropdown extends CCTM_FormElement
 			$is_checked = 'checked="checked"';
 			$readonly_str = '';
 		}
-	
+
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
-			 			.__('Label', CCTM_TXTDOMAIN).'</label>
+			.__('Label', CCTM_TXTDOMAIN).'</label>
 			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
 		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
 				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
-					. __('Name', CCTM_TXTDOMAIN) .
-			 	'</label>
+			. __('Name', CCTM_TXTDOMAIN) .
+			'</label>
 				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
-				 . $this->get_translation('name') .'
+			. $this->get_translation('name') .'
 			 	</div>';
-			 	
+
 		// Default Value
 		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
 			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
-			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
+			.__('Default Value', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. htmlspecialchars($def['default_value'])
-			 		.'"/>
+			.'"/>
 			 	' . $this->get_translation('default_value') .'
 			 	</div>';
 
 		// Extra
 		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
 			 		<label for="extra" class="'.self::label_css_class.'">'
-			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
+			.__('Extra', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
-			 			.htmlspecialchars($def['extra']).'"/>
+			.htmlspecialchars($def['extra']).'"/>
 			 	' . $this->get_translation('extra').'
 			 	</div>';
 
 		// Class
 		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
 			 	<label for="class" class="'.self::label_css_class.'">'
-			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
+			.__('Class', CCTM_TXTDOMAIN) .'</label>
 			 		<input type="text" name="class" class="cctm_text" id="class" value="'
-			 			.htmlspecialchars($def['class']).'"/>
+			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
 			 	</div>';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
 				 <label for="use_key_values" class="cctm_label cctm_checkbox_label" id="use_key_values_label">'
-					. __('Distinct options/values?', CCTM_TXTDOMAIN) .
-			 	'</label>
+			. __('Distinct options/values?', CCTM_TXTDOMAIN) .
+			'</label>
 				 <br />
 				 <input type="checkbox" name="use_key_values" class="cctm_checkbox" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
 			 	</div>';
-			
+
 		// OPTIONS
 		$option_cnt = 0;
 		if (isset($def['options'])) {
@@ -282,12 +266,12 @@ class CCTM_dropdown extends CCTM_FormElement
 
 		// using the parse function because this got too crazy with escaping single quotes
 		$hash = array();
-		$hash['option_cnt'] 	= $option_cnt;
-		$hash['delete'] 		= __('Delete');
-		$hash['options'] 		= __('Options', CCTM_TXTDOMAIN);
-		$hash['values']			= __('Stored Values', CCTM_TXTDOMAIN);
-		$hash['add_option'] 	= __('Add Option',CCTM_TXTDOMAIN);
-		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
+		$hash['option_cnt']  = $option_cnt;
+		$hash['delete']   = __('Delete');
+		$hash['options']   = __('Options', CCTM_TXTDOMAIN);
+		$hash['values']   = __('Stored Values', CCTM_TXTDOMAIN);
+		$hash['add_option']  = __('Add Option', CCTM_TXTDOMAIN);
+		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);
 
 		$tpl = '
 			<table id="dropdown_options">
@@ -298,9 +282,9 @@ class CCTM_dropdown extends CCTM_FormElement
 				 <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
 				</td>
 				</thead>';
-				
+
 		$out .= CCTM::parse($tpl, $hash);
-		
+
 		// this html should match up with the js html in dropdown.js
 		$option_html = '
 			<tr id="%s">
@@ -325,7 +309,7 @@ class CCTM_dropdown extends CCTM_FormElement
 				if (isset($def['values'][$i])) {
 					$value_txt = htmlspecialchars(trim($def['values'][$i]));
 				}
-				
+
 				$option_css_id = 'cctm_dropdown_option'.$opt_i;
 				$out .= sprintf($option_html
 					, $option_css_id
@@ -333,62 +317,68 @@ class CCTM_dropdown extends CCTM_FormElement
 					, $option_txt
 					, $opt_i
 					, $value_txt
-					, $option_css_id, __('Delete') 
+					, $option_css_id, __('Delete')
 					, $opt_i
-					, __('Set as Default') 
+					, __('Set as Default')
 				);
 				$opt_i = $opt_i + 1;
 			}
 		}
-			
-		$out .= '</table>'; // close id="dropdown_options" 
+
+		$out .= '</table>'; // close id="dropdown_options"
 
 		// Display as Radio Button or as Dropdown?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="display_type_wrapper">
 				 <label class="cctm_label cctm_checkbox_label" id="display_type_label">'
-					. __('How should the field display?', CCTM_TXTDOMAIN) .
-			 	'</label>
+			. __('How should the field display?', CCTM_TXTDOMAIN) .
+			'</label>
 				 <br />
-				 <input type="radio" name="display_type" class="cctm_radio" id="display_type_dropdown" value="dropdown" '. CCTM::is_radio_selected('dropdown', CCTM::get_value($this->props, 'display_type', 'dropdown') ).'/> 
+				 <input type="radio" name="display_type" class="cctm_radio" id="display_type_dropdown" value="dropdown" '. CCTM::is_radio_selected('dropdown', CCTM::get_value($this->props, 'display_type', 'dropdown') ).'/>
 				 <label for="display_type_dropdown" class="cctm_label cctm_radio_label" id="display_type_dropdown_label">'
-					. __('Dropdown', CCTM_TXTDOMAIN) .
-			 	'</label><br />
-				 <input type="radio" name="display_type" class="cctm_radio" id="display_type_radio" value="radio" '. CCTM::is_radio_selected('radio', CCTM::get_value($this->props, 'display_type', 'dropdown')).'/> 
+			. __('Dropdown', CCTM_TXTDOMAIN) .
+			'</label><br />
+				 <input type="radio" name="display_type" class="cctm_radio" id="display_type_radio" value="radio" '. CCTM::is_radio_selected('radio', CCTM::get_value($this->props, 'display_type', 'dropdown')).'/>
 				 <label for="display_type_radio" class="cctm_label cctm_radio_label" id="display_type_radio_label">'
-					. __('Radio Button', CCTM_TXTDOMAIN) .
-			 	'</label><br />
+			. __('Radio Button', CCTM_TXTDOMAIN) .
+			'</label><br />
 			 	</div>';
-		
-		// Description	 
+
+		// Description
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
-			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
+			.__('Description', CCTM_TXTDOMAIN) .'</label>
 			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
-			 		.htmlspecialchars($def['description'])
-			 		.'</textarea>
+			.htmlspecialchars($def['description'])
+			.'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
-		 
-		 return $out;
+
+		// Output Filter
+		$out .= $this->get_available_output_filters($def);
+
+		return $out;
 	}
+
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Validate and sanitize any submitted data. Used when editing the definition for 
-	 * this type of element. Default behavior here is to require only a unique name and 
+	 * Validate and sanitize any submitted data. Used when editing the definition for
+	 * this type of element. Default behavior here is to require only a unique name and
 	 * label. Override this if customized validation is required.
 	 *
-	 * @param	array	$posted_data = $_POST data
-	 * @return	array	filtered field_data that can be saved OR can be safely repopulated
-	 *					into the field values.
+	 *     into the field values.
+	 *
+	 * @param array   $posted_data = $_POST data
+	 * @return array filtered field_data that can be saved OR can be safely repopulated
 	 */
 	public function save_definition_filter($posted_data) {
-		$posted_data = parent::save_definition_filter($posted_data);		
+		$posted_data = parent::save_definition_filter($posted_data);
 		if ( empty($posted_data['options']) ) {
 			$this->errors['options'][] = __('At least one option is required.', CCTM_TXTDOMAIN);
 		}
 		return $posted_data; // filtered data
 	}
+
 
 }
 
