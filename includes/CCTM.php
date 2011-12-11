@@ -278,6 +278,12 @@ class CCTM {
 	 */
 	public static function admin_init() {
 
+/*
+		add_image_size('tiny_thumb', 32, 32);
+		$x = wp_get_attachment_image( '770', 'medium', true, array('alt'=>'Preview', 'title'=>'Preview' ));
+		die($x);
+*/
+
 		load_plugin_textdomain( CCTM_TXTDOMAIN, false, CCTM_PATH.'/lang/' );
 
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);

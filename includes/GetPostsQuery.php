@@ -1321,19 +1321,19 @@ class GetPostsQuery {
 		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
 		$r['cctm_url'] = CCTM_URL;
 		
-		add_image_size('tiny_thumb', 30, 30);
-		
+		add_image_size('tiny_thumb', 32, 32);
+
 		// Special handling for media attachments (i.e. photos) and for 
 		// custom post-types where the custom icon has been set.
 		if ($post_type == 'attachment') {
 			$r['preview_url'] = $r['guid'];
 	
-			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
+			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], array('32','32'), true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 			$r['src_tiny_thumb'] = $src;
-			$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="30" width="30" alt="%s" />'
+			$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="32" width="32" alt="%s" />'
 				, $src, $r['preview']);
 	
-			$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN), 'title' =>__('Preview', CCTM_TXTDOMAIN) ) );
+			$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], array('32','32'), true, array('alt'=>__('Preview', CCTM_TXTDOMAIN), 'title' =>__('Preview', CCTM_TXTDOMAIN) ) );
 			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'thumbnail', true);
 			$r['src_thumbnail'] = $src;
 		}

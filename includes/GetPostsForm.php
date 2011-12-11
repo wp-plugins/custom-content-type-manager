@@ -819,6 +819,7 @@ class GetPostsForm {
 	private function _post_status() {
 		$ph = $this->placeholders;
 		$ph['value'] = $this->get_value('post_status', 'post_status');
+
 		$ph['name'] = 'post_status';
 		$ph['id']  = 'post_status';
 		$ph['label'] = __('Post Status', CCTM_TXTDOMAIN);
@@ -830,6 +831,11 @@ class GetPostsForm {
 
 		foreach ($post_statuses as $ps) {
 			$ph2 = $this->placeholders;
+			$ph2['name'] = 'post_status[]';
+			$ph2['is_checked'] = '';
+			if (in_array($ps, $ph['value'])) {
+				$ph2['is_checked'] = ' checked="checked"';
+			}	
 			$ph2['value'] = $ps;
 			$ph2['label'] = $ps;
 			$ph2['input_class'] = 'input_checkbox';

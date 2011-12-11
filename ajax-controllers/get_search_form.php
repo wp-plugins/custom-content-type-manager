@@ -77,7 +77,7 @@ switch ($type) {
 		$search_by[] = 'post_parent';
 		$search_by[] = 'meta_key';
 		$search_by[] = 'meta_value';
-		
+		$search_by[] = 'post_status';
 		//$search_by[] = 'search_term';
 		//$search_by[] = 'search_columns';
 }
