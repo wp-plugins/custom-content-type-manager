@@ -269,3 +269,11 @@ span.cctm_close_rollover:hover {
 	vertical-align: middle;
 	background: url("../images/sortable.png") no-repeat left center;
 }
+
+.cctm_instance_wrapper {
+	padding-top: 15px;
+}
+
+.cctm_thickbox_menu {
+	margin-bottom: 20px;
+}

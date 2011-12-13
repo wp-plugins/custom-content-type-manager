@@ -3,8 +3,11 @@
 		jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
 	});
 </script>
-<span class="button primary" onclick="javascript:add_to_post();">Add to Post</span> <span class="button" onclick="javascript:save_and_close();">Add to Post and Close</span>
-<br/>
+
+<div class="cctm_thickbox_menu">
+	<span class="button primary" onclick="javascript:add_to_post();">Add to Post</span> <span class="button" onclick="javascript:save_and_close();">Add to Post and Close</span>
+</div>
+
 <!-- fieldset used by the checkall function -->
 <fieldset>
 <table class="wp-list-table widefat">
@@ -14,7 +17,7 @@
 			<th class="manage-column column-title sortable"><a href="javascript:thickbox_sort_results('post_title');">[+post_title+]</a></th>
 			<th class="manage-column column-title sortable"><a href="javascript:thickbox_sort_results('post_type');">[+post_type+]</a></th>
 			<th class="manage-column column-title sortable"><a href="javascript:thickbox_sort_results('post_date');">[+post_date+]</a></th>
-			<th>&nbsp;</th>
+			<th> this</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -27,7 +30,7 @@
 			<th class="manage-column column-title sortable"><a href="javascript:thickbox_sort_results('post_title');">[+post_title+]</a></th>
 			<th class="manage-column column-title sortable"><a href="javascript:thickbox_sort_results('post_type');">[+post_type+]</a></th>
 			<th class="manage-column column-title sortable"><a href="javascript:thickbox_sort_results('post_date');">[+post_date+]</a></th>
-			<th>&nbsp;</th>
+			<th>this</th>
 		</tr>
 	</tfoot>
 </table>

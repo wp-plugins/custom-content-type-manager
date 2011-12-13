@@ -207,8 +207,8 @@ class GetPostsQuery {
 		// Skip the non-public post-types
 		$this->defaults['omit_post_type'] = array_keys(get_post_types(array('public' => false)));
 		
-		// Default operation is to use the default args
-		$this->args = $this->defaults; 
+		// Use the default args?  That fetters operation as an API
+		//$this->args = $this->defaults; 
 		
 		// Scrub up for dinner
 		foreach ($raw_args as $k => $v) {
@@ -226,6 +226,11 @@ class GetPostsQuery {
 	 * @return mixed
 	 */
 	public function __get($var) {
+/*
+		if ($var == 'omit_post_type') {
+			die(print_r(debug_backtrace(), true));
+		}
+*/
 		if ( in_array($var, array_keys($this->args))) {
 			return $this->args[$var];
 		}
@@ -636,10 +641,11 @@ class GetPostsQuery {
 		}
 
 		if ($arg == 'post_type') {
-			if (in_array($val, $this->omit_post_type)) {
+			$omit_post_type = $this->omit_post_type;
+			if (in_array($val, $omit_post_type)) {
 				
 				$new_omits = array();
-				foreach ($this->omit_post_type as $pt) {
+				foreach ($omit_post_type as $pt) {
 					if ($pt != $val) {
 						$new_omits[] = $pt;		
 					}
@@ -1302,7 +1308,16 @@ class GetPostsQuery {
 	//! Public Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Given a post ID, append extra data to the record.
+	 * !!!TODO: where the F should this function go? 
+	 *
+	 * Given a post ID, this function will append the following datapoints to the 
+	 * record:
+	 *		preview			(translation of "Preview")
+	 * 		remove			(translation of "Remove"
+	 *		cctm_url		CCTM_URL: url to CCTM base folder
+	 *		img_thumbnail
+	 *		src_thumbnail
+	 *		preview_url		= guid
 	 *
 	 * @param	array $id post id
 	 * @param	array	record
@@ -1313,34 +1328,76 @@ class GetPostsQuery {
 		}
 		
 		$r = $this->get_post($id);
-		// print '<pre>'. print_r($r, true) . '</pre>'; exit;		
+		
 		$post_type = $r['post_type'];
-		//	die($r['post_type']);
+		
 		// Some translated labels and stuff
 		$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
 		$r['cctm_url'] = CCTM_URL;
-		
-		add_image_size('tiny_thumb', 32, 32);
+		$r['preview_url'] = $r['guid'];
 
 		// Special handling for media attachments (i.e. photos) and for 
 		// custom post-types where the custom icon has been set.
-		if ($post_type == 'attachment') {
-			$r['preview_url'] = $r['guid'];
-	
-			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], array('32','32'), true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
-			$r['src_tiny_thumb'] = $src;
-			$r['img_tiny_thumb'] = sprintf('<img class="mini-thumbnail" src="%s" height="32" width="32" alt="%s" />'
-				, $src, $r['preview']);
-	
-			$r['img_thumbnail'] = wp_get_attachment_image( $r['ID'], array('32','32'), true, array('alt'=>__('Preview', CCTM_TXTDOMAIN), 'title' =>__('Preview', CCTM_TXTDOMAIN) ) );
-			list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'thumbnail', true);
-			$r['src_thumbnail'] = $src;
+		if ($post_type == 'attachment' && preg_match('/^image/',$r['post_mime_type'])) {
+
+			// Custom handling of images. See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
+			$WIDTH = 50;
+			$HEIGHT = 50;
+			$QUALITY = 100;
+			
+			$cached_name = md5(print_r($r,true).$WIDTH.$HEIGHT.$QUALITY); // minus the extension
+			
+			$info = pathinfo($r['guid']);
+			$ext = '.'.$info['extension'];
+			$upload_dir = wp_upload_dir();
+			$dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/';
+
+			$r['src_tiny_thumb'] = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/'.$cached_name.$ext;
+			$r['img_thumbnail'] = sprintf('<img src="%s" height="%s" width="%s" alt="%s" />'
+						, $r['src_tiny_thumb'], $HEIGHT, $WIDTH, $r['preview']);
+						
+			// Create a new image if the cached version exists?
+			if (!file_exists($dir.$cached_name.$ext)) {
+				
+				// Cache dir doesn't exist 
+				if (!file_exists($dir)) {
+					// ... and we can't create it
+					if (!mkdir($dir)) {
+						// Failed to create the dir... now what?!?  We cram the full-sized image into the 
+						// small image tag. Bru-haha.  But seriously.  This is awful. Please don't tell.
+						$r['src_tiny_thumb'] = $r['guid'];
+						$r['img_thumbnail'] = sprintf('<img src="%s" height="%s" width="%s" alt="%s" />'
+							, $r['guid'], $HEIGHT, $WIDTH, $r['preview']
+						);
+						// Notify the user
+						CCTM::$errors['could_not_create_cache_dir'] = sprintf(
+							__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
+							, "<code>$dir</code>. Please create the directory with permissions so PHP can write to it.");
+					}
+				}
+				// the cache directory exits; create the cached image
+				else {
+					require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
+					$image = new CCTM_SimpleImage();
+					$image->load($r['guid']);
+					$image->resize(32, 32);
+					$img = $dir.$cached_name.$ext;
+					if (!$image->save($img, IMAGETYPE_JPEG, $QUALITY)) {
+						CCTM::$errors['could_not_create_img'] = sprintf(
+							__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
+							, "<code>$img</code>");
+						$r['src_tiny_thumb'] = $r['guid'];
+						$r['img_thumbnail'] = sprintf('<img src="%s" height="%s" width="%s" alt="%s" />'
+							, $r['guid'], $HEIGHT, $WIDTH, $r['preview']
+						);
+					}
+				}
+			}
 		}
-		// Other post-types
+		// Other Attachments and other post-types
 		else
 		{
-			//die('ack...');
 			$r['preview_url'] = $r['guid'].'&preview=true';
 			
 			if (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
@@ -1354,6 +1411,7 @@ class GetPostsQuery {
 				$r['src_thumbnail'] = $r['src_tiny_thumb'];
 				
 			}
+			// Built in WP types
 			else {
 				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 				$r['src_tiny_thumb'] = $src;

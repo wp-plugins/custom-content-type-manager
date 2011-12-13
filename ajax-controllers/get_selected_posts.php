@@ -16,10 +16,9 @@ if (!current_user_can('edit_posts')) exit('You do not have permission to do that
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
-//require_once(CCTM_PATH.'/includes/GetPostsForm.php');
+
 $d = array(); // <-- Template Variables
 
-// print '<pre>'.print_r($_POST, true) . '</pre>';return;
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
 if (empty($raw_fieldname)) {
@@ -33,7 +32,6 @@ if (empty($def)) {
 	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
 	return;
 }
-// print '<p>Here:'.print_r($def, true).'</p>';
 
 // Will be either the single or the multi, depending.
 $tpl = '';
@@ -68,24 +66,22 @@ else {
 		)
 	);
 }
-//print $tpl; return;
+
 // Just in case...
 if (empty($tpl)) {
 	print '<p>'.__('Formatting template not found!', CCTM_TXTDOMAIN).'</p>';
 	return;	
 
 }
-//print '<pre>'.print_r($_POST,true).'</pre>'; return;
+
 //------------------------------------------------------------------------------
 // Begin!
 //------------------------------------------------------------------------------
 
 $Q = new GetPostsQuery(); 
-//$args['include'] = $post_ids;
-//$results = $Q->get_posts($args);
-$Q->include = $post_ids;
-
-$results = $Q->get_posts();
+$Q->defaults = array(); // blank it out... everything is fair game.
+$args['include'] = $post_ids;
+$results = $Q->get_posts($args);
 
 // Mostly just stuff from the full object record (the post and *all* custom fields),
 // but we add a couple things in here for formatting purposes.
@@ -100,6 +96,7 @@ foreach($results as $r) {
 	$r['name'] = $fieldname;	
 	$r['id_prefix'] = CCTM_FormElement::css_id_prefix;
 	$r['name_prefix'] = CCTM_FormElement::post_name_prefix;
+
 
 	print CCTM::parse($tpl, $r);
 }

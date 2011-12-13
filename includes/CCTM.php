@@ -208,6 +208,10 @@ class CCTM {
 	 */
 	public static $errors;
 
+	/**
+	 * Used for search parameters
+	 */
+	public static $search_by = array();
 
 	//! Private Functions
 	//------------------------------------------------------------------------------
@@ -1492,6 +1496,59 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * When given a PHP file name relative to the CCTM_PATH, e.g. '/config/image_search_parameters.php',
+	 * this function will include that file using php include(). However, if the same file exists
+	 * in the same location relative to the wp-content/uploads/cctm directory, THAT version of 
+	 * the file will be used. E.g. calling load_file('test.php') will include 
+	 * wp-content/uploads/cctm/test.php (if it exists); if the file doesn't exist in the uploads
+	 * directory, then we'll look for the file inside the CCTM_PATH, e.g.
+	 * wp-content/plugins/custom-content-type-manager/test.php 
+	 *
+	 * The purpose of this is to let users override certain files by placing their own in a location
+	 * that is *outside* of this plugin's directory so that the user-created files will be safe
+	 * from any overriting or deleting that may occur if the plugin is updated.
+	 *	 
+	 *
+	 * Developers of 3rd party components can supply additional paths $path if they wish to load files
+	 * in their components: if the $additional_path is supplied, this directory will be searched for tpl in question.
+	 *
+	 * To prevent directory transversing, file names may not contain '..'!
+	 *
+	 * @param	string	$file: filename relative to the path, e.g. '/config/x.php'. Should begin with "/"
+	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
+	 */
+	public static function load_file($file, $additional_paths=null) {
+
+		if (!is_array($additional_paths)){
+			$additional_paths = array($additional_paths);
+		}
+		
+		// Populate the list of directories we will search in order. 
+		$upload_dir = wp_upload_dir();
+		$paths = array();
+		$paths[] = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir;
+		$paths[] = CCTM_PATH;
+		$paths = array_merge($paths, $additional_paths);
+
+		if (preg_match('/\.\./', $file)) {
+			die( sprintf(__('Invaid file name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlentities($file).'</em>'));
+		}
+		
+		if (!preg_match('/\.php$/', $file)) {
+			die( sprintf(__('Invaid file name! %s  Name must end with .php!', CCTM_TXTDOMAIN), '<em>'.htmlentities($file).'</em>'));
+		}		
+		
+		// Look through the directories in order.
+		foreach ($paths as $dir) {
+			if (file_exists($dir.$file)) { 
+				include($dir.$file);
+				return;
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
 	 * Similar to the load_view function, this retrieves a tpl.  It allows users to
 	 * override the built-in tpls (stored in the plugin's directory) with tpls stored
 	 * in the wp uploads directory.
@@ -1507,7 +1564,7 @@ class CCTM {
 	 *
 	 * To prevent directory transversing, tpl names may not contain '..'!
 	 *
-	 * @param	array|string	$name: singe name or array of tpl names, each relative to the path, e.g. 'fields/date.tpl'. The first one in the list found will be used.
+	 * @param	array|string	$name: single name or array of tpl names, each relative to the path, e.g. 'fields/date.tpl'. The first one in the list found will be used.
 	 * @param	array|string	(optional) $additional_paths: this adds one more path to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
 	 * @return	string	the file contents (not parsed) OR a boolean false if nothing was found.
 	 */

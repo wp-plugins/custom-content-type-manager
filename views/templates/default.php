@@ -8,6 +8,7 @@ $data['msg']:			Any message (e.g. after form submission)
 $data['menu']:			Navigation links (e.g. back, cancel, etc)
 $data['content']:		Main content block
 ------------------------------------------------------------------------------*/
+// CSS classes
 $active = array();
 $active['cctm']   = '';
 $active['cctm_fields'] = '';

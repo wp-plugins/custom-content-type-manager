@@ -615,6 +615,7 @@ class GetPostsForm {
 		foreach ($post_types as $k => $pt) {
 			$ph2 = $this->placeholders;
 			$ph2['value'] = $k;
+			$ph2['name'] = 'omit_post_type[]';
 			$ph2['label'] = $pt;
 			$ph2['input_class'] = 'input_checkbox';
 			$ph2['label_class'] = 'label_checkbox';

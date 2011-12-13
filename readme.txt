@@ -3,9 +3,9 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.0.1
-Tested up to: 3.2.1
+Tested up to: 3.3
 Stable tag: 0.9.4.5
-Version: 0.9.5.0-rc
+Version: 0.9.5.0-rc2
 
 Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
@@ -86,6 +86,8 @@ Major release!
 * Integrated the [Summarize Posts](http://code.google.com/p/wordpress-summarize-posts/) plugin: this gives all kinds of power to searching for posts.
 * All fields can now be "repeatable" so you can select multiple values, e.g. images, relations, textareas...
 * Cleaner Ajax implementation [Issue 226](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226).  This should make the plugin work better on sites with customized folder structures.
+* You can now configure search parameters to determine which posts are available in your post-selector for relation, image, and media fields.
+
 
 = 0.9.4.5 =
 

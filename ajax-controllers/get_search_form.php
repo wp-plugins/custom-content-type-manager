@@ -45,41 +45,11 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
 $Form = new GetPostsForm();
 
-// How should we search?
-$search_by = array();
+// How should we search?  Load up the config...
+CCTM::load_file('/config/'.$type.'_search_parameters.php');
 
-switch ($type) {
-	/**
-	 * WP doesn't support  taxonomies for media items, and the custom fields aren't useful: 
-	 * _wp_attached_file, _wp_attachment_metadata (serialized)
-	 */
-	case 'image':
-		$search_by[] = 'post_mime_type';
-		$search_by[] = 'search_term';
-		$search_by[] = 'search_columns';
-		$search_by[] = 'match_rule';
-		$search_by[] = 'post_parent';
-		break;
-		
-	case 'media':
-		$search_by[] = 'post_mime_type';
-		$search_by[] = 'search_term';
-		$search_by[] = 'search_columns';
-		$search_by[] = 'match_rule';
-		$search_by[] = 'post_parent';
-		break;
-	
-	// Relation etc.	
-	default:
-		$search_by[] = 'post_type';
-		$search_by[] = 'taxonomy';
-		$search_by[] = 'taxonomy_term';
-		$search_by[] = 'post_parent';
-		$search_by[] = 'meta_key';
-		$search_by[] = 'meta_value';
-		$search_by[] = 'post_status';
-		//$search_by[] = 'search_term';
-		//$search_by[] = 'search_columns';
+if (empty(CCTM::$search_by)) {
+	CCTM::load_file('/config/default_search_parameters.php');
 }
 
 $form_tpl = '
@@ -98,6 +68,6 @@ $Form->set_name_prefix('');
 $Form->set_id_prefix('');
 
 $Form->set_tpl($form_tpl);
-print $Form->generate($search_by, $existing_values);
+print $Form->generate(CCTM::$search_by, $existing_values);
 
 /*EOF*/

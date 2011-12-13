@@ -1,13 +1,16 @@
 <?php
+/*------------------------------------------------------------------------------
+This controller displays a selection of posts for the user to select.
+The thickbox appears (for example) when you create or edit a post that uses a relation,
+image, or media field.
+------------------------------------------------------------------------------*/
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) die('You do not have permission to do that.');
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 require_once(CCTM_PATH.'/includes/GetPostsForm.php');
-/*------------------------------------------------------------------------------
-This controller displays a selection of posts for the user to select.
-------------------------------------------------------------------------------*/
+
 
 // Template Variables Initialization
 $d = array(); 
@@ -60,11 +63,10 @@ if (isset($_POST['search_parameters'])) {
 	// Unsest these, otherwise the query will try to search them as custom field values.
 	unset($args['page_number']);
 	unset($args['fieldname']);
-	//print '<pre>'; print_r($args); print '</pre>';
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
-// TODO: make this configurable
+// !TODO: put this configuration stuff into the /config/ files
 $defaults = array();
 
 switch ($def['type']) {
@@ -93,8 +95,6 @@ switch ($def['type']) {
 }
 $defaults['limit'] = $results_per_page;
 $defaults['paginate'] = 1;
-
-//print '<pre>'.print_r($defaults,true).'</pre>'; return;
 
 // optionally get pages to exclude
 if (isset($_POST['exclude'])) {

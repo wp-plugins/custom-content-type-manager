@@ -3,8 +3,11 @@
 		jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
 	});
 </script>
-<span class="button primary" onclick="javascript:add_to_post();">Add to Post</span> <span class="button" onclick="javascript:save_and_close();">Add to Post and Close</span>
-<br/>
+
+<div class="cctm_thickbox_menu">
+	<span class="button primary" onclick="javascript:add_to_post();">Add to Post</span> <span class="button" onclick="javascript:save_and_close();">Add to Post and Close</span>
+</div>
+
 <!-- fieldset used by the checkall function -->
 <fieldset>
 <table class="wp-list-table widefat">
