@@ -1326,7 +1326,7 @@ class GetPostsQuery {
 		if (empty($id) || $id == 0) {
 			return array();
 		}
-		
+		$this->defaults = array();
 		$r = $this->get_post($id);
 		
 		$post_type = $r['post_type'];
@@ -1356,10 +1356,10 @@ class GetPostsQuery {
 			$r['src_tiny_thumb'] = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/'.$cached_name.$ext;
 			$r['img_thumbnail'] = sprintf('<img src="%s" height="%s" width="%s" alt="%s" />'
 						, $r['src_tiny_thumb'], $HEIGHT, $WIDTH, $r['preview']);
-						
+			//die(print_r($r,true));			
 			// Create a new image if the cached version exists?
 			if (!file_exists($dir.$cached_name.$ext)) {
-				
+
 				// Cache dir doesn't exist 
 				if (!file_exists($dir)) {
 					// ... and we can't create it
@@ -1411,7 +1411,7 @@ class GetPostsQuery {
 				$r['src_thumbnail'] = $r['src_tiny_thumb'];
 				
 			}
-			// Built in WP types
+			// Built-in WP types
 			else {
 				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 				$r['src_tiny_thumb'] = $src;
@@ -1423,6 +1423,7 @@ class GetPostsQuery {
 				$r['src_thumbnail'] = $src;
 			}
 		}
+		//die(print_r($r,true));
 		return $r;	
 	}
 

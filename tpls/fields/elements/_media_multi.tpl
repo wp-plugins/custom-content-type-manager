@@ -4,7 +4,7 @@
 	<table>
 		<tr>
 			<td>
-				<a href="[+preview_url+]" target="_blank" title="[+preview+]">[+img_thumbnail+]</a>				
+				<a rel="[+id_prefix+][+id+]" href="[+guid+]?" title="[+preview+]" class="thickbox">[+img_thumbnail+]</a>				
 			</td>
 			<td>
 				<p>[+post_title+] <span class="cctm_id_label">([+post_id+])</span>

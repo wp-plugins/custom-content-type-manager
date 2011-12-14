@@ -1130,15 +1130,14 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * !TODO: see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=170
 	 *
 	 * @param unknown $stuff
-	 * @return unknown
+	 * @return string
 	 */
 	public static function highlight_cctm_compatible_themes($stuff) {
 		$stuff[] = 'CCTM compatible!';
 		return $stuff;
-		print $stuff; exit;
 	}
 
 
