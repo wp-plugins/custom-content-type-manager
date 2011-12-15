@@ -45,18 +45,23 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
 $Form = new GetPostsForm();
 
-// How should we search?  Load up the config...
-CCTM::load_file('/config/'.$type.'_search_parameters.php');
+// What options should be displayed on the form that defines the search?  
+// Load up the config...
+$possible_configs = array();
+$possible_configs[] = '/config/search_parameters/'.$fieldname.'.php'; 	// e.g. my_field.php
+$possible_configs[] = '/config/search_parameters/_'.$type.'.php'; 		// e.g. _image.php
+$possible_configs[] = '/config/search_parameters/_default.php';
 
-if (empty(CCTM::$search_by)) {
-	CCTM::load_file('/config/default_search_parameters.php');
+if (!CCTM::load_file($possible_configs)) {
+	print '<p>'.__('Search parameter configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
 }
 
+// TODO: put this into the tpls folder and a make a view for it.
 $form_tpl = '
 <style>
 [+css+]
 </style>
-<p>This form will determine which posts will be selectable when users create or edit a post that uses this field.</p>
+<p>This form will determine which posts will be selectable when users create or edit a post that uses this field. <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SearchParameters"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a></p>
 <form id="search_parameters_form" class="[+form_name+]">
 	[+content+]
 	<span class="button" onclick="javascript:search_parameters_save(\'search_parameters_form\');">Save</span>

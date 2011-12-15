@@ -282,12 +282,6 @@ class CCTM {
 	 */
 	public static function admin_init() {
 
-/*
-		add_image_size('tiny_thumb', 32, 32);
-		$x = wp_get_attachment_image( '770', 'medium', true, array('alt'=>'Preview', 'title'=>'Preview' ));
-		die($x);
-*/
-
 		load_plugin_textdomain( CCTM_TXTDOMAIN, false, CCTM_PATH.'/lang/' );
 
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
@@ -453,147 +447,14 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Create custom post-type menu
-	 * To avoid having the 1st submenu page be a duplicate of the parent item,
-	 * make the menu_slug equal to the parent menu_slug; however then all incoming
-	 * links are then identified by the same $_GET param. For some reason, this
-	 * causes all my admin pages to print twice.
+	 * Create custom post-type menu.  This should only be visible to
+	 * admin users (single-sites) or the super_admin users (multi-site).
 	 *
 	 * See http://codex.wordpress.org/Administration_Menus
+	 * http://wordpress.org/support/topic/plugin-custom-content-type-manager-multisite?replies=18#post-2501711
 	 */
 	public static function create_admin_menu() {
-		$active_post_types = self::get_active_post_types();
-
-		// Main menu item
-		add_menu_page(
-			__('Manage Custom Content Types', CCTM_TXTDOMAIN),  // page title
-			__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
-			'manage_options',              // capability
-			'cctm',            // menu-slug (should be unique)
-			'CCTM::page_main_controller',        // callback function
-			CCTM_URL .'/images/gear.png',        // Icon
-			self::menu_position         // menu position
-		);
-
-		add_submenu_page(
-			'cctm',          // parent slug (menu-slug from add_menu_page call)
-			__('CCTM Custom Fields', CCTM_TXTDOMAIN),  // page title
-			__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
-			'manage_options',        // capability
-			'cctm_fields',         // menu_slug: cf = custom fields
-			'CCTM::page_main_controller'     // callback function
-		);
-
-		add_submenu_page(
-			'cctm',         // parent slug (menu-slug from add_menu_page call)
-			__('CCTM Global Settings', CCTM_TXTDOMAIN),  // page title
-			__('Global Settings', CCTM_TXTDOMAIN),   // menu title
-			'manage_options',       // capability
-			'cctm_settings',       // menu_slug
-			'CCTM::page_main_controller'    // callback function
-		);
-
-		/*
-		add_submenu_page(
-			'cctm', 								// parent slug (menu-slug from add_menu_page call)
-			__('CCTM Themes', CCTM_TXTDOMAIN), 		// page title
-			__('Themes', CCTM_TXTDOMAIN), 			// menu title
-			'manage_options', 						// capability
-			'cctm_themes',  						// menu_slug
-			'CCTM::page_main_controller' 			// callback function
-		);
-*/
-
-		add_submenu_page(
-			'cctm',         // parent slug (menu-slug from add_menu_page call)
-			__('CCTM Tools', CCTM_TXTDOMAIN),   // page title
-			__('Tools', CCTM_TXTDOMAIN),    // menu title
-			'manage_options',       // capability
-			'cctm_tools',        // menu_slug
-			'CCTM::page_main_controller'    // callback function
-		);
-
-		/*
-		add_submenu_page(
-			'cctm', 								// parent slug (menu-slug from add_menu_page call)
-			__('CCTM Information', CCTM_TXTDOMAIN), // page title
-			__('Info', CCTM_TXTDOMAIN), 			// menu title
-			'manage_options', 						// capability
-			'cctm_info', 							// menu_slug
-			'CCTM::page_main_controller' 			// callback function
-		);
-*/
-
-		/*
-		add_submenu_page(
-			'cctm',				 					// parent slug (menu-slug from add_menu_page call)
-			__('CCTM Store', CCTM_TXTDOMAIN), 		// page title
-			__('Store', CCTM_TXTDOMAIN), 			// menu title
-			'manage_options', 						// capability
-			'cctm_store', 							// menu_slug
-			'CCTM::page_main_controller' 			// callback function
-		);
-
-		add_submenu_page(
-			'cctm',				 					// parent slug (menu-slug from add_menu_page call)
-			__('CCTM Help', CCTM_TXTDOMAIN), 		// page title
-			__('Help', CCTM_TXTDOMAIN), 			// menu title
-			'manage_options', 						// capability
-			'cctm_help',					 		// menu_slug
-			'CCTM::page_main_controller' 			// callback function
-		);
-
-	add_submenu_page(
-		'themes.php'
-		, _x('Editor', 'theme editor')
-		, _x('Editor', 'theme editor')
-		, 'edit_themes'
-		, 'theme-editor.php');
-	add_submenu_page(
-		$ptype_obj->show_in_menu,
-		$ptype_obj->labels->name,
-		$ptype_obj->labels->all_items,
-		$ptype_obj->cap->edit_posts
-		, "edit.php?post_type=$ptype" );
-
-*/
-		// print '<pre>'; print_r(self::$data); print '</pre>'; exit;
-		// Add Custom Fields links
-		if (self::get_setting('show_custom_fields_menu')) {
-			foreach ($active_post_types as $post_type) {
-				$parent_slug = 'edit.php?post_type='.$post_type;
-				if ($post_type == 'post') {
-					$parent_slug = 'edit.php';
-				}
-				add_submenu_page(
-					$parent_slug
-					, __('Custom Fields', CCTM_TXTDOMAIN)
-					, __('Custom Fields', CCTM_TXTDOMAIN)
-					, 'manage_options'
-					, 'cctm&a=list_pt_associations&pt='.$post_type
-					, 'CCTM::page_main_controller'
-				);
-			}
-		}
-
-		// Add Settings links
-		if (self::get_setting('show_settings_menu')) {
-			foreach ($active_post_types as $post_type) {
-				$parent_slug = 'edit.php?post_type='.$post_type;
-				if ( in_array($post_type, self::$reserved_post_types) ) {
-					continue;
-				}
-				add_submenu_page(
-					$parent_slug
-					, __('Settings', CCTM_TXTDOMAIN)
-					, __('Settings', CCTM_TXTDOMAIN)
-					, 'manage_options'
-					, 'cctm&a=edit_post_type&pt='.$post_type
-					, 'CCTM::page_main_controller'
-				);
-			}
-		}
-
+		self::load_file('/config/menus/admin_menu.php');
 	}
 
 
@@ -938,6 +799,109 @@ class CCTM {
 		return dirname(dirname(__FILE__));
 	}
 
+
+	//------------------------------------------------------------------------------
+	/**
+	 * This will get thumbnail info and append it to the record, creating cached 
+	 * images on the fly if possible.  The following keys are added to the array:
+	 *
+	 *		thumbnail_url
+	 *
+	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
+	 *
+	 * @param	integer	post_id of the post for which we want the thumbnail
+	 * @return	arary	an associative array of the post 
+	 */
+	public static function get_thumbnail($id) {
+		if (empty($id) || $id == 0) {
+			return array();
+		}
+		
+		$Q = new GetPostsQuery();		
+		$Q->defaults = array();
+		$r = $Q->get_post($id);
+		
+		$post_type = $r['post_type'];
+		
+		// Some translated labels and stuff
+		$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
+		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
+		$r['cctm_url'] = CCTM_URL;
+		$r['preview_url'] = $r['guid'];
+
+		// Special handling for media attachments (i.e. photos) and for 
+		// custom post-types where the custom icon has been set.
+		if ($post_type == 'attachment' && preg_match('/^image/',$r['post_mime_type'])) {
+
+			// Custom handling of images. See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
+			$WIDTH = 50;
+			$HEIGHT = 50;
+			$QUALITY = 100;
+			
+			$cached_name = md5(print_r($r,true).$WIDTH.$HEIGHT.$QUALITY); // minus the extension
+			
+			$info = pathinfo($r['guid']);
+			$ext = '.'.$info['extension'];
+			$upload_dir = wp_upload_dir();
+			
+			$cache_dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/';
+			$image_path = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;;
+			$image_url = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;
+
+			$r['thumbnail_url'] = 	$image_url;
+
+			//die(print_r($r,true));			
+			// Create a new image if the cached version exists?
+			if (!file_exists($image_path)) {
+
+				// Cache dir doesn't exist 
+				if (!file_exists($cache_dir)) {
+					// ... and we can't create it
+					if (!mkdir($cache_dir)) {
+						// Failed to create the dir... now what?!?  We cram the full-sized image into the 
+						// small image tag, which is exactly what WP does (yes, seriously.)
+						$r['thumbnail_url'] = $r['guid'];
+						// Notify the user
+						CCTM::$errors['could_not_create_cache_dir'] = sprintf(
+							__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
+							, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
+					}
+				}
+				// the cache directory exits; create the cached image
+				else {
+					require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
+					$image = new CCTM_SimpleImage();
+					$image->load($r['guid']);
+					$image->resize(32, 32);
+					if (!$image->save($image_path, IMAGETYPE_JPEG, $QUALITY)) {
+						CCTM::$errors['could_not_create_img'] = sprintf(
+							__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
+							, "<code>$img</code>");
+						$r['thumbnail_url'] = $r['guid'];
+					}
+				}
+			}
+		}
+		// Other Attachments and other post-types: we go for the custom icon
+		else
+		{
+			$r['preview_url'] = $r['guid'].'&preview=true';
+			
+			if (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+					&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
+				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+				$r['thumbnail_url'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
+				
+			}
+			// Built-in WP types: we go for the default icon.
+			else {
+				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
+				$r['thumbnail_url'] = $src;
+			}
+		}
+		//die(print_r($r,true));
+		return $r;	
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1513,10 +1477,15 @@ class CCTM {
 	 *
 	 * To prevent directory transversing, file names may not contain '..'!
 	 *
-	 * @param	string	$file: filename relative to the path, e.g. '/config/x.php'. Should begin with "/"
+	 * @param	array|string	$files: filename relative to the path, e.g. '/config/x.php'. Should begin with "/"
 	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
+	 * @param	mixed	file name used on success, false on fail.
 	 */
-	public static function load_file($file, $additional_paths=null) {
+	public static function load_file($files, $additional_paths=null) {
+
+		if (!is_array($files)){
+			$files = array($files);
+		}
 
 		if (!is_array($additional_paths)){
 			$additional_paths = array($additional_paths);
@@ -1529,20 +1498,31 @@ class CCTM {
 		$paths[] = CCTM_PATH;
 		$paths = array_merge($paths, $additional_paths);
 
+		// pull a file off the stack, then look for it
+		$file = array_shift($files);
+		
 		if (preg_match('/\.\./', $file)) {
-			die( sprintf(__('Invaid file name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlentities($file).'</em>'));
+			die( sprintf(__('Invaid file name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($file).'</em>'));
 		}
 		
 		if (!preg_match('/\.php$/', $file)) {
-			die( sprintf(__('Invaid file name! %s  Name must end with .php!', CCTM_TXTDOMAIN), '<em>'.htmlentities($file).'</em>'));
+			die( sprintf(__('Invaid file name! %s  Name must end with .php!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($file).'</em>'));
 		}		
 		
 		// Look through the directories in order.
 		foreach ($paths as $dir) {
 			if (file_exists($dir.$file)) { 
 				include($dir.$file);
-				return;
+				return $dir.$file;
 			}
+		}
+		
+		// Try again with the remaining files... or fail.
+		if (!empty($files)) {
+			return self::load_file($files, $additional_paths);
+		}
+		else {
+			return false;
 		}
 	}
 
@@ -1587,11 +1567,11 @@ class CCTM {
 		$tpl = array_shift($tpls);
 
 		if (preg_match('/\.\./', $tpl)) {
-			die( sprintf(__('Invaid tpl name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlentities($tpl).'</em>'));
+			die( sprintf(__('Invaid tpl name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($tpl).'</em>'));
 		}
 		
 		if (!preg_match('/\.tpl$/', $tpl)) {
-			die( sprintf(__('Invaid tpl name! %s  Name must end with .tpl!', CCTM_TXTDOMAIN), '<em>'.htmlentities($tpl).'</em>'));
+			die( sprintf(__('Invaid tpl name! %s  Name must end with .tpl!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($tpl).'</em>'));
 		}		
 		
 		// Look through the directories in order.

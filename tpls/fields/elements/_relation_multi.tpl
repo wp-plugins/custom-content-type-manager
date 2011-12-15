@@ -4,7 +4,9 @@
 	<table>
 		<tr>
 			<td>
-				<a href="[+preview_url+]" target="_blank" title="[+preview+]">[+img_thumbnail+]</a>				
+				<a href="[+preview_url+]" target="_blank" title="[+preview+]">
+					<img class="cctm_tiny_thumb" src="[+thumbnail_url+]" height="30" width="30" alt=""/>
+				</a>
 			</td>
 			<td>
 				<p>[+post_title+] <span class="cctm_id_label">([+post_id+])</span>

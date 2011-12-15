@@ -119,7 +119,7 @@ class CCTM_media extends CCTM_FormElement
 				$values = (array) json_decode($current_value);
 				foreach ($values as $v) {
 					$this->value    = (int) $v;
-					$extras = $Q->append_extra_data($this->value);
+					$extras = CCTM::get_thumbnail($this->value);
 
 					foreach ($extras as $k => $v) {
 						$this->$k = $v;
@@ -131,7 +131,7 @@ class CCTM_media extends CCTM_FormElement
 		// Regular old Single-selection
 		else {
 			$this->value    = (int) $current_value; // Relations only store the foreign key.
-			$extras = $Q->append_extra_data($this->value);
+			$extras = CCTM::get_thumbnail($this->value);
 
 			foreach ($extras as $k => $v) {
 				$this->$k = $v;
@@ -210,7 +210,7 @@ class CCTM_media extends CCTM_FormElement
 		// Handle the display of the default value
 		if ( !empty($def['default_value']) ) {
 
-			$hash = $Q->append_extra_data($def['default_value']);
+			$hash = CCTM::get_thumbnail($def['default_value']);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'

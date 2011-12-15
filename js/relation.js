@@ -111,7 +111,7 @@ function change_page(page_number) {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
 	
-	jQuery('#page_number').val(page_number);
+	jQuery('#page_number').val(page_number); // the value
 	
 	var data = {
 	        "action" : 'get_posts',
@@ -361,18 +361,27 @@ function thickbox_reset_search() {
 This is the generic CCTM thickbox showing selectable search results: allows
 user to select one or many posts for use in a relation field (image, media).
 
-@param	css_field_id	string	field id, e.g. cctm_pics
+If omit_existing_values is passed as true, then the post-selector pop-up
+will not display any posts that have already been selected. This creates 
+a behavior similar to those web forms where you can move items from one
+list to another.  We use it for the multi-select fields where we don't 
+want the user adding the same post over and over again.
+
+@param	string css_field_id	field id, e.g. cctm_pics
+@param	boolean omit_existing_values
 ------------------------------------------------------------------------------*/
-function thickbox_results(css_field_id) {
+function thickbox_results(css_field_id, omit_existing_values) {
 	// Remove any existing thickbox: this will force the thickbox to refresh if
 	// you are calling this function from within a thickbox.
 	// tb_remove();
 
 	var existing_values = new Array();
-	jQuery('#cctm_instance_wrapper_'+css_field_id +' :input').each(function() {
-		existing_values.push(jQuery(this).val());
-	});
-
+	if (omit_existing_values) {
+		jQuery('#cctm_instance_wrapper_'+css_field_id +' :input').each(function() {
+			existing_values.push(jQuery(this).val());
+		});
+	}
+	
 	jQuery.post(
 	    cctm.ajax_url,
 	    {

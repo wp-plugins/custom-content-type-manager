@@ -23,14 +23,14 @@ $d['page_number']		= '0';
 $d['orderby'] 			= 'ID';
 $d['order'] 			= 'ASC';
 
-$results_per_page = 12;
+$results_per_page = 10;
 
 // Generate a search form
 // we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
 $Form = new GetPostsForm();
 
 
-//print '<pre>'.print_r($_POST, true) . '</pre>';return;
+//$d['content'] = '<pre>'.print_r($_POST, true) . '</pre>';
 
 //! Validation
 // Some Tests first to see if the request is valid...
@@ -54,7 +54,8 @@ if (empty($def)) {
 // This gets subsequent search data that gets passed when the user refines the search.
 $args = array();
 if (isset($_POST['search_parameters'])) {
-	// $d['content'] .= '<pre>'. print_r($_POST['search_parameters'], true).'</pre>';
+	// print '<pre> HERE...'. print_r($_POST['search_parameters'], true).'</pre>';
+	$d['content'] .= '<pre>HERE... '. print_r($_POST['search_parameters'], true).'</pre>';
 	parse_str($_POST['search_parameters'], $args);
 	// Pass the "view" parameters to the view
 	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
@@ -207,22 +208,24 @@ foreach ($results as $r){
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
-	add_image_size('tiny_thumb', 30, 30);
+	
 	$post_type = $r['post_type'];
 	if ($post_type == 'post') {
-		$r['thumbnail_src'] = CCTM_URL . '/images/wp-post.png';
+		$r['thumbnail_url'] = CCTM_URL . '/images/wp-post.png';
 	}
 	elseif ($post_type == 'page') {
-		$r['thumbnail_src'] = CCTM_URL . '/images/wp-page.png';	
+		$r['thumbnail_url'] = CCTM_URL . '/images/wp-page.png';	
 	}
 	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
 				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
 		$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-		$r['thumbnail_src'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
+		$r['thumbnail_url'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
 	}
 	else {
-		list($src, $w, $h) = wp_get_attachment_image_src($r['ID'], 'tiny_thumb', true);
-		$r['thumbnail_src'] = $src;
+		$r = CCTM::get_thumbnail($r['ID']);
+		// This WP function doesn't do anything.
+		//list($src, $w, $h) = wp_get_attachment_image_src($r['ID'], 'tiny_thumb', true);
+		//$r['thumbnail_url'] = $src;
 	}
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }

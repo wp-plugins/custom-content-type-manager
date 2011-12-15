@@ -144,7 +144,7 @@ class CCTM_dropdown extends CCTM_FormElement
 
 		// Populate the options
 		for ( $i = 0; $i < $opt_cnt; $i++ ) {
-			$hash = array();
+			$hash = $this->get_props();
 
 			// just in case the array isn't set
 			$hash['option'] = '';

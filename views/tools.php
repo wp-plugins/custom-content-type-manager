@@ -12,6 +12,13 @@
 		:
 		<?php _e("Export your site's content-type and custom-field definitions.",CCTM_TXTDOMAIN); ?>
 	</li>
+	<li>
+		<a href="?page=cctm_tools&a=clear_cache"><img src="<?php print CCTM_URL; ?>/images/clear_cache.png" height="32" width="32" alt="Clear cache"/></a>
+		<a href="?page=cctm_tools&a=clear_cache"><?php _e('Clear Cache', CCTM_TXTDOMAIN); ?></a>
+		:
+		<?php _e("Clear any cached images or other files that have been generated.",CCTM_TXTDOMAIN); ?>
+	</li>
+
 	<!-- li><a href="?page=cctm_tools&a=detect_post_types"><?php _e('Detect Post Types', CCTM_TXTDOMAIN); ?></a></li -->
 </ul>
 

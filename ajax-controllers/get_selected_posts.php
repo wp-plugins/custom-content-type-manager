@@ -87,8 +87,11 @@ $results = $Q->get_posts($args);
 // but we add a couple things in here for formatting purposes.
 foreach($results as $r) {
 
-	$r = $Q->append_extra_data($r['ID']);
-		
+	$r = CCTM::get_thumbnail($r['ID']);
+	if (empty($r)) {
+		continue; // error!
+	}
+	
 	$post_type = $r['post_type'];
 
 
