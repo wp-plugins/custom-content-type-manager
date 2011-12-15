@@ -18,38 +18,38 @@ $active_post_types = self::get_active_post_types();
 add_menu_page(
 	__('Manage Custom Content Types', CCTM_TXTDOMAIN),  // page title
 	__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
-	'manage_options',              // capability
-	'cctm',            // menu-slug (should be unique)
-	'CCTM::page_main_controller',        // callback function
-	CCTM_URL .'/images/gear.png',        // Icon
-	self::menu_position         // menu position
+	$capability,						// capability
+	'cctm',								// menu-slug (should be unique)
+	'CCTM::page_main_controller',       // callback function
+	CCTM_URL .'/images/gear.png',       // Icon
+	self::menu_position					// menu position
 );
 
 add_submenu_page(
 	'cctm',          // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Custom Fields', CCTM_TXTDOMAIN),  // page title
 	__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
-	'manage_options',        // capability
-	'cctm_fields',         // menu_slug: cf = custom fields
-	'CCTM::page_main_controller'     // callback function
+	$capability,						// capability
+	'cctm_fields',						// menu_slug: cf = custom fields
+	'CCTM::page_main_controller'		// callback function
 );
 
 add_submenu_page(
 	'cctm',         // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Global Settings', CCTM_TXTDOMAIN),  // page title
-	__('Global Settings', CCTM_TXTDOMAIN),   // menu title
-	'manage_options',       // capability
-	'cctm_settings',       // menu_slug
-	'CCTM::page_main_controller'    // callback function
+	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
+	$capability,							// capability
+	'cctm_settings',						// menu_slug
+	'CCTM::page_main_controller'			// callback function
 );
 
 add_submenu_page(
 	'cctm',         // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Tools', CCTM_TXTDOMAIN),   // page title
 	__('Tools', CCTM_TXTDOMAIN),    // menu title
-	'manage_options',       // capability
-	'cctm_tools',        // menu_slug
-	'CCTM::page_main_controller'    // callback function
+	$capability,					// capability
+	'cctm_tools',					// menu_slug
+	'CCTM::page_main_controller'	// callback function
 );
 
 // Add Custom Fields links to each post type
@@ -63,7 +63,7 @@ if (self::get_setting('show_custom_fields_menu')) {
 			$parent_slug
 			, __('Custom Fields', CCTM_TXTDOMAIN)
 			, __('Custom Fields', CCTM_TXTDOMAIN)
-			, 'manage_options'
+			, $capability
 			, 'cctm&a=list_pt_associations&pt='.$post_type
 			, 'CCTM::page_main_controller'
 		);
@@ -81,7 +81,7 @@ if (self::get_setting('show_settings_menu')) {
 			$parent_slug
 			, __('Settings', CCTM_TXTDOMAIN)
 			, __('Settings', CCTM_TXTDOMAIN)
-			, 'manage_options'
+			, $capability
 			, 'cctm&a=edit_post_type&pt='.$post_type
 			, 'CCTM::page_main_controller'
 		);
