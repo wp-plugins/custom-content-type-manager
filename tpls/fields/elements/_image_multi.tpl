@@ -5,7 +5,7 @@
 		<tr>
 			<td>
 				<a rel="[+id_prefix+][+id+]" href="[+guid+]?" title="[+preview+]" class="thickbox">
-					<img class="cctm_tiny_thumb" src="[+thumbnail_url+]" height="50" width="50" alt="" />
+					<img class="cctm_tiny_thumb" src="[+thumbnail_url+]" height="48" width="48" alt="" />
 				</a>				
 			</td>
 			<td>

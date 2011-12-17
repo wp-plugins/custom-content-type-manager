@@ -26,7 +26,9 @@ var append_or_replace = 'append';
 This pops WP's media uploader
 http://www.webmaster-source.com/2010/01/08/using-the-wordpress-uploader-in-your-plugin-or-theme/
 
-TODO: Redo this to use our own uploader that doesn't suck.
+TODO: Redo this to use our own uploader that doesn't suck...
+Apparently, nobody at WP every considered the possiblity that the uploaders
+would ever be used for anything other than to select a featured post.
 ------------------------------------------------------------------------------*/
 function cctm_upload(fieldname, upload_type) {
 	// Override the send_to_editor() function from wp-admin/js/media-upload.js
@@ -103,16 +105,17 @@ function cctm_upload(fieldname, upload_type) {
 	return false;
 }
 
-
 /*------------------------------------------------------------------------------
 Used for flipping through pages of thickbox'd search results.
 ------------------------------------------------------------------------------*/
 function change_page(page_number) {
+
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
-	
-	jQuery('#page_number').val(page_number); // the value
-	
+	//jQuery('#page_number').val('1');
+	jQuery('#page_number').val(page_number); // store the value so it can be serialized
+
+	//alert('Page number:'+page_number);	
 	var data = {
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,
@@ -120,16 +123,19 @@ function change_page(page_number) {
 	    };
 	    
 	data.search_parameters = jQuery('#select_posts_form').serialize();
-	
+
 	jQuery.post(
 	    cctm.ajax_url,
 	    data,
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#cctm_thickbox').html(response);
+			//jQuery('#cctm_thickbox').html(response);
+			jQuery('#cctm_thickbox').html('<pre>Testing...</pre>');
+			 
 			
 	    }
 	);
+	return false;
 }
 
 
@@ -145,6 +151,7 @@ function remove_relation( target_id, target_html ) {
 	jQuery('#'+target_id).val('');
 	jQuery('#'+target_html).html('');	
 }
+
 
 /*------------------------------------------------------------------------------
 Add the selected posts to the parent post and close the thickbox.
@@ -186,7 +193,7 @@ function search_form_display(fieldname,fieldtype) {
 
 			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
 			W = W - 80;
-			H = H - 84;
+			H = H - 124;
 			// then thickbox the div
 			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=cctm_thickbox' );			
 
@@ -358,8 +365,9 @@ function thickbox_reset_search() {
 }
 
 /*------------------------------------------------------------------------------
-This is the generic CCTM thickbox showing selectable search results: allows
-user to select one or many posts for use in a relation field (image, media).
+This is the generic CCTM thickbox showing selectable search results: 
+i.e. the "Post Selector".  It allows user to select one or many posts for use 
+in a relation field (image, media).
 
 If omit_existing_values is passed as true, then the post-selector pop-up
 will not display any posts that have already been selected. This creates 
@@ -371,9 +379,6 @@ want the user adding the same post over and over again.
 @param	boolean omit_existing_values
 ------------------------------------------------------------------------------*/
 function thickbox_results(css_field_id, omit_existing_values) {
-	// Remove any existing thickbox: this will force the thickbox to refresh if
-	// you are calling this function from within a thickbox.
-	// tb_remove();
 
 	var existing_values = new Array();
 	if (omit_existing_values) {
@@ -382,11 +387,15 @@ function thickbox_results(css_field_id, omit_existing_values) {
 		});
 	}
 	
+	// Optional fieldtype: present in the field definitions
+	var fieldtype = jQuery('#fieldtype').val();
+	
 	jQuery.post(
 	    cctm.ajax_url,
 	    {
 	        "action" : 'get_posts',
 	        "fieldname" : css_field_id,
+	        "fieldtype" : fieldtype,
 	        "exclude" : existing_values,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    },

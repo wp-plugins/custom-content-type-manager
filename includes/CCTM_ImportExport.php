@@ -41,7 +41,7 @@ class CCTM_ImportExport {
 		
 		$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::def_dir .'/';
 
-		$data = ImportExport::load_def_file($dir.$filename);
+		$data = self::load_def_file($dir.$filename);
 		
 		// check for errors
 		if (!empty(CCTM::$errors)) {

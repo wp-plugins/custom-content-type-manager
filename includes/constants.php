@@ -12,5 +12,5 @@ CCTM_URL: does not contain a trailing slash, e.g.:
 define('CCTM_PATH', dirname( dirname( __FILE__ ) ) );
 define('CCTM_URL', WP_PLUGIN_URL .'/'. basename( CCTM_PATH ) );
 define('CCTM_TXTDOMAIN', 'custom-content-type-mgr');
-
+define('CCMT_DEBUG', true); // set to true for debugging
 /*EOF*/

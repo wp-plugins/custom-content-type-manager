@@ -120,11 +120,7 @@ class CCTM_image extends CCTM_FormElement
 				$values = (array) json_decode($current_value);
 				foreach ($values as $v) {
 					$this->value    = (int) $v;
-					$extras = CCTM::get_thumbnail($this->value);
-
-					foreach ($extras as $k => $v) {
-						$this->$k = $v;
-					}
+					$this->thumbnail_url = CCTM::get_thumbnail($this->value);
 					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				}
 			}
@@ -132,11 +128,7 @@ class CCTM_image extends CCTM_FormElement
 		// Regular old Single-selection
 		else {
 			$this->value    = (int) $current_value; // Relations only store the foreign key.
-			$extras = CCTM::get_thumbnail($this->value);
-
-			foreach ($extras as $k => $v) {
-				$this->$k = $v;
-			}
+			$this->thumbnail_url = CCTM::get_thumbnail($this->value);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
@@ -186,8 +178,13 @@ class CCTM_image extends CCTM_FormElement
 		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
 			$is_checked = 'checked="checked"';
 		}
+		
+		// Note fieldtype: used to set the default value on new fields
+		$out = '<input type="hidden" id="fieldtype" value="image" />';
+
+		
 		// Label
-		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
+		$out .= '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			.__('Label', CCTM_TXTDOMAIN).'</label>
 			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>

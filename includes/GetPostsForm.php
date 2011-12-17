@@ -819,7 +819,7 @@ class GetPostsForm {
 	 */
 	private function _post_status() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('post_status', 'post_status');
+		$ph['value'] = (array) $this->get_value('post_status', 'post_status', array());
 
 		$ph['name'] = 'post_status';
 		$ph['id']  = 'post_status';

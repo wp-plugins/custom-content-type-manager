@@ -3,7 +3,9 @@
 	<table>
 		<tr>
 			<td>
-				<a href="[+guid+]?" title="[+preview+]" class="thickbox">[+img_thumbnail+]</a>
+				<a href="[+guid+]?" title="[+preview+]" class="thickbox">
+					<img class="cctm_tiny_thumb" src="[+thumbnail_url+]" height="48" width="48" alt=""/>
+				</a>
 			</td>
 			<td>
 				<p>[+post_title+] <span class="cctm_id_label">([+post_id+])</span>

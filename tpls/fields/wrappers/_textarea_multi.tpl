@@ -1,4 +1,4 @@
-<script>
+<script type="text/javascript">
 	jQuery(document).ready(function() {
 		jQuery('#cctm_instance_wrapper_[+id+]').sortable();
 	});

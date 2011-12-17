@@ -49,6 +49,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	return;
 }
 
+$post_cnt_obj = wp_count_posts($post_type);
+
 $data['content'] = '<div class="error">
 	<img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px;"/>
 	<p>'
@@ -61,14 +63,20 @@ if ( !in_array($post_type, self::$built_in_post_types) ) {
 		. sprintf( __('Deactivation does not delete anything, but it does make %s posts unavailable to the outside world. %s will be removed from the administration menus and you will no longer be able to edit them using the WordPress manager.', CCTM_TXTDOMAIN), "<strong>$post_type</strong>", "<strong>$post_type</strong>" )
 		.'</p>';
 
+	$data['content'] .= '<p>'
+		. sprintf( __('This would affect %1$s published %2$s posts.'
+			, CCTM_TXTDOMAIN), '<strong>'.$post_cnt_obj->publish.'</strong>'
+		, "<strong>$post_type</strong>")
+		.'</p>';
+}
+else {
+	$data['content'] .= '<p>'
+		. sprintf( __('Deactivation does not delete anything, but it does turn off the standardization of the custom fields.  By default WordPress only supports simple text fields and you can easily misspell field names.', CCTM_TXTDOMAIN), "<strong>$post_type</strong>", "<strong>$post_type</strong>" )
+		.'</p>';
+
 }
 
-$post_cnt_obj = wp_count_posts($post_type);
-$data['content'] .= '<p>'
-	. sprintf( __('This would affect %1$s published %2$s posts.'
-		, CCTM_TXTDOMAIN), '<strong>'.$post_cnt_obj->publish.'</strong>'
-	, "<strong>$post_type</strong>")
-	.'</p>';
+
 $data['content'] .= '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
 		</p>
 	</div>';

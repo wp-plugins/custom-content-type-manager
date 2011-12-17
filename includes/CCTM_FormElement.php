@@ -224,7 +224,7 @@ abstract class CCTM_FormElement {
 	//! Abstract and Public Functions... Implement Me!
 	//------------------------------------------------------------------------------
 	/**
-	 * Run when the WP dashboard (i.e. admin area) is initialized.
+	 * This runs when the WP dashboard (i.e. admin area) is initialized.
 	 * Override this function to register any necessary CSS/JS req'd by your field.
 	 */
 	public function admin_init() { }
@@ -471,22 +471,6 @@ abstract class CCTM_FormElement {
 	public function get_translation($item) {
 		$tpl = '<span class="cctm_description">%s</span>';
 		return sprintf($tpl, $this->descriptions[$item]);
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Take a string (e.g. html) and make it safe to be printed into a Javascript
-	 * variable by stripping carriage returns and quotes.
-	 *
-	 * @return string Filtered: linebreaks removed, quotes escaped.
-	 * @param string  $html string, with linebreaks, quotes, etc.
-	 */
-	public static function make_js_safe($html) {
-		$html = preg_replace("/\n\r|\r\n|\r|\n/", '', $html);
-		$html = preg_replace( '/\s+/', ' ', $html );
-		$html = addslashes($html);
-		$html = trim($html);
 	}
 
 

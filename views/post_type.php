@@ -528,7 +528,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_in_nav_menus">		
 			<input type="checkbox" name="show_in_nav_menus" class="cctm_checkbox" id="show_in_nav_menus" value="1" <?php print CCTM::is_checked($data['def']['show_in_nav_menus']); ?>/> 
 			<label for="show_in_nav_menus" class="cctm_label cctm_checkbox_label" id="cctm_label_show_in_nav_menus"><?php _e('Show in Nav Menus', CCTM_TXTDOMAIN); ?></label>
-			<span class="cctm_description"><?php _e('Whether post_type is available for selection in navigation menus (under <em>Appearance --> Menus</em>). Default: value of public argument', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('Whether post_type is available for selection in navigation menus (under <em>Appearance --> Menus</em>). Your theme must support menus for this option to have any effect. Default: value of public argument', CCTM_TXTDOMAIN); ?></span>
 		</div>
 
 		<!--! Publicly Queriable -->			

@@ -21,6 +21,8 @@ $d = array(); // <-- Template Variables
 
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
+
+// This could be empty if you're setting the default value of a new field definition
 if (empty($raw_fieldname)) {
 	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</p>';
 	return;

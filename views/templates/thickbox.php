@@ -1,51 +1,39 @@
 <?php
 /*------------------------------------------------------------------------------
 This template is used as the basis for thickboxes launched by relation fields.
-The form id is important: select_posts_form.  That id is referenced by several
-javscript functions, so it should not be changed.
+The form there is important: select_posts_form.  That id is referenced by several
+javscript functions, so it should not be changed.  The form's variables are 
+used to pass search parameters from page to page of the paginated results via
+serialization.
 
 We rely on only ONE dedicated hidden field: the one for the fieldname.
 All other search parameters (offset, limit, search_term, etc) are stored 
 via http_build_query() inside of the search_parameters field.
 ------------------------------------------------------------------------------*/
 ?>
-<script language="JavaScript">
-	// http://www.bloggingdeveloper.com/post/Disable-Form-Submit-on-Enter-Key-Press.aspx
-	function disableEnterKey(e)
-	{
-	     var key;      
-	     if(window.event)
-	          key = window.event.keyCode; //IE
-	     else
-	          key = e.which; //firefox      
-	
-	     return (key != 13);
-	}
-
-</script>
-
 <div id="cctm_thickbox">
+
+	<script type="text/javascript">
+		// http://www.bloggingdeveloper.com/post/Disable-Form-Submit-on-Enter-Key-Press.aspx
+		function disableEnterKey(e)
+		{
+		     var key;      
+		     if(window.event)
+		          key = window.event.keyCode; //IE
+		     else
+		          key = e.which; //firefox      
+		
+		     return (key != 13);
+		}
+	</script>
+
+
 	<form id="select_posts_form" onkeypress="return disableEnterKey(event)">
 		<input type="hidden" name="fieldname" id="fieldname" value="<?php print $data['fieldname']; ?>" />
 		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
 		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
 		<input type="hidden" name="order" id="order" value="<?php print $data['order']; ?>" />
-
-	<?php
-/*
-	
-		
-		<?php
-			$excludes = CCTM::get_value($data, 'exclude', array());
-			foreach ($excludes as $e) {
-				print '<input type="hidden" name="exclude[]" id="exclude'.$e.'" value="'.$e.'" />';
-			}
-		?>
-	<input type="hidden" name="search_parameters" id="search_parameters" value="<?php print $data['search_parameters']; ?>" />
-*/	
-	?>	
-		
-		
+	</form>		
 		<div id="cctm_thickbox_menu">
 			<?php print $data['menu']; ?>	
 		</div>

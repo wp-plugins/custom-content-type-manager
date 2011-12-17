@@ -32,6 +32,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['show_settings_menu'] 		= (int) CCTM::get_value($_POST, 'show_settings_menu', 0);
 	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
 	self::$data['settings']['cache_directory_scans'] 	= (int) CCTM::get_value($_POST, 'cache_directory_scans', 0);
+	self::$data['settings']['cache_thumbnail_images'] 	= (int) CCTM::get_value($_POST, 'cache_thumbnail_images', 0);
+
 	update_option( self::db_key, self::$data );
 
 	$data['msg'] = '<div class="updated"><p>'
@@ -55,6 +57,7 @@ $checkboxes = array(
  	, 'show_settings_menu'
  	, 'show_foreign_post_types'
  	, 'cache_directory_scans'
+ 	, 'cache_thumbnail_images'
 );
 
 // this only works for checkboxes...
@@ -65,7 +68,6 @@ foreach ( $checkboxes as $k) {
 }
 
 // Load up any settings pages for custom fields
-
 $element_files = CCTM::get_available_custom_field_types();
 $flag = false;
 foreach ( $element_files as $shortname => $file ) {
@@ -90,7 +92,7 @@ foreach ( $element_files as $shortname => $file ) {
 		}
 	}
 }
-// We gots some!
+// We gots some custom settings for custom fields!
 if ($flag) {
 	$data['custom_fields_settings_links'] = '<h3>'.__('Custom Fields', CCTM_TXTDOMAIN).'</h3>
 		<ul>'. $data['custom_fields_settings_links'] . '</ul>';

@@ -1,6 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
-This controller displays a selection of posts for the user to select.
+This controller displays a selection of posts for the user to select, i.e. 
+the "Post Selector"
+
 The thickbox appears (for example) when you create or edit a post that uses a relation,
 image, or media field.
 ------------------------------------------------------------------------------*/
@@ -25,6 +27,9 @@ $d['order'] 			= 'ASC';
 
 $results_per_page = 10;
 
+
+
+
 // Generate a search form
 // we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
 $Form = new GetPostsForm();
@@ -35,7 +40,9 @@ $Form = new GetPostsForm();
 //! Validation
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
-if (empty($raw_fieldname)) {
+$fieldtype = CCTM::get_value($_POST, 'fieldtype');
+
+if (empty($raw_fieldname) && empty($fieldtype)) {
 	print '<pre>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</pre>';
 	return;
 }
@@ -45,8 +52,12 @@ $d['fieldname'] = $raw_fieldname;
 $fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $raw_fieldname);
 
 $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
-if (empty($def)) {
-	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>') .'</p>';
+
+if (!empty($fieldtype)) {
+	$def['type'] = $fieldtype;
+}
+elseif (empty($def)) {
+	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>').'</p>';
 	return;
 }
 
@@ -55,8 +66,10 @@ if (empty($def)) {
 $args = array();
 if (isset($_POST['search_parameters'])) {
 	// print '<pre> HERE...'. print_r($_POST['search_parameters'], true).'</pre>';
-	$d['content'] .= '<pre>HERE... '. print_r($_POST['search_parameters'], true).'</pre>';
+//	$d['content'] .= '<pre>HERE... '. print_r($_POST['search_parameters'], true).'</pre>';
 	parse_str($_POST['search_parameters'], $args);
+
+
 	// Pass the "view" parameters to the view
 	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
 	$d['orderby'] = CCTM::get_value($args, 'orderby', 'ID');
@@ -121,8 +134,6 @@ foreach($additional_defaults as $k => $v) {
 //------------------------------------------------------------------------------
 // Begin!
 //------------------------------------------------------------------------------
-
-
 $Q = new GetPostsQuery(); 
 $Q->set_defaults($defaults);
 //print '<pre>'; print_r($refined_args); print '</pre>';
@@ -153,6 +164,13 @@ $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
 $search_by = array('search_term','yearmonth','post_type'); 
 $d['search_form'] = $Form->generate($search_by, $args);
+
+
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, print_r($_POST, true));
+	fclose($fh);
+
 
 
 $item_tpl = '';
@@ -204,6 +222,7 @@ $hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
 $hash['content'] = '';
 // And the items
 foreach ($results as $r){
+
 	$r['name'] = $raw_fieldname;
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
@@ -222,13 +241,22 @@ foreach ($results as $r){
 		$r['thumbnail_url'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
 	}
 	else {
-		$r = CCTM::get_thumbnail($r['ID']);
+		$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);
 		// This WP function doesn't do anything.
 		//list($src, $w, $h) = wp_get_attachment_image_src($r['ID'], 'tiny_thumb', true);
 		//$r['thumbnail_url'] = $src;
 	}
+	
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
+
+	// LOGGING
+/*
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, print_r($hash, true));
+	fclose($fh);
+*/
 
 // die(print_r($hash,true));
 $d['content'] .= CCTM::parse($wrapper_tpl,$hash);
@@ -236,5 +264,5 @@ $d['content'] .= CCTM::parse($wrapper_tpl,$hash);
 $d['content'] .= '<div class="cctm_pagination_links">'.$Q->get_pagination_links().'</div>';
 
 print CCTM::load_view('templates/thickbox.php', $d);
-
+exit;
 /*EOF*/
