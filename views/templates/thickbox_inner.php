@@ -1,13 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
-This template is used as the basis for thickboxes launched by relation fields.
-The form there is important: select_posts_form.  That id is referenced by several
-javscript functions, so it should not be changed.  The form's variables are 
-used to pass search parameters from page to page of the paginated results via
-serialization.
+Pretty much the same as thickbox.php, but without the cctm_thickbox div wrapper.
 ------------------------------------------------------------------------------*/
 ?>
-<div id="cctm_thickbox">
 
 	<script type="text/javascript">
 		// http://www.bloggingdeveloper.com/post/Disable-Form-Submit-on-Enter-Key-Press.aspx
@@ -42,4 +37,3 @@ serialization.
 			<?php print $data['content']; ?>
 		</div>
 	</div>
-</div>

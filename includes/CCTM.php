@@ -217,6 +217,67 @@ class CCTM {
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
+	 * Returns a URL to a thumbnail image.  Attempts to create and cache the image.
+	 
+	 * @param array $post array from WP's get_post ARRAY_A
+	 * @return string	thumbnail_url
+	 */
+	private static function _get_create_thumbnail($post) {
+		// Custom handling of images. See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
+		$WIDTH = 32;
+		$HEIGHT = 32;
+		$QUALITY = 100;
+		
+		$cached_name = md5(print_r($r,true).$WIDTH.$HEIGHT.$QUALITY); // minus the extension
+		// atomize our image so we don't overload our directories. See http://drupal.org/node/171444
+		$dir_array = str_split($cached_name);
+		$image_dir = implode('/', $dir_array);
+		$cached_name = $image_dir .'/'. $cached_name;
+		
+		$info = pathinfo($guid);
+		$ext = '.'.$info['extension'];
+		$upload_dir = wp_upload_dir();
+		
+		$cache_dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/';
+		$image_path = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;
+		$thumbnail_url = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;
+
+
+
+		//die(print_r($r,true));			
+		// Create a new image if the cached version exists?
+		if (!file_exists($image_path)) {
+
+			// Cache dir doesn't exist 
+			if (!file_exists($cache_dir)) {
+				// ... and we can't create it
+				if (!mkdir($image_dir, '0777', true)) {
+					// Failed to create the dir... now what?!?  We cram the full-sized image into the 
+					// small image tag, which is exactly what WP does (yes, seriously.)
+					$thumbnail_url = $guid;
+					// Notify the user
+					CCTM::$errors['could_not_create_cache_dir'] = sprintf(
+						__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
+						, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
+				}
+			}
+			// the cache directory exits; create the cached image
+			else {
+				require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
+				$image = new CCTM_SimpleImage();
+				$image->load($guid); // use the full path to the image (not the URL)
+				$image->resize($WIDTH, $HEIGHT);
+				if (!$image->save($image_path, IMAGETYPE_JPEG, $QUALITY)) {
+					CCTM::$errors['could_not_create_img'] = sprintf(
+						__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
+						, "<code>$img</code>");
+					$r['thumbnail_url'] = $r['guid'];
+				}
+			}
+		}	
+	}
+	//------------------------------------------------------------------------------
+	/**
 	 * Prepare a post type definition for registration.  This gets run immediately 
 	 * before the register_post_type() function is called.  It allows us to abstract 
 	 * what WP gets from the stored definition a bit.
@@ -965,98 +1026,62 @@ class CCTM {
 	 *
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
 	 *
-	 * @param	integer	post_id of the post for which we want the thumbnail
+	 * What we need to get a thumbnail:
+	 *	guid, post_type, ID, post_mime_type
+	 * @param	integer	$id of the post for which we want the thumbnail
+	 * @param	string	$guid of the post
+	 * @param	string	$post_type of the post
+	 * @param	string 	$post_mime_type
 	 * @return	string	url of the thumbnail
 	 */
 	public static function get_thumbnail($id) {
+
+		// Default output
+		$thumbnail_url = CCTM_URL .'/images/custom-fields/default.png';
+		
 		if (empty($id) || $id == 0) {
-			return '';
+			return $thumbnail_url;
 		}
 		
-		$Q = new GetPostsQuery();		
-		$Q->defaults = array();
-		$r = $Q->get_post($id);
+		$post = get_post($id, ARRAY_A);
+		$guid = $post['guid'];
+		$post_type = $post['post_type'];
+		$post_mime_type = $post['post_mime_type'];
+		$thumbnail_url = $post['guid'];
 		
-		$post_type = $r['post_type'];
+		// return $thumbnail_url; // Bypass for now
 		
 		// Some translated labels and stuff
 		$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
 		$r['cctm_url'] = CCTM_URL;
-		$r['preview_url'] = $r['guid'];
+		
+
 
 		// Special handling for media attachments (i.e. photos) and for 
 		// custom post-types where the custom icon has been set.
-		if ($post_type == 'attachment' && preg_match('/^image/',$r['post_mime_type']) && self::get_setting('cache_thumbnail_images')) {
-
-			// Custom handling of images. See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
-			$WIDTH = 48;
-			$HEIGHT = 48;
-			$QUALITY = 100;
-			
-			$cached_name = md5(print_r($r,true).$WIDTH.$HEIGHT.$QUALITY); // minus the extension
-			
-			$info = pathinfo($r['guid']);
-			$ext = '.'.$info['extension'];
-			$upload_dir = wp_upload_dir();
-			
-			$cache_dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/';
-			$image_path = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;;
-			$image_url = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;
-
-			$r['thumbnail_url'] = 	$image_url;
-
-			//die(print_r($r,true));			
-			// Create a new image if the cached version exists?
-			if (!file_exists($image_path)) {
-
-				// Cache dir doesn't exist 
-				if (!file_exists($cache_dir)) {
-					// ... and we can't create it
-					if (!mkdir($cache_dir)) {
-						// Failed to create the dir... now what?!?  We cram the full-sized image into the 
-						// small image tag, which is exactly what WP does (yes, seriously.)
-						$r['thumbnail_url'] = $r['guid'];
-						// Notify the user
-						CCTM::$errors['could_not_create_cache_dir'] = sprintf(
-							__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
-							, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
-					}
-				}
-				// the cache directory exits; create the cached image
-				else {
-					require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
-					$image = new CCTM_SimpleImage();
-					$image->load($r['guid']);
-					$image->resize(32, 32);
-					if (!$image->save($image_path, IMAGETYPE_JPEG, $QUALITY)) {
-						CCTM::$errors['could_not_create_img'] = sprintf(
-							__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
-							, "<code>$img</code>");
-						$r['thumbnail_url'] = $r['guid'];
-					}
-				}
-			}
+		if ($post_type == 'attachment' && preg_match('/^image/',$post_mime_type) && self::get_setting('cache_thumbnail_images')) {
+			$thumbnail_url = self::_get_create_thumbnail($post);
 		}
 		// Other Attachments and other post-types: we go for the custom icon
 		else
 		{
-			$r['preview_url'] = $r['guid'].'&preview=true';
+			$preview_url = $guid.'&preview=true';
 			
 			if (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
 					&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
 				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-				$r['thumbnail_url'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
+				$thumbnail_url = CCTM_URL . '/images/icons/32x32/'. $baseimg;
 				
 			}
 			// Built-in WP types: we go for the default icon.
 			else {
-				list($src, $w, $h) = wp_get_attachment_image_src( $r['ID'], 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
-				$r['thumbnail_url'] = $src;
+				list($src, $w, $h) = wp_get_attachment_image_src( $id, 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
+				$thumbnail_url = $src;
 			}
 		}
 		//die(print_r($r,true));
-		return $r['thumbnail_url'];	
+		return $thumbnail_url;	
 	}
 
 	//------------------------------------------------------------------------------

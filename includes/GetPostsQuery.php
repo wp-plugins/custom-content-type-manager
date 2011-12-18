@@ -302,7 +302,6 @@ class GetPostsQuery {
 	 * @param mixed   $val
 	 */
 	public function __set($var, $val) {
-//		die('Var: '.$var.'Val: ' .$val);
 		$test = $this->_sanitize_arg($var,$val);
 		if ($test !== null) {
 			$this->args[$var] = $test;
@@ -640,30 +639,34 @@ class GetPostsQuery {
 			}
 		}
 
+		// Some corrections required: if you set the post_type that you want, remove that post_type
+		// from the 'omit_post_type' argument.
 		if ($arg == 'post_type') {
 			$omit_post_type = $this->omit_post_type;
 			if (in_array($val, $omit_post_type)) {
-				
 				$new_omits = array();
 				foreach ($omit_post_type as $pt) {
 					if ($pt != $val) {
 						$new_omits[] = $pt;		
 					}
 				}
-//				die(print_r($new_omits, true));
 				$this->omit_post_type = $new_omits;
 			}
 		} 
 
+		$arg = strtolower($arg);
+		
 		// fill in default value if the parameter is empty
-		// $var = strtolower($var);
 		// We gotta handle cases where the user tries to set something to null that would break the query
 		// if it went to null.
 		// beware of empty arrays
 		if (empty($val)) {
 			if (isset($this->defaults[$arg]) && !empty($this->defaults[$arg])) {
-					return $this->defaults[$arg];
-					$this->notices[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
+				return $this->defaults[$arg];
+				$this->notices[] = sprintf(__('Empty input for %s. Using default parameters.', CCTM_TXTDOMAIN ),  "<em>$var</em>");				
+			}
+			else {
+				return '';
 			}
 		}
 		
@@ -1042,11 +1045,11 @@ class GetPostsQuery {
 		if ($this->direct_filter_flag) {
 			foreach($this->direct_filter_columns as $c) {
 				if (in_array($c, self::$wp_posts_columns)) {
-					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->args[$c]);
+					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
 				}
 				else {
 					$query = " {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value = %s)";
-					$hash['direct_filter'] .= $wpdb->prepare( $query, $c, $this->args[$c] );				
+					$hash['direct_filter'] .= $wpdb->prepare( $query, $c, $this->$c );				
 				}
 			}
 		}
@@ -1540,7 +1543,7 @@ class GetPostsQuery {
 	 */
 	public function get_post($id) {
 
-		$post = $this->get_posts(array('ID' => $id ));
+		$post = $this->get_posts(array('ID' => $id ), true);
 		if (!empty($post) ) {
 			return $post[0]; // return first post
 		}
@@ -1558,9 +1561,15 @@ class GetPostsQuery {
 	 *   query_distinct_yearmonth()
 	 *
 	 * @param array   $args (optional)
+	 * @param boolean $ignore_defaults (optional)
 	 * @return array  result set
 	 */
-	public function get_posts($args=array()) {
+	public function get_posts($args=array(), $ignore_defaults=false) {
+		
+		if ($ignore_defaults) {
+			$this->set_defaults(array(), true);
+		}
+		
 		global $wpdb;
 		
 		foreach ($args as $k => $v) {
@@ -1568,6 +1577,15 @@ class GetPostsQuery {
 		}
 		
 //		print '<pre>'. print_r($this->args, true) . print '</pre>'; exit;
+
+/*
+	// LOGGING...
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, print_r($args, true));
+//	fwrite($fh, print_r($_SERVER, true));
+	fclose($fh);
+*/
 
 
 		// if we are doing hierarchical queries, we need to trace down all the components before
@@ -1728,10 +1746,12 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Sets defaults for the query.  These defaults kick in when a search parameter
+	 * Sets defaults for the query: defaults are just like arguments, but for cleaner
+	 * UX, we can set some default arguments so users don't always have to provide every
+	 * stinking detail.  These defaults kick in when a search parameter
 	 * is left empty. This is especially useful for setting up limits to parameters like
 	 * 'post_type', which if empty, will display ALL post-types from the db, registered
-	 * AND unregistered. 
+	 * AND unregistered or 'post_status' -- usually users want only 'published'.
 	 *
 	 * By setting the optional 2nd parameter, you can overwrite the entire defaults array.
 	 * Default behavior is to "merge" the arguments.
@@ -1740,6 +1760,10 @@ class GetPostsQuery {
 	 * @param	boolean	(optional) $overwrite: if true
 	 */
 	public function set_defaults($args, $overwrite=false) {
+		
+		$args = (array) $args;
+		$overwrite = (bool) $overwrite;
+		
 		if ($overwrite) {
 			$this->defaults = $args;		
 			foreach ($args as $k => $v) {

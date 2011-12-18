@@ -89,14 +89,7 @@ $results = $Q->get_posts($args);
 // but we add a couple things in here for formatting purposes.
 foreach($results as $r) {
 
-	$r = CCTM::get_thumbnail($r['ID']);
-	if (empty($r)) {
-		continue; // error!
-	}
-	
-	$post_type = $r['post_type'];
-
-
+	$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);
 	$r['id'] = $fieldname;
 	$r['name'] = $fieldname;	
 	$r['id_prefix'] = CCTM_FormElement::css_id_prefix;
