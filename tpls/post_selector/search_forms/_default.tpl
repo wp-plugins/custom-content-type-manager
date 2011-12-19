@@ -8,7 +8,6 @@
 </select>
 
 <select size="[+post_type.size+]" name="[+name_prefix+][+post_type.name+]" class="[+input_class+]" id="[+id_prefix+][+post_type.id+]">
-	<option value="">[+show_all_post_types+]</option>
 	[+post_type.options+]
 </select>
 

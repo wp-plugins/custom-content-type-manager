@@ -79,6 +79,20 @@ if (isset($_POST['search_parameters'])) {
 	// Unsest these, otherwise the query will try to search them as custom field values.
 	unset($args['page_number']);
 	unset($args['fieldname']);
+	
+	
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, print_r($args,true));
+	fclose($fh);
+	
+	
+/*
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, 'PARSING ARGS...');
+	fclose($fh);	
+*/
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
@@ -87,6 +101,7 @@ $defaults = array();
 
 switch ($def['type']) {
 	case 'image':
+		$defaults['search_columns'] = array('post_title', 'post_content');
 		$defaults['post_type'] = 'attachment';
 		$defaults['post_mime_type'] = 'image';
 		$defaults['post_status'] = array('publish','inherit');
@@ -95,6 +110,7 @@ switch ($def['type']) {
 		break;
 		
 	case 'media':
+		$defaults['search_columns'] = array('post_title', 'post_content');
 		$defaults['post_type'] = 'attachment';
 		$defaults['post_mime_type'] = 'application';
 		$defaults['post_status'] = array('publish','inherit');
@@ -103,6 +119,7 @@ switch ($def['type']) {
 		break;
 		
 	default:
+		$defaults['search_columns'] = array('post_title', 'post_content');
 		//$defaults['post_type'] = array_keys(get_post_types());
 		$defaults['post_status'] = array('publish','inherit');
 		//$defaults['omit_post_type'] = array('revision','nav_menu_item');
@@ -117,10 +134,20 @@ if (isset($_POST['exclude'])) {
 	$defaults['exclude'] = $_POST['exclude'];
 }
 
-/*
 $search_parameters_str = ''; // <-- read custom search parameters, if defined.
 if (isset($def['search_parameters'])) {
+
 	$search_parameters_str = $def['search_parameters'];
+	
+	// LOGGING
+/*
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, 'Definition had search params:'.print_r($def,true));
+	fclose($fh);
+*/
+	
+
 }
 $additional_defaults = array();
 parse_str($search_parameters_str, $additional_defaults);
@@ -130,7 +157,6 @@ foreach($additional_defaults as $k => $v) {
 		$defaults[$k] = $v;
 	}
 }
-*/
 
 
 //------------------------------------------------------------------------------
@@ -138,8 +164,16 @@ foreach($additional_defaults as $k => $v) {
 //------------------------------------------------------------------------------
 $Q = new GetPostsQuery(); 
 $Q->set_defaults($defaults);
-//print '<pre>'; print_r($refined_args); print '</pre>';
-//$d['menu'] = '<span class="linklike" onclick="javascript:thickbox_upload_image(\''.$raw_fieldname.'\');">Upload</span>';
+
+
+	// LOGGING...
+/*
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, print_r($defaults, true));
+	fclose($fh);
+*/
+	
 
 $args['offset'] = 0; // assume 0, unless we got a page number
 // Calculate offset based on page number
@@ -149,10 +183,12 @@ if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 
 
 // Get the results
-// $new_args = array('orderby'=>'ID', 'order'=>'ASC', 'offset'=>'10','limit'=>$results_per_page);
 $results = $Q->get_posts($args);
 //$results = $Q->get_posts($new_args);
-// print '<pre>'. $Q->get_args(). '</pre>'; exit;
+//print '<pre>'. $Q->get_args(). '</pre>'; exit;
+
+	
+
 
 
 $search_form_tpl = CCTM::load_tpl(
@@ -166,15 +202,16 @@ $Form->set_tpl($search_form_tpl);
 $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
 $search_by = array('search_term','yearmonth','post_type'); 
-//$d['search_form'] = $Form->generate($search_by, $args);
-$d['search_form'] = $Form->generate($search_by, array());
+$d['search_form'] = $Form->generate($search_by, $args);
+//$d['search_form'] = $Form->generate($search_by, array());
 
+/*
 	// LOGGING...
 	$myFile = "/tmp/cctm.txt";
 	$fh = fopen($myFile, 'a') or die("can't open file");
 	fwrite($fh, print_r($args, true));
-//	fwrite($fh, print_r($_SERVER, true));
 	fclose($fh);
+*/
 
 
 
@@ -232,22 +269,7 @@ foreach ($results as $r){
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
-	
-	$post_type = $r['post_type'];
-	if ($post_type == 'post') {
-		$r['thumbnail_url'] = CCTM_URL . '/images/wp-post.png';
-	}
-	elseif ($post_type == 'page') {
-		$r['thumbnail_url'] = CCTM_URL . '/images/wp-page.png';	
-	}
-	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
-				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
-		$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-		$r['thumbnail_url'] = CCTM_URL . '/images/icons/32x32/'. $baseimg;
-	}
-	else {
-		$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);
-	}
+	$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);
 	
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }

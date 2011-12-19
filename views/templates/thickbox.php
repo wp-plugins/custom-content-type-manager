@@ -29,7 +29,7 @@ serialization.
 		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
 		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
 		<input type="hidden" name="order" id="order" value="<?php print $data['order']; ?>" />
-	</form>		
+
 		<div id="cctm_thickbox_menu">
 			<?php print $data['menu']; ?>	
 		</div>
@@ -41,5 +41,5 @@ serialization.
 		<div id="cctm_thickbox_content">
 			<?php print $data['content']; ?>
 		</div>
-	</div>
+	</form>
 </div>

@@ -115,7 +115,7 @@ function change_page(page_number) {
 
 	jQuery('#page_number').val(page_number); // store the value so it can be serialized
 
-	var current_data = jQuery('#select_posts_form').serialize();
+	// var current_data = jQuery('#select_posts_form').serialize();
 	
 	//console.log(current_data);
 /*

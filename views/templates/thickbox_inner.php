@@ -24,7 +24,7 @@ Pretty much the same as thickbox.php, but without the cctm_thickbox div wrapper.
 		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
 		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
 		<input type="hidden" name="order" id="order" value="<?php print $data['order']; ?>" />
-	</form>		
+		
 		<div id="cctm_thickbox_menu">
 			<?php print $data['menu']; ?>	
 		</div>
@@ -36,4 +36,4 @@ Pretty much the same as thickbox.php, but without the cctm_thickbox div wrapper.
 		<div id="cctm_thickbox_content">
 			<?php print $data['content']; ?>
 		</div>
-	</div>
+	</form>

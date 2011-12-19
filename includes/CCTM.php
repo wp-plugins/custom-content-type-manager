@@ -1063,6 +1063,12 @@ class CCTM {
 		if ($post_type == 'attachment' && preg_match('/^image/',$post_mime_type) && self::get_setting('cache_thumbnail_images')) {
 			$thumbnail_url = self::_get_create_thumbnail($post);
 		}
+		elseif ($post_type == 'post') {
+			$thumbnail_url = CCTM_URL . '/images/wp-post.png';
+		}
+		elseif ($post_type == 'page') {
+			$thumbnail_url = CCTM_URL . '/images/wp-page.png';	
+		}
 		// Other Attachments and other post-types: we go for the custom icon
 		else
 		{

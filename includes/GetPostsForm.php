@@ -891,7 +891,7 @@ class GetPostsForm {
 		$ph2['name'] = 'post_type[]';
 		$ph2['input_class'] = 'input_checkbox';
 		$ph2['label_class'] = 'label_checkbox';
-		$ph2['label'] = __('Select post_type', CCTM_TXTDOMAIN);
+		$ph2['label'] = __('Select post-type', CCTM_TXTDOMAIN);
 //		$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
 		$ph['options'] .= self::parse($this->option_tpl, $ph2);
 		
