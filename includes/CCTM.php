@@ -1,24 +1,26 @@
 <?php
-/*------------------------------------------------------------------------------
-CCTM = Custom Content Type Manager
-
-This is the main class for the Custom Content Type Manager plugin.
-It holds its functions hooked to WP events and utilty functions and configuration
-settings.
-
-Homepage:
-http://code.google.com/p/wordpress-custom-content-type-manager/
-
-This plugin handles the creation and management of custom post-types (also
-referred to as 'content-types').
-------------------------------------------------------------------------------*/
+/**
+ * CCTM = Custom Content Type Manager
+ * 
+ * This is the main class for the Custom Content Type Manager plugin.
+ * It holds its functions hooked to WP events and utilty functions and configuration
+ * settings.
+ * 
+ * Homepage:
+ * http://code.google.com/p/wordpress-custom-content-type-manager/
+ * 
+ * This plugin handles the creation and management of custom post-types (also
+ * referred to as 'content-types').
+ * 
+ * @package cctm
+ */
 class CCTM {
 	// Name of this plugin and version data.
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.5.0';
-	const version_meta = 'rc'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'rc2'; // dev, rc (release candidate), pl (public release)
 
 
 	// Required versions (referenced in the CCTMtest class).
@@ -29,11 +31,7 @@ class CCTM {
 	/**
 	 * The following constants identify the option_name in the wp_options table
 	 * where this plugin stores various data.
-	 *
-	 * @package
 	 */
-
-
 	const db_key  = 'cctm_data';
 
 	/**
@@ -217,44 +215,50 @@ class CCTM {
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Returns a URL to a thumbnail image.  Attempts to create and cache the image.
-	 
-	 * @param array $post array from WP's get_post ARRAY_A
+	 * Returns a URL to a thumbnail image.  Attempts to create and cache the image;
+	 * we just return the path to the full-sized image if we fail to cache it (which
+	 * is what WP does.
+	 * See See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
+	 * 
+	 * @param array $p post array from WP's get_post ARRAY_A
 	 * @return string	thumbnail_url
 	 */
-	private static function _get_create_thumbnail($post) {
-		// Custom handling of images. See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=256
+	private static function _get_create_thumbnail($p) {
+		// Custom handling of images. 
 		$WIDTH = 32;
 		$HEIGHT = 32;
 		$QUALITY = 100;
-		
-		$cached_name = md5(print_r($r,true).$WIDTH.$HEIGHT.$QUALITY); // minus the extension
-		// atomize our image so we don't overload our directories. See http://drupal.org/node/171444
-		$dir_array = str_split($cached_name);
-		$image_dir = implode('/', $dir_array);
-		$cached_name = $image_dir .'/'. $cached_name;
-		
-		$info = pathinfo($guid);
-		$ext = '.'.$info['extension'];
-		$upload_dir = wp_upload_dir();
-		
+
+		$upload_dir = wp_upload_dir();		
+		// Base image cache dir: our jumping off point.
 		$cache_dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/';
-		$image_path = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;
-		$thumbnail_url = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/images/'.$cached_name.$ext;
+		$info = pathinfo($p['guid']);
+		$ext = '.'.$info['extension'];
+		
+		$hash_id = md5(print_r($p,true).$WIDTH.$HEIGHT.$QUALITY); //
+		
+		// atomize our image so we don't overload our directories (shell wildcards)
+		// See http://drupal.org/node/171444 for one example of this common problem
+		$subdir_array = str_split($hash_id);
+		$filename = array_pop($subdir_array);
+		$subdir = implode('/', $subdir_array); // e.g. a/b/c/1/5/e
+		$image_location = $subdir.'/'.$filename.$ext; // e.g. a/b/c/1/5/e/f.jpg
+		
+		
+		$thumbnail_path = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/'.$image_location;
+		$thumbnail_url = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/images/'.$image_location;
 
 
-
-		//die(print_r($r,true));			
 		// Create a new image if the cached version exists?
-		if (!file_exists($image_path)) {
+		if (!file_exists($thumbnail_path)) {
 
 			// Cache dir doesn't exist 
-			if (!file_exists($cache_dir)) {
+			if (!file_exists($cache_dir.'/'.$subdir)) {
 				// ... and we can't create it
-				if (!mkdir($image_dir, '0777', true)) {
+				if (!mkdir($cache_dir.'/'.$subdir, 0777, true)) {
 					// Failed to create the dir... now what?!?  We cram the full-sized image into the 
 					// small image tag, which is exactly what WP does (yes, seriously.)
-					$thumbnail_url = $guid;
+					$thumbnail_url = $p['guid'];
 					// Notify the user
 					CCTM::$errors['could_not_create_cache_dir'] = sprintf(
 						__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
@@ -265,16 +269,18 @@ class CCTM {
 			else {
 				require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
 				$image = new CCTM_SimpleImage();
-				$image->load($guid); // use the full path to the image (not the URL)
+				$image->load($p['guid']); // use the full path to the image (not the URL)
 				$image->resize($WIDTH, $HEIGHT);
-				if (!$image->save($image_path, IMAGETYPE_JPEG, $QUALITY)) {
+				if (!$image->save($thumbnail_path, IMAGETYPE_JPEG, $QUALITY)) {
 					CCTM::$errors['could_not_create_img'] = sprintf(
 						__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
-						, "<code>$img</code>");
-					$r['thumbnail_url'] = $r['guid'];
+						, "<code>$thumbnail_path</code>");
+					$thumbnail_url = $p['guid'];
 				}
 			}
 		}	
+		
+		return $thumbnail_url;
 	}
 	//------------------------------------------------------------------------------
 	/**

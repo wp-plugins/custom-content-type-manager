@@ -19,7 +19,8 @@ Pretty much the same as thickbox.php, but without the cctm_thickbox div wrapper.
 	</script>
 
 
-	<form id="select_posts_form" onkeypress="return disableEnterKey(event)">
+	<!--form id="select_posts_form" onkeypress="return disableEnterKey(event)"-->
+	<form id="select_posts_form">
 		<input type="hidden" name="fieldname" id="fieldname" value="<?php print $data['fieldname']; ?>" />
 		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
 		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />

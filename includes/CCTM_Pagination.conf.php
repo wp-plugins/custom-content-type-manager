@@ -100,7 +100,7 @@ class CCTM_Pagination_Configuration {
 		),
 		//------------------------------------------------------------------------------
 		'media' => array (
-			'firstTpl'		=> '<span class="linklike" onclick="javascript:change_page(0);">&laquo; First</span> &nbsp;',
+			'firstTpl'		=> '<span class="linklike" onclick="javascript:change_page(1);">&laquo; First</span> &nbsp;',
 			'lastTpl' 		=> '&nbsp;<span class="linklike" onclick="javascript:change_page([+page_number+]);" >Last &raquo;</span>',
 			'prevTpl' 		=> '<span class="linklike" onclick="javascript:change_page([+page_number+]);">&lsaquo; Prev.</span>&nbsp;',
 			'nextTpl' 		=> '&nbsp;<span class="linklike" onclick="javascript:change_page([+page_number+]);">Next &rsaquo;</span>',

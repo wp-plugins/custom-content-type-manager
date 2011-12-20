@@ -80,13 +80,6 @@ if (isset($_POST['search_parameters'])) {
 	unset($args['page_number']);
 	unset($args['fieldname']);
 	
-	
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, print_r($args,true));
-	fclose($fh);
-	
-	
 /*
 	$myFile = "/tmp/cctm.txt";
 	$fh = fopen($myFile, 'a') or die("can't open file");
@@ -136,18 +129,7 @@ if (isset($_POST['exclude'])) {
 
 $search_parameters_str = ''; // <-- read custom search parameters, if defined.
 if (isset($def['search_parameters'])) {
-
-	$search_parameters_str = $def['search_parameters'];
-	
-	// LOGGING
-/*
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, 'Definition had search params:'.print_r($def,true));
-	fclose($fh);
-*/
-	
-
+	$search_parameters_str = $def['search_parameters'];	
 }
 $additional_defaults = array();
 parse_str($search_parameters_str, $additional_defaults);
@@ -164,15 +146,6 @@ foreach($additional_defaults as $k => $v) {
 //------------------------------------------------------------------------------
 $Q = new GetPostsQuery(); 
 $Q->set_defaults($defaults);
-
-
-	// LOGGING...
-/*
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, print_r($defaults, true));
-	fclose($fh);
-*/
 	
 
 $args['offset'] = 0; // assume 0, unless we got a page number
@@ -183,6 +156,8 @@ if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 
 
 // Get the results
+// Test args
+//$args = array('orderby' => 'ID', 'order' => 'ASC', 'search_term' => '', 'yearmonth' => '', 'offset' => 0, 'limit' => 10 );
 $results = $Q->get_posts($args);
 //$results = $Q->get_posts($new_args);
 //print '<pre>'. $Q->get_args(). '</pre>'; exit;
@@ -205,13 +180,11 @@ $search_by = array('search_term','yearmonth','post_type');
 $d['search_form'] = $Form->generate($search_by, $args);
 //$d['search_form'] = $Form->generate($search_by, array());
 
-/*
 	// LOGGING...
 	$myFile = "/tmp/cctm.txt";
 	$fh = fopen($myFile, 'a') or die("can't open file");
 	fwrite($fh, print_r($args, true));
 	fclose($fh);
-*/
 
 
 
@@ -263,6 +236,7 @@ $hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
 
 $hash['content'] = '';
 // And the items
+//$results = array();
 foreach ($results as $r){
 
 	$r['name'] = $raw_fieldname;

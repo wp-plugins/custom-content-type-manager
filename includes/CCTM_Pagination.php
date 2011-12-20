@@ -335,9 +335,6 @@ class CCTM_Pagination {
 
 		$record_count = (int) $record_count;
 
-		//  print "results per page: " . $this->results_per_page; exit;
-		//  print_r($this->properties); exit;
-
 		// No point in doing pagination if there aren't enough records
 		if ( empty($record_count)) {
 			return '';
