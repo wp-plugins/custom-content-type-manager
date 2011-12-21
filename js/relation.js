@@ -158,7 +158,7 @@ function change_page(page_number) {
 	    data,
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#cctm_thickbox').html(response);
+			jQuery('#cctm_thickbox_content').html(response);
 	    }
 	);
 	return false;
@@ -353,7 +353,7 @@ function thickbox_refine_search() {
 	    data,
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#cctm_thickbox').html(response);
+			jQuery('#cctm_thickbox_content').html(response);
 			
 	    }
 	);	
@@ -384,7 +384,7 @@ function thickbox_reset_search() {
 	    data,
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#cctm_thickbox').html(response);
+			jQuery('#cctm_thickbox_content').html(response);
 			
 	    }
 	);
@@ -475,7 +475,7 @@ function thickbox_sort_results(sort_column) {
 	    data,
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#cctm_thickbox').html(response);
+			jQuery('#cctm_thickbox_content').html(response);
 			
 	    }
 	);	

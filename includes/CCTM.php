@@ -1041,10 +1041,10 @@ class CCTM {
 	 * @return	string	url of the thumbnail
 	 */
 	public static function get_thumbnail($id) {
-
+		
 		// Default output
 		$thumbnail_url = CCTM_URL .'/images/custom-fields/default.png';
-		
+
 		if (empty($id) || $id == 0) {
 			return $thumbnail_url;
 		}
@@ -1067,6 +1067,7 @@ class CCTM {
 		// Special handling for media attachments (i.e. photos) and for 
 		// custom post-types where the custom icon has been set.
 		if ($post_type == 'attachment' && preg_match('/^image/',$post_mime_type) && self::get_setting('cache_thumbnail_images')) {
+			return $thumbnail_url; // Bypass for now
 			$thumbnail_url = self::_get_create_thumbnail($post);
 		}
 		elseif ($post_type == 'post') {
@@ -1077,9 +1078,7 @@ class CCTM {
 		}
 		// Other Attachments and other post-types: we go for the custom icon
 		else
-		{
-			$preview_url = $guid.'&preview=true';
-			
+		{	
 			if (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
 					&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
 				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);

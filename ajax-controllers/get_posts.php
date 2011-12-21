@@ -235,10 +235,13 @@ $hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
 //$hash['show_all']		= __('Show All', CCTM_TXTDOMAIN);
 
 $hash['content'] = '';
+
+
+//$hash['content'] = CCTM::load_tpl('crap.tpl');
 // And the items
 //$results = array();
 foreach ($results as $r){
-
+	
 	$r['name'] = $raw_fieldname;
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
@@ -252,7 +255,7 @@ foreach ($results as $r){
 /*
 	$myFile = "/tmp/cctm.txt";
 	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, print_r($hash, true));
+	fwrite($fh, $hash['content']);
 	fclose($fh);
 */
 
@@ -265,7 +268,8 @@ if (isset($_POST['wrap_thickbox'])){
 	print CCTM::load_view('templates/thickbox.php', $d);
 }
 else {
-	print CCTM::load_view('templates/thickbox_inner.php', $d);
+	//print CCTM::load_view('templates/thickbox_inner.php', $d);
+	print $d['content'];
 }
 
 exit;
