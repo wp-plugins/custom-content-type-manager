@@ -118,16 +118,16 @@ class CCTM_media extends CCTM_FormElement
 			if ($current_value != '[""]') {
 				$values = (array) json_decode($current_value);
 				foreach ($values as $v) {
-					$this->value    = (int) $v;
-					$this->thumbnail_url = CCTM::get_thumbnail($this->value);
+					$this->post_id    = (int) $v;
+					$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				}
 			}
 		}
 		// Regular old Single-selection
 		else {
-			$this->value    = (int) $current_value; // Relations only store the foreign key.
-			$this->thumbnail_url = CCTM::get_thumbnail($this->value);
+			$this->post_id    = (int) $current_value; // Relations only store the foreign key.
+			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
@@ -143,7 +143,7 @@ class CCTM_media extends CCTM_FormElement
 				)
 			);
 
-			if ($this->value) {
+			if ($this->post_id) {
 				$this->content = CCTM::parse($fieldtpl, $this->get_props());
 			}
 		}
