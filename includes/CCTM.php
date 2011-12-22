@@ -1067,7 +1067,6 @@ class CCTM {
 		// Special handling for media attachments (i.e. photos) and for 
 		// custom post-types where the custom icon has been set.
 		if ($post_type == 'attachment' && preg_match('/^image/',$post_mime_type) && self::get_setting('cache_thumbnail_images')) {
-			return $thumbnail_url; // Bypass for now
 			$thumbnail_url = self::_get_create_thumbnail($post);
 		}
 		elseif ($post_type == 'post') {

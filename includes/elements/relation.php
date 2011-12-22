@@ -90,7 +90,7 @@ class CCTM_relation extends CCTM_FormElement
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
 		$Q = new GetPostsQuery();
-
+		
 		// Populate the values (i.e. properties) of this field
 		$this->id   = $this->name;
 		$this->content  = '';
@@ -109,14 +109,12 @@ class CCTM_relation extends CCTM_FormElement
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
-					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-					, 'fields/wrappers/_relation.tpl'
 				)
 			);
 
@@ -126,6 +124,18 @@ class CCTM_relation extends CCTM_FormElement
 				foreach ($values as $v) {
 					$this->post_id    = (int) $v;
 					$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
+
+					// Look up all the data on that foriegn key
+					// We gotta watch out: what if the related post has custom fields like "description" or 
+					// anything that would conflict with the definition?
+					$post = (array) $Q->get_post($this->post_id);
+					foreach($post as $k => $v) {
+						// Don't override the def's attributes!
+						if (!isset($this->$k)) {
+							$this->$k = $v;
+						}
+					}
+					
 					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				}
 			}
@@ -133,24 +143,32 @@ class CCTM_relation extends CCTM_FormElement
 		// Regular old Single-selection
 		else {
 
-			$this->post_id    = (int) $current_value; // Relations only store the foreign key.
+			$this->post_id    = (int) $current_value; // Relations only store the foreign key.			
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
-					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
-					, 'fields/wrappers/_relation.tpl'
 				)
 			);
 
 			if ($this->post_id) {
+				// Look up all the data on that foriegn key
+				// We gotta watch out: what if the related post has custom fields like "description" or 
+				// anything that would conflict with the definition?
+				$post = (array) $Q->get_post($this->post_id);
+				foreach($post as $k => $v) {
+					// Don't override the def's attributes!
+					if (!isset($this->$k)) {
+						$this->$k = $v;
+					}
+				}
 				$this->content = CCTM::parse($fieldtpl, $this->get_props());
 			}
 		}

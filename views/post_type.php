@@ -595,7 +595,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_revisions">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_revisions" value="revisions" <?php print CCTM::is_checked($data['def']['supports'], 'revisions'); ?> /> 
 			<label for="supports_revisions" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_revisions_label"><?php _e('Store Revisions', CCTM_TXTDOMAIN); ?></label>
-					<span class="cctm_description"><?php _e('Revisions are useful if you ever need to go back to an older version of a document.', CCTM_TXTDOMAIN); ?></span>
+					<span class="cctm_description"><?php _e('Revisions are useful if you ever need to go back to an older version of a document. WARNING: revisions do not store custom field data!  This is a limitation of WordPress (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=266">issue 266</a>).', CCTM_TXTDOMAIN); ?></span>
 		</div>
 
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_has_archive">

@@ -653,8 +653,8 @@ class GetPostsQuery {
 				$this->omit_post_type = $new_omits;
 			}
 		} 
-
-		$arg = strtolower($arg);
+		// Don't do this: WP uses 'ID' as a db column
+		//$arg = strtolower($arg);
 		
 		// fill in default value if the parameter is empty
 		// We gotta handle cases where the user tries to set something to null that would break the query

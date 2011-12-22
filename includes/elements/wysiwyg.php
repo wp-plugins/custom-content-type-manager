@@ -122,7 +122,6 @@ class CCTM_wysiwyg extends CCTM_FormElement
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-					, 'fields/wrappers/_text_multi.tpl'
 				)
 			);
 

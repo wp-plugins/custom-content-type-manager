@@ -120,6 +120,17 @@ class CCTM_media extends CCTM_FormElement
 				foreach ($values as $v) {
 					$this->post_id    = (int) $v;
 					$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
+					
+					// Look up all the data on that foriegn key
+					// We gotta watch out: what if the related post has custom fields like "description" or 
+					// anything that would conflict with the definition?
+					$post = (array) $Q->get_post($this->post_id);
+					foreach($post as $k => $v) {
+						// Don't override the def's attributes!
+						if (!isset($this->$k)) {
+							$this->$k = $v;
+						}
+					}					
 					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				}
 			}
@@ -144,6 +155,17 @@ class CCTM_media extends CCTM_FormElement
 			);
 
 			if ($this->post_id) {
+				// Look up all the data on that foriegn key
+				// We gotta watch out: what if the related post has custom fields like "description" or 
+				// anything that would conflict with the definition?
+				$post = (image) $Q->get_post($this->post_id);
+				foreach($post as $k => $v) {
+					// Don't override the def's attributes!
+					if (!isset($this->$k)) {
+						$this->$k = $v;
+					}
+				}
+			
 				$this->content = CCTM::parse($fieldtpl, $this->get_props());
 			}
 		}
