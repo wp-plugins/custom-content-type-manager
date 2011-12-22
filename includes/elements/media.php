@@ -158,7 +158,7 @@ class CCTM_media extends CCTM_FormElement
 				// Look up all the data on that foriegn key
 				// We gotta watch out: what if the related post has custom fields like "description" or 
 				// anything that would conflict with the definition?
-				$post = (image) $Q->get_post($this->post_id);
+				$post = (array) $Q->get_post($this->post_id);
 				foreach($post as $k => $v) {
 					// Don't override the def's attributes!
 					if (!isset($this->$k)) {
