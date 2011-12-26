@@ -33,7 +33,7 @@ class CCTM_SimpleImage {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Full path to image
+	 * Full path to image, also takes a URL
 	 *
 	 * @param string  $filename
 	 */
@@ -76,6 +76,10 @@ class CCTM_SimpleImage {
 		if ( $permissions != null) {
 			chmod($filename, $permissions);
 		}
+		
+		// Free memory
+		// http://www.binarytides.com/blog/php-resize-large-images-with-imagemagick/
+		imagedestroy($this->image);
 		
 		return $success;
 	}
@@ -170,7 +174,9 @@ class CCTM_SimpleImage {
 		$with = (int) $width;
 		$height = (int) $height;
 		$new_image = imagecreatetruecolor($width, $height);
-		imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $width, $height, $this->getWidth(), $this->getHeight());
+		if (!imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $width, $height, $this->getWidth(), $this->getHeight())) {
+			die('Resampling failed for '. $new_image);
+		}
 		$this->image = $new_image;
 	}
 

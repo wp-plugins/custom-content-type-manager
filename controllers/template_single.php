@@ -15,6 +15,7 @@
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
 require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
+require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
 
 
 $data     = array();
@@ -121,12 +122,16 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 				continue;
 			}
 			// Get the example from the Output Filter
-			if (isset(self::$data['custom_field_defs'][$cf]['output_filter'])
-				&& !empty(self::$data['custom_field_defs'][$cf]['output_filter'])
-				&& self::$data['custom_field_defs'][$cf]['output_filter'] != 'raw'
-				&& CCTM::include_output_filter_class(self::$data['custom_field_defs'][$cf]['output_filter'])
-			) {
-				$filter_class = CCTM::classname_prefix.self::$data['custom_field_defs'][$cf]['output_filter'];
+			if (!isset(self::$data['custom_field_defs'][$cf]['output_filter'])) {
+				continue;
+			}
+			$filter = self::$data['custom_field_defs'][$cf]['output_filter'];
+			$filter_class = CCTM::classname_prefix.self::$data['custom_field_defs'][$cf]['output_filter'];
+			if (!class_exists($filter_class)) {
+				CCTM::load_file("/filters/$filter.php");
+			}
+			if ($filter != 'raw') {
+				
 				$OutputFilter = new $filter_class();
 				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> %s<br />\n"
 					, self::$data['custom_field_defs'][$cf]['label']

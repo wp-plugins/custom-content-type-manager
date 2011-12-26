@@ -17,6 +17,11 @@ class CCTM_excerpt extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options='<!--more-->') {
+		
+		if (empty($input)) { 
+			return '';
+		}
+		
 		$output = do_shortcode($input);
 		// Strip space
 		$output = preg_replace('/\s\s+/', ' ', $output);

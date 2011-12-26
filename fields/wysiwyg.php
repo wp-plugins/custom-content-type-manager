@@ -1,29 +1,61 @@
 <?php
 /**
- * CCTM_text
+ * CCTM_wysiwyg
  *
- * Implements a simple HTML text input.
+ * Implements an WYSIWYG textarea input (a textarea with formatting controls).
  *
  * @package CCTM_FormElement
  */
 
 
-class CCTM_text extends CCTM_FormElement
+class CCTM_wysiwyg extends CCTM_FormElement
 {
-
 	public $props = array(
 		'label' => '',
 		'name' => '',
 		'description' => '',
 		'class' => '',
-		'extra' => '',
+		'extra' => 'cols="80" rows="10"',
 		'default_value' => '',
-		'is_repeatable' => '',
-		'output_filter' => '',
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
-	public $supported_output_filters = array('email');
+
+
+	/**
+	 * Loads up the necessary Javascript stuff into the admin header.
+	 * See http://dannyvankooten.com/450/tinymce-wysiwyg-editor-in-wordpress-plugin/
+	 */
+	public function load_tiny_mce() {
+		wp_tiny_mce( false );
+	}
+
+	/**
+	 * Loads more TinyMCE stuff into the admin footer.
+	 * 
+	 * Also consider this:
+	 *  wp_preload_dialogs( array( 'plugins' => 'wpdialogs,wplink,wpfullscreen' ) );
+	 */
+	public function preload_dialogs() {
+		wp_quicktags();
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Register the appropriate js: array('jquery', 'editor', 'thickbox', 'media-upload')
+	 * See http://codex.wordpress.org/Function_Reference/wp_register_script
+	 */
+	public function admin_init() {
+		wp_register_script('cctm_wysiwyg', CCTM_URL.'/js/wysiwyg.js', array('jquery', 'editor', 'thickbox', 'media-upload'));
+		wp_enqueue_script('cctm_wysiwyg');
+		wp_enqueue_style('thickbox');
+
+		// This is req'd if the post-type doesn't have the main content block.
+		add_action('admin_head', 'wp_tiny_mce');
+		add_action( 'admin_print_footer_scripts', array($this, 'preload_dialogs'));
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -33,7 +65,7 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_name() {
-		return __('Text', CCTM_TXTDOMAIN);
+		return __('WYSIWYG', CCTM_TXTDOMAIN);
 	}
 
 
@@ -46,8 +78,8 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Text fields implement the standard <input="text"> element.
-			"Extra" parameters, e.g. "size" can be specified in the definition.', CCTM_TXTDOMAIN);
+		return __('What-you-see-is-what-you-get (WYSIWYG) fields implement a <textarea> element with formatting controls.
+			"Extra" parameters, e.g. "cols" can be specified in the definition, however a minimum size is required to make room for the formatting controls.', CCTM_TXTDOMAIN);
 	}
 
 
@@ -60,93 +92,94 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string  e.g. http://www.yoursite.com/some/page.html
 	 */
 	public function get_url() {
-		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Text';
+		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/WYSIWYG';
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 * This is somewhat tricky if the values the user wants to store are HTML/JS.
-	 * See http://www.php.net/manual/en/function.htmlspecialchars.php#99185
+	 * See Issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=138
+	 * and this one: http://keighl.com/2010/04/switching-visualhtml-modes-with-tinymce/
 	 *
-	 * @param mixed   $current_value current value for this field.
+	 * @param string  $current_value current value for this field.
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		// Populate the values (i.e. properties) of this field
 		$this->id      = $this->name;
 
 		$fieldtpl = '';
 		$wrappertpl = '';
 
+		// Multi-version of the field
 		if ($this->is_repeatable) {
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
-					, 'fields/elements/_default.tpl'
 				)
 			);
+
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-					, 'fields/wrappers/_default.tpl'
 				)
 			);
 
 			$this->i = 0;
-			$values = (array) json_decode($current_value);
-			//die(print_r($values,true));
-			$content = '';
+
+			$values = (array) json_decode($current_value, true);
+			$this->content = '';
 			foreach ($values as $v) {
 				$this->value = htmlspecialchars( html_entity_decode($v) );
 				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				$this->i   = $this->i + 1;
 			}
-		}
-		// Normal text field
-		else {
-			$this->value  = htmlspecialchars( html_entity_decode($current_value) );
 
+		}
+		// Singular
+		else {
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
+
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
-			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+
+			$this->value    = $current_value;
+			$this->content = CCTM::parse($fieldtpl, $this->get_props() );
 		}
 
 
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
+
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param mixed   $def field definition; see the $props array
-	 * @return unknown
+	 * @param array   $def field definition; see the $props array
+	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
-		$is_checked = '';
+
+		$is_repeatable_checked = '';
 		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
-			$is_checked = 'checked="checked"';
+			$is_repeatable_checked = 'checked="checked"';
 		}
 
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
+			 		<input type="text" name="label" class="cctm_text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
 			 		' . $this->get_translation('label').'
 			 	</div>';
 		// Name
@@ -191,20 +224,20 @@ class CCTM_text extends CCTM_FormElement
 			. __('Is Repeatable?', CCTM_TXTDOMAIN) .
 			'</label>
 				 <br />
-				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
+				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_repeatable_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
 
 		// Description
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'
 			.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'. htmlspecialchars($def['description']).'</textarea>
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'.htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
 
 		// Output Filter
-		$out .= $this->get_available_output_filters($def);
-
+		$out .= $this->format_available_output_filters($def);
+			 	
 		return $out;
 	}
 

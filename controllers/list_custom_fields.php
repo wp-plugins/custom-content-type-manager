@@ -39,7 +39,7 @@ foreach ($defs as $field_name => $d) {
 	
 	$FieldObj = new $field_type_name();
 	
-	$d['icon'] 			= $FieldObj->get_icon();
+	$d['icon'] 	= $FieldObj->get_icon();
 
 	if ( !CCTM::is_valid_img($d['icon']) ) {
 		$icon_src = self::get_custom_icons_src_dir() . 'default.png';

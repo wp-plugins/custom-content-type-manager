@@ -20,7 +20,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 			$post = get_post($input);
 			$link_text = $post->post_title;
 			if (!empty($options)) {
-				$link_text = $option;
+				$link_text = $options;
 			}
 			return sprintf('<a href="%s">%s</a>', $post->guid, $link_text);
 		}

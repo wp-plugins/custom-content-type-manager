@@ -10,22 +10,37 @@ class CCTM_to_array extends CCTM_OutputFilter {
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	mixed 	input
-	 * @param	mixed	optional arguments
+	 * @param 	mixed 	$input, usually a string representing a JSON-encoded array, but a real PHP array is ok too.
+	 * @param	string	$options optional arguments, to_array accepts the name of an Output Filter
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+		$the_array = array();
+		
 		if (is_array($input)) {
-			return $input; // nothing to do here.
-		}
-		$output = json_decode($input, true);
-		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
-		if ( !is_array($output) ) {
-			return array($output);
+			$the_array = $input; // No JSON converting necessary: PHP array supplied.
 		}
 		else {
-			return $output;
+			$output = json_decode($input, true);
+	
+			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
+			if ( !is_array($output) ) {
+				$the_array = array($output);
+			}
+			else {
+				$the_array = $output;
+			}
 		}
+		
+		// Apply secondary optional filter to each item in the array.
+		if ($options) {
+			foreach ($the_array as &$item) {
+				$item = CCTM::filter($item, $options);
+			}
+		}
+
+		return $the_array;
+
 	}
 
 

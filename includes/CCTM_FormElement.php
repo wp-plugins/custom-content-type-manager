@@ -229,6 +229,53 @@ abstract class CCTM_FormElement {
 	 */
 	public function admin_init() { }
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Generate select dropdown for listing and selecting the active output filter.
+	 *
+	 * @param mixed   $def is the existing field definition
+	 * @return string	html dropdown
+	 */
+	public function format_available_output_filters($def) {
+
+		$out = '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
+			 	<label for="output_filter" class="cctm_label cctm_select_label" id="output_filter_label">'
+			.__('Default Output Filter', CCTM_TXTDOMAIN) .'
+			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
+			 		</label>';
+
+		$out .= '<select name="output_filter" class="cctm_select" id="output_filter">
+				<option value="">'.__('None (raw)').'</option>
+				';
+
+		$available_output_filters = CCTM::get_available_output_filters();
+		require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
+		
+		foreach ($available_output_filters as $filter => $filename) {
+		
+			require_once($filename);
+			
+			$classname = CCTM::classname_prefix . $filter;
+		
+			$Obj = new $classname();
+
+			if ($Obj->show_in_menus) {
+				$is_selected = '';
+				if ( isset($def['output_filter']) && $def['output_filter'] == $filter ) {
+					$is_selected = 'selected="selected"';
+				}
+				$out .= '<option value="'.$filter.'" '.$is_selected.'>'.$Obj->get_name().' ('.$filter.')</option>';
+			}
+			
+		}
+
+		$out .= '</select>
+			' . $this->get_translation('output_filter')
+			.'</div>';
+
+		return $out;
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -371,47 +418,6 @@ abstract class CCTM_FormElement {
 	}
 
 
-	//------------------------------------------------------------------------------
-	/**
-	 * Generate select dropdown for listing and selecting the active output filter.
-	 *
-	 * @param mixed   $def is the existing field definition
-	 * @return string	html dropdown
-	 */
-	public function get_available_output_filters($def) {
-
-		$out = '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
-			 	<label for="output_filter" class="cctm_label cctm_select_label" id="output_filter_label">'
-			.__('Default Output Filter', CCTM_TXTDOMAIN) .'
-			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
-			 		</label>';
-
-		$out .= '<select name="output_filter" class="cctm_select" id="output_filter">
-				<option value="">'.__('None (raw)').'</option>
-				';
-
-		$available_output_filters = CCTM::get_available_output_filters(true);
-		foreach ($available_output_filters as $filter => $filename) {
-			if (CCTM::include_output_filter_class($filter)) {
-				$filter_name = CCTM::classname_prefix . $filter;
-				$Obj = new $filter_name();
-
-				if ($Obj->show_in_menus) {
-					$is_selected = '';
-					if ( isset($def['output_filter']) && $def['output_filter'] == $filter ) {
-						$is_selected = 'selected="selected"';
-					}
-					$out .= '<option value="'.$filter.'" '.$is_selected.'>'.$Obj->get_name().' ('.$filter.')</option>';
-				}
-			}
-		}
-
-		$out .= '</select>
-			' . $this->get_translation('output_filter')
-			.'</div>';
-
-		return $out;
-	}
 
 
 	//------------------------------------------------------------------------------

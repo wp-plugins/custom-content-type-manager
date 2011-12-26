@@ -31,7 +31,7 @@ function get_custom_field($raw_fieldname, $options=null)
 {
 	global $post;
 	$options_array = func_get_args();
-	
+
 	// Extract any output filters.
 	$input_array = explode(':',$raw_fieldname);	
 	$fieldname = array_shift($input_array);
@@ -70,7 +70,7 @@ function get_custom_field($raw_fieldname, $options=null)
 		else {
 			$options = null;
 		}
-		
+
 		$value = CCTM::filter($value, $outputfilter, $options);
 
 		$i++;

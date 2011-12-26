@@ -24,18 +24,8 @@ $cache_dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache';
 // If properly submitted, Proceed with deleting the post type
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 	$error_flag = false;
-//	$cachedir = "../cache/";
-	if ($cachehandle = opendir($cache_dir)) {
-	   while (false !== ($file = readdir($cachehandle))) {
-	    if ($file != "." && $file != '..') {
-	        $file2del = $cache_dir.'/'.$file;
-			if(!@unlink($file2del) ) {
-				$error_flag = true;
-			}
-	       }
-	   }
-	   closedir($cachehandle);
-	}
+
+	CCTM::delete_dir($cache_dir);
 	
 	// Delete the cache dir
 	if (!$error_flag) {

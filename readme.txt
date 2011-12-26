@@ -87,7 +87,7 @@ Major release!
 * All fields can now be "repeatable" so you can select multiple values, e.g. images, relations, textareas...
 * Cleaner Ajax implementation [Issue 226](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226).  This should make the plugin work better on sites with customized folder structures.
 * You can now configure search parameters to determine which posts are available in your post-selector for relation, image, and media fields.
-
+* Removed directory caching option (no longer needed due to code rewrites).
 
 = 0.9.4.5 =
 
@@ -115,6 +115,7 @@ Major release!
 * Fixed [Issue 197](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=197): I had forgotten to uncomment lines that cleaned up field definitions after merging fields.
 * Added support for duplication of custom fields: [Issue 174](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=174)
 * Added support for duplication of post types: [Issue 173](http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=173)
+
 
 = 0.9.4 =
 

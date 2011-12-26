@@ -181,10 +181,10 @@ $d['search_form'] = $Form->generate($search_by, $args);
 //$d['search_form'] = $Form->generate($search_by, array());
 
 	// LOGGING...
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, print_r($args, true));
-	fclose($fh);
+//	$myFile = "/tmp/cctm.txt";
+//	$fh = fopen($myFile, 'a') or die("can't open file");
+//	fwrite($fh, print_r($args, true));
+//	fclose($fh);
 
 
 

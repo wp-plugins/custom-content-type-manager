@@ -67,15 +67,6 @@ class CCTM {
 	const custom_fields_dir = 'fields';
 
 
-
-	/**
-	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store
-	 * any 3rd-party or output filters. Omit the trailing slash.
-	 */
-	const filters_dir = 'filters';
-
-
-
 	/**
 	 * Directory relative to wp-content/uploads/{self::base_storage_dir} used to store
 	 * formatting templates (tpls)
@@ -229,59 +220,84 @@ class CCTM {
 		$HEIGHT = 32;
 		$QUALITY = 100;
 
-		$upload_dir = wp_upload_dir();		
+
 		// Base image cache dir: our jumping off point.
-		$cache_dir = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/';
+		$cache_dir = CCTM_3P_PATH .'/cache/images/';
 		$info = pathinfo($p['guid']);
-		$ext = '.'.$info['extension'];
+		//$ext = '.'.$info['extension'];
+		$ext = '.jpg';
 		
-		$hash_id = md5(print_r($p,true).$WIDTH.$HEIGHT.$QUALITY); //
+		$hash_id = md5($p['guid'].$WIDTH.$HEIGHT.$QUALITY); //
+		//$hash_id = md5(print_r($p,true).$WIDTH.$HEIGHT.$QUALITY); //
 		
 		// atomize our image so we don't overload our directories (shell wildcards)
 		// See http://drupal.org/node/171444 for one example of this common problem
 		$subdir_array = str_split($hash_id);
-		$filename = array_pop($subdir_array);
+		$filename = array_pop($subdir_array); // the last letter
 		$subdir = implode('/', $subdir_array); // e.g. a/b/c/1/5/e
+		// The image location is relative to the cache/images directory
 		$image_location = $subdir.'/'.$filename.$ext; // e.g. a/b/c/1/5/e/f.jpg
 		
 		
-		$thumbnail_path = $upload_dir['basedir'].'/'.CCTM::base_storage_dir .'/cache/images/'.$image_location;
-		$thumbnail_url = $upload_dir['baseurl'] .'/'.CCTM::base_storage_dir .'/cache/images/'.$image_location;
+		$thumbnail_path = CCTM_3P_PATH .'/cache/images/'.$image_location;
+		$thumbnail_url = CCTM_3P_URL .'/cache/images/'.$image_location;
+
+	$myFile = "/tmp/cctm.txt";
+	$fh = fopen($myFile, 'a') or die("can't open file");
+	fwrite($fh, $p['guid']."\n");
+	fwrite($fh, $thumbnail_url."\n");
+	fclose($fh);	
 
 
-		// Create a new image if the cached version exists?
-		if (!file_exists($thumbnail_path)) {
+		// If it's already there, we're done
+		if (file_exists($thumbnail_path)) {
+			return $thumbnail_url;
+		}
 
-			// Cache dir doesn't exist 
-			if (!file_exists($cache_dir.'/'.$subdir)) {
-				// ... and we can't create it
-				if (!mkdir($cache_dir.'/'.$subdir, 0777, true)) {
-					// Failed to create the dir... now what?!?  We cram the full-sized image into the 
-					// small image tag, which is exactly what WP does (yes, seriously.)
-					$thumbnail_url = $p['guid'];
-					// Notify the user
-					CCTM::$errors['could_not_create_cache_dir'] = sprintf(
-						__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
-						, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
-				}
-			}
-			// the cache directory exits; create the cached image
-			else {
-				require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
-				$image = new CCTM_SimpleImage();
-				$image->load($p['guid']); // use the full path to the image (not the URL)
-				$image->resize($WIDTH, $HEIGHT);
-				if (!$image->save($thumbnail_path, IMAGETYPE_JPEG, $QUALITY)) {
-					CCTM::$errors['could_not_create_img'] = sprintf(
-						__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
-						, "<code>$thumbnail_path</code>");
-					$thumbnail_url = $p['guid'];
-				}
-			}
-		}	
+
+		// If it's not there, we must create it.
+		if (!file_exists($cache_dir.$subdir) && !mkdir($cache_dir.$subdir, 0777, true)) {
+
+			// Notify the user
+			CCTM::$errors['could_not_create_cache_dir'] = sprintf(
+				__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
+				, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
+
+			$myFile = "/tmp/cctm.txt";
+			$fh = fopen($myFile, 'a') or die("can't open file");
+			fwrite($fh, 'Failed to create directory '.$cache_dir.$subdir."\n");
+			fclose($fh);	
+
+
+			// Failed to create the dir... now what?!?  We cram the full-sized image into the 
+			// small image tag, which is exactly what WP does (yes, seriously.)				
+			return $p['guid'];
+				
+		}
+		
+		// the cache directory exits; create the cached image
+		require_once(CCTM_PATH.'/includes/CCTM_SimpleImage.php');
+		$image = new CCTM_SimpleImage();
+		$image->load($p['guid']); // You may use the image URL
+		$image->resize($WIDTH, $HEIGHT);
+		if (!$image->save($thumbnail_path, IMAGETYPE_JPEG, $QUALITY)) {
+			CCTM::$errors['could_not_create_img'] = sprintf(
+				__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
+				, "<code>$thumbnail_path</code>");
+
+			$myFile = "/tmp/cctm.txt";
+			$fh = fopen($myFile, 'a') or die("can't open file");
+			fwrite($fh, 'Could not save the image '.$thumbnail_path."\n");
+			fclose($fh);
+			
+			return $p['guid'];
+			
+		}
 		
 		return $thumbnail_url;
 	}
+	
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Prepare a post type definition for registration.  This gets run immediately 
@@ -526,33 +542,74 @@ class CCTM {
 	}
 
 
+	/**
+	 * Delete a directoroy and its contents.
+	 * @param	string $dirPath
+	 */
+	public static function delete_dir($dirPath) {
+	    if (! is_dir($dirPath)) {
+	    	return false;
+//	        throw new InvalidArgumentException('$dirPath must be a directory');
+	    }
+	    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+	        $dirPath .= '/';
+	    }
+	    $files = glob($dirPath . '*', GLOB_MARK);
+	    foreach ($files as $file) {
+	        if (is_dir($file)) {
+	            self::delete_dir($file);
+	        } else {
+	            unlink($file);
+	        }
+	    }
+	    rmdir($dirPath);
+	}
+
 	//------------------------------------------------------------------------------
 	/**
 	 * The static invocation of filtering an input through an Output Filter
 	 *
-	 * @param mixed $value
-	 * @param string $outputfilter
-	 * @param mixed $options      (optional)
+	 * @param mixed $value to be filtered, usually a string.
+	 * @param string $outputfilter name, e.g. 'to_array'
+	 * @param mixed $options (optional) any additional arguments to pass to the filter
 	 * @return mixed dependent on output filter
 	 */
 	public static function filter($value, $outputfilter, $options=null) {
-		if (CCTM::include_output_filter_class($outputfilter)) {
-			if (isset($options)) {
-				$options = $options;
-			}
-			else {
-				$options = null;
-			}
-			$filter_class = CCTM::classname_prefix.$outputfilter;
+	
+		$filter_class = CCTM::classname_prefix.$outputfilter;
+
+		require_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
+		
+		// If we've already loaded it, re-use it
+		if (class_exists($filter_class)) { 		
 			$OutputFilter = new $filter_class();
 			return $OutputFilter->filter($value, $options);
 		}
+		
+		// Load the file if we haven't already
+		if (CCTM::load_file(array("/filters/$outputfilter.php"))) {
+		
+			// This checks if the file implemented the correct class 
+			if ( !class_exists($filter_class) ) {
+				self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s Output Filter. Expected class name: %s', CCTM_TXTDOMAIN)
+					, "<strong>$outputfilter</strong>"
+					, "<strong>$filter_class</strong>"
+				);
+				return $value;
+			}
+			// Ok, we've loaded the right class... let's use it.
+			$OutputFilter = new $filter_class();
+			return $OutputFilter->filter($value, $options);
+						
+		}		
 		else {
 			self::$errors['filter_not_found'] = sprintf(
 				__('Output filter not found: %s', CCTM_TXTDOMAIN)
 				, "<code>$outputfilter</code>");
 			return $value;
 		}
+
+
 	}
 
 
@@ -608,48 +665,6 @@ class CCTM {
 		);
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Gets the path of 3rd party custom field defs, WITH trailing slash, e.g.
-	 * /home/user/public_html/wp-content/uploads/cctm/fields/
-	 * This is used when 3rd party custom fields need to point to their own directory
-	 * (e.g. for including files)
-	 *
-	 * @return unknown
-	 */
-	public static function get_3rd_party_fields_path() {
-		$uploads = wp_upload_dir();
-		// Best to check this lest we run afoul of permissions issues.
-		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
-			CCTM::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
-		}
-		elseif (isset($uploads['basedir'])) {
-			return $uploads['basedir'].'/'. self::base_storage_dir . '/'.self::custom_fields_dir .'/';
-		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Gets the URL of 3rd party custom field defs, WITH trailing slash, e.g.
-	 * http://yoursite.com/wp-content/uploads/cctm/fields/
-	 * This is used when 3rd party custom fields need to point to the field icon.
-	 *
-	 * @return string full URL to 48x48 icon (jpg|png|gif)
-	 */
-	public static function get_3rd_party_fields_url() {
-		$uploads = wp_upload_dir();
-		// Best to check this lest we run afoul of permissions issues.
-		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
-			CCTM::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
-		}
-		elseif (isset($uploads['baseurl'])) {
-			return $uploads['baseurl'].'/'. self::base_storage_dir . '/'.self::custom_fields_dir .'/';
-		}
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Returns an array of active post_types (i.e. ones that will a have their fields
@@ -679,9 +694,9 @@ class CCTM {
 	 *
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
 	 *
-	 * @param unknown $where
+	 * @param string $where
 	 * @param unknown $r
-	 * @return unknown
+	 * @return string
 	 */
 	public static function get_archives_where_filter( $where , $r ) {
 		// Get only public, custom post types
@@ -715,27 +730,15 @@ class CCTM {
 	 * This function will read the results from the cache
 	 *
 	 * @param boolean perform directory scan and update cache?
-	 * @param unknown $scandir (optional)
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
-	public static function get_available_custom_field_types($scandir=false) {
+	public static function get_available_custom_field_types() {
 
+		// prep for output...
 		$files = array();
 
-		// Optionally, we can force directories o be scanned
-		if (!self::get_setting('cache_directory_scans')) {
-			$scandir = true;
-		}
-
-		// Pull from cache if we can
-		if (!$scandir) {
-			if (isset(self::$data['cache']['elements'])) {
-				return self::$data['cache']['elements'];
-			}
-		}
-
 		// Scan default directory
-		$dir = CCTM_PATH .'/includes/elements';
+		$dir = CCTM_PATH .'/fields';
 		$rawfiles = scandir($dir);
 		foreach ($rawfiles as $f) {
 			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
@@ -779,13 +782,8 @@ class CCTM {
 					}
 				}
 			}
-
-			self::$data['cache']['elements'] = $files;
-			// We only write this to the database if the settings allow it
-			if (self::get_setting('cache_directory_scans')) {
-				update_option(self::db_key, self::$data);
-			}
 		}
+		
 		return $files;
 	}
 
@@ -798,27 +796,15 @@ class CCTM {
 	 * 3rd party directory will be registered: this allows developers to override
 	 * the built-in output filter classes.
 	 *
-	 * @param boolean $scandir (optional) whether or not to force a scan of the directory
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
-	public static function get_available_output_filters($scandir=false) {
-
+	public static function get_available_output_filters() {
+	
+		// Ye olde output
 		$files = array();
-
-		// Optionally, we can force directories o be scanned
-		if (!self::get_setting('cache_directory_scans')) {
-			$scandir = true;
-		}
-
-		// Pull from cache if we can
-		if (!$scandir) {
-			if (isset(self::$data['cache']['filters'])) {
-				return self::$data['cache']['filters'];
-			}
-		}
-
-		// Scan default directory
-		$dir = CCTM_PATH .'/includes/filters';
+		
+		// Scan default directory (should this be hardcoded?)
+		$dir = CCTM_PATH .'/filters';
 		$rawfiles = scandir($dir);
 		foreach ($rawfiles as $f) {
 			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
@@ -834,7 +820,7 @@ class CCTM {
 			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
 		}
 		else {
-			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::filters_dir;
+			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/filters';
 			if (is_dir($dir)) {
 				$rawfiles = scandir($dir);
 				foreach ($rawfiles as $f) {
@@ -846,12 +832,6 @@ class CCTM {
 				}
 			}
 		}
-		self::$data['cache']['filters'] = $files;
-		// We cache this only if allowed
-		if (self::get_setting('cache_directory_scans')) {
-			update_option(self::db_key, self::$data);
-		}
-
 
 		return $files;
 	}
@@ -927,7 +907,7 @@ class CCTM {
 	 */
 	public static function get_flash() {
 		$output = '';
-		$key = self::get_identifier();
+		$key = self::get_user_identifier();
 		if (isset(self::$data['flash'][$key])) {
 			$output = self::$data['flash'][$key];
 			unset( self::$data['flash'][$key] );
@@ -943,7 +923,7 @@ class CCTM {
 	 *
 	 * @return integer
 	 */
-	public static function get_identifier() {
+	public static function get_user_identifier() {
 		global $current_user;
 		if (!isset($current_user->ID) || empty($current_user->ID)) {
 			return 0;
@@ -1096,15 +1076,6 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Gets CCTM's upload path (absolute).  Changes with the media upload directory.
-	 */
-	public static function get_upload_path() {
-
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
 	 * Designed to safely retrieve scalar elements out of a hash. Don't use this
 	 * if you have a more deeply nested object (e.g. an array of arrays).
 	 *
@@ -1150,111 +1121,42 @@ class CCTM {
 	 * On success, the file is included and a true is returned.
 	 * On error, the file is NOT included and a false is returned: errors are registered.
 	 *
-	 * @param string  class name WITHOUT prefix
-	 * @param unknown $field_type
+	 * @param string  $field_type class name WITHOUT prefix
 	 * @return boolean
 	 */
 	public static function include_form_element_class($field_type) {
-
+		
 		if (empty($field_type) ) {
 			self::$errors['missing_field_type'] = __('Field type is empty.', CCTM_TXTDOMAIN);
 			return false;
 		}
-
-		$element_file = '';
-
-		// Check cache...
-		if (self::get_setting('cache_directory_scans') && isset(self::$data['cache']['elements'][$field_type])) {
-			$element_file = self::$data['cache']['elements'][$field_type];
-		}
-		// or Refresh the cache...
-		else {
-			self::get_available_custom_field_types(true);
-			if (isset(self::$data['cache']['elements'][$field_type])) {
-				$element_file = self::$data['cache']['elements'][$field_type];
-			}
-			else {
-				self::$errors['file_not_found'] = sprintf( __('File not found for %s element: %s', CCTM_TXTDOMAIN)
-					, $field_type
-					, $element_file
-				);
-				return false;
-			}
+		
+		$classname = self::classname_prefix.$field_type;
+		
+		if (class_exists($classname)) {
+			return true;
 		}
 
-		// and Load the file...
-		include_once CCTM_PATH.'/includes/CCTM_FormElement.php';
-		if (file_exists($element_file)) {
-			include_once $element_file;  // <-- this will flat-out bomb on syntax errors!
-			if ( !class_exists(self::classname_prefix.$field_type) ) {
+
+		require_once CCTM_PATH.'/includes/CCTM_FormElement.php';
+		
+		if (CCTM::load_file(array("/fields/$field_type.php","/fields/$field_type/$field_type.class.php"))) {
+			if ( !class_exists($classname) ) {
 				self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
-					, $element_file
-					, self::classname_prefix.$field_type
+					, $field_type
+					, $classname
 				);
 				return false;
 			}
 		}
 		else {
-			$msg = sprintf(__('The custom field class file %s could not be found. Did you move or delete the file?', CCTM_TXTDOMAIN), "<code>$element_file</code>");
+			$msg = sprintf(__('The class file for %s fields could not be found. Did you move or delete the file?', CCTM_TXTDOMAIN), "<code>$field_type</code>");
 			self::register_warning($msg);
-		}
-
-		return true;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Includes the class file for the output filter specified by $filter. The
-	 * built-in directory is searched as well as the custom add-on directory.
-	 * Precedence is given to the built-in directory.
-	 * On success, the file is included and a true is returned.
-	 * On error, the file is NOT included and a false is returned: errors are registered.
-	 *
-	 * @param unknown $filter
-	 * @return boolean
-	 */
-	public static function include_output_filter_class($filter) {
-		if (empty($filter) ) {
-			self::$errors['missing_filter'] = __('Output filter is empty.', CCTM_TXTDOMAIN);
-			return false;
-		}
-
-		$filter_file = '';
-
-		// Check cache...
-		if (self::get_setting('cache_directory_scans') && isset(self::$data['cache']['filters'][$filter])) {
-			$filter_file = self::$data['cache']['filters'][$filter];
-		}
-		// or Refresh the cache...
-		else {
-			self::get_available_output_filters(true);
-			if (isset(self::$data['cache']['filters'][$filter])) {
-				$filter_file = self::$data['cache']['filters'][$filter];
-			}
-			else {
-				self::$errors['file_not_found'] = sprintf( __('File not found for %s output filter: %s', CCTM_TXTDOMAIN)
-					, $filter
-					, $filter_file
-				);
-				return false;
-			}
-		}
-
-		// and Load the file...
-		include_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
-		include_once $filter_file;  // <-- this will flat-out bomb on syntax errors!
-		if ( !class_exists(self::classname_prefix.$filter) ) {
-			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
-				, $element_file
-				, self::classname_prefix.$filter
-			);
 			return false;
 		}
 
 		return true;
 	}
-
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1276,7 +1178,7 @@ class CCTM {
 	public static function initialize_custom_fields() {
 
 		// Look around/read variables to get our bearings
-		$available_custom_field_files = CCTM::get_available_custom_field_types(true);
+		// $available_custom_field_files = CCTM::get_available_custom_field_types(true);
 		$page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		$fieldtype = self::get_value($_GET, 'type');
 		$fieldname = self::get_value($_GET, 'field');
@@ -1303,8 +1205,6 @@ class CCTM {
 			}
 			
 		}
-
-		//foreach ( $available_custom_field_files as $shortname => $file ) {
 		
 		// Here's where we will load up all the field-types that are active on this particular post or page.
 		$field_types = array();
@@ -1340,14 +1240,21 @@ class CCTM {
 
 		// We only get here if we survived the gauntlet above
 		foreach ($field_types as $shortname) {
-			if (self::include_form_element_class($shortname)) {
-				// the filenames/classnames are validated in the get_available_custom_field_types() function
-				$classname = self::classname_prefix . $shortname;
+			$classname = self::classname_prefix . $shortname;
+			if (class_exists($classname)) {
 				$Obj = new $classname();
-				$Obj->admin_init();
+				$Obj->admin_init();				
+			}
+			else {
+				if (CCTM::load_file(array("/fields/$shortname.php", "/fields/$shortname/$shortname.class.php"))) {
+					$Obj = new $classname();
+					$Obj->admin_init();
+				}
+				else {
+					CCTM::$errors[] = sprintf( __('Could not locate file for %s field.', CCTM_TXTDOMAIN), "<strong>$shortname</strong>");
+				}
 			}
 		}
-		//}
 
 		if (!empty(CCTM::$errors)) {
 			self::print_notices();
@@ -1940,7 +1847,6 @@ class CCTM {
 	 *
 	 * @param string  Text of the warning
 	 * @return none
-	 * @param unknown $str
 	 */
 	public static function register_warning($str) {
 		if (!empty($str) && !isset(self::$data['warnings'][$str])) {
@@ -2090,7 +1996,7 @@ class CCTM {
 	 * @param string  $msg text or html message
 	 */
 	public static function set_flash($msg) {
-		self::$data['flash'][ self::get_identifier() ] = $msg;
+		self::$data['flash'][ self::get_user_identifier() ] = $msg;
 		update_option(self::db_key, self::$data);
 	}
 

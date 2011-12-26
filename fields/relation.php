@@ -1,14 +1,15 @@
 <?php
 /**
- * CCTM_media
+ * CCTM_relation
  *
- * Implements an field that stores a reference to a media item (i.e. any attachment post)
+ * Implements a special AJAX form element used to store a wp_posts.ID representing
+ * another post of some kind
  *
  * @package CCTM_FormElement
  */
 
 
-class CCTM_media extends CCTM_FormElement
+class CCTM_relation extends CCTM_FormElement
 {
 	public $props = array(
 		'label' => '',
@@ -17,13 +18,14 @@ class CCTM_media extends CCTM_FormElement
 		'description' => '',
 		'class' => '',
 		'extra' => '',
-		'default_value' => '',
 		'is_repeatable' => '',
+		'default_value' => '',
 		'search_parameters' => '',
-		'output_filter' => 'to_image_src',
+		'output_filter' => 'to_link_href',
+		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
-	public $supported_output_filters = array('to_src');
+	public $supported_output_filters = array('to_link', 'to_link_href');
 
 	//------------------------------------------------------------------------------
 	/**
@@ -45,7 +47,7 @@ class CCTM_media extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_name() {
-		return __('Media', CCTM_TXTDOMAIN);
+		return __('Relation', CCTM_TXTDOMAIN);
 	}
 
 
@@ -58,7 +60,7 @@ class CCTM_media extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Media fields are used to store references to any type of media file that has been uploaded via the WordPress media uploader, e.g. images, videos, mp3s.', CCTM_TXTDOMAIN);
+		return __('Relation fields are used to store a reference to another post, including media posts. For example you can use a relation to link to a parent post or to an image or attachment.', CCTM_TXTDOMAIN);
 	}
 
 
@@ -71,7 +73,7 @@ class CCTM_media extends CCTM_FormElement
 	 * @return string  e.g. http://www.yoursite.com/some/page.html
 	 */
 	public function get_url() {
-		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Media';
+		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Relation';
 	}
 
 
@@ -88,10 +90,14 @@ class CCTM_media extends CCTM_FormElement
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
 		$Q = new GetPostsQuery();
-
+		
 		// Populate the values (i.e. properties) of this field
 		$this->id   = $this->name;
 		$this->content  = '';
+
+		if (empty($this->button_label)) {
+			$this->button_label = __('Choose Relation', CCTM_TXTDOMAIN);
+		}
 
 		$this->post_id = $this->value;
 
@@ -103,14 +109,12 @@ class CCTM_media extends CCTM_FormElement
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
-					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-					, 'fields/wrappers/_relation.tpl'
 				)
 			);
 
@@ -120,7 +124,7 @@ class CCTM_media extends CCTM_FormElement
 				foreach ($values as $v) {
 					$this->post_id    = (int) $v;
 					$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
-					
+
 					// Look up all the data on that foriegn key
 					// We gotta watch out: what if the related post has custom fields like "description" or 
 					// anything that would conflict with the definition?
@@ -130,27 +134,27 @@ class CCTM_media extends CCTM_FormElement
 						if (!isset($this->$k)) {
 							$this->$k = $v;
 						}
-					}					
+					}
+					
 					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				}
 			}
 		}
 		// Regular old Single-selection
 		else {
-			$this->post_id    = (int) $current_value; // Relations only store the foreign key.
+
+			$this->post_id    = (int) $current_value; // Relations only store the foreign key.			
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
-					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
-					, 'fields/wrappers/_relation.tpl'
 				)
 			);
 
@@ -165,14 +169,12 @@ class CCTM_media extends CCTM_FormElement
 						$this->$k = $v;
 					}
 				}
-			
 				$this->content = CCTM::parse($fieldtpl, $this->get_props());
 			}
 		}
 
 
 		return CCTM::parse($wrappertpl, $this->get_props());
-
 	}
 
 
@@ -184,7 +186,7 @@ class CCTM_media extends CCTM_FormElement
 	 * with the public $props variable. A populated array of $props will be stored alongside
 	 * the custom-field data for the containing post-type.
 	 *
-	 * @param unknown $def
+	 * @param array $def
 	 * @return string HTML input fields
 	 */
 	public function get_edit_field_definition($def) {
@@ -198,9 +200,9 @@ class CCTM_media extends CCTM_FormElement
 		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
 			$is_checked = 'checked="checked"';
 		}
-
+		
 		// Note fieldtype: used to set the default value on new fields
-		$out = '<input type="hidden" id="fieldtype" value="media" />';
+		$out = '<input type="hidden" id="fieldtype" value="relation" />';
 		
 		// Label
 		$out .= '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
@@ -220,7 +222,7 @@ class CCTM_media extends CCTM_FormElement
 
 		// Initialize / defaults
 		$preview_html = '';
-		$click_label = __('Choose Media');
+		$click_label = __('Choose Relation');
 		$label = __('Default Value', CCTM_TXTDOMAIN);
 		$remove_label = __('Remove');
 
@@ -238,7 +240,6 @@ class CCTM_media extends CCTM_FormElement
 			);
 			$preview_html = CCTM::parse($fieldtpl, $hash);
 		}
-
 
 		// Button Label
 		$out .= '<div class="'.self::wrapper_css_class .'" id="button_label_wrapper">
@@ -297,7 +298,7 @@ class CCTM_media extends CCTM_FormElement
 			 	</div>';
 
 		// Output Filter
-		$out .= $this->get_available_output_filters($def);
+		$out .= $this->format_available_output_filters($def);
 
 		return $out;
 	}

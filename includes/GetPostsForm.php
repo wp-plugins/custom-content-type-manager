@@ -351,7 +351,7 @@ class GetPostsForm {
 	private function _date_column() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('date_column', 'az_');
+		$ph['value'] = $this->get_value('date_column','post_modified');
 		$ph['name'] = 'date_column';
 		$ph['id']  = 'date_column';
 		$ph['label'] = __('Date Columns', CCTM_TXTDOMAIN);
@@ -377,7 +377,7 @@ class GetPostsForm {
 	private function _date_format() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('date_format', 'az_');
+		$ph['value'] = $this->get_value('date_format', 'yyyy-mm-dd');
 		$ph['name'] = 'date_format';
 		$ph['id']  = 'date_format';
 		$ph['label'] = __('Date Format', CCTM_TXTDOMAIN);
@@ -404,7 +404,7 @@ class GetPostsForm {
 	private function _date_max() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('date_max', 'date');
+		$ph['value'] = $this->get_value('date_max');
 		$ph['name'] = 'date_max';
 		$ph['id']  = 'date_max';
 		$ph['label'] = __('Date Maximum', CCTM_TXTDOMAIN);
@@ -432,7 +432,7 @@ class GetPostsForm {
 	private function _date_min() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('date_min', 'date');
+		$ph['value'] = $this->get_value('date_min');
 		$ph['name'] = 'date_min';
 		$ph['id']  = 'date_min';
 		$ph['label'] = __('Date Minimum', CCTM_TXTDOMAIN);
@@ -460,7 +460,7 @@ class GetPostsForm {
 	 */
 	private function _exclude() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('exclude', 'ids');
+		$ph['value'] = $this->get_value('exclude');
 		$ph['name'] = 'exclude';
 		$ph['id']  = 'exclude';
 		$ph['label'] = __('Exclude', CCTM_TXTDOMAIN);
@@ -517,7 +517,7 @@ class GetPostsForm {
 	private function _match_rule() {
 		$ph = $this->placeholders;
 
-		$ph['value'] = $this->get_value('match_rule', 'and_or');
+		$ph['value'] = $this->get_value('match_rule');
 		$ph['name'] = 'match_rule';
 		$ph['id']  = 'match_rule';
 		$ph['label'] = __('Match Rule', CCTM_TXTDOMAIN);
@@ -687,7 +687,7 @@ class GetPostsForm {
 	 */
 	private function _orderby() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('orderby', 'az_');
+		$ph['value'] = $this->get_value('orderby');
 		$ph['name'] = 'orderby';
 		$ph['id']  = 'orderby';
 		$ph['label'] = __('Order By', CCTM_TXTDOMAIN);
@@ -726,7 +726,7 @@ class GetPostsForm {
 	 */
 	private function _post_date() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('post_date', 'date');
+		$ph['value'] = $this->get_value('post_date');
 		$ph['name'] = 'post_date';
 		$ph['id']  = 'post_date';
 		$ph['label'] = __('Post Date', CCTM_TXTDOMAIN);
@@ -753,7 +753,7 @@ class GetPostsForm {
 	 */
 	private function _post_mime_type() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('post_mime_type', 'az_-/');
+		$ph['value'] = $this->get_value('post_mime_type');
 		$ph['name'] = 'post_mime_type';
 		$ph['id']  = 'post_mime_type';
 		$ph['label'] = __('Post MIME Type', CCTM_TXTDOMAIN);
@@ -771,7 +771,7 @@ class GetPostsForm {
 	 */
 	private function _post_modified() {
 		$ph = $this->placeholders;
-		$ph['value'] = $this->get_value('post_modified', 'date');
+		$ph['value'] = $this->get_value('post_modified');
 		$ph['name'] = 'post_modified';
 		$ph['id']  = 'post_modified';
 		$ph['label'] = __('Post Modified', CCTM_TXTDOMAIN);
@@ -819,7 +819,7 @@ class GetPostsForm {
 	 */
 	private function _post_status() {
 		$ph = $this->placeholders;
-		$ph['value'] = (array) $this->get_value('post_status', 'post_status', array());
+		$ph['value'] = (array) $this->get_value('post_status', array());
 
 		$ph['name'] = 'post_status';
 		$ph['id']  = 'post_status';
@@ -936,7 +936,7 @@ class GetPostsForm {
 	 */
 	private function _search_columns() {
 		$ph = $this->placeholders;
-		$ph['value'] = (array) $this->get_value('search_columns','az_,');
+		$ph['value'] = (array) $this->get_value('search_columns');
 		$ph['name'] = 'search_columns';
 		$ph['id']  = 'search_columns';
 		$ph['label'] = __('Search Columns', CCTM_TXTDOMAIN);

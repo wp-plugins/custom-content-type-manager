@@ -10,4 +10,4 @@
 	<p>All of the form fields have plenty of CSS hooks so you can customize the way the manager displays for any particular content type. Add any overrides you want to your theme's <code>editor-style.css</code> file.</p>
 
 <h3 class="cctm_subheading"><?php _e('HTML for Manager Pages', CCTM_TXTDOMAIN); ?></h3>
-	<p>Coming...</p>
+	<p>See the wiki page on <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomizingManagerHTML">Customizing Manager HTML</a>.</p>

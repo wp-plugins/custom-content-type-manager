@@ -197,7 +197,7 @@ class CCTM_colorselector extends CCTM_FormElement
 			 	</div>';
 
 		// Output Filter
-		$out .= $this->get_available_output_filters($def);
+		$out .= $this->format_available_output_filters($def);
 			 	
 		return $out;
 	}

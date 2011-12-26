@@ -67,22 +67,16 @@
 			<span class="cctm_description"><?php _e("Check this box if you want to display any post-types registered with some other plugin. You won't be able to edit them, but you'll know they are there.", CCTM_TXTDOMAIN); ?></span>
 		</div>
 
-		<!--!Cache Directory Scans -->		
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_cache_directory_scans">
-			<input type="checkbox" name="cache_directory_scans" class="cctm_checkbox" id="cache_directory_scans" value="1" <?php print $data['settings']['cache_directory_scans']; ?>/>
-			<label for="cache_directory_scans" class="cctm_label cctm_checkbox_label" id="cctm_label_cache_directory_scans">
-				<?php _e('Cache Directory Scans', CCTM_TXTDOMAIN); ?>
-			</label>
-			<span class="cctm_description"><?php _e("Usually you want the results of directory scans to be cached for faster performance, but in some server setups (e.g. when two sites connect to the same database), you may need to disable this.", CCTM_TXTDOMAIN); ?></span>
-		</div>
-
 		<!--!Cache Thumbnail Images -->		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_cache_thumbnail_images">
 			<input type="checkbox" name="cache_thumbnail_images" class="cctm_checkbox" id="cache_thumbnail_images" value="1" <?php print $data['settings']['cache_thumbnail_images']; ?>/>
 			<label for="cache_thumbnail_images" class="cctm_label cctm_checkbox_label" id="cctm_label_cache_thumbnail_images">
 				<?php _e('Cache Thumbnail Images', CCTM_TXTDOMAIN); ?>
 			</label>
-			<span class="cctm_description"><?php _e("The post-selector used by relation, image, and media fields can end up displaying a lot of images; if they are large images, this can really slow down the manager.  Check this option to let CCTM generate low-quality, smaller images for use in the post-selector.", CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('Check this option to let CCTM generate low-quality, smaller images for use in the post-selector for relation, image, and media fields.', CCTM_TXTDOMAIN); ?>
+			<br/>
+				<font style="color:red;"><strong>WARNING:</strong> this is experimental.  The post-selector may encounter white-screens if your source images are too large (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=262">issue 262</a>).</font>
+			</span>
 		</div>
 		
 		<!--!Custom Field settings links -->

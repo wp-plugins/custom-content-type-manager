@@ -19,6 +19,7 @@ require_once('includes/CCTM.php');
 if( is_admin()) {
 	require_once('includes/StandardizedCustomFields.php');
 	require_once('tests/CCTMtests.php');
+	require_once('includes/CCTM_FormElement.php');
 	require_once('includes/CCTM_Ajax.php');
 	CCTM::$Ajax = new CCTM_Ajax();
 	
