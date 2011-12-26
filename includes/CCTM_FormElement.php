@@ -501,6 +501,8 @@ abstract class CCTM_FormElement {
 	 */
 	public function save_post_filter($posted_data, $field_name) {
 	
+		global $wp_version;
+	
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
 
 			// is_array is equivalent to "is_repeatable"
@@ -509,8 +511,9 @@ abstract class CCTM_FormElement {
 					$f = stripslashes(trim($f));
 				}
 				// This is what preserves the foreign characters while they traverse the json and WP gauntlet
-				// (yes, seriously we have to doubleslash it when we create a new post)
-				if (isset($posted_data['_cctm_is_create'])) {
+				// (yes, seriously we have to doubleslash it when we create a new post in versions
+				// of WP prior to 3.3
+				if (isset($posted_data['_cctm_is_create']) && version_compare($wp_version,'3.3','<')) {
 					return addslashes(addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])));
 				}
 				else {

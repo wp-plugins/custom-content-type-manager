@@ -120,7 +120,9 @@ class CCTM_relation extends CCTM_FormElement
 
 			// Test for an empty JSON array
 			if ($current_value != '[""]') {
-				$values = (array) json_decode($current_value);
+				
+				$values = (array) json_decode($current_value,true);
+				
 				foreach ($values as $v) {
 					$this->post_id    = (int) $v;
 					$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
