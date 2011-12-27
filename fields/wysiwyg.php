@@ -25,9 +25,10 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	/**
 	 * Loads up the necessary Javascript stuff into the admin header.
 	 * See http://dannyvankooten.com/450/tinymce-wysiwyg-editor-in-wordpress-plugin/
+	 * http://codex.wordpress.org/Function_Reference/wp_editor
 	 */
 	public function load_tiny_mce() {
-		wp_tiny_mce( false );
+		@wp_tiny_mce( false );
 	}
 
 	/**
@@ -37,7 +38,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	 *  wp_preload_dialogs( array( 'plugins' => 'wpdialogs,wplink,wpfullscreen' ) );
 	 */
 	public function preload_dialogs() {
-		wp_quicktags();
+		@wp_quicktags();
 	}
 
 
@@ -153,7 +154,13 @@ class CCTM_wysiwyg extends CCTM_FormElement
 			);
 
 			$this->value    = $current_value;
+			
+			$settings = array();
 			$this->content = CCTM::parse($fieldtpl, $this->get_props() );
+			// see http://nacin.com/tag/wp_editor/
+			//ob_start();
+			//wp_editor($current_value, $this->id_prefix.$this->id, $settings);
+			//$this->content = ob_get_contents();
 		}
 
 

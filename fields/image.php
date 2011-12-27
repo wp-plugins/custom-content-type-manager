@@ -141,7 +141,6 @@ class CCTM_image extends CCTM_FormElement
 		else {
 			$this->post_id    = (int) $current_value; // Relations only store the foreign key.
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
-
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'

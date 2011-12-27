@@ -20,7 +20,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.5.0';
-	const version_meta = 'rc2'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'rc3'; // dev, rc (release candidate), pl (public release)
 
 
 	// Required versions (referenced in the CCTMtest class).
@@ -1015,9 +1015,6 @@ class CCTM {
 	 * What we need to get a thumbnail:
 	 *	guid, post_type, ID, post_mime_type
 	 * @param	integer	$id of the post for which we want the thumbnail
-	 * @param	string	$guid of the post
-	 * @param	string	$post_type of the post
-	 * @param	string 	$post_mime_type
 	 * @return	string	url of the thumbnail
 	 */
 	public static function get_thumbnail($id) {

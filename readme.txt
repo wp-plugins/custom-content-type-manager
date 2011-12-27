@@ -5,19 +5,19 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.0.1
 Tested up to: 3.3
 Stable tag: 0.9.4.5
-Version: 0.9.5.0-rc2
+Version: 0.9.5.0-rc3
 
 Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
 
 == Description ==
 
-http://www.youtube.com/watch?v=xmr1bOndP1g
+http://www.youtube.com/watch?v=TKh4Z_Y8iJE
 
 The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 
-This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
+Now with version 0.9.5, you can select multiple images, posts, or media items to be stored in a single field.
 
-If you are upgrading to version 0.9.4, please see the Wiki page on [Upgrading to version 0.9.4](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Upgrading094)!
+This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
 
 Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 
@@ -263,7 +263,7 @@ See [Template Functions](http://code.google.com/p/wordpress-custom-content-type-
 
 == Requirements ==
 
-* WordPress 3.0.1 or greater
+* WordPress 3.0.1 or greater, 3.3+ preferred.
 * PHP 5.2.6 or greater
 * MySQL 4.1.2 or greater
 
@@ -290,7 +290,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.5 =
 
-Major boost to functionality: all fields are not "repeatable" so you can select multiple images, textareas, etc. for a single field. The post-selector thickbox can now be finely tuned to select *exactly* the posts you want for any relation field.
+Major boost to functionality: nearly every field is now "repeatable" so you can select multiple images, textareas, etc. for a single field. The post-selector thickbox can now be finely tuned to select *exactly* the posts you want for any relation field.  WARNING: WYSIWYG fields throw deprecated notices in WP 3.3.
 
 = 0.9.4.5 =
 
