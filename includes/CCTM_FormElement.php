@@ -114,9 +114,11 @@ abstract class CCTM_FormElement {
 	public $supported_output_filters = array();
 
 	// Added to each key in the $_POST array, to avoid name pollution e.g. $_POST['cctm_firstname']
+	
+	// Can't use underscores due to issue 271 and WP 3.3 
 	const post_name_prefix  = 'cctm_';
 	const css_class_prefix  = 'cctm_';
-	const css_id_prefix  = 'cctm_';
+	const css_id_prefix  = 'cctm';
 
 
 	// CSS stuff
@@ -539,9 +541,9 @@ abstract class CCTM_FormElement {
 	 * label. Override this if customized validation is required: usually you'll want
 	 * to override and still reference the parent:
 	 *   public function save_definition_filter($posted_data) {
-	 *   $posted_data = parent::save_definition_filter($posted_data);
-	 *   // your code here...
-	 *   return $posted_data;
+	 *   	$posted_data = parent::save_definition_filter($posted_data);
+	 *   	// your code here...
+	 *   	return $posted_data;
 	 *  }
 	 *
 	 *
