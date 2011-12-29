@@ -241,12 +241,6 @@ class CCTM {
 		$thumbnail_path = CCTM_3P_PATH .'/cache/images/'.$image_location;
 		$thumbnail_url = CCTM_3P_URL .'/cache/images/'.$image_location;
 
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, $p['guid']."\n");
-	fwrite($fh, $thumbnail_url."\n");
-	fclose($fh);	
-
 
 		// If it's already there, we're done
 		if (file_exists($thumbnail_path)) {

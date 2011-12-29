@@ -308,6 +308,21 @@ class CCTM_ImportExport {
 		return $payload;	
 	}
 	
+	//------------------------------------------------------------------------------
+	/**
+	 * Tests whether WP is installed in a sub directory or not.  If WP is installed
+	 * in a sub directory, this will return it, e.g. 'blog', otherwise returns
+	 * an empty string.
+	 *
+	 * @return string
+	 */
+	public function get_subdir() {
+			$info = pathinfo(site_url());
+			if (isset($info['filename'])) {
+				return $info['filename'];
+			}
+			return '';
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -488,6 +503,17 @@ class CCTM_ImportExport {
 			CCTM::$errors['definition_structure_invalid'] 
 				= sprintf(__('The data structure in the file was not in the correct format: %s. This could be because the file is from an older version of the CCTM plugin.  See the <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Import" target="_new">Wiki</a> for more information.', CCTM_TXTDOMAIN), "<code>$filename</code>");
 			return array();			
+		}
+		
+		// Correct for stripped image paths IF this is being installed on a site where WP is
+		// installed in a sub dir.
+		$subdir = self::get_subdir();
+		if ($subdir) {
+			foreach ($def['post_type_defs'] as $post_type => &$d) {
+				if (isset($d['menu_icon'])) {
+					$d['menu_icon'] = '/'. $subdir . $d['menu_icon'];
+				}
+			}
 		}
 		
 		return $def;
