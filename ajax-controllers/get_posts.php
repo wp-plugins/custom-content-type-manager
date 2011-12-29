@@ -80,12 +80,6 @@ if (isset($_POST['search_parameters'])) {
 	unset($args['page_number']);
 	unset($args['fieldname']);
 	
-/*
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, 'PARSING ARGS...');
-	fclose($fh);	
-*/
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
@@ -180,11 +174,6 @@ $search_by = array('search_term','yearmonth','post_type');
 $d['search_form'] = $Form->generate($search_by, $args);
 //$d['search_form'] = $Form->generate($search_by, array());
 
-	// LOGGING...
-//	$myFile = "/tmp/cctm.txt";
-//	$fh = fopen($myFile, 'a') or die("can't open file");
-//	fwrite($fh, print_r($args, true));
-//	fclose($fh);
 
 
 
@@ -236,8 +225,6 @@ $hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
 
 $hash['content'] = '';
 
-
-//$hash['content'] = CCTM::load_tpl('crap.tpl');
 // And the items
 //$results = array();
 foreach ($results as $r){
@@ -250,14 +237,6 @@ foreach ($results as $r){
 	
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
-
-	// LOGGING
-/*
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, $hash['content']);
-	fclose($fh);
-*/
 
 // die(print_r($hash,true));
 $d['content'] .= CCTM::parse($wrapper_tpl,$hash);

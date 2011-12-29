@@ -44,22 +44,6 @@ class CCTM_wysiwyg extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Register the appropriate js: array('jquery', 'editor', 'thickbox', 'media-upload')
-	 * See http://codex.wordpress.org/Function_Reference/wp_register_script
-	 */
-	public function admin_init() {
-		wp_register_script('cctm_wysiwyg', CCTM_URL.'/js/wysiwyg.js', array('jquery', 'editor', 'thickbox', 'media-upload'));
-		wp_enqueue_script('cctm_wysiwyg');
-		wp_enqueue_style('thickbox');
-
-		// This is req'd if the post-type doesn't have the main content block.
-		add_action('admin_head', 'wp_tiny_mce');
-		add_action( 'admin_print_footer_scripts', array($this, 'preload_dialogs'));
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
 	 * This function provides a name for this type of field. This should return plain
 	 * text (no HTML). The returned value should be localized using the __() function.
 	 *
@@ -109,60 +93,21 @@ class CCTM_wysiwyg extends CCTM_FormElement
 
 		$this->id      = $this->name;
 
-		$fieldtpl = '';
-		$wrappertpl = '';
+		$wrappertpl = CCTM::load_tpl(
+			array('fields/wrappers/'.$this->name.'.tpl'
+				, 'fields/wrappers/_'.$this->type.'.tpl'
+				, 'fields/wrappers/_default.tpl'
+			)
+		);
+		
+		$settings = array();
+		$settings['editor_class'] = $this->class;
+		$settings['textarea_name'] = $this->name_prefix.$this->name;
 
-		// Multi-version of the field
-		if ($this->is_repeatable) {
-			$fieldtpl = CCTM::load_tpl(
-				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'_multi.tpl'
-				)
-			);
-
-			$wrappertpl = CCTM::load_tpl(
-				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-				)
-			);
-
-			$this->i = 0;
-
-			$values = (array) json_decode($current_value, true);
-			$this->content = '';
-			foreach ($values as $v) {
-				$this->value = htmlspecialchars( html_entity_decode($v) );
-				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
-				$this->i   = $this->i + 1;
-			}
-
-		}
-		// Singular
-		else {
-			$fieldtpl = CCTM::load_tpl(
-				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'.tpl'
-					, 'fields/elements/_default.tpl'
-				)
-			);
-
-			$wrappertpl = CCTM::load_tpl(
-				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'.tpl'
-					, 'fields/wrappers/_default.tpl'
-				)
-			);
-
-			$this->value    = $current_value;
-			
-			$settings = array();
-			$this->content = CCTM::parse($fieldtpl, $this->get_props() );
-			// see http://nacin.com/tag/wp_editor/
-			//ob_start();
-			//wp_editor($current_value, $this->id_prefix.$this->id, $settings);
-			//$this->content = ob_get_contents();
-		}
-
+		// see http://nacin.com/tag/wp_editor/
+		ob_start();
+		wp_editor($current_value, $this->id_prefix.$this->id, $settings);
+		$this->content = ob_get_clean();
 
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
 
@@ -225,6 +170,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 			 	' . $this->get_translation('class').'
 			 	</div>';
 
+/*
 		// Is Repeatable?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
 				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
@@ -233,6 +179,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 				 <br />
 				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_repeatable_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
+*/
 
 		// Description
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
@@ -248,7 +195,24 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		return $out;
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Custom filter on the name due to WP's limitations:
+	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=271
+	 */
+	public function save_definition_filter($posted_data) {
+	
+		$posted_data = parent::save_definition_filter($posted_data);
+		
+		// Are there any invalid characters? 1st char. must be a letter (req'd for valid prop/func names)
+		if ( !empty($posted_data['name']) && !preg_match('/^[a-z]*$/', $posted_data['name'])) {
+			$this->errors['name'][] = 
+				__('Due to WordPress limitations, WYSIWYG fields can contain ONLY lowercase letters.', CCTM_TXTDOMAIN);
+			$posted_data['name'] = preg_replace('/[^a-z]/', '', $posted_data['name']);
+		}
+		
+		return $posted_data;	
+	}
 }
 
 
