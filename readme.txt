@@ -2,22 +2,20 @@
 Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
-Requires at least: 3.0.1
+Requires at least: 3.3
 Tested up to: 3.3
 Stable tag: 0.9.4.5
-Version: 0.9.5.0-rc3
+Version: 0.9.5.0
 
-Create custom content types, standardize custom fields for each type, including dropdowns and images. Gives WP CMS functionality.
+Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
 == Description ==
 
 http://www.youtube.com/watch?v=TKh4Z_Y8iJE
 
-The Custom Content Type Manager plugin allows users to create custom content types (also known as post types) and standardize custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
+The Custom Content Type Manager requires WordPress 3.3.  It allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality: Break out of your Blog!
 
-Now with version 0.9.5, you can select multiple images, posts, or media items to be stored in a single field.
-
-This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
+With version 0.9.5, you can select multiple images, posts, or media items to be stored in a single field.  This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
 
 Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 
@@ -81,7 +79,7 @@ or by going to your wp-content/plugins directory and executing the following com
 	
 = 0.9.5 =
 
-Major release!
+Major release! This REQUIRES WordPress 3.3 due to the changes in the TinyMCE implementation.
 
 * Integrated the [Summarize Posts](http://code.google.com/p/wordpress-summarize-posts/) plugin: this gives all kinds of power to searching for posts.
 * All fields can now be "repeatable" so you can select multiple values, e.g. images, relations, textareas...
@@ -290,7 +288,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.5 =
 
-Major boost to functionality: nearly every field is now "repeatable" so you can select multiple images, textareas, etc. for a single field. The post-selector thickbox can now be finely tuned to select *exactly* the posts you want for any relation field.  WARNING: WYSIWYG fields throw deprecated notices in WP 3.3.
+0.9.5 *REQUIRES* WordPress 3.3.  This is a major boost to functionality: nearly every field is now "repeatable" so you can select multiple images, textareas, etc. for a single field. The post-selector thickbox can now be finely tuned to select *exactly* the posts you want for any relation field.
 
 = 0.9.4.5 =
 
