@@ -25,8 +25,6 @@ class CCTM_relation extends CCTM_FormElement
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
-	public $supported_output_filters = array('to_link', 'to_link_href');
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Thickbox support
@@ -175,6 +173,9 @@ class CCTM_relation extends CCTM_FormElement
 			}
 		}
 
+		if (empty($this->button_label)) {
+			$this->button_label = __('Choose Relation', CCTM_TXTDOMAIN);
+		}
 
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}

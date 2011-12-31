@@ -107,11 +107,6 @@ abstract class CCTM_FormElement {
 		'hide_from_templates' => 0,
 	);
 
-	/**
-	 * Any extension of this class can list zero or many OutputFilter classnames
-	 * This determines which (if any) output filters are available.
-	 */
-	public $supported_output_filters = array();
 
 	// Added to each key in the $_POST array, to avoid name pollution e.g. $_POST['cctm_firstname']
 	

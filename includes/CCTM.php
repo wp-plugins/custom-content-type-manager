@@ -825,7 +825,7 @@ class CCTM {
 				}
 			}
 		}
-
+	//die('<pre>'.print_r($files, true).'</pre>');
 		return $files;
 	}
 

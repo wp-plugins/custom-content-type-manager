@@ -20,28 +20,6 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
-
-
-	/**
-	 * Loads up the necessary Javascript stuff into the admin header.
-	 * See http://dannyvankooten.com/450/tinymce-wysiwyg-editor-in-wordpress-plugin/
-	 * http://codex.wordpress.org/Function_Reference/wp_editor
-	 */
-	public function load_tiny_mce() {
-		@wp_tiny_mce( false );
-	}
-
-	/**
-	 * Loads more TinyMCE stuff into the admin footer.
-	 * 
-	 * Also consider this:
-	 *  wp_preload_dialogs( array( 'plugins' => 'wpdialogs,wplink,wpfullscreen' ) );
-	 */
-	public function preload_dialogs() {
-		@wp_quicktags();
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * This function provides a name for this type of field. This should return plain

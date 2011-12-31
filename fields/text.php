@@ -23,7 +23,6 @@ class CCTM_text extends CCTM_FormElement
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
-	public $supported_output_filters = array('email');
 
 	//------------------------------------------------------------------------------
 	/**

@@ -23,8 +23,6 @@ class CCTM_media extends CCTM_FormElement
 		'output_filter' => 'to_image_src',
 	);
 
-	public $supported_output_filters = array('to_src');
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Thickbox support
@@ -169,7 +167,10 @@ class CCTM_media extends CCTM_FormElement
 				$this->content = CCTM::parse($fieldtpl, $this->get_props());
 			}
 		}
-
+		
+		if (empty($this->button_label)) {
+			$this->button_label = __('Choose Media', CCTM_TXTDOMAIN);
+		}
 
 		return CCTM::parse($wrappertpl, $this->get_props());
 

@@ -23,8 +23,6 @@ class CCTM_multiselect extends CCTM_FormElement
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
-	public $supported_output_filters = array('to_array','formatted_list');
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Register the appropriatejs
