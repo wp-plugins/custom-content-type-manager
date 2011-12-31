@@ -7,7 +7,14 @@ Note that the cctm_upload function overrides WP's send_to_editor() function!!!
 The 'html' bit has something like this when you click "Insert into Post" 
 (but NOT if you click "Save all Changes"):
 
+In WP 3.2:
 <a href="http://cctm:8888/sub/?attachment_id=603" rel="attachment wp-att-603"><img src="http://cctm:8888/sub/wp-content/uploads/2011/11/Photo-on-2011-07-14-at-23.01-300x225.jpg" alt="" title="Photo on 2011-07-14 at 23.01" width="300" height="225" class="alignnone size-medium wp-image-603" /></a>
+
+In WP 3.3, they changed it... the Media Browser now returns something like this:
+<a href="http://cctm:8888/sub/wp-content/uploads/2011/11/IMG_0378.jpg"><img src="http://cctm:8888/sub/wp-content/uploads/2011/11/IMG_0378.jpg" alt="" title="LA Sunset" class="alignnone size-full wp-image-773" /></a>
+
+Or simply:
+<a href='http://cctm:8888/sub/wp-content/uploads/2011/11/Blank-W9.pdf'>Blank-W9</a>
 
 When finished, the function redefines the send_to_editor() function back to what
 it was before (i.e. I copied the definition from wp-admin/js/media-upload.dev.js
@@ -28,23 +35,28 @@ http://www.webmaster-source.com/2010/01/08/using-the-wordpress-uploader-in-your-
 
 TODO: Redo this to use our own uploader that doesn't suck...
 Apparently, nobody at WP every considered the possiblity that the uploaders
-would ever be used for anything other than to select a featured post.
+would ever be used for anything other than to select a featured post.  So we have
+to override the send_to_editor() function so we can alter the behavior so it 
+inserts into our custom field instead of to the destinations hard-coded by WP.
+
+In this function, I restore the the original WP function.
 ------------------------------------------------------------------------------*/
 function cctm_upload(fieldname, upload_type) {
 	// Override the send_to_editor() function from wp-admin/js/media-upload.js
 	window.send_to_editor = function(html) {
 	
-		var attachment_id; 
+		// alert(html); // see what on earth WP is sending back to the post...
+		var attachment_guid; 
 		
-		var matches = html.match(/attachment_id=(\d+)/);
+		var matches = html.match(/href=['|"](.*?)['|"]/);
 		if (matches != null) {
-    		attachment_id = matches[1];
+    		attachment_guid = matches[1];
     	}
     	
 		var data = {
 		        "action" : 'get_selected_posts',
 		        "fieldname" : cctm_fieldname, // Read from global scope
-		        "post_id": attachment_id,
+		        "guid": attachment_guid,
 		        "get_selected_posts_nonce" : cctm.ajax_nonce
 		    };
 	
@@ -65,36 +77,49 @@ function cctm_upload(fieldname, upload_type) {
 		
 		tb_remove();
 		
-		// Restore the function back to normal
+		// Restore the function back to normal (copied from ./wp-admin/js/media-upload.dev.js)
 		window.send_to_editor = function(h) {
-			var ed;
-		
-			if ( typeof tinyMCE != 'undefined' && ( ed = tinyMCE.activeEditor ) && !ed.isHidden() ) {
-				// restore caret position on IE
-				if ( tinymce.isIE && ed.windowManager.insertimagebookmark )
-					ed.selection.moveToBookmark(ed.windowManager.insertimagebookmark);
-		
-				if ( h.indexOf('[caption') === 0 ) {
-					if ( ed.plugins.wpeditimage )
-						h = ed.plugins.wpeditimage._do_shcode(h);
-				} else if ( h.indexOf('[gallery') === 0 ) {
-					if ( ed.plugins.wpgallery )
-						h = ed.plugins.wpgallery._do_gallery(h);
-				} else if ( h.indexOf('[embed') === 0 ) {
-					if ( ed.plugins.wordpress )
-						h = ed.plugins.wordpress._setEmbed(h);
-				}
-		
-				ed.execCommand('mceInsertContent', false, h);
-		
-			} else if ( typeof edInsertContent == 'function' ) {
-				edInsertContent(edCanvas, h);
-			} else {
-				jQuery( edCanvas ).val( jQuery( edCanvas ).val() + h );
+			        var ed, mce = typeof(tinymce) != 'undefined', qt = typeof(QTags) != 'undefined';
+			
+			        if ( !wpActiveEditor ) {
+			                if ( mce && tinymce.activeEditor ) {
+			                        ed = tinymce.activeEditor;
+			                        wpActiveEditor = ed.id;
+			                } else if ( !qt ) {
+			                        return false;
+			                }
+			        } else if ( mce ) {
+			                if ( tinymce.activeEditor && (tinymce.activeEditor.id == 'mce_fullscreen' || tinymce.activeEditor.id == 'wp_mce_fullscreen') )
+			                        ed = tinymce.activeEditor;
+			                else
+			                        ed = tinymce.get(wpActiveEditor);
+			        }
+			
+			        if ( ed && !ed.isHidden() ) {
+			                // restore caret position on IE
+			                if ( tinymce.isIE && ed.windowManager.insertimagebookmark )
+			                        ed.selection.moveToBookmark(ed.windowManager.insertimagebookmark);
+			
+			                if ( h.indexOf('[caption') === 0 ) {
+			                        if ( ed.plugins.wpeditimage )
+			                                h = ed.plugins.wpeditimage._do_shcode(h);
+			                } else if ( h.indexOf('[gallery') === 0 ) {
+			                        if ( ed.plugins.wpgallery )
+			                                h = ed.plugins.wpgallery._do_gallery(h);
+			                } else if ( h.indexOf('[embed') === 0 ) {
+			                        if ( ed.plugins.wordpress )
+			                                h = ed.plugins.wordpress._setEmbed(h);
+			                }
+			
+			                ed.execCommand('mceInsertContent', false, h);
+			        } else if ( qt ) {
+			                QTags.insertContent(h);
+			        } else {
+			                document.getElementById(wpActiveEditor).value += h;
+			        }
+			
+			        try{tb_remove();}catch(e){};
 			}
-		
-			tb_remove();
-		}
 		// end of function restoration
 	}
 

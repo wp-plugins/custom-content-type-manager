@@ -40,13 +40,14 @@ $tpl = '';
 
 // Might be an array
 $post_ids = CCTM::get_value($_POST,'post_id');
+$guid = CCTM::get_value($_POST,'guid');
 
 if (CCTM::get_value($def,'is_repeatable') && !is_array($post_ids)) {
 	$post_ids = array($post_ids);
 }
 
-if (empty($post_ids)) {
-	print '<p>'.__('Post ID required.', CCTM_TXTDOMAIN).'</p>';
+if (empty($post_ids) && empty($guid)) {
+	print '<p>'.__('Post ID or guid required.', CCTM_TXTDOMAIN).'</p>';
 	return;	
 }
 // Multi
@@ -82,7 +83,16 @@ if (empty($tpl)) {
 
 $Q = new GetPostsQuery(); 
 $Q->defaults = array(); // blank it out... everything is fair game.
-$args['include'] = $post_ids;
+
+// Handle WP 3.3 
+if (!empty($guid)) {
+	$args['guid'] = $guid;
+}
+// Normal behavior
+else {
+	$args['include'] = $post_ids;
+}
+
 $results = $Q->get_posts($args);
 
 // Mostly just stuff from the full object record (the post and *all* custom fields),
