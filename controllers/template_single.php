@@ -122,27 +122,27 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 				continue;
 			}
 			
-			// Get the example from the Output Filter
 			$filter = '';
 			if (isset(self::$data['custom_field_defs'][$cf]['output_filter'])) {
 				$filter = self::$data['custom_field_defs'][$cf]['output_filter'];
 			}
 			
-			// Show an example of the Output Filter
+			$filter_included = true; // until proven otherwise
 			if (!empty($filter)) {
-				$filter_included = true;		
+			
 				$filter_class = CCTM::classname_prefix.$filter;
 				if (!class_exists($filter_class)) {
 					$filter_included = CCTM::load_file("/filters/$filter.php");
 				}
-				if ($filter != 'raw') {
-				
-					$OutputFilter = new $filter_class();
-					$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> %s<br />\n"
-						, self::$data['custom_field_defs'][$cf]['label']
-						, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'])
-					);
-				}
+			}
+			
+			// Show an example of the Output Filter
+			if ($filter_included && $filter != 'raw') {				
+				$OutputFilter = new $filter_class();
+				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> %s<br />\n"
+					, self::$data['custom_field_defs'][$cf]['label']
+					, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'])
+				);
 			}
 			// Generic custom field usage
 			else {
