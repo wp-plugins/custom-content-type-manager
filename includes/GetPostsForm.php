@@ -757,7 +757,7 @@ class GetPostsForm {
 		$ph['name'] = 'post_mime_type';
 		$ph['id']  = 'post_mime_type';
 		$ph['label'] = __('Post MIME Type', CCTM_TXTDOMAIN);
-		$ph['description'] = __('Specify either the full MIME type (e.g. image/jpeg) or just the beginning (e.g. application).', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Specify either the full MIME type (e.g. image/jpeg) or just the beginning (e.g. application, image, audio, video).', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_mime_type');
 		return self::parse($this->text_tpl, $ph);
 	}

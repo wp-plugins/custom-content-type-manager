@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.1';
+	const version = '0.9.5.2';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -201,6 +201,11 @@ class CCTM {
 	 * Used for search parameters
 	 */
 	public static $search_by = array();
+
+	/**
+	 * Used by the image, media, relation post-selector.
+	 */
+	public static $post_selector = array();
 
 	//! Private Functions
 	//------------------------------------------------------------------------------

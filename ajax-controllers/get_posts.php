@@ -82,43 +82,25 @@ if (isset($_POST['search_parameters'])) {
 	
 }
 
+
+
+// Set up search boundaries (i.e. the parameters used when nothing else is specified).
+// Load up the config...
+$possible_configs = array();
+$possible_configs[] = '/config/post_selector/'.$fieldname.'.php'; 	// e.g. my_field.php
+$possible_configs[] = '/config/post_selector/_'.$def['type'].'.php'; 		// e.g. _image.php
+
+CCTM::$post_selector = array();
+if (!CCTM::load_file($possible_configs)) {
+	print '<p>'.__('Post Selector configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
+}
+
 // Set search boundaries (i.e. the parameters used when nothing is specified)
 // !TODO: put this configuration stuff into the /config/ files
-$defaults = array();
-
-switch ($def['type']) {
-	case 'image':
-		$defaults['search_columns'] = array('post_title', 'post_content');
-		$defaults['post_type'] = 'attachment';
-		$defaults['post_mime_type'] = 'image';
-		$defaults['post_status'] = array('publish','inherit');
-		$defaults['orderby'] = 'ID';
-		$defaults['order'] = 'DESC';
-		break;
-		
-	case 'media':
-		$defaults['search_columns'] = array('post_title', 'post_content');
-		$defaults['post_type'] = 'attachment';
-		$defaults['post_mime_type'] = 'application';
-		$defaults['post_status'] = array('publish','inherit');
-		$defaults['orderby'] = 'ID';
-		$defaults['order'] = 'DESC';
-		break;
-		
-	default:
-		$defaults['search_columns'] = array('post_title', 'post_content');
-		//$defaults['post_type'] = array_keys(get_post_types());
-		$defaults['post_status'] = array('publish','inherit');
-		//$defaults['omit_post_type'] = array('revision','nav_menu_item');
-		$defaults['orderby'] = 'ID';
-		$defaults['order'] = 'DESC';
-}
-$defaults['limit'] = $results_per_page;
-$defaults['paginate'] = 1;
 
 // optionally get pages to exclude
 if (isset($_POST['exclude'])) {
-	$defaults['exclude'] = $_POST['exclude'];
+	CCTM::$post_selector['exclude'] = $_POST['exclude'];
 }
 
 $search_parameters_str = ''; // <-- read custom search parameters, if defined.
@@ -130,7 +112,7 @@ parse_str($search_parameters_str, $additional_defaults);
 //print '<pre>'.print_r($additional_defaults,true).'</pre>';
 foreach($additional_defaults as $k => $v) {
 	if (!empty($v)) {
-		$defaults[$k] = $v;
+		CCTM::$post_selector[$k] = $v;
 	}
 }
 
@@ -139,7 +121,7 @@ foreach($additional_defaults as $k => $v) {
 // Begin!
 //------------------------------------------------------------------------------
 $Q = new GetPostsQuery(); 
-$Q->set_defaults($defaults);
+$Q->set_defaults(CCTM::$post_selector);
 	
 
 $args['offset'] = 0; // assume 0, unless we got a page number
@@ -148,17 +130,8 @@ if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 	$args['offset'] = ($d['page_number'] - 1) * $results_per_page;
 }
 
-
 // Get the results
-// Test args
-//$args = array('orderby' => 'ID', 'order' => 'ASC', 'search_term' => '', 'yearmonth' => '', 'offset' => 0, 'limit' => 10 );
 $results = $Q->get_posts($args);
-//$results = $Q->get_posts($new_args);
-//print '<pre>'. $Q->get_args(). '</pre>'; exit;
-
-	
-
-
 
 $search_form_tpl = CCTM::load_tpl(
 	array('post_selector/search_forms/'.$fieldname.'.tpl'
@@ -172,9 +145,6 @@ $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
 $search_by = array('search_term','yearmonth','post_type'); 
 $d['search_form'] = $Form->generate($search_by, $args);
-//$d['search_form'] = $Form->generate($search_by, array());
-
-
 
 
 $item_tpl = '';

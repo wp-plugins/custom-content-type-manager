@@ -17,6 +17,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 		'class' => '',
 		'extra' => 'cols="80" rows="10"',
 		'default_value' => '',
+		'output_filter' => 'do_shortcode',
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 

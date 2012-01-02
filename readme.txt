@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 0.9.5.1
-Version: 0.9.5.1
+Stable tag: 0.9.5.2
+Version: 0.9.5.2
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -76,6 +76,16 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.5.2 =
+
+* do_shortcode Output Filter added.
+* Configuration options added for Post Selector.
+
+
+= 0.9.5.1 =
+
+* Bug with Media Selector addressed (Issue 273)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=273]
 	
 = 0.9.5 =
 
