@@ -19,11 +19,11 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.2';
+	const version = '0.9.5.3';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
-	const wp_req_ver  = '3.0.1';
+	const wp_req_ver  = '3.3';
 	const php_req_ver  = '5.2.6';
 	const mysql_req_ver = '4.1.2';
 
