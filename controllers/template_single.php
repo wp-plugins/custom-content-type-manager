@@ -127,7 +127,8 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 				$filter = self::$data['custom_field_defs'][$cf]['output_filter'];
 			}
 			
-			$filter_included = true; // until proven otherwise
+			$filter_included = false; // until proven otherwise
+			$filter_class = '';
 			if (!empty($filter)) {
 			
 				$filter_class = CCTM::classname_prefix.$filter;
