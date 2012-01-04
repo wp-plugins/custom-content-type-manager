@@ -346,7 +346,7 @@ class GetPostsQuery {
 					SELECT {$wpdb->terms}.term_id
 					FROM {$wpdb->terms}
 					JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id
-					WHERE wp_terms.name IN $terms
+					WHERE {$wpdb->terms}.name IN $terms
 					AND {$wpdb->term_taxonomy}.taxonomy=%s
 				)", $this->taxonomy);
 
@@ -928,7 +928,7 @@ class GetPostsQuery {
 			LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
 				AND thumb_join.meta_key='_thumbnail_id'
 			LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value
-			LEFT JOIN {$wpdb->postmeta} ON wp_posts.ID={$wpdb->postmeta}.post_id
+			LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID={$wpdb->postmeta}.post_id
 			LEFT JOIN
 			(
 				SELECT
@@ -1025,7 +1025,7 @@ class GetPostsQuery {
 		elseif ($this->sort_by_meta_flag) {
 			$hash['orderby'] = 'metasortcolumn';
 			$hash['select_metasortcolumn'] = ', orderbymeta.meta_value as metasortcolumn';
-			$hash['join_for_metasortcolumn'] = sprintf('LEFT JOIN wp_postmeta orderbymeta ON %s.ID=orderbymeta.post_id AND orderbymeta.meta_key = %s'
+			$hash['join_for_metasortcolumn'] = sprintf("LEFT JOIN {$wpdb->postmeta} orderbymeta ON %s.ID=orderbymeta.post_id AND orderbymeta.meta_key = %s"
 				, $wpdb->posts
 				, $wpdb->prepare('%s', $this->orderby)
 			);
