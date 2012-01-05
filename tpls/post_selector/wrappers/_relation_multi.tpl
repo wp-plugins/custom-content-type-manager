@@ -5,7 +5,7 @@
 </script>
 
 <div class="cctm_thickbox_menu">
-	<span class="button primary" onclick="javascript:add_to_post();">Add to Post</span> <span class="button" onclick="javascript:save_and_close();">Add to Post and Close</span>
+	<span class="button primary" onclick="javascript:send_selected_posts_to_wp();">Add to Post</span> <span class="button" onclick="javascript:save_and_close();">Add to Post and Close</span>
 </div>
 
 <!-- fieldset used by the checkall function -->

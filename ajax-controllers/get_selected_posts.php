@@ -43,15 +43,21 @@ $post_ids = CCTM::get_value($_POST,'post_id');
 $guid = CCTM::get_value($_POST,'guid');
 
 if (CCTM::get_value($def,'is_repeatable') && !is_array($post_ids)) {
-	$post_ids = array($post_ids);
+	if (empty($post_ids)) {
+		$post_ids = array();
+	}	
+	else {
+		$post_ids = array($post_ids);
+	}
 }
 
 if (empty($post_ids) && empty($guid)) {
 	print '<p>'.__('Post ID or guid required.', CCTM_TXTDOMAIN).'</p>';
 	return;	
 }
+
 // Multi
-elseif (is_array($post_ids)) {
+if (is_array($post_ids)) {
 	// name should go to name[]
 	$tpl = CCTM::load_tpl(
 		array('fields/elements/'.$def['name'].'.tpl'

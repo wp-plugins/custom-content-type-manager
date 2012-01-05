@@ -59,7 +59,12 @@ class CCTM_formatted_list extends CCTM_OutputFilter {
 				$array = array($input);
 			}
 		}
-
+		// Return an empty string if the input is empty:
+		// http://wordpress.org/support/topic/plugin-custom-content-type-manager-displaying-custom-fields-in-conditional-tags?replies=4#post-2537738
+		if (empty($array)) {
+			return '';
+		}
+		
 		if ( !empty($options) && is_array($options) ) {
 			$out = '';
 			// format each value

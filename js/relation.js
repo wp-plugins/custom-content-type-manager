@@ -294,8 +294,7 @@ function send_selected_posts_to_wp() {
 		// Remove the selection from the visible form
 		jQuery('#cctm_tr_multi_select_'+post_id).remove();
 	});
-	
-	// alert(post_ids); return;
+
 	var data = {
 	        "action" : 'get_selected_posts',
 	        "fieldname" : fieldname,
