@@ -2,7 +2,7 @@
 
 	[+content+]
 
-	<label for="[+id+]" class="cctm_label cctm_[+type+]" id="cctm_label_[+id+]">
+	<label for="[+id_prefix+][+id+]" class="cctm_label cctm_[+type+]" id="cctm_label_[+id+]">
 		[+label+]
 	</label>
 		
