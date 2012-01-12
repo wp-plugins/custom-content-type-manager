@@ -229,7 +229,8 @@ class CCTM_media extends CCTM_FormElement
 		// Handle the display of the default value
 		if ( !empty($def['default_value']) ) {
 
-			$hash = CCTM::get_thumbnail($def['default_value']);
+			$hash = $Q->get_post($def['default_value']);
+			$hash['thumbnail_url'] = CCTM::get_thumbnail($def['default_value']);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
