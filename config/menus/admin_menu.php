@@ -8,7 +8,7 @@ site administrators or for super_admin's (in a multi-site install).
 // Adjust menus for multi-site: menu should only be visible to the super_admin
 $capability = 'manage_options';
 
-if (defined('WP_ALLOW_MULTISITE') && is_super_admin()) {
+if (defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE == true && is_super_admin()) {
 	$capability = 'manage_network';
 }
 
