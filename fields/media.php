@@ -116,20 +116,22 @@ class CCTM_media extends CCTM_FormElement
 			if ($current_value != '[""]') {
 				$values = (array) json_decode($current_value);
 				foreach ($values as $v) {
-					$this->post_id    = (int) $v;
-					$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
-					
+					$hash 					= $this->get_props();
+					$hash['post_id']    	= (int) $v;
+					$hash['thumbnail_url']	= CCTM::get_thumbnail($hash['post_id']);
+
 					// Look up all the data on that foriegn key
 					// We gotta watch out: what if the related post has custom fields like "description" or 
 					// anything that would conflict with the definition?
-					$post = (array) $Q->get_post($this->post_id);
+					$post = (array) $Q->get_post($hash['post_id']);
 					foreach($post as $k => $v) {
 						// Don't override the def's attributes!
-						if (!isset($this->$k)) {
-							$this->$k = $v;
+						if (!isset($hash[$k])) {
+							$hash[$k] = $v;
 						}
-					}					
-					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+					}
+					
+					$this->content .= CCTM::parse($fieldtpl, $hash);
 				}
 			}
 		}
@@ -152,7 +154,7 @@ class CCTM_media extends CCTM_FormElement
 				)
 			);
 
-			if ($this->post_id) {
+			if ($this->post_id) 
 				// Look up all the data on that foriegn key
 				// We gotta watch out: what if the related post has custom fields like "description" or 
 				// anything that would conflict with the definition?
@@ -229,8 +231,7 @@ class CCTM_media extends CCTM_FormElement
 		// Handle the display of the default value
 		if ( !empty($def['default_value']) ) {
 
-			$hash = $Q->get_post($def['default_value']);
-			$hash['thumbnail_url'] = CCTM::get_thumbnail($def['default_value']);
+			$hash = CCTM::get_thumbnail($def['default_value']);
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
