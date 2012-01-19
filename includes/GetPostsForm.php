@@ -318,7 +318,7 @@ class GetPostsForm {
 		$ph = $this->placeholders;
 		$current_value = $this->get_value('author');
 		global $wpdb;
-		$authors = $wpdb->get_results("SELECT ID, display_name from $wpdb->users ORDER BY display_name");
+		$authors = $wpdb->get_results("SELECT ID, display_name from {$wpdb->users} ORDER BY display_name");
 
 		$ph['options'] = '';
 		foreach ($authors as $a) {
