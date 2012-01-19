@@ -14,6 +14,8 @@ http://codex.wordpress.org/Function_Reference/register_activation_hook
 // Always Required Files
 require_once('includes/constants.php'); // needed before anything else
 require_once('includes/CCTM.php');
+require_once('includes/SummarizePosts.php');
+require_once('includes/GetPostsQuery.php');
 
 // Admin-only files
 if( is_admin()) {
@@ -40,6 +42,10 @@ add_action( 'admin_notices', 'CCTM::print_notices');
 
 if ( empty(CCTM::$errors) )
 {
+	// Shortcodes
+	add_shortcode('summarize-posts', 'SummarizePosts::get_posts');
+	add_shortcode('summarize_posts', 'SummarizePosts::get_posts');
+
 	// Load up the CCTM data from wp_options, populates CCTM::$data
 	CCTM::load_data();
 	//print_r(CCTM::$data); exit;

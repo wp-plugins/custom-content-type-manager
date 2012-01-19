@@ -185,14 +185,6 @@ class SummarizePosts
 		}
 	}
 
-	//------------------------------------------------------------------------------
-	/**
-	* @param	object	$QueryObj	Instantiation of GetPostsQuery
-	*/
-	public static function get_help_msg(&$QueryObj)
-	{
-		print $QueryObj; // relies on the __toString() magic method
-	}
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -607,30 +599,38 @@ Convenience:
 	*/
 	public static function get_posts($raw_args=array(), $content_tpl = null)
 	{	
+		if (empty($raw_args) || !is_array($raw_args)) {
+			$raw_args = array();
+		}
 
 		$formatting_args = shortcode_atts( self::$formatting_defaults, $raw_args );
-
 		$formatting_args['tpl_str'] = self::_get_tpl($content_tpl, $formatting_args);		
 
 		$output = '';
 		//print_r($formatting_args); exit;
-		$Q = new GetPostsQuery( $raw_args );
 
-		$results = $Q->get_posts();
-
-		// Print help message.  Should include the SQL statement, errors
+		$help_flag = false;
 		if (isset($raw_args['help']) )
 		{
-			self::get_help_msg($Q); // this prints the results
+			$help_flag = true;
+			unset($raw_args['help']);
 		}
-		else
-		{
+
+		$Q = new GetPostsQuery();
+		$args = array_merge($Q->defaults, $raw_args);
+
+		$results = $Q->get_posts($args);
+
+		// Print help message.  Should include the SQL statement, errors
+		if ($help_flag) {
+			return $Q->debug(); // this prints the results
+		}
+		else {
 			if (empty($results)) {
 				return '';
 			}
 			$output .= self::format_results($results, $formatting_args);
-			if ( $Q->paginate )
-			{
+			if ( $Q->paginate ) {
 				$output .= '<div class="summarize-posts-pagination-links">'.$Q->get_pagination_links().'</div>';
 			}
 		}
@@ -638,6 +638,7 @@ Convenience:
 		return $output;
 	}
 	
+/*
 	//! From Viper's Video Quicktags
 	// Break the browser cache of TinyMCE
 	public static function tiny_mce_version( $version ) {
@@ -658,5 +659,6 @@ Convenience:
 		array_push( $buttons, '|','summarize_posts' );
 		return $buttons;
 	}	
+*/
 }
 /*EOF*/

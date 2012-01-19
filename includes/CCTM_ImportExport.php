@@ -598,7 +598,7 @@ class CCTM_ImportExport {
 		elseif ( preg_match('/[^a-z\s\-_0-9\.@]/i', $raw['author']) ) {
 			CCTM::$errors['author'] = __('Only basic characters are allowed for the author field.', CCTM_TXTDOMAIN);
 		}
-		elseif ( strlen($raw['author'] > 64) ) {
+		elseif ( strlen($raw['author']) > 64 ) {
 			CCTM::$errors['author'] = __('The author name cannot exceed 32 characters.', CCTM_TXTDOMAIN);
 		}
 		

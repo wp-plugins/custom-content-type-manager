@@ -198,6 +198,7 @@ class GetPostsQuery {
 	 * @param array   $raw_args (optional)
 	 */
 	public function __construct($raw_args=array()) {
+		
 		$a = explode (' ',microtime()); 
     	$this->start_time = (double) $a[0] + $a[1];
     
@@ -209,10 +210,11 @@ class GetPostsQuery {
 		
 		// Use the default args?  That fetters operation as an API
 		//$this->args = $this->defaults; 
-		
-		// Scrub up for dinner
-		foreach ($raw_args as $k => $v) {
-			$this->$k = $v; // this will utilize the _sanitize_arg() function.
+		if (!empty($raw_args) && is_array($raw_args)) {
+			// Scrub up for dinner
+			foreach ($raw_args as $k => $v) {
+				$this->$k = $v; // this will utilize the _sanitize_arg() function.
+			}
 		}
 	}
 
