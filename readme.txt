@@ -79,6 +79,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.5.6 =
 
+* Fixed (Issue 291)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=291]: issue with custom database prefixes.
 * Fixed (Issue 288)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=288]: incorrect formatting of posts on multi-relation, multi-image, and multi-media fields.
 
 = 0.9.5.5 =

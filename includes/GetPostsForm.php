@@ -1078,7 +1078,7 @@ class GetPostsForm {
 		$yearmonths = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(post_date,'%Y%m') as 'yearmonth'
 			, DATE_FORMAT(post_date,'%M') as 'month'
 			, YEAR(post_date) as 'year'
-			FROM wp_posts
+			FROM {$wpdb->posts}
 			WHERE post_status = 'publish'
 			ORDER BY yearmonth");
 		foreach ($yearmonths as $ym) {
