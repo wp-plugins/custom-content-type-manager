@@ -154,7 +154,7 @@ class CCTM_media extends CCTM_FormElement
 				)
 			);
 
-			if ($this->post_id) 
+			if ($this->post_id) {
 				// Look up all the data on that foriegn key
 				// We gotta watch out: what if the related post has custom fields like "description" or 
 				// anything that would conflict with the definition?
