@@ -10,12 +10,19 @@ class CCTM_gallery extends CCTM_OutputFilter {
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	integer 	input
+	 * @param 	mixed 	input: an integer, an array of integers, or a JSON string representing an array of such.
 	 * @param	string	optional formatting tpl
 	 * @return mixed
 	 */
-	public function filter($input, $options='<div class="cctm_gallery" id="cctm_gallery_[+i+]"><img src="[+guid+]" alt="[+post_title+]/></div>') {
-	
+	public function filter($input, $options=null) {
+		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+		
+		$tpl = '<div class="cctm_gallery" id="cctm_gallery_[+i+]"><img height="[+height+]" width="[+width+]" src="[+guid+]" title="[+post_title+]" alt="[+alt+]" class="cctm_image" id="cctm_image_[+i+]"/></div>';
+		if (!empty($options)) {
+			$tpl = $options;
+		}
+
 		if (empty($input)) {
 			return '';
 		}
@@ -36,16 +43,37 @@ class CCTM_gallery extends CCTM_OutputFilter {
 				$the_array = $output;
 			}
 		}
+
+		$Q = new GetPostsQuery();
 		
+		$Q->set_include_hidden_fields(true);
+		
+		// We can't use $Q->get_posts() because MySQL will return results in an arbitrary order.  boo.		
 		$output = '';
 		$i = 1;
 		foreach($the_array as $image_id) {
-			$p = get_post_complete($image_id);
-			$p['i'] = $i;
-			$output .= CCTM::parse($options, $p);
+			$r = $Q->get_post($image_id);
+			$image_info = getimagesize($r['guid']);
+			$image_type = $image_info[2];
+			if( $image_type == IMAGETYPE_JPEG ) {
+				$this_image = imagecreatefromjpeg($r['guid']);
+			} 
+			elseif( $image_type == IMAGETYPE_GIF ) {
+				$this->image = imagecreatefromgif($r['guid']);
+			} 
+			elseif( $image_type == IMAGETYPE_PNG ) {
+				$this->image = imagecreatefrompng($r['guid']);
+			}
+		
+			if (isset($r['_wp_attachment_image_alt'])) {
+				$r['alt'] = $r['_wp_attachment_image_alt'];
+			}
+			$r['i'] = $i;
+			$r['width'] = imagesx($this_image);
+			$r['height'] = imagesy($this_image);
+			$output .= CCTM::parse($tpl, $r);
 			$i++;
 		}
-		
 		return $output;
 	}
 
@@ -54,7 +82,7 @@ class CCTM_gallery extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __("The <em>gallery</em> filter converts a list of image IDs into HTML img tags.", CCTM_TXTDOMAIN);
+		return __("The <em>gallery</em> filter converts a single or an array of image IDs into HTML img tags.", CCTM_TXTDOMAIN);
 	}
 
 
@@ -63,8 +91,8 @@ class CCTM_gallery extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field') {
-		return "<?php print_custom_field('".$fieldname.":gallery'; ?>";
+	public function get_example($fieldname='my_field',$fieldtype) {
+		return "<?php print_custom_field('".$fieldname.":gallery'); ?>";
 	}
 
 

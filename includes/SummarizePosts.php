@@ -660,5 +660,24 @@ Convenience:
 		return $buttons;
 	}	
 */
+	//------------------------------------------------------------------------------
+	/**
+	 * Adds the button to the TinyMCE 1st row.
+	 */
+	public static function tinyplugin_add_button($buttons) {
+	    array_push($buttons, '|', 'summarize_posts');
+	    return $buttons;
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	public static function tinyplugin_register($plugin_array) {
+	    $url = CCTM_URL.'/js/editor_plugin.js';
+	    $plugin_array['summarize_posts'] = $url;
+	    return $plugin_array;
+	}
+
 }
 /*EOF*/

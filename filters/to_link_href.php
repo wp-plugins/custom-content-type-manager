@@ -40,7 +40,7 @@ class CCTM_to_link_href extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field') {
+	public function get_example($fieldname='my_field',$fieldtype) {
 		return '<a href="<?php print_custom_field(\''.$fieldname.':to_link_href\',\'http://yoursite.com/default/page/\');?>">Click here</a>';
 	}
 

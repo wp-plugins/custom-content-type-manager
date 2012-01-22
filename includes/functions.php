@@ -146,6 +146,7 @@ and if the custom field *is* a list of items, then attach it as such.
 */
 function get_post_complete($id) {
 	$complete_post = get_post($id, ARRAY_A);
+	die(print_r($complete_post,true));
 	if ( empty($complete_post) ) {
 		return array();
 	}

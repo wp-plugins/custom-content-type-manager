@@ -43,7 +43,7 @@ abstract class CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	abstract public function get_example($fieldname='my_field');
+	abstract public function get_example($fieldname='my_field',$fieldtype);
 
 
 	/**

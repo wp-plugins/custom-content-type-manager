@@ -99,7 +99,7 @@ class CCTM_help extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='any_field') {
+	public function get_example($fieldname='any_field',$fieldtype) {
 		return "<?php print_custom_field('$fieldname:help'); ?>";
 	}
 

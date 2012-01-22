@@ -49,6 +49,9 @@ class GetPostsQuery {
 	private $direct_filter_flag = false;
 	private $direct_filter_columns = array(); // populated with each column that uses a direct filter
 	
+	// Should the query retrieve "private" custom fields?  I.e. those whose names begin with an underscore
+	public $include_hidden_fields = false;
+	
 	// Set in the controller. If set to true, some helpful debugging msgs are printed.
 	public $debug = false;
 
@@ -937,7 +940,7 @@ class GetPostsQuery {
 				{$wpdb->postmeta}.post_id,
 				CONCAT( GROUP_CONCAT( CONCAT({$wpdb->postmeta}.meta_key,'[+colon_separator+]', {$wpdb->postmeta}.meta_value) SEPARATOR '[+comma_separator+]'), '[+caboose+]') as metadata
 				FROM {$wpdb->postmeta}
-				WHERE {$wpdb->postmeta}.meta_key NOT LIKE '\_%'
+				[+hidden_fields+]
 				GROUP BY {$wpdb->postmeta}.post_id
 			) metatable ON {$wpdb->posts}.ID=metatable.post_id
 
@@ -1056,6 +1059,9 @@ class GetPostsQuery {
 			}
 		}
 
+		if (!$this->include_hidden_fields) {
+			$hash['hidden_fields'] = "WHERE {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
+		}
 
 		$this->SQL = self::parse($this->SQL, $hash);
 		// Strip whitespace
@@ -1780,7 +1786,14 @@ class GetPostsQuery {
 		}		
 	}
 	
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Should hidden fields be included in the results?
+	 * @param	boolean	yes or no.
+	 */
+	public function set_include_hidden_fields($yn) {
+		$this->include_hidden_fields = (bool) $yn;
+	}
 }
 
 

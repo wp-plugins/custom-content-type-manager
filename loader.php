@@ -46,6 +46,12 @@ if ( empty(CCTM::$errors) )
 	add_shortcode('summarize-posts', 'SummarizePosts::get_posts');
 	add_shortcode('summarize_posts', 'SummarizePosts::get_posts');
 
+	// Summarize Posts Tiny MCE button
+	add_filter('mce_external_plugins', 'SummarizePosts::tinyplugin_register');
+	add_filter('mce_buttons', 'SummarizePosts::tinyplugin_add_button', 0);
+	//add_action('init','PHP_Snippet_Functions::init');
+
+
 	// Load up the CCTM data from wp_options, populates CCTM::$data
 	CCTM::load_data();
 	//print_r(CCTM::$data); exit;

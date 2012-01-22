@@ -60,7 +60,7 @@ class CCTM_excerpt extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field') {
+	public function get_example($fieldname='my_field',$fieldtype) {
 		return "<?php print_custom_field('$fieldname:excerpt', 100); ?>";
 	}
 

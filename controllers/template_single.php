@@ -142,7 +142,7 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 				$OutputFilter = new $filter_class();
 				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> %s<br />\n"
 					, self::$data['custom_field_defs'][$cf]['label']
-					, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'])
+					, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'], self::$data['custom_field_defs'][$cf]['type'])
 				);
 			}
 			// Generic custom field usage

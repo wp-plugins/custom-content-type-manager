@@ -140,36 +140,6 @@ function change_page(page_number) {
 
 	jQuery('#page_number').val(page_number); // store the value so it can be serialized
 
-	// var current_data = jQuery('#select_posts_form').serialize();
-	
-	//console.log(current_data);
-/*
-	
-	var data = {
-	        "action" : 'test',
-	        "fieldname" : fieldname,
-	        "test_nonce" : cctm.ajax_nonce,
-	        "inner_thickbox": 1,
-	        "search_parameters": current_data
-	    };
-	    
-//	data.search_parameters = jQuery('#select_posts_form').serialize();
-
-	jQuery.post(
-	    cctm.ajax_url,
-	    data,
-	    function( response ) {
-	    	// Write the response to the div
-			//jQuery('#cctm_thickbox').html(response);
-			jQuery('#cctm_thickbox').html(response);
-			 
-			
-	    }
-	);
-	return false;
-*/
-
-
 	var data = {
 	        "action" : 'get_posts',
 	        "fieldname" : fieldname,

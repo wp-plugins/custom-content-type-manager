@@ -33,7 +33,7 @@ class CCTM_to_image_array extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field') {
+	public function get_example($fieldname='my_field',$fieldtype) {
 		return '<?php 
 list($src, $w, $h) = get_custom_field(\''.$fieldname.':to_image_array\');
 ?>

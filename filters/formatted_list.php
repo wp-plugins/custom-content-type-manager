@@ -120,7 +120,7 @@ class CCTM_formatted_list extends CCTM_OutputFilter {
 	 * @param string  $fieldname (optional)
 	 * @return string  a code sample
 	 */
-	public function get_example($fieldname='my_field') {
+	public function get_example($fieldname='my_field',$fieldtype) {
 		return "<?php print_custom_field('$fieldname:formatted_list', array('<li>[+value+]</li>','<ul>[+content+]</ul>') ); ?>";
 	}
 

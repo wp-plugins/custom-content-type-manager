@@ -23,7 +23,7 @@ print "\n";
 ?>
 Server OS: <?php print PHP_OS; print "\n"; ?>
 ------------------------ <?php print "\n"; ?>
-Other Active plugins: <?php 
+ACTIVE PLUGINS: <?php 
 print "\n";
 $active_plugins = get_option('active_plugins'); 
 $all_plugins = get_plugins();
@@ -39,6 +39,11 @@ foreach ($active_plugins as $plugin) {
 	}
 }
 ?>
+------------------------ <?php print "\n"; 
+$theme = get_current_theme();
+$theme_data = get_themes($theme);
+?>
+CURRENT THEME: <?php printf('%s v.%s %s', $theme_data[$theme]['Name'], $theme_data[$theme]['Version'], $theme_data[$theme]['Author URI']); ?>
 </textarea>
 
 <p><?php _e('When reporting bugs, remember the following key points:', CCTM_TXTDOMAIN); ?></p>

@@ -57,7 +57,7 @@ class CCTM_to_array extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field') {
+	public function get_example($fieldname='my_field',$fieldtype) {
 		return '<?php 
 $my_array = get_custom_field(\''.$fieldname.'\');
 foreach ($my_array as $item) {

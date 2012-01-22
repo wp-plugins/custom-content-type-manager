@@ -1,50 +1,4 @@
 /*------------------------------------------------------------------------------
-Note that the incrementor cctm[fieldname] is set in wrapper/_text_multi.tpl
-@param	string fieldname is the CSS ID of the field we're adding to.
-------------------------------------------------------------------------------*/
-function add_field_instance(fieldname) {
-	// Increment the instance
-	cctm[fieldname] = cctm[fieldname] + 1;
-	
-	var data = {
-	        "action" : 'get_tpl',
-	        "fieldname" : fieldname,
-	        "instance" : cctm[fieldname],
-	        "get_tpl_nonce" : cctm.ajax_nonce
-	    };
-
-	jQuery.post(
-	    cctm.ajax_url,
-	    data,
-	    function( response ) {
-	    	//alert('cctm_instance_wrapper_'+fieldname);
-	    	// Write the response to the div
-			jQuery('#cctm_instance_wrapper_'+fieldname).append(response);
-	    }
-	);
-	
-	return false;
-}
-
-/*------------------------------------------------------------------------------
-Generic function. Remove the HTML identified by the target_id
-@param	string	target_id -- CSS id of the item to be removed.
-------------------------------------------------------------------------------*/
-function remove_html( target_id ) {
-	jQuery('#'+target_id).remove();
-	jQuery('#default_value').val(''); // <-- used in the field definitions
-}
-
-/*------------------------------------------------------------------------------
-Remove all selected posts from the repeatable field
-@param	string	CSS field id, e.g. cctm_myimage
-------------------------------------------------------------------------------*/
-function remove_all_relations(field_id) {
-	jQuery('#cctm_instance_wrapper_'+field_id).html('');
-}
-
-
-/*------------------------------------------------------------------------------
 This is called by the TinyMCE button click.  Make sure this function name 
 matched the one in editor_plugin.js!
 ------------------------------------------------------------------------------*/
@@ -54,15 +8,15 @@ function show_summarize_posts() {
 
 	// Prepare the AJAX query
 	var data = {
-	        "action" : 'summarize_posts_form',
-	        "summarize_posts_form_nonce" : cctm.ajax_nonce
+	        "action" : 'list_snippets',
+	        "list_snippets_nonce" : summarize_posts.ajax_nonce
 	    };
 	    
+	
 	jQuery.post(
-	    cctm.ajax_url,
+	    summarize_posts.ajax_url,
 	    data,
 	    function( response ) {
-	    	
 	    	// Write the response to the div
 			jQuery('#summarize_posts_thickbox').html(response);
 
@@ -112,24 +66,11 @@ function insert_shortcode(h) {
 	tb_remove();
 }
 
+
 /*------------------------------------------------------------------------------
 When the summarize posts thickbox submits, this is what takes the submission 
 and converts it into a shortcode.
 ------------------------------------------------------------------------------*/
-function generate_shortcode(form_id) {
-	var data = {
-	        "action" : 'get_shortcode',
-	        "get_shortcode_nonce" : cctm.ajax_nonce
-	    };
-	    
-	data.search_parameters = jQuery('#'+form_id).serialize();
-	
-	jQuery.post(
-	    cctm.ajax_url,
-	    data,
-	    function( response ) {
-	    	return insert_shortcode(response);
-	    }
-	);
-
+function generate_shortcode() {
+	alert('here.....');
 }
