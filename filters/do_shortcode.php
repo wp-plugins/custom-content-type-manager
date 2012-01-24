@@ -14,11 +14,16 @@ class CCTM_do_shortcode extends CCTM_OutputFilter {
 	 * Apply the filter.
 	 *
 	 * @param 	string 	input
-	 * @param	mixed	optional arguments
+	 * @param	boolean	options: true, bypass wpautop(). Default: false
 	 * @return string
 	 */
 	public function filter($input, $options=null) {
-		return do_shortcode($input);
+		if ($options) {
+			
+		}
+		else {
+			return do_shortcode(wpautop($input));
+		}
 	}
 
 

@@ -157,6 +157,7 @@ class CCTM {
 		, 'show_foreign_post_types' => 1
 		, 'cache_directory_scans' => 1
 		, 'cache_thumbnail_images' => 0
+		, 'save_empty_fields' => 1
 	);
 
 	// Where are the icons for custom images stored?
@@ -981,7 +982,6 @@ class CCTM {
 		if (empty($setting)) {
 			return '';
 		}
-		//  die($setting);
 		if (isset(self::$data['settings']) && is_array(self::$data['settings'])) {
 			if (isset(self::$data['settings'][$setting])) {
 				return self::$data['settings'][$setting];
@@ -1634,7 +1634,7 @@ class CCTM {
 
 		$requested_page = CCTM_PATH.'/controllers/'.$action.'.php';
 
-		if ( file_exists($requested_page) ) {
+		if (file_exists($requested_page)) {
 			include $requested_page;
 		}
 		else {

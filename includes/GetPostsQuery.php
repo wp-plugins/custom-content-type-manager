@@ -62,6 +62,10 @@ class GetPostsQuery {
 	// at the time of instantiation.
 	public $args = array();
 
+	// Used to track which $arg uses which operator for the comparison
+	// '=', '!=', '>', '>=', '<', '<=', '^', '$'
+	public $operators = array();
+	
 	public $registered_post_types = array();
 	public $registered_taxonomies = array();
 
@@ -162,12 +166,12 @@ class GetPostsQuery {
 		// 4 =	'n/j/y'				3/30/11
 		// 5 =	'n/j/Y'				3/30/2011		
 		// or write in your own value.
-		'date_format' => null,
+		'date_format' => '',
 
 		// Search by Taxonomies
-		'taxonomy'  => null,  // category, post_tag (tag), or any custom taxonomy
-		'taxonomy_term' => null, // comma-separated string or array. "term" is usually English
-		'taxonomy_slug' => null, // comma-separated string or array. "slug" is usually lowercase, URL friendly ver. of "term"
+		'taxonomy'  => '',  // category, post_tag (tag), or any custom taxonomy
+		'taxonomy_term' => '', // comma-separated string or array. "term" is usually English
+		'taxonomy_slug' => '', // comma-separated string or array. "slug" is usually lowercase, URL friendly ver. of "term"
 		'taxonomy_depth' => 1,  // how deep do we go? http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=21
 
 		// uses LIKE %matching%
@@ -618,6 +622,11 @@ class GetPostsQuery {
 	//------------------------------------------------------------------------------
 	/**
 	 * Filter an argument.  All inputs hinge on this function: it ensures valid input.
+	 * In many ways, this is the function that does all the work.
+	 *
+	 * $arg should always be a string.
+	 * $val may be a string or an array, depending on what the $arg accepts.
+	 * Also, $val may include an operator, e.g. Array([>] => 2011-01-05)
 	 *
 	 * @param	string	$arg name of the argument being set 
 	 * @param	mixed	$val value to set it to
@@ -635,14 +644,65 @@ class GetPostsQuery {
 			return null;
 		}
 
-		// Filter out "empty" arrays, e.g. array('') -- these arise from certain form submissions.
+		// Some cleanup, fine-tuning
 		if (is_array($val)) {
+			// Filter out "empty" arrays, e.g. array('') or Array([0] => '')
+			// these arise from certain form submissions.
 			foreach ($val as $k => $v) {
 				if (empty($v)) {
 					unset($val[$k]);
 				}			
 			}
+			// Get the optional operator for this $arg
+			// '=', '!=', '>', '>=', '<', '<=', '^', '$'
+			foreach ($val as $k => $v) {
+				if (is_numeric($k)) {
+					break;
+				}
+				
+				switch($k) {
+					case '!=':
+					case 'ne':
+					case '<>':
+						$this->operators[$arg] = '!=';
+						break;
+					case '>':
+					case 'gt':
+						$this->operators[$arg] = '>';
+						break;
+					case '>=':
+					case 'gte':
+						$this->operators[$arg] = '>=';
+						break;
+					case '<':
+					case 'lt':
+						$this->operators[$arg] = '<';
+						break;
+					case '<=':
+					case 'lte':
+						$this->operators[$arg] = '<=';
+						break;
+					case '^':
+					case 'starts_with':
+						$this->operators[$arg] = 'starts_with';
+						break;
+					case '$':
+					case 'ends_with':
+						$this->operators[$arg] = 'ends_with';
+						break;
+					case '%':
+					case 'like':
+					case 'contains':
+						$this->operators[$arg] = 'like';
+						break;
+					default:
+						$this->operators[$arg] = '=';
+				}
+				// Override/shift the value
+				$val = $v;
+			}
 		}
+		
 
 		// Some corrections required: if you set the post_type that you want, remove that post_type
 		// from the 'omit_post_type' argument.
@@ -1050,7 +1110,8 @@ class GetPostsQuery {
 		if ($this->direct_filter_flag) {
 			foreach($this->direct_filter_columns as $c) {
 				if (in_array($c, self::$wp_posts_columns)) {
-					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
+					//$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
+					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, $this->operators[$c], $this->$c);
 				}
 				else {
 					$query = " {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value = %s)";
@@ -1403,47 +1464,6 @@ class GetPostsQuery {
 		return $output;
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Returns a string of a comparable shortcode for the query entered. Note that 
-	 * this technically just shows the difference between the $this->args and the 
-	 * $this->defaults settings, so if you used the set_defaults() function to set 
-	 * a baseline for the search, the shortcode will come up [summarize-posts].
-	 *
-	 * @return string
-	 */
-	public function get_shortcode() {
-		$args = array();
-		foreach ($this->args as $k => $v) {
-			// Only include info if it's not the default... save space and easier to read shortcodes
-			if (isset($this->defaults[$k]) && $this->defaults[$k] != $v ) { // && (!empty($this->defaults[$k]) && !empty($v))) {
-/*
-				if ($k == 'omit_post_type') {
-					print "Value: $k<br/>";
-					print 'default: '; print_r($this->defaults[$k]); print "<br/>";
-					print 'incoming: '; print_r($v);
-					exit;
-				}
-*/
-				if ( !empty($v) ) {
-					if ( is_array($v) ) {
-						$args[] = $k.'="'.implode(',', $v).'"';
-					}
-					else {
-						$args[] = $k.'="'.$v.'"';
-					}
-				}
-			}
-		}
-		$args = implode(' ', $args);
-		if (!empty($args)) {
-			$args = ' '.$args;
-		}
-		return '[summarize-posts'.$args.']';
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Gets the URL of the current page to use in generating pagination links.
@@ -1584,18 +1604,6 @@ class GetPostsQuery {
 			$this->$k = $v; // this will utilize the _sanitize_arg() function.
 		}
 		
-//		print '<pre>'. print_r($this->args, true) . print '</pre>'; exit;
-
-/*
-	// LOGGING...
-	$myFile = "/tmp/cctm.txt";
-	$fh = fopen($myFile, 'a') or die("can't open file");
-	fwrite($fh, print_r($args, true));
-//	fwrite($fh, print_r($_SERVER, true));
-	fclose($fh);
-*/
-
-
 		// if we are doing hierarchical queries, we need to trace down all the components before
 		// we do our query!
 
@@ -1673,6 +1681,41 @@ class GetPostsQuery {
 
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Returns a string of a comparable shortcode for the query entered. Note that 
+	 * this technically just shows the difference between the $this->args and the 
+	 * $this->defaults settings, so if you used the set_defaults() function to set 
+	 * a baseline for the search, the shortcode will come up [summarize-posts].
+	 *
+	 * @return string
+	 */
+	public function get_shortcode() {
+		$args = array();
+		foreach ($this->args as $k => $v) {
+			// Only include info if it's not the default... save space and easier to read shortcodes
+			if (isset($this->defaults[$k]) && $this->defaults[$k] != $v) { // && (!empty($this->defaults[$k]) && !empty($v))) {
+				if ( !empty($v) ) {
+					if ( is_array($v) ) {
+						$args[] = $k.'="'.implode(',', $v).'"';
+					}
+					else {
+						$args[] = $k.'="'.$v.'"';
+					}
+				}
+			}
+			// Direct filtering on a field
+			elseif (!isset($this->defaults[$k])) {
+				$args[] = $k.'="'.$v.'"';
+			}
+		}
+		
+		$args = implode(' ', $args);
+		if (!empty($args)) {
+			$args = ' '.$args;
+		}
+		return '[summarize-posts'.$args.']';
+	}
 
 	//------------------------------------------------------------------------------
 	/**

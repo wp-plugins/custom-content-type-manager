@@ -141,7 +141,8 @@ class StandardizedCustomFields
 				if ( $p->ID == $post->post_parent ) {
 					$is_selected = ' selected="selected"';	
 				}
-				$html .= sprintf('<option class="level-0" value="%s"%s>%s (%s)</option>', $p->ID, $is_selected, $p->post_title, $p->post_type);
+				// We add the __() to post_title for the benefit of translation plugins. E.g. see issue 279
+				$html .= sprintf('<option class="level-0" value="%s"%s>%s (%s)</option>', $p->ID, $is_selected, __($p->post_title), $p->post_type);
 			}
 			$html .= '</select>';
 		}
@@ -322,10 +323,19 @@ class StandardizedCustomFields
 					$FieldObj = new $field_type_name(); // Instantiate the field element
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
+										
 					// Custom fields can return a literal null if they don't ever save data to the db.
 					if ($value !== null) {
-						update_post_meta( $post_id, $field_name, $value );
-					}
+						// We do some more work to ensure the database stays lean
+						if(empty($value) && !CCTM::get_setting('save_empty_fields')) {
+							// Delete the row from wp_postmeta, or don't write it at all
+							delete_post_meta($post_id, $field_name);
+						}
+						else {
+							update_post_meta($post_id, $field_name, $value);
+						}
+					}					
+					
 				}
 				else {
 					// error!

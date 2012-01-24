@@ -78,6 +78,16 @@
 				<font style="color:red;"><strong>WARNING:</strong> this is experimental.  The post-selector may encounter white-screens if your source images are too large (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=262">issue 262</a>).</font>
 			</span>
 		</div>
+	
+		<!--!Save empty Fields -->		
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_save_empty_fields">
+			<input type="checkbox" name="save_empty_fields" class="cctm_checkbox" id="save_empty_fields" value="1" <?php print $data['settings']['save_empty_fields']; ?>/>
+			<label for="save_empty_fields" class="cctm_label cctm_checkbox_label" id="cctm_label_save_empty_fields">
+				<?php _e('Save Empty Fields', CCTM_TXTDOMAIN); ?>
+			</label>
+			<span class="cctm_description"><?php _e("If checked, the CCTM will create a row in the postmeta table for the values for each post's custom fields. Uncheck this if you need to save some space in your database.", CCTM_TXTDOMAIN); ?></span>
+		</div>
+	
 		
 		<!--!Custom Field settings links -->
 		<?php print $data['custom_fields_settings_links']; ?>

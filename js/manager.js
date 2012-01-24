@@ -68,7 +68,7 @@ function show_summarize_posts() {
 
 			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
 			W = W - 80;
-			H = H - 84;
+			H = H - 114; // 84?
 			// then thickbox the div
 			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=summarize_posts_thickbox' );			
 	    }
@@ -113,6 +113,29 @@ function insert_shortcode(h) {
 }
 
 /*------------------------------------------------------------------------------
+Handles dynamically adding a field to filter by, e.g. my_custom_field=value
+
+@param	string	id of the dropdown field that it determining which field to create
+@param	string id of div where new field elements will be appended to
+------------------------------------------------------------------------------*/
+function generate_field_filter(dropdown_id, target_id) {
+	var raw = jQuery('#'+dropdown_id).val();
+
+	var fieldname = raw; // default
+	var fieldlabel = raw;
+
+	var matches = raw.match(/^(.*?):(.*)$/);
+	if (matches != null) {
+		fieldname = matches[1];
+		fieldlabel = matches[2];
+	}
+
+
+	var form_element = '<label for="'+fieldname+'">'+fieldlabel+'</label><input type="text" id="'+fieldname+'" name="'+fieldname+'" value=""/><br/>';
+	jQuery('#'+target_id).append(form_element);
+}
+
+/*------------------------------------------------------------------------------
 When the summarize posts thickbox submits, this is what takes the submission 
 and converts it into a shortcode.
 ------------------------------------------------------------------------------*/
@@ -133,3 +156,4 @@ function generate_shortcode(form_id) {
 	);
 
 }
+

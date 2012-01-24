@@ -81,57 +81,97 @@ class CCTM_user extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
+		// Format for multi-select
+		if ($this->is_repeatable) {
+			$current_value = json_decode($current_value, true);
+			$optiontpl = CCTM::load_tpl(
+				array('fields/options/'.$this->name.'.tpl'
+					, 'fields/options/_user_multi.tpl'
+					, 'fields/options/_user.tpl'
+				)
+			);
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_user_multi.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_user_multi.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+		}
+		// For regular dropdowns
+		else {
+			$optiontpl = CCTM::load_tpl(
+				array('fields/options/'.$this->name.'.tpl'
+					, 'fields/options/_user.tpl'
+				)
+			);
+			$fieldtpl = CCTM::load_tpl(
+				array('fields/elements/'.$this->name.'.tpl'
+					, 'fields/elements/_user.tpl'
+					, 'fields/elements/_default.tpl'
+				)
+			);
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_user.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+		}
+
+
+		// Get the options.  This currently is not skinnable.
+		$this->all_options = '';
+		$this->options = get_users(); // WP: http://codex.wordpress.org/Function_Reference/get_users
+		$opt_cnt = count($this->options);
+
+		$i = 1;
+		// Populate the options
+		foreach ( $this->options as $o ) {
+			//die(print_r($o, true));
+			$hash = $this->get_props();
+
+			// We hardcode this one because we always need to store the user ID as the value for normalization
+			$hash['value'] = $o->ID;
+
+			foreach ($o as $k => $v) {
+				if (!isset($hash[$k])) {
+					$hash[$k] = $v;
+				}			
+			}
+
+			$hash['is_checked'] = '';
+			
+			if ($this->is_repeatable) {
+				if ( in_array(trim($hash['value']), $current_value )) {
+					$hash['is_selected'] = 'selected="selected"';
+				}
+			}
+			else {
+				if ( trim($current_value) == trim($hash['value']) ) {
+					$hash['is_selected'] = 'selected="selected"';
+				}
+			}
+
+			$hash['i'] = $i;
+			$hash['id'] = $this->name;
+
+			$this->all_options .= CCTM::parse($optiontpl, $hash);
+		}
+
+
+
 		// Populate the values (i.e. properties) of this field
 		$this->id      = $this->name;
+		//$this->value    = htmlspecialchars( html_entity_decode($current_value) );
 
-		$fieldtpl = '';
-		$wrappertpl = '';
-
-		if ($this->is_repeatable) {
-			$fieldtpl = CCTM::load_tpl(
-				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'_multi.tpl'
-					, 'fields/elements/_default.tpl'
-				)
-			);
-			$wrappertpl = CCTM::load_tpl(
-				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
-					, 'fields/wrappers/_default.tpl'
-				)
-			);
-
-			$this->i = 0;
-			$values = (array) json_decode($current_value);
-			//die(print_r($values,true));
-			$content = '';
-			foreach ($values as $v) {
-				$this->value = htmlspecialchars( html_entity_decode($v) );
-				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
-				$this->i   = $this->i + 1;
-			}
-		}
-		// Normal text field
-		else {
-			$this->value  = htmlspecialchars( html_entity_decode($current_value) );
-
-			$fieldtpl = CCTM::load_tpl(
-				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'.tpl'
-					, 'fields/elements/_default.tpl'
-				)
-			);
-			$wrappertpl = CCTM::load_tpl(
-				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'.tpl'
-					, 'fields/wrappers/_default.tpl'
-				)
-			);
-			$this->content = CCTM::parse($fieldtpl, $this->get_props());
-		}
-
-
-		$this->add_label = __('Add', CCTM_TXTDOMAIN);
+		// wrap
+		$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 

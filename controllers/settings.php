@@ -32,6 +32,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['show_settings_menu'] 		= (int) CCTM::get_value($_POST, 'show_settings_menu', 0);
 	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
 	self::$data['settings']['cache_thumbnail_images'] 	= (int) CCTM::get_value($_POST, 'cache_thumbnail_images', 0);
+	self::$data['settings']['save_empty_fields'] 		= (int) CCTM::get_value($_POST, 'save_empty_fields', 0);
 
 	update_option( self::db_key, self::$data );
 
@@ -57,6 +58,7 @@ $checkboxes = array(
  	, 'show_foreign_post_types'
  	, 'cache_directory_scans'
  	, 'cache_thumbnail_images'
+ 	, 'save_empty_fields'
 );
 
 // this only works for checkboxes...

@@ -1,6 +1,7 @@
 <?php
 /**
- * This class generates search forms that act as a GUI for GetPostsQuery->get_posts().
+ * This class generates search forms that act as a graphical interface to the 
+ * GetPostsQuery->get_posts() function.
  * In other words, the data submitted from one of the generated forms describes
  * a search that can be performed by GetPostsQuery->get_posts().  This is not to
  * say that you NEED to use this class to front-end any queries performed by GetPostsQuery,
@@ -710,10 +711,12 @@ class GetPostsForm {
 		$ph['name'] = 'paginate';
 		$ph['id']  = 'paginate';
 		$ph['label'] = __('Paginate Results', CCTM_TXTDOMAIN);
-		$ph['description'] = ''; // __('.', CCTM_TXTDOMAIN);
-
+		$ph['description'] = 'Check this to paginate long result sets.'; // __('.', CCTM_TXTDOMAIN);
+		$ph['label_class'] = 'label_checkbox';
 		$ph['checkboxes'] = self::parse($this->checkbox_tpl, $ph);
 		$this->register_global_placeholders($ph, 'paginate');
+		$ph['label'] = __('Pagination', CCTM_TXTDOMAIN);
+		$ph['label_class'] = 'input_title';
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 	}
 
@@ -1393,7 +1396,19 @@ class GetPostsForm {
 			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', CCTM_TXTDOMAIN), __FUNCTION__);
 		}
 	}
-
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * If you need to add your own custom placeholders to the form_tpl formatting 
+	 * string, this is the kosher way to do it.
+	 *
+	 * @param	string	$key the name of the [+placeholder+] e.g. 'custom_fields'
+	 * @param	string	$value to replace into the placeholder, e.g. '<p>My long text...</p>'	 
+	 */
+	public function set_placeholder($key, $value) {
+		$this->placeholders[$key] = $value;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Set the formatting template (tpl) used to format the final output of the 

@@ -24,6 +24,13 @@ $Form->set_name_prefix('');
 $Form->set_id_prefix('');
 
 $Form->set_tpl($form_tpl);
+
+$custom_fields = CCTM::get_custom_field_defs();
+$custom_field_options = '';
+foreach($custom_fields as $cf) {
+	$custom_field_options .= sprintf('<option value="%s:%s">%s</option>', $cf['name'], $cf['label'], $cf['label']);
+}
+$Form->set_placeholder('custom_fields', $custom_field_options);
 print $Form->generate(CCTM::$search_by);
 
 

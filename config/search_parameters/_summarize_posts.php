@@ -29,11 +29,15 @@ http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts
 ------------------------------------------------------------------------------*/
 
 CCTM::$search_by[] = 'post_type';
+// CCTM::$search_by[] = 'post_status';  // it's werid if you showed unpublished posts on the frontend
+CCTM::$search_by[] = 'author';
 CCTM::$search_by[] = 'taxonomy';
 CCTM::$search_by[] = 'taxonomy_term';
 CCTM::$search_by[] = 'post_parent';
 CCTM::$search_by[] = 'meta_key';
 CCTM::$search_by[] = 'meta_value';
+CCTM::$search_by[] = 'limit';
+CCTM::$search_by[] = 'paginate';
 
 
 /*EOF*/
