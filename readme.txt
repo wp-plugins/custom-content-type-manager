@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3
 Tested up to: 3.3.1
-Stable tag: 0.9.5.5
+Stable tag: 0.9.5.6
 Version: 0.9.5.6
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
@@ -79,6 +79,8 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.5.6 =
 
+* Fixed (Issue 279)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=279]: greater compatibility with translation plugins.
+* Fixed (Issue 293)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=293]: new global setting to prevent unnecessary rows in the wp_postmeta table.
 * Fixed (Issue 294)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=294]: incorrect email validation for def. export.
 * Fixed (Issue 291)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=291]: issue with custom database prefixes.
 * Fixed (Issue 288)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=288]: incorrect formatting of posts on multi-relation, multi-image, and multi-media fields.
@@ -309,6 +311,10 @@ If you are eager to see a particular feature implemented in a future release, pl
 And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N).  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
 == Upgrade Notice ==
+
+= 0.9.5.6 =
+
+Fixed bug with repeatable relation, images, and media fields.  New custom field added for user selection, new gallery output filter.
 
 = 0.9.5.5 =
 
