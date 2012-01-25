@@ -204,6 +204,10 @@ foreach ($results as $r){
 	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
 	$r['field_id'] = $raw_fieldname;
 	$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);
+	// Translate stuff (issue 279)
+	$r['post_title'] = __($r['post_title']);
+	$r['post_content'] = __($r['post_content']);
+	$r['post_excerpt'] = __($r['post_excerpt']);
 	
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }

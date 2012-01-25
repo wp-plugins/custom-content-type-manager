@@ -326,8 +326,22 @@ class StandardizedCustomFields
 										
 					// Custom fields can return a literal null if they don't ever save data to the db.
 					if ($value !== null) {
+					
+						// Check for empty json arrays, e.g. ["",""]
+						$value_copy = $value;
+						if ($FieldObj->is_repeatable) {
+							$value_copy = json_decode(stripslashes($value), true);
+							if (is_array($value_copy)) {
+								foreach ($value_copy as $k => $v) {
+									if (empty($v)) {
+										unset($value_copy[$k]);
+									}
+								}
+							}
+						}
+						
 						// We do some more work to ensure the database stays lean
-						if(empty($value) && !CCTM::get_setting('save_empty_fields')) {
+						if(empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
 							// Delete the row from wp_postmeta, or don't write it at all
 							delete_post_meta($post_id, $field_name);
 						}

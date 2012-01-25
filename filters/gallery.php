@@ -53,6 +53,11 @@ class CCTM_gallery extends CCTM_OutputFilter {
 		$i = 1;
 		foreach($the_array as $image_id) {
 			$r = $Q->get_post($image_id);
+			// Translate
+			$r['post_title'] = __($r['post_title']);
+			$r['post_content'] = __($r['post_content']);
+			$r['post_excerpt'] = __($r['post_excerpt']);			
+			
 			$image_info = getimagesize($r['guid']);
 			$image_type = $image_info[2];
 			if( $image_type == IMAGETYPE_JPEG ) {

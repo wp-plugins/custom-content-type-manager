@@ -111,6 +111,10 @@ foreach($results as $r) {
 	$r['id_prefix'] = CCTM_FormElement::css_id_prefix;
 	$r['name_prefix'] = CCTM_FormElement::post_name_prefix;
 
+	// Translate stuff (issue 279)
+	$r['post_title'] = __($r['post_title']);
+	$r['post_content'] = __($r['post_content']);
+	$r['post_excerpt'] = __($r['post_excerpt']);
 
 	print CCTM::parse($tpl, $r);
 }
