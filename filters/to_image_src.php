@@ -11,7 +11,7 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 	 * Apply the filter.
 	 *
 	 * @param 	mixed 	input
-	 * @param	mixed	optional arguments
+	 * @param	mixed	default image src if no image is available
 	 * @return mixed
 	 */
 	public function filter($input, $options='') {

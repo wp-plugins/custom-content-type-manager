@@ -87,6 +87,7 @@ just want to make sure that the form is presented uncorrupted.
 		<li><a href="#basic-tab"><?php _e('Basic', CCTM_TXTDOMAIN); ?></a></li>
 		<li><a href="#labels-tab"><?php _e('Labels', CCTM_TXTDOMAIN); ?></a></li>
 		<li><a href="#fields-tab"><?php _e('Fields', CCTM_TXTDOMAIN); ?></a></li>
+		<li><a href="#columns-tab"><?php _e('Columns', CCTM_TXTDOMAIN); ?></a></li>
 		<li><a href="#menu-tab"><?php _e('Menu', CCTM_TXTDOMAIN); ?></a></li>
 		<li><a href="#urls-tab"><?php _e('URLs', CCTM_TXTDOMAIN); ?></a></li>
 		<li><a href="#advanced-tab"><?php _e('Advanced', CCTM_TXTDOMAIN); ?></a></li>
@@ -151,7 +152,7 @@ just want to make sure that the form is presented uncorrupted.
 		</div>
 	</div>
 
-	<!-- ================================================================================================ -->	
+	<!--!LABELS================================================================================================ -->	
 	<!--!Labels -->
 	<div id="labels-tab">	
 	
@@ -283,7 +284,7 @@ just want to make sure that the form is presented uncorrupted.
 		
 	</div>
 	
-	<!-- ================================================================================================ -->	
+	<!--!FIELDS================================================================================================ -->	
 	<div id="fields-tab">
 		<p><?php _e('Your post type must have either the title or content boxes checked; otherwise WordPress will revert to the default behavior and include the title and the content fields.', CCTM_TXTDOMAIN); ?></p>
 		
@@ -407,21 +408,27 @@ just want to make sure that the form is presented uncorrupted.
 		
 	</div>
 	
-	<!-- ================================================================================================ -->
+	<!--!COLUMNS================================================================================================ -->
+	<div id="columns-tab">
+		
+	</div>
+	
+	<!--!MENU================================================================================================ -->
 	<div id="menu-tab">
 		<p><?php _e('These settings only apply if you have the <em>Show Admin User Interface</em> selected.', CCTM_TXTDOMAIN); ?></p>
 		
 		<!--!show_in_menu -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_show_in_menu">		
 			<label for="cctm_show_in_menu" class="cctm_label cctm_text_label" id="cctm_label_cctm_show_in_menu"><?php _e('Show in Menus', CCTM_TXTDOMAIN); ?></label>
+			<?php //print_r($data['def']); ?>
 			<select name="cctm_show_in_menu" class="cctm_dropdown" id="cctm_show_in_menu">
-				<option value="1" <?php print CCTM::is_selected('1',$data['def']['show_in_menu']); ?>><?php _e('Yes'); ?></option>
-				<option value="0" <?php print CCTM::is_selected('0',$data['def']['show_in_menu']); ?>><?php _e('No'); ?></option>
-				<option value="custom" <?php print CCTM::is_selected('custom',$data['def']['show_in_menu']); ?>><?php _e('Custom'); ?></option>
+				<option value="1" <?php print CCTM::is_selected('1',$data['def']['cctm_show_in_menu']); ?>><?php _e('Yes'); ?></option>
+				<option value="0" <?php print CCTM::is_selected('0',$data['def']['cctm_show_in_menu']); ?>><?php _e('No'); ?></option>
+				<option value="custom" <?php print CCTM::is_selected('custom',$data['def']['cctm_show_in_menu']); ?>><?php _e('Custom'); ?></option>
 			</select>
 			<div id="cctm_show_in_menu_wrapper" style="margin-left:20px;">
 				<em><?php _e('Custom top-level Menu', CCTM_TXTDOMAIN); ?></em>: 
-				<input type="text" name="cctm_show_in_menu_custom" id="cctm_show_in_menu_custom" />
+				<input type="text" name="cctm_show_in_menu_custom" id="cctm_show_in_menu_custom" value="<?php print htmlspecialchars(CCTM::get_value($data['def'], 'cctm_show_in_menu_custom')); ?>"/>
 			</div>
 			<span class="cctm_description"><?php _e('Whether to show the post type in the admin menu. Change this to <em>Custom</em> to specify a top level page like <code>tools.php</code> or <code>edit.php?post_type=page</code>', CCTM_TXTDOMAIN); ?></span>
 		</div>
@@ -449,7 +456,7 @@ just want to make sure that the form is presented uncorrupted.
 
 	</div>
 
-	<!-- ================================================================================================ -->
+	<!--!URLS================================================================================================ -->
 	<div id="urls-tab">
 	
 		<!--!Rewrite with Front -->
@@ -498,7 +505,7 @@ just want to make sure that the form is presented uncorrupted.
 		</div>
 	</div>
 	
-	<!-- ================================================================================================ -->
+	<!--!ADVANCED================================================================================================ -->
 	<div id="advanced-tab">
 	
 
@@ -645,7 +652,7 @@ just want to make sure that the form is presented uncorrupted.
 			
 	</div>
 
-	<!-- ================================================================================================ -->
+	<!--!TAXONOMIES================================================================================================ -->
 	<div id="taxonomies-tab">
 			<h3><?php _e('Taxonomies', CCTM_TXTDOMAIN); ?></h3>
 			

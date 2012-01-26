@@ -28,7 +28,7 @@ class CCTM_user extends CCTM_FormElement
 		'extra' => '',
 		'default_value' => '',
 		'is_repeatable' => '',
-		'output_filter' => '',
+		'output_filter' => 'userinfo',
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 

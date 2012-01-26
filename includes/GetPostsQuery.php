@@ -1110,8 +1110,8 @@ class GetPostsQuery {
 		if ($this->direct_filter_flag) {
 			foreach($this->direct_filter_columns as $c) {
 				if (in_array($c, self::$wp_posts_columns)) {
-					//$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
-					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, $this->operators[$c], $this->$c);
+					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
+					//$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, $this->operators[$c], $this->$c);
 				}
 				else {
 					$query = " {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value = %s)";

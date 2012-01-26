@@ -55,6 +55,34 @@ abstract class CCTM_OutputFilter {
 	 * @return string	the URL where the user can read more about the filter
 	 */
 	abstract public function get_url();
+	
+	
+	/**
+	 * Converts an input to an array -- this handles strings, PHP arrays, and JSON arrays.
+	 * This function is useful for any field that may need to handle both single and 
+	 * "repeatable" inputs.
+	 *
+	 * @param	mixed	
+	 * @return	array
+	 */
+	public function to_array($input) {
+		$the_array = array();
+		
+		if (is_array($input)) {
+			return $input; // No JSON converting necessary: PHP array supplied.
+		}
+		else {
+			$output = json_decode($input, true);
+	
+			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
+			if ( !is_array($output) ) {
+				return array($output);
+			}
+			else {
+				return $output;
+			}
+		}
+	}
 		
 }
 /*EOF*/

@@ -27,23 +27,8 @@ class CCTM_gallery extends CCTM_OutputFilter {
 			return '';
 		}
 
-		$the_array = array();
+		$inputs = $this->to_array($input);
 		
-		if (is_array($input)) {
-			$the_array = $input; // No JSON converting necessary: PHP array supplied.
-		}
-		else {
-			$output = json_decode($input, true);
-	
-			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
-			if ( !is_array($output) ) {
-				$the_array = array($output);
-			}
-			else {
-				$the_array = $output;
-			}
-		}
-
 		$Q = new GetPostsQuery();
 		
 		$Q->set_include_hidden_fields(true);
@@ -51,7 +36,7 @@ class CCTM_gallery extends CCTM_OutputFilter {
 		// We can't use $Q->get_posts() because MySQL will return results in an arbitrary order.  boo.		
 		$output = '';
 		$i = 1;
-		foreach($the_array as $image_id) {
+		foreach($inputs as $image_id) {
 			$r = $Q->get_post($image_id);
 			// Translate
 			$r['post_title'] = __($r['post_title']);

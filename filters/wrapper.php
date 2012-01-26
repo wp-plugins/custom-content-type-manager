@@ -15,26 +15,34 @@ class CCTM_wrapper extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		if (empty($options) || empty($input)) {
-			return $input;
-		}
-		// array of before, after
-		elseif( is_array($options)) {
-			$before = '';
-			$after = '';
-			if (isset($options[0])) {
-				$before = $options[0];
+		$inputs = $this->to_array($input);
+		$output = '';
+		
+		foreach ($inputs as $input) {
+			if (empty($options) || empty($input)) {
+				$output .= $input;
 			}
-			if (isset($options[1])) {
-				$after = $options[1];
+			// array of before, after -- e.g. array('<li>', '</li>')
+			elseif( is_array($options)) {
+				$before = '';
+				$after = '';
+				if (isset($options[0])) {
+					$before = $options[0];
+				}
+				if (isset($options[1])) {
+					$after = $options[1];
+				}
+				
+				$output .= $before . $input . $after;
 			}
-			
-			return $before . $input . $after;
+			// formatting string
+			else {
+				$output .= CCTM::parse($options, array('content' => $input));
+			}
 		}
-		// formatting string
-		else {
-			return CCTM::parse($options, array('content' => $input));
-		}
+		
+		return $output;
+
 	}
 
 

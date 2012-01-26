@@ -63,7 +63,13 @@ $d['msg']    = '';  // Any validation errors
 // Save data if it was properly submitted
 if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) ) {
 	$sanitized_vals = CCTM_PostTypeDef::sanitize_post_type_def($_POST);
-	$sanitized_vals['custom_fields'] = $d['def']['custom_fields'];
+	if (isset($d['def']['custom_fields'])) {
+		$sanitized_vals['custom_fields'] = $d['def']['custom_fields'];
+	}
+	else {
+		$sanitized_vals['custom_fields'] = array();
+	}
+	
 	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals, true);
 
 	if ( empty($error_msg) ) {

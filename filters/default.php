@@ -18,6 +18,9 @@ class CCTM_default extends CCTM_OutputFilter {
 		if (empty($input)) {
 			return $options;
 		}
+		else {
+			return $input;
+		}
 	}
 
 

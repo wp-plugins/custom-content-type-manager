@@ -19,7 +19,7 @@ class CCTM_do_shortcode extends CCTM_OutputFilter {
 	 */
 	public function filter($input, $options=null) {
 		if ($options) {
-			
+			do_shortcode($input);
 		}
 		else {
 			return do_shortcode(wpautop($input));

@@ -16,17 +16,21 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		if ($input) {
-			$post = get_post($input);
-			$link_text = $post->post_title;
-			if (!empty($options)) {
-				$link_text = $options;
+		
+		$inputs = $this->to_array($input);
+		$output = '';
+		
+		foreach ($inputs as $input) {
+			if ($input) {
+				$post = get_post($input);
+				$link_text = $post->post_title;
+				if (!empty($options)) {
+					$link_text = $options;
+				}
+				$output .= sprintf('<a href="%s">%s</a>', $post->guid, $link_text);
 			}
-			return sprintf('<a href="%s">%s</a>', $post->guid, $link_text);
 		}
-		else {
-			return '';
-		}	
+		return $output;
 	}
 
 

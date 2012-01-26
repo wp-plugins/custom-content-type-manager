@@ -16,6 +16,7 @@ class CCTM_email extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+		
 		$output = '';
 		for ($i = 0; $i < strlen($input); $i++) { 
 			$output .= '&#'.ord($input[$i]).';'; 

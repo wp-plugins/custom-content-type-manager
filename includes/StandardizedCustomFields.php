@@ -339,9 +339,14 @@ class StandardizedCustomFields
 								}
 							}
 						}
-						
+						// Is this field required?
+						if ($FieldObj->required && empty($value_copy)) {
+							// set post to draft status, redirect to the edit page
+							// set flash message to notify user
+							update_post_meta($post_id, $field_name, $value);
+						}
 						// We do some more work to ensure the database stays lean
-						if(empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
+						elseif(empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
 							// Delete the row from wp_postmeta, or don't write it at all
 							delete_post_meta($post_id, $field_name);
 						}

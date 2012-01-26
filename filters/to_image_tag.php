@@ -15,7 +15,12 @@ class CCTM_to_image_tag extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options='full') {
-		return wp_get_attachment_image($input, $options);
+		$inputs = $this->to_array($input);
+		$output = '';
+		foreach ($inputs as $input) {
+			$output .= wp_get_attachment_image($input, $options);
+		}
+		return $output;
 	}
 
 
