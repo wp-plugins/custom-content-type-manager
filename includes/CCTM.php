@@ -85,6 +85,10 @@ class CCTM {
 	 * This contains the CCTM_Ajax object, stashed here for easy reference.
 	 */
 	public static $Ajax;
+	/**
+	 * Contains the CCTM_Columns object, used for custom columns.
+	 */
+	public static $Columns;
 
 	// Used to filter settings inputs (e.g. descriptions of custom fields or post-types)
 	public static $allowed_html_tags = '<a><strong><em><code><style>';
@@ -158,6 +162,8 @@ class CCTM {
 		, 'cache_directory_scans' => 1
 		, 'cache_thumbnail_images' => 0
 		, 'save_empty_fields' => 1
+		, 'summarizeposts_tinymce' => 1
+		, 'flush_permalink_rules' => 1
 	);
 
 	// Where are the icons for custom images stored?
@@ -979,6 +985,7 @@ class CCTM {
 	 * @return mixed
 	 */
 	public static function get_setting($setting) {
+		//die(print_r(self::$data, true));
 		if (empty($setting)) {
 			return '';
 		}
@@ -1270,8 +1277,7 @@ class CCTM {
 	 * register_post_type's "supports" array).
 	 *
 	 * @param mixed   normally a string, but if an array, the 2nd param must be set
-	 * @param string  value to look for inside the $input array.
-	 * @param unknown $find_in_array (optional)
+	 * @param string  $find_in_array (optional) value to look for inside the $input array.
 	 * @return string either '' or 'checked="checked"'
 	 */
 	public static function is_checked($input, $find_in_array='') {
@@ -1830,8 +1836,10 @@ class CCTM {
 		}
 		// Added per issue 50
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=50
-		global $wp_rewrite;
-		$wp_rewrite->flush_rules();
+		if (self::get_setting('flush_permalink_rules')){
+			global $wp_rewrite;
+			$wp_rewrite->flush_rules();		
+		}
 	}
 
 

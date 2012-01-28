@@ -33,7 +33,9 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
 	self::$data['settings']['cache_thumbnail_images'] 	= (int) CCTM::get_value($_POST, 'cache_thumbnail_images', 0);
 	self::$data['settings']['save_empty_fields'] 		= (int) CCTM::get_value($_POST, 'save_empty_fields', 0);
-
+	self::$data['settings']['summarizeposts_tinymce'] 		= (int) CCTM::get_value($_POST, 'summarizeposts_tinymce', 0);
+	self::$data['settings']['flush_permalink_rules'] 		= (int) CCTM::get_value($_POST, 'flush_permalink_rules', 0);
+	
 	update_option( self::db_key, self::$data );
 
 	$data['msg'] = '<div class="updated"><p>'
@@ -59,6 +61,8 @@ $checkboxes = array(
  	, 'cache_directory_scans'
  	, 'cache_thumbnail_images'
  	, 'save_empty_fields'
+ 	, 'summarizeposts_tinymce'
+ 	, 'flush_permalink_rules'
 );
 
 // this only works for checkboxes...

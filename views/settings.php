@@ -87,6 +87,24 @@
 			</label>
 			<span class="cctm_description"><?php _e("If checked, the CCTM will create a row in the postmeta table for the values for each post's custom fields. Uncheck this if you need to save some space in your database.", CCTM_TXTDOMAIN); ?></span>
 		</div>
+
+		<!--!Include Summarize Posts TinyMCE button -->		
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_summarizeposts_tinymce">
+			<input type="checkbox" name="summarizeposts_tinymce" class="cctm_checkbox" id="summarizeposts_tinymce" value="1" <?php print $data['settings']['summarizeposts_tinymce']; ?>/>
+			<label for="summarizeposts_tinymce" class="cctm_label cctm_checkbox_label" id="cctm_label_summarizeposts_tinymce">
+				<?php _e('Summarize Posts TinyMCE Button', CCTM_TXTDOMAIN); ?>
+			</label>
+			<span class="cctm_description"><?php _e("Provides a TinyMCE button for a graphically choosing search criteria and generating a Summarize Posts shortcode.", CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		<!--!Flush Permalink Rules -->		
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_flush_permalink_rules">
+			<input type="checkbox" name="flush_permalink_rules" class="cctm_checkbox" id="flush_permalink_rules" value="1" <?php print $data['settings']['flush_permalink_rules']; ?>/>
+			<label for="flush_permalink_rules" class="cctm_label cctm_checkbox_label" id="cctm_label_flush_permalink_rules">
+				<?php _e('Flush Permalink Rules', CCTM_TXTDOMAIN); ?>
+			</label>
+			<span class="cctm_description"><?php _e("Usually, you need the CCTM to flush the WordPress permalink rules in order to support URL mappings to your custom posts.  Other plugins may also do this, so you can save on the overhead by disabling this.", CCTM_TXTDOMAIN); ?></span>
+		</div>
 	
 		
 		<!--!Custom Field settings links -->

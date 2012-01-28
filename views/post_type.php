@@ -26,7 +26,7 @@ just want to make sure that the form is presented uncorrupted.
 	/* Hide some of the divs by default */
 	jQuery(document).ready(function(){
 		toggle_image_detail();
-		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
+//		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
 		toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');
 		jQuery('.checkall').click(function () {
 			jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
@@ -35,7 +35,14 @@ just want to make sure that the form is presented uncorrupted.
 		/* Drives the tab layout for this page. */
 		jQuery(function() {
 			jQuery( "#tabs" ).tabs();
-		});		
+		});
+		
+		/* Handle the sortable table(s) */
+		jQuery( "#custom-columns" ).sortable({
+				items: "tr:not(.no-sort)"
+			});
+		jQuery( "#custom-columns" ).disableSelection();
+
 	});
 	
 	
@@ -72,6 +79,19 @@ just want to make sure that the form is presented uncorrupted.
 
         }
 	}
+
+	/*------------------------------------------------------------------------------
+	Enables/Disables page attributes
+	------------------------------------------------------------------------------*/
+	function toggle_page_attributes() {
+		if( jQuery('#supports_page-attributes:checked').val()) {
+			//alert('Checked!');
+        }
+        else {
+			//alert('NOT Checked.');
+        }
+
+	}
 	
 	/* Used to send a full img path to the id="menu_icon" field */
 	function send_to_menu_icon(src)
@@ -80,6 +100,7 @@ just want to make sure that the form is presented uncorrupted.
 		// show the user some eye-candy so they know something happened
 		alert('<?php _e('Icon updated.', CCTM_TXTDOMAIN); ?>');
 	}	
+
 </script>
 
 <div id="tabs">
@@ -335,7 +356,7 @@ just want to make sure that the form is presented uncorrupted.
 				class="cctm_checkbox" 
 				id="supports_page-attributes" 
 				value="page-attributes" 
-				onclick="javascript:toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');" <?php print CCTM::is_checked($data['def']['supports'], 'page-attributes'); ?> />
+				onclick="javascript:toggle_page_attributes();" <?php print CCTM::is_checked($data['def']['supports'], 'page-attributes'); ?> />
 			<label for="supports_page-attributes" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_page-attributes">
 				<?php _e('Page Attributes', CCTM_TXTDOMAIN); ?>
 			</label>
@@ -410,6 +431,40 @@ just want to make sure that the form is presented uncorrupted.
 	
 	<!--!COLUMNS================================================================================================ -->
 	<div id="columns-tab">
+		<!-- cctm_custom_columns -->
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_custom_columns_enabled">
+			<input type="checkbox" name="cctm_custom_columns_enabled" class="cctm_checkbox" id="cctm_custom_columns_enabled" value="1" <?php print CCTM::is_checked(CCTM::get_value($data['def'],'cctm_custom_columns_enabled')); ?> /> 
+			<label for="cctm_custom_columns_enabled" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_custom_columns_enabled">
+			<?php _e('Customize Columns', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e("You can customize the columns visible when you display a list of all posts in this post-type. WARNING: the post-type name must not contain hyphens, only underscores.", CCTM_TXTDOMAIN); ?></span>
+		</div>
+		<br />
+		<!-- the columns -->
+		<table class="wp-list-table widefat plugins" cellspacing="0">
+			<thead>
+				<tr>
+					<th scope="col" id="sorter" class=""  style="width: 10px;">&nbsp;</th>
+					<th scope="col" id="selected" class=""><?php _e('Display', CCTM_TXTDOMAIN); ?></th>
+					<th scope="col" id="name" class=""  style="width: 200px;"><?php _e('Field', CCTM_TXTDOMAIN); ?></th>
+					<th scope="col" id="description" class="manage-column column-description"  style=""><?php _e('Description', CCTM_TXTDOMAIN); ?></th>	
+				</tr>
+			</thead>
+			
+			<tfoot>
+				<tr>
+					<th scope="col" id="sorter" class=""  style="">&nbsp;</th>
+					<th scope="col" id="selected" class="">&nbsp;</th>
+					<th scope="col" id="name" class=""  style="width: 200px;"><?php _e('Field', CCTM_TXTDOMAIN); ?></th>
+					<th scope="col" id="description" class="manage-column column-description"  style=""><?php _e('Description', CCTM_TXTDOMAIN); ?></th>	
+				</tr>
+			</tfoot>
+			
+			<tbody id="custom-columns">
+			
+				<?php if (isset($data['columns'])) { print $data['columns']; } ?>
+				
+			</tbody>
+		</table>
 		
 	</div>
 	
@@ -420,7 +475,6 @@ just want to make sure that the form is presented uncorrupted.
 		<!--!show_in_menu -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_show_in_menu">		
 			<label for="cctm_show_in_menu" class="cctm_label cctm_text_label" id="cctm_label_cctm_show_in_menu"><?php _e('Show in Menus', CCTM_TXTDOMAIN); ?></label>
-			<?php //print_r($data['def']); ?>
 			<select name="cctm_show_in_menu" class="cctm_dropdown" id="cctm_show_in_menu">
 				<option value="1" <?php print CCTM::is_selected('1',$data['def']['cctm_show_in_menu']); ?>><?php _e('Yes'); ?></option>
 				<option value="0" <?php print CCTM::is_selected('0',$data['def']['cctm_show_in_menu']); ?>><?php _e('No'); ?></option>

@@ -1,0 +1,118 @@
+<?php
+/**
+ * This handles custom columns when creating lists of the posts/pages in the manager.
+ * We use an object here so we can rely on a "dynamic funciton name" via __call() where
+ * the function called corresponds to the post-type name. 
+ *
+ * WARNING: this requires that the post-type is named validly, i.e. in a name that would
+ * be valid as a PHP function.
+ * See 
+ *	http://codex.wordpress.org/Plugin_API/Action_Reference/manage_posts_custom_column
+ *	http://codex.wordpress.org/Plugin_API/Filter_Reference/manage_edit-post_type_columns
+ *
+ * manage_edit-${post_type}_columns 
+ */
+class CCTM_Columns {
+
+	/**
+	 * Sets the post-type, e.g. 'books'
+	 */
+	public $post_type; 
+	
+	/**
+	 *
+	 * @param	string	$post_type
+	 * @param	array	$default_columns associative array (set by WP);
+	 * @return	array	associative array of column ids and translated names.
+	 */
+	public function __call($post_type, $default_columns) {
+		//return $default_columns;
+		$custom_columns = array('cb' => '<input type="checkbox" />',); // the output
+		$built_in_columns = array(
+			//'cb' => '<input type="checkbox" />',
+			'title' => __('Title'), // post_title
+			'author' => __('Author'), // lookup on wp_users
+			'comments' => __('Comments'),
+			'date' => __('Date')
+		);
+		$raw_columns = array();
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])) {
+			$raw_columns = CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'];
+		}
+		// The $raw_columns contains a simple array, e.g. array('field1','wonky');
+		// we need to create an associative array.
+		// Look up what kind of column this is.
+		foreach ($raw_columns as $c) {
+			if (isset($built_in_columns[$c])) {
+				$custom_columns[$c] = $built_in_columns[$c]; // already translated
+			}
+			// Custom Field
+			elseif (isset(CCTM::$data['custom_field_defs'][$c])) {
+				$custom_columns[$c] = __(CCTM::$data['custom_field_defs'][$c]['label']);
+			}
+			// Taxonomy
+			elseif (false) {
+			
+			}
+		}
+		return $custom_columns;
+		// die('here'. $post_type);	
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Populate the custom data for a given column.  This function should actually
+	 * *print* data, not just return it.
+	 *
+	 */
+	public function populate_custom_column_data($column) {
+		
+		global $post;
+
+//		print 'Here...' . $this->post_type;
+		if (isset(CCTM::$data['post_type_defs'][$this->post_type]['cctm_custom_columns'])) {
+		
+		}
+/*
+		if ('ID' == $column) echo $post->ID;
+		elseif ('agent' == $column) echo 'agent-name';
+		elseif ('price' == $column) echo 'money';
+		elseif ('status' == $column) echo 'status';
+*/
+
+		switch ($column)
+		{
+			case 'ID':
+				print $post->ID;
+				break;
+			case 'author':
+				print $post->post_author; // ???
+				break;
+			case 'title':
+				print __($post->post_title);
+				break;
+			// Only print the first collection it's a member of.
+/*
+			case 'collection':
+				$collections = get_the_terms( $post->ID, 'collection' );
+				if ($collections)
+				{
+					$first_collection = array_shift($collections);
+					print $first_collection->name;
+				}
+				break;
+*/
+			case 'order':
+				print $post->menu_order;
+				break;
+				
+			// Custom field?
+			default:
+				print_custom_field($column);
+				
+		}
+
+	}
+
+}
+/*EOF*/

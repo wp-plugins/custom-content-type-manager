@@ -4,6 +4,133 @@
  */
 class CCTM_PostTypeDef {
 
+	/**
+	 * Get all available columns (i.e. fields) for this post_type
+	 *
+	 * @param	string	$post_type
+	 * @param	string	HTML output 
+	 */
+	public static function get_columns($post_type) {
+	
+		$output = '';
+		//$built_in_columns = CCTM::$reserved_field_names;
+		$built_in_columns = array(
+			//'cb' => '<input type="checkbox" />',
+			'title' => __('Title'), // post_title
+			'author' => __('Author'), // lookup on wp_users
+			'comments' => __('Comments'),
+			'date' => __('Date')
+		);
+		
+		
+		$custom_fields = array();
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
+			$custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
+		}
+		$taxonomies = array();
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['taxonomies'])) {
+			$taxonomies = CCTM::$data['post_type_defs'][$post_type]['taxonomies'];
+		}
+		
+		
+		// Get selected columns (float to top)
+		$custom_columns = array();
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])) {
+			$custom_columns = CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'];
+		}
+
+		foreach ($custom_columns as $c) {
+			$d = array();
+			if (in_array($c, array_keys($built_in_columns))) {
+				$d['name'] = $c;
+				$d['label'] = $built_in_columns[$c]; 
+				$d['class'] = 'cctm_builtin_column';
+				$d['description'] = __('Built-in WordPress column.', CCTM_TXTDOMAIN);
+			}
+			elseif(in_array($c, $taxonomies)) {
+				$t = get_taxonomy($c);
+				if (isset($t)) {
+					$d['name'] = $c; 
+					$d['label'] = __($t->labels->singular_name);
+					$d['class'] = 'cctm_taxonomy_column';
+					$d['description'] = __('WordPress Taxonomy', CCTM_TXTDOMAIN);						
+				}
+			}
+			elseif(in_array($c, $custom_fields)) {
+				if (isset(CCTM::$data['custom_field_defs'][$c])) {
+					$d['name'] = CCTM::$data['custom_field_defs'][$c]['name'];
+					$d['label'] = CCTM::$data['custom_field_defs'][$c]['label'];
+					$d['class'] = 'cctm_custom_column';
+					$d['description'] = CCTM::$data['custom_field_defs'][$c]['description'];			
+				}			
+			}
+			else {
+				continue;
+			}
+			$d['is_checked'] = 'checked="checked"';		
+			$output .= CCTM::load_view('tr_column.php', $d);		
+		}
+		
+		// Separator
+		$output .= '<tr class="no-sort"><td colspan="4" style="background-color:#ededed;"><hr /></td></tr>';
+
+		
+		// Get built-in columns		
+		foreach ($built_in_columns as $c => $label) {
+			if (in_array($c, $custom_columns)) {
+				continue;
+			}
+			$d = array();
+			$d['name'] = $c;
+			$d['label'] = $label;
+			$d['class'] = 'cctm_builtin_column';
+			$d['description'] = __('Built-in WordPress column.', CCTM_TXTDOMAIN);
+			$d['is_checked'] = '';
+		
+			$output .= CCTM::load_view('tr_column.php', $d);
+		}
+
+		
+		// Get custom fields
+		foreach ($custom_fields as $c) {
+			if (in_array($c, $custom_columns)) {
+				continue;
+			}
+			if (isset(CCTM::$data['custom_field_defs'][$c])) {
+				$d = array();				
+				$d['name'] = CCTM::$data['custom_field_defs'][$c]['name'];	
+				$d['label'] = CCTM::$data['custom_field_defs'][$c]['label'];	
+				$d['class'] = 'cctm_custom_column';
+				$d['description'] = CCTM::$data['custom_field_defs'][$c]['description'];			
+				$d['is_checked'] = '';
+
+				$output .= CCTM::load_view('tr_column.php', $d);
+					
+			}
+		}
+		
+		// Get taxonomies
+		foreach ($taxonomies as $taxonomy) {
+			if (in_array($taxonomy, $custom_columns)) {
+				continue;
+			}
+			$t = get_taxonomy($taxonomy);
+			if (isset($t)) {
+//				die(print_r($t,true));
+				$d['name'] = $taxonomy; //$t->labels->singular_name;	
+				$d['label'] = $t->labels->singular_name;
+				$d['class'] = 'cctm_taxonomy_column';
+				$d['description'] = __('WordPress Taxonomy', CCTM_TXTDOMAIN);
+				$d['is_checked'] = '';
+
+				$output .= CCTM::load_view('tr_column.php', $d);		
+			}
+		}		
+
+		return $output;	
+		
+	}
+
 	//------------------------------------------------------------------------------
 	/**
 	 *

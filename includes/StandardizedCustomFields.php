@@ -51,14 +51,11 @@ class StandardizedCustomFields
 	 *
 	 * @return boolean
 	 */
-	 private static function _is_new_post()
-	{
-		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'post-new.php' )
-		{
+	 private static function _is_new_post() {
+		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'post-new.php' ) {
 			return true;
 		}
-		else
-		{
+		else {
 			return false;
 		}
 	}

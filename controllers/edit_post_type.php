@@ -1,25 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
-
-
-* Manager Page -- called by page_main_controller()
 * Edit an existing post type. 
-* @param string $post_type
+* @param string $post_type (from $_GET)
 */
-
-// We can't edit built-in post types -- gotta edit this for when we change the post_type name
-/*
-if (!self::_is_existing_post_type($post_type, false ) ) {
-	if (!empty($_POST) && isset($_POST['original_post_type_name'])) {
-		if (!self::_is_existing_post_type($post_type, false ) ) {
-		
-		}
-	}
-	die('post_type does not exist:' . $post_type);
-	self::format_errors();
-	return;
-}
-------------------------------------------------------------------------------*/
 
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
@@ -128,6 +111,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 }
 
 $d['icons'] = CCTM_PostTypeDef::get_post_type_icons();
+$d['columns'] = CCTM_PostTypeDef::get_columns($post_type);
 $data['content'] = CCTM::load_view('post_type.php', $d);
 print CCTM::load_view('templates/default.php', $data);
 

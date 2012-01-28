@@ -277,3 +277,16 @@ span.cctm_close_rollover:hover {
 .cctm_thickbox_menu {
 	padding-bottom: 20px;
 }
+
+/* Custom Columns :: Format various types of rows */
+.cctm_builtin_column td {
+	background-color: #C1C1C1;
+}
+
+.cctm_custom_column td {
+	background-color: white;
+}
+
+.cctm_taxonomy_column td {
+	background-color: #C2DDEA;
+}

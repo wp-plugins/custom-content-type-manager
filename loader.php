@@ -42,18 +42,21 @@ add_action( 'admin_notices', 'CCTM::print_notices');
 
 if ( empty(CCTM::$errors) )
 {
+	// Load up the CCTM data from wp_options, populates CCTM::$data
+	CCTM::load_data();
+
 	// Shortcodes
 	add_shortcode('summarize-posts', 'SummarizePosts::get_posts');
 	add_shortcode('summarize_posts', 'SummarizePosts::get_posts');
 
 	// Summarize Posts Tiny MCE button
-	add_filter('mce_external_plugins', 'SummarizePosts::tinyplugin_register');
-	add_filter('mce_buttons', 'SummarizePosts::tinyplugin_add_button', 0);
+	if (CCTM::get_setting('summarizeposts_tinymce')) {
+//		die('....>'.CCTM::get_setting('summarizeposts_tinymce'));
+		add_filter('mce_external_plugins', 'SummarizePosts::tinyplugin_register');
+		add_filter('mce_buttons', 'SummarizePosts::tinyplugin_add_button', 0);
+	}
 	//add_action('init','PHP_Snippet_Functions::init');
 
-
-	// Load up the CCTM data from wp_options, populates CCTM::$data
-	CCTM::load_data();
 	//print_r(CCTM::$data); exit;
 	
 	// Run any updates for this version.
@@ -85,6 +88,23 @@ if ( empty(CCTM::$errors) )
 
 		// Used to modify the large post icon
 		add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
+		
+		// Handle Custom Columns: this is only relevant for the edit.php?post_type=xxxx pages
+		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'edit.php' ) {
+			$post_type = CCTM::get_value($_GET, 'post_type');
+			if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
+				&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1) {
+				require_once('includes/CCTM_Columns.php');
+				require_once('includes/functions.php');
+				CCTM::$Columns = new CCTM_Columns();
+				CCTM::$Columns->post_type = $post_type;
+				// Draw the column headers
+				add_filter("manage_edit-{$post_type}_columns" , array(CCTM::$Columns, $post_type));
+				// Handle the data in each cell
+				add_action('manage_posts_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
+			}		
+		}
+
 	}
 	
 	// Enable archives for custom post types
