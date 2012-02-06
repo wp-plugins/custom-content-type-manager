@@ -310,7 +310,12 @@ If you are eager to see a particular feature implemented in a future release, pl
 
 And if you REALLY want some of these features implemented, you can hire me to complete portions of your project or make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N).  Many of the surges in development in this plugin were instigated by projects that required this plugin's use.
 
+
 == Upgrade Notice ==
+
+= 0.9.5.7 =
+
+Adds required fields, fixes bugs with relation fields.
 
 = 0.9.5.6 =
 

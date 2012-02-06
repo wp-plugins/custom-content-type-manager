@@ -960,11 +960,55 @@ class GetPostsQuery {
 	 * OUTPUT:
 	 * An array of results.
 	 *
-	 * You can't use the WP query_posts() function here because the global $wp_the_query
+	 * NOTE: You can't use the WP query_posts() function here because the global $wp_the_query
 	 * isn't defined yet.  get_posts() works, however, but its format is kinda whack.
-	 * Jeezus H. Christ. Crufty ill-defined API functions.
-	 * http://shibashake.com/wordpress-theme/wordpress-query_posts-and-get_posts
+	 * See http://shibashake.com/wordpress-theme/wordpress-query_posts-and-get_posts
 	 *
+	 * The goal here is to get full data for all posts that match the filter criteria.  
+	 * There may be the following cases:
+	 	1. No filters (just get me the data)
+	 	2. Filters on just the primary wp_posts table
+	 	3. Filters on just the secondary wp_postmeta table
+	 	4. Filters on both the wp_posts and wp_postmeta table.
+	 	
+	 The problem we must avoid comes with large data sets: too many rows and the JOINS (???) become unbearably slow.
+	 Remember: the goal is to get all post-data (including custom fields) for each post returned, and 
+	 we want to do it with the least number of trips to the database.
+	 
+	 Here's how we might handle the queries:
+	 
+	 Case 1: Count number of matching rows.
+	 		 Get all matching posts from wp_posts, subject to limit/offset clauses
+	 		 Grab the post IDs, then pass them to a 2nd query on wp_postmeta e.g.
+	 			SELECT * from wp_postmeta WHERE post_id IN (...)
+	 		 Normalize all custom fields.
+	 		 Merge the result-sets
+	 		
+	 Case 2: Count number of matching rows in wp_posts.
+	 		 Filter on the wp_posts table, return the matching rows.  Then it's the same as #1
+	 
+	 Case 3: Count number of matching rows in wp_postmeta.
+	 		 Filter on the wp_postmeta table, return the matching rows.
+	 		 Normalize all custom fields.
+	 		 Grab the unique post_IDs from the secondary result set, pass them to a 2nd query on wp_posts, e.g.
+		 		SELECT * from wp_posts WHERE ID IN (...)
+	 		 Merge the result-sets
+	 
+	 Case 4: Count # of matching rows??? 
+	 		 Filter on the wp_posts table, return matching rows.
+	 		 Filter on the wp_postmeta table, return matching rows.
+	 		 Conduct a union of the two sets
+	 
+	 The pitfalls here are many: pagination, especially, can be a total headache.  There is a limit to the # of integers
+	 that can be specified in a single IN(...) statement.
+	 
+	 Maybe this will work if we do the following:
+	 is the GROUP_CONCAT the bottleneck?  Do it in PHP instead.
+	 OR
+	 Use the big beefy query to count rows and fetch only relevant post IDs (subject to limit/offset clauses).
+	 Next then use a simple query on wp_posts retrieving all data, then use a simple query on wp_post_meta, retrieving 
+	 all data, then merge the result-sets in PHP.
+	 
 	 * @return string
 	 */
 	private function _get_sql() {

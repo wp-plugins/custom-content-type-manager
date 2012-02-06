@@ -19,6 +19,7 @@ class CCTM_checkbox extends CCTM_FormElement
 		'checked_by_default' => '0',
 		'checked_value' => '1',
 		'unchecked_value' => '0',
+		'required' => '',
 		'class' => '',
 		'extra' => '',
 		'is_checked' => '',
@@ -130,6 +131,10 @@ class CCTM_checkbox extends CCTM_FormElement
 		if (isset($def['checked_by_default']) && $def['checked_by_default']==1) {
 			$is_checked = 'checked="checked"';
 		}
+		$req_is_checked = '';
+		if (isset($def['required']) && $def['required'] == 1) {
+			$req_is_checked = 'checked="checked"';
+		}
 
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
@@ -188,6 +193,15 @@ class CCTM_checkbox extends CCTM_FormElement
 			 		<input type="text" name="class" class="cctm_text" id="class" value="'
 			.htmlspecialchars($def['class']).'"/>
 			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		// Is Required?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
+				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
+			. __('Required?', CCTM_TXTDOMAIN) .
+			'</label>
+				 <br />
+				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
 			 	</div>';
 
 		// Description

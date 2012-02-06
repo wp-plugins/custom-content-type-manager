@@ -19,6 +19,7 @@ class CCTM_date extends CCTM_FormElement
 		'extra' => '',
 		'date_format' => '',
 		'default_value' => '',
+		'required' => '',
 		'evaluate_default_value' => 0,
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
@@ -173,6 +174,10 @@ class CCTM_date extends CCTM_FormElement
 		if (isset($def['evaluate_default_value'])) {
 			$is_checked = 'checked="checked"';
 		}
+		$req_is_checked = '';
+		if (isset($def['required']) && $def['required'] == 1) {
+			$req_is_checked = 'checked="checked"';
+		}
 
 		$is_repeatable_checked = '';
 		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
@@ -284,7 +289,16 @@ class CCTM_date extends CCTM_FormElement
 				 <br />
 				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_repeatable_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
 			 	</div>';
-
+			 	
+		// Is Required?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
+				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
+			. __('Required?', CCTM_TXTDOMAIN) .
+			'</label>
+				 <br />
+				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
+			 	</div>';
+			 	
 		// Description
 		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
 			 	<label for="description" class="'.self::label_css_class.'">'

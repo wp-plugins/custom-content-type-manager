@@ -9,7 +9,7 @@
 	
 	<span class="button" onclick="javascript:thickbox_results('[+id+]',true);">[+button_label+]</span>
 	<span class="button" onclick="javascript:remove_all_relations('[+id+]');">Remove All</span>
-	<span class="button" onclick="javascript:cctm_upload('[+id+]','append');">Upload</span>
+
 	<!-- target is where the thickbox will be generated -->
 	<div id="target_[+id+]"></div>
 	<div id="cctm_instance_wrapper_[+id+]" class="cctm_instance_wrapper">

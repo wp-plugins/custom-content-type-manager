@@ -19,6 +19,7 @@ class CCTM_relation extends CCTM_FormElement
 		'class' => '',
 		'extra' => '',
 		'is_repeatable' => '',
+		'required' => '',
 		'default_value' => '',
 		'search_parameters' => '',
 		'output_filter' => 'to_link_href',
@@ -204,6 +205,10 @@ class CCTM_relation extends CCTM_FormElement
 		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
 			$is_checked = 'checked="checked"';
 		}
+		$req_is_checked = '';
+		if (isset($def['required']) && $def['required'] == 1) {
+			$req_is_checked = 'checked="checked"';
+		}
 		
 		// Note fieldtype: used to set the default value on new fields
 		$out = '<input type="hidden" id="fieldtype" value="relation" />';
@@ -290,6 +295,15 @@ class CCTM_relation extends CCTM_FormElement
 			'</label>
 				 <br />
 				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
+			 	</div>';
+
+		// Is Required?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
+				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
+			. __('Required?', CCTM_TXTDOMAIN) .
+			'</label>
+				 <br />
+				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
 			 	</div>';
 
 		// Description

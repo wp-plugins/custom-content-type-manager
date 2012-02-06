@@ -78,7 +78,10 @@ if ( empty(CCTM::$errors) )
 		add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
 		add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
 		add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
-	
+		
+		// Message user if required field is missing or validation failed
+		add_filter('post_updated_messages', 'CCTM::validation_messages');
+		
 		// Customize the page-attribute box for custom page hierarchies
 		add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
 
@@ -93,7 +96,9 @@ if ( empty(CCTM::$errors) )
 		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'edit.php' ) {
 			$post_type = CCTM::get_value($_GET, 'post_type');
 			if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
-				&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1) {
+				&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
+				&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
+				&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) ) {
 				require_once('includes/CCTM_Columns.php');
 				require_once('includes/functions.php');
 				CCTM::$Columns = new CCTM_Columns();
@@ -102,9 +107,12 @@ if ( empty(CCTM::$errors) )
 				add_filter("manage_edit-{$post_type}_columns" , array(CCTM::$Columns, $post_type));
 				// Handle the data in each cell
 				add_action('manage_posts_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
+				// Handle the sorting on custom columns
+				add_filter('posts_join', array(CCTM::$Columns, 'posts_join') );
+				//add_filter('posts_where', array(CCTM::$Columns, 'posts_where') );
+				//add_filter('posts_groupby', array(CCTM::$Columns, 'posts_groupby') );
 			}		
 		}
-
 	}
 	
 	// Enable archives for custom post types
@@ -116,7 +124,6 @@ if ( empty(CCTM::$errors) )
 	
 	// Forces front-end searches to return results for all registered post_types
 	add_filter('pre_get_posts','CCTM::search_filter');
-	
 	
 	// Modifies the "Right Now" widget
 	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');

@@ -1,6 +1,6 @@
 <?php
 /**
- * This handles custom columns when creating lists of the posts/pages in the manager.
+ * This handles custom columns when creating lists of posts/pages in the manager.
  * We use an object here so we can rely on a "dynamic funciton name" via __call() where
  * the function called corresponds to the post-type name. 
  *
@@ -63,12 +63,15 @@ class CCTM_Columns {
 	/**
 	 * Populate the custom data for a given column.  This function should actually
 	 * *print* data, not just return it.
+	 * Oddly, WP doesn't even send the column this way unless it is something custom.
 	 *
 	 */
 	public function populate_custom_column_data($column) {
-		
+		print_custom_field($column.':formatted_list');
+		return; 
 		global $post;
-
+//		print 'x'; return;
+//return $column;
 //		print 'Here...' . $this->post_type;
 		if (isset(CCTM::$data['post_type_defs'][$this->post_type]['cctm_custom_columns'])) {
 		
@@ -108,11 +111,45 @@ class CCTM_Columns {
 				
 			// Custom field?
 			default:
-				print_custom_field($column);
+				print_custom_field($column.':formatted_list');
 				
 		}
-
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Custom joining on postmeta table for sorting on custom columns
+	 */
+	public function posts_join($join) {
+	
+		global $wpdb;
+	
+		// We don't want searches
+		if(is_search() ) {
+			return $join;
+		}
+		
+		$post_type = CCTM::get_value($_GET, 'post_type');
+		if (empty($post_type)) {
+			return $join;
+		}
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(CCTM::$data['post_type_defs'][$post_type]['custom_orderby'])) {
+			$column = CCTM::$data['post_type_defs'][$post_type]['custom_orderby'];
+			// Req'd to sort on custom column
+			if (!in_array($column, CCTM::$reserved_field_names)) {
+				$join .= $wpdb->prepare(" LEFT JOIN {$wpdb->postmeta} ON  {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = %s", $column);
+			}
+		}
+			
+		return $join;	
+	}
+	
+	public function posts_where($where) {
+	
 	}
 
+	public function posts_groupby($groupby) {
+	
+	}
 }
 /*EOF*/

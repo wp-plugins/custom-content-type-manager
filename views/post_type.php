@@ -674,19 +674,7 @@ just want to make sure that the form is presented uncorrupted.
 				<?php _e('Order By', CCTM_TXTDOMAIN); ?>
 			</label>
 			<select name="custom_orderby" class="cctm_dropdown" id="custom_orderby">
-				<option value=""><?php _e('Default', CCTM_TXTDOMAIN); ?></option>
-				<option value="ID" <?php 			print CCTM::is_selected('ID',$data['def']['custom_orderby']); ?>>ID</option>
-				<option value="post_author" <?php 	print CCTM::is_selected('post_author',$data['def']['custom_orderby']); ?>>post_author</option>
-				<option value="post_date" <?php 	print CCTM::is_selected('post_date',$data['def']['custom_orderby']); ?>>post_date</option>
-				<option value="post_content" <?php 	print CCTM::is_selected('post_content',$data['def']['custom_orderby']); ?>>post_content</option>
-				<option value="post_title" <?php 	print CCTM::is_selected('post_title',$data['def']['custom_orderby']); ?>>post_title</option>
-				<option value="post_excerpt" <?php 	print CCTM::is_selected('post_excerpt',$data['def']['custom_orderby']); ?>>post_excerpt</option>
-				<option value="post_status" <?php 	print CCTM::is_selected('post_status',$data['def']['custom_orderby']); ?>>post_status</option>
-				<option value="post_modified" <?php print CCTM::is_selected('post_modified',$data['def']['custom_orderby']); ?>>post_modified</option>
-				<option value="post_parent" <?php 	print CCTM::is_selected('post_parent',$data['def']['custom_orderby']); ?>>post_parent</option>
-				<option value="menu_order" <?php 	print CCTM::is_selected('menu_order',$data['def']['custom_orderby']); ?>>menu_order</option>
-				<option value="post_type" <?php 	print CCTM::is_selected('post_type',$data['def']['custom_orderby']); ?>>post_type</option>
-				<option value="comment_count" <?php 	print CCTM::is_selected('comment_count',$data['def']['custom_orderby']); ?>>comment_count</option>
+				<?php print $data['orderby_options']; ?>
 			</select>
 			<span class="cctm_description"><?php _e('How do you want your posts to sort?', CCTM_TXTDOMAIN); ?></span>
 		</div>

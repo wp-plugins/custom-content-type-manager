@@ -371,7 +371,8 @@ class CCTM {
 	 */
 	public static function admin_init() {
 
-		load_plugin_textdomain( CCTM_TXTDOMAIN, false, CCTM_PATH.'/lang/' );
+		// Load up the textdomain(s) for translations
+		self::load_file('/config/lang/dictionaries.php');
 
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		$page = self::get_value($_GET, 'page');
@@ -1186,7 +1187,7 @@ class CCTM {
 		$fieldtype = self::get_value($_GET, 'type');
 		$fieldname = self::get_value($_GET, 'field');
 		$action = self::get_value($_GET, 'a');
-		
+		$post_type = 'post'; // default
 		// Bail if we're not on the relevant pages
 		if (!in_array($page,array('post.php','post-new.php','admin.php'))) {
 			return;
@@ -1577,8 +1578,15 @@ class CCTM {
 		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])) {
 			global $wpdb;
 			$order = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_order', 'ASC');
-			$orderBy = "{$wpdb->posts}.".self::$data['post_type_defs'][$post_type]['custom_orderby'] . " $order";
-
+			$column = self::$data['post_type_defs'][$post_type]['custom_orderby'];
+			if (in_array($column, self::$reserved_field_names)) {
+				$orderBy = "{$wpdb->posts}.$column $order";
+			}
+			// Sort on custom column (would require that custom columns are enabled)
+			else {
+				$orderBy = "{$wpdb->postmeta}.$column $order";
+				$orderBy = "{$wpdb->postmeta}.meta_key $order";			
+			}
 		}
 		return $orderBy;
 	}
@@ -2055,6 +2063,44 @@ class CCTM {
 		return $value;
 	}
 
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Used to message the user if a req'd field was omitted or validation failed.
+	 * The message displayed comes from $_GET['message']
+	 */
+	public static function validation_messages($msgs) {
+//		die(print_r($msgs, true));
+//		die(print_r($_POST, true));	
+		$flash = self::get_flash();
+		$validation_errors = json_decode( $flash, true);
+		if (!empty($validation_errors)) {
+			$msg = '';
+			foreach($validation_errors as $field_name => $error) {
+				if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
+					continue;
+				}
+				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
+				if (CCTM::include_form_element_class($field_type)) {
+					$field_type_name = CCTM::classname_prefix.$field_type;
+					$FieldObj = new $field_type_name(); // Instantiate the field element
+					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
+					
+					if ($error == 'required') {
+						$msg .= sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
+					}
+					else {
+						// get other validation error 
+					}
+				}
+			}
+			self::set_flash($flash); // pass this on to the StandardizeCustomFields
+			$msgs['post'][6] = $msg;
+			$msgs['page'][6] = $msg; 
+		}
+		
+		return $msgs;
+	}
 
 }
 

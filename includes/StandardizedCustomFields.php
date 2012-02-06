@@ -190,7 +190,8 @@ class StandardizedCustomFields
 		$custom_fields = self::_get_custom_fields($post_type);
 		$output = '';		
 				
-		// Show the big icon: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
+		// Show the big icon @ top of page: 
+		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
 		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
 			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
 			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
@@ -207,10 +208,12 @@ class StandardizedCustomFields
 		}
 
 		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
-		if ( empty($custom_fields) )
-		{
+		if ( empty($custom_fields) ) {
 			return;
 		}
+		
+		// Check req'd & other validation errors
+		$validation_errors = json_decode( CCTM::get_flash(), true);		
 		
 		foreach ( $custom_fields as $cf ) {
 			if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
@@ -230,6 +233,11 @@ class StandardizedCustomFields
 			else {
 				//$current_value = htmlspecialchars( get_post_meta( $post->ID, $def['name'], true ) );
 				$current_value = get_post_meta( $post->ID, $def['name'], true );
+				// set error class if field did not validate... cctm_validation_error
+				if (isset($validation_errors[$def['name']])) {
+					$def['class'] .= ' cctm_validation_error';
+				}
+
 				$FieldObj->set_props($def);
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}
@@ -241,9 +249,7 @@ class StandardizedCustomFields
 		$output .= '<input type="hidden" name="_cctm_nonce" value="'. wp_create_nonce('cctm_create_update_post') . '" />';
 
  		// Print the form
- 		print '<div class="form-wrap">';		
-	 	print $output;
-	 	print '</div>';
+ 		print '<div class="form-wrap">'.$output.'</div>';
  
 	}
 
@@ -309,6 +315,7 @@ class StandardizedCustomFields
 
 		if ( !empty($_POST) ) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
+			$validation_errors = array();
 			foreach ( $custom_fields as $field_name ) {
 				if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
 					continue;
@@ -321,10 +328,10 @@ class StandardizedCustomFields
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 										
-					// Custom fields can return a literal null if they don't ever save data to the db.
+					// Custom fields can return a literal null if they don't save data to the db.
 					if ($value !== null) {
 					
-						// Check for empty json arrays, e.g. ["",""]
+						// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
 						$value_copy = $value;
 						if ($FieldObj->is_repeatable) {
 							$value_copy = json_decode(stripslashes($value), true);
@@ -336,10 +343,14 @@ class StandardizedCustomFields
 								}
 							}
 						}
-						// Is this field required?
+						// Is this field required?  OR did validation fail?
 						if ($FieldObj->required && empty($value_copy)) {
-							// set post to draft status, redirect to the edit page
+							// Override!! set post to draft status
+							global $wpdb;
+							$post_id = (int) CCTM::get_value($_POST, 'ID');
+							$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $post_id ) );
 							// set flash message to notify user
+							$validation_errors[$FieldObj->name] = 'required';
 							update_post_meta($post_id, $field_name, $value);
 						}
 						// We do some more work to ensure the database stays lean
@@ -356,7 +367,12 @@ class StandardizedCustomFields
 				else {
 					// error!
 				}
-			}			
+			}
+			
+			// Pass validation errors like this: fieldname => validator, e.g. myfield => required
+			if (!empty($validation_errors)) {
+				CCTM::set_flash(json_encode($validation_errors));
+			}
 		}
 	}
 

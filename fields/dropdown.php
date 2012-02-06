@@ -15,6 +15,7 @@ class CCTM_dropdown extends CCTM_FormElement
 		'class' => '',
 		'extra' => '',
 		'default_value' => '',
+		'required' => '',
 		'options' => array(),
 		'values' => array(), // only used if use_key_values = 1
 		'use_key_values' => 0, // if 1, then 'options' will use key => value pairs.
@@ -205,6 +206,10 @@ class CCTM_dropdown extends CCTM_FormElement
 			$is_checked = 'checked="checked"';
 			$readonly_str = '';
 		}
+		$req_is_checked = '';
+		if (isset($def['required']) && $def['required'] == 1) {
+			$req_is_checked = 'checked="checked"';
+		}
 
 		// Label
 		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
@@ -341,6 +346,15 @@ class CCTM_dropdown extends CCTM_FormElement
 				 <label for="display_type_radio" class="cctm_label cctm_radio_label" id="display_type_radio_label">'
 			. __('Radio Button', CCTM_TXTDOMAIN) .
 			'</label><br />
+			 	</div>';
+
+		// Is Required?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
+				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
+			. __('Required?', CCTM_TXTDOMAIN) .
+			'</label>
+				 <br />
+				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
 			 	</div>';
 
 		// Description

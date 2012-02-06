@@ -52,7 +52,7 @@ $d['fieldname'] = $raw_fieldname;
 $fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $raw_fieldname);
 
 $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
-
+//print '<pre>'.print_r($def, true).'</pre>';
 if (!empty($fieldtype)) {
 	$def['type'] = $fieldtype;
 }
@@ -67,7 +67,7 @@ $args = array();
 if (isset($_POST['search_parameters'])) {
 
 
-	// print '<pre> HERE...'. print_r($_POST['search_parameters'], true).'</pre>';
+	//print '<pre> HERE...'. print_r($_POST['search_parameters'], true).'</pre>';
 //	$d['content'] .= '<pre>HERE... '. print_r($_POST['search_parameters'], true).'</pre>';
 	parse_str($_POST['search_parameters'], $args);
 
