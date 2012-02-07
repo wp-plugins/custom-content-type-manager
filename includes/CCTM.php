@@ -1428,7 +1428,7 @@ class CCTM {
 	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
 	 * @param	mixed	file name used on success, false on fail.
 	 */
-	public static function load_file($files, $additional_paths=null) {
+	public static function load_file($files, $additional_paths=array()) {
 
 		if (!is_array($files)){
 			$files = array($files);
@@ -1494,7 +1494,7 @@ class CCTM {
 	 * @param	array|string	(optional) $additional_paths: this adds one more path to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
 	 * @return	string	the file contents (not parsed) OR a boolean false if nothing was found.
 	 */
-	public static function load_tpl($tpls, $additional_paths=null) {
+	public static function load_tpl($tpls, $additional_paths=array()) {
 
 		if (!is_array($tpls)){
 			$tpls = array($tpls);
@@ -1955,7 +1955,6 @@ class CCTM {
 			printf('<td class="t %s">%s</td></tr>', $post_type->name, $text);
 		}
 	}
-
 
 	//------------------------------------------------------------------------------
 	/**

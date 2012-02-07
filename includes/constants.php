@@ -15,7 +15,16 @@ define('CCTM_TXTDOMAIN', 'custom-content-type-mgr');
 
 // For 3rd Party components
 $upload_dir = wp_upload_dir();
-define('CCTM_3P_PATH', $upload_dir['basedir'].'/cctm');
-define('CCTM_3P_URL', $upload_dir['baseurl'].'/cctm');
+
+// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=313
+if (!isset($upload_dir['basedir'])) {
+	// We have to do this here because CCTM::$errors is not yet available
+	CCTM::$errors[] = __('CCTM could not read the WordPress upload directory path!', CCTM_TXTDOMAIN);
+	error_log('CCTM could not read the WordPress upload directory path! See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=313');
+} 
+else {
+	define('CCTM_3P_PATH', $upload_dir['basedir'].'/cctm');
+	define('CCTM_3P_URL', $upload_dir['baseurl'].'/cctm');
+}
 
 /*EOF*/

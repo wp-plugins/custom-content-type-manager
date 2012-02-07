@@ -56,6 +56,16 @@ function custom_content_type_manager_cannot_load()
 	
 }
 
+/**
+ * Run on plugin activation or on demand.  This will populate CCTM::$errors if errors are encountered.
+ */ 
+function cctm_run_tests() {
+	require_once('includes/CCTM.php');
+	require_once('includes/constants.php');
+	require_once('tests/CCTMtests.php');
+	CCTMtests::run_tests();
+}
+
 /*------------------------------------------------------------------------------
 The following code tests whether or not this plugin can be safely loaded.
 If there are no conflicts, the loader.php is included and the plugin is loaded,
@@ -88,6 +98,9 @@ foreach ($constants_used as $c_name )
 		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Constant', 'custom-content-type-mgr'), $f_name );
 	}
 }
+
+// Check stuff when the plugin is activated.
+register_activation_hook(__FILE__, 'cctm_run_tests');
 
 // Fire the error, or load the plugin.
 if ($error_items)

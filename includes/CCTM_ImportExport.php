@@ -584,7 +584,7 @@ class CCTM_ImportExport {
 		if ( empty($raw['title'])) {
 			CCTM::$errors['title'] = __('Title is required.', CCTM_TXTDOMAIN);
 		}
-		elseif ( preg_match('/[^a-z\s\-_0-9]/i', $raw['title']) ) {
+		elseif ( preg_match('/[^a-z\s\-\._0-9]/i', $raw['title']) ) {
 			CCTM::$errors['title'] = __('Only basic text characters are allowed for the title.', CCTM_TXTDOMAIN);
 		}
 		elseif ( strlen($raw['title'] > 64) ) {
@@ -633,7 +633,7 @@ class CCTM_ImportExport {
 		}
 
 		// HTML entities cleanup
-		$sanitized['title'] 		= htmlspecialchars( substr( preg_replace('/[^a-z\s\-_0-9]/i', '', trim($raw['title']) ), 0, 64) );
+		$sanitized['title'] 		= htmlspecialchars( substr( preg_replace('/[^a-z\s\-\._0-9]/i', '', trim($raw['title']) ), 0, 64) );
 		$sanitized['author'] 		= htmlspecialchars( substr( preg_replace('/[^a-z\s\-_0-9\.@]/i', '', trim($raw['author']) ), 0, 64) );
 		$sanitized['url'] 			= htmlspecialchars( substr( trim($raw['url']), 0, 255) );
 		$sanitized['template_url'] 	= htmlspecialchars( substr( trim($raw['template_url']), 0, 255) );

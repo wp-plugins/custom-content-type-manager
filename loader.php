@@ -12,25 +12,17 @@ Run tests only upon activation
 http://codex.wordpress.org/Function_Reference/register_activation_hook
 */
 // Always Required Files
-require_once('includes/constants.php'); // needed before anything else
 require_once('includes/CCTM.php');
+require_once('includes/constants.php');
 require_once('includes/SummarizePosts.php');
 require_once('includes/GetPostsQuery.php');
 
 // Admin-only files
 if( is_admin()) {
 	require_once('includes/StandardizedCustomFields.php');
-	require_once('tests/CCTMtests.php');
 	require_once('includes/CCTM_FormElement.php');
 	require_once('includes/CCTM_Ajax.php');
 	CCTM::$Ajax = new CCTM_Ajax();
-	
-	// Run Tests (add new tests to the CCCTMtests class as req'd)
-	// If there are errors, CCTMtests::$errors will get populated.
-	CCTMtests::wp_version_gt(CCTM::wp_req_ver);
-	CCTMtests::php_version_gt(CCTM::php_req_ver);
-	CCTMtests::mysql_version_gt(CCTM::mysql_req_ver);
-	CCTMtests::incompatible_plugins( array('Magic Fields','Custom Post Type UI','CMS Press') );
 }
 // Front-end Only files
 else {

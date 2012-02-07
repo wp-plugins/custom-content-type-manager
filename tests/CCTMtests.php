@@ -134,9 +134,10 @@ class CCTMtests
 	public static function php_version_gt($ver) {
 		
 		if ( version_compare( phpversion(), $ver, '<') ) {
-			$exit_msg = sprintf( __('%1$s requires PHP %2$s or newer', CCTM_TXTDOMAIN )
+			$exit_msg = sprintf( __('%1$s requires PHP %2$s or newer.', CCTM_TXTDOMAIN )
 				,  CCTM::name
 				, $ver );
+			$exit_msg .= ' ';	
 			$exit_msg .= __('Talk to your system administrator about upgrading.', CCTM_TXTDOMAIN);	
 			CCTM::$errors[] = $exit_msg;
 		}
@@ -162,12 +163,38 @@ class CCTMtests
 					, CCTM::name
 					, $req
 				);
-				
+				$msg .= ' ';
 				$msg .= __('Talk to your system administrator about reconfiguring PHP.', CCTM_TXTDOMAIN);
 				CCTM::$errors[] = $msg;
 			}
 		}
 	
 	}
+
+	/**
+	 * List all tests to run here.
+	 * If there are errors, CCTMtests::$errors will get populated.
+	 * Die on error.
+	 */
+	public static function run_tests() {
+		// Run Tests (add new tests to the CCCTMtests class as req'd)
+		self::wp_version_gt(CCTM::wp_req_ver);
+		self::php_version_gt(CCTM::php_req_ver);
+		self::mysql_version_gt(CCTM::mysql_req_ver);
+
+		self::incompatible_plugins( array('Magic Fields','Custom Post Type UI','CMS Press') );
+		
+		if (!empty(CCTM::$errors)) {
+			$msg = '<h3>'. sprintf( __('The %s plugin encountered errors! It cannot load!', CCTM_TXTDOMAIN)
+				, CCTM::name) . '</h3>';
+			$msg .= '<ul>';
+			foreach (CCTM::$errors as $e) {
+				$msg .= '<li>'.$e.'</li>';
+			}
+			$msg .= '</ul>';
+			die($msg);  // We can't work with the errors.
+		}
+	}
+	
 }
 /*EOF*/
