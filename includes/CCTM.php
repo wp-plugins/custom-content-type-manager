@@ -2066,11 +2066,11 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * Used to message the user if a req'd field was omitted or validation failed.
-	 * The message displayed comes from $_GET['message']
+	 * The message displayed comes from $_GET['message']... this is kinda a 
+	 * dumb way of doing this, but 
 	 */
 	public static function validation_messages($msgs) {
-//		die(print_r($msgs, true));
-//		die(print_r($_POST, true));	
+	
 		$flash = self::get_flash();
 		$validation_errors = json_decode( $flash, true);
 		if (!empty($validation_errors)) {
@@ -2089,11 +2089,21 @@ class CCTM {
 						$msg .= sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 					}
 					else {
-						// get other validation error 
+						// get other validation errors
 					}
 				}
 			}
-			self::set_flash($flash); // pass this on to the StandardizeCustomFields
+			// Pop a validation message
+			$msg .= '<script type="text/javascript">
+				jQuery(document).ready(function() {
+				  alert("'.__('There were validation errors. This record will be kept in draft status until the errors are resolved.', CCTM_TXTDOMAIN).'");
+				});
+			</script>';
+			// You have to print the style because WP is overriding styles after the cctm manager.css is included.
+			$msg .= '<style>';
+			$msg .= file_get_contents(CCTM_PATH.'/css/validation.css');
+			$msg .= '</style>';
+			self::set_flash($flash); // pass this on to the StandardizeCustomFields ???
 			$msgs['post'][6] = $msg;
 			$msgs['page'][6] = $msg; 
 		}

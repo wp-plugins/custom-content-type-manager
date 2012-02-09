@@ -290,12 +290,3 @@ span.cctm_close_rollover:hover {
 .cctm_taxonomy_column td {
 	background-color: #C2DDEA;
 }
-
-/* Fires when a field fails validation */
-label.cctm_validation_error {
-	color:red;
-	border: 1px solid red;
-}
-input.cctm_validation_error {
-	background-color:#ff8a96;
-}

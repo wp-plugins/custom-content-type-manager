@@ -221,6 +221,11 @@ class StandardizedCustomFields
 				continue;
 			}
 			$def = CCTM::$data['custom_field_defs'][$cf];
+			
+			if (isset($def['required']) && $def['required'] == 1) {
+				$def['label'] = $def['label'] . '*'; // Add asterisk
+			}
+			
 			$output_this_field = '';
 			CCTM::include_form_element_class($def['type']); // This will die on errors
 			$field_type_name = CCTM::classname_prefix.$def['type'];

@@ -3,7 +3,7 @@
 	<table>
 		<tr>
 			<td>
-				<a href="[+preview_url+]" target="_blank" title="[+preview+]">
+				<a href="[+guid+]" target="_blank" title="[+preview+]">
 					<img class="cctm_tiny_thumb" src="[+thumbnail_url+]" height="32" width="32" alt=""/>
 				</a>
 			</td>

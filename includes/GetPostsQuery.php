@@ -933,7 +933,13 @@ class GetPostsQuery {
 				
 				$this->direct_filter_flag =  true;
 				$this->direct_filter_columns[] = $arg;
-				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.':'.htmlspecialchars($val).'</em>');
+				if (is_array($val)){
+					$val_str = implode(',',$val);
+				}
+				else {
+					$val_str = $val;
+				}
+				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.':'.htmlspecialchars($val_str).'</em>');
 				// We can easily filter for integers...
 				if (in_array($arg, array('ID','post_parent','menu_order','comment_count'))) {
 					return (int) $val;
