@@ -132,7 +132,7 @@ class GetPostsQuery {
 		'exclude'  => '', // comma-sparated string or array of IDs. Any posts you want to exclude from search results.
 		'append'  => '', // comma-sparated string or array of IDs. Any posts you always want to include *in addition* to any search criteria. (This uses the 'OR' criteria)
 
-		// used to search custom fields
+		// verbose way to search custom fields.  You can also specify keys that correspond to field names.
 		'meta_key'  => '',
 		'meta_value' => '',
 
@@ -361,7 +361,7 @@ class GetPostsQuery {
 
 			$results = $wpdb->get_results( $query, ARRAY_A );
 
-			if ( empty($restuls) ) {
+			if ( empty($results) ) {
 				break; // if there are no results, then we've traced this out.
 			}
 
@@ -370,6 +370,7 @@ class GetPostsQuery {
 				$all_terms_array[] = $r['name']; // append
 				$parent_terms_array[] = $r['name']; // and set this for the next generation
 			}
+			$i++;
 		}
 
 		return array_unique($all_terms_array);
@@ -657,7 +658,7 @@ class GetPostsQuery {
 			// '=', '!=', '>', '>=', '<', '<=', '^', '$'
 			foreach ($val as $k => $v) {
 				if (is_numeric($k)) {
-					break;
+					break; // if it's numeric, the operator was not supplied verbosely, so we assume '='
 				}
 				
 				switch($k) {
@@ -718,6 +719,7 @@ class GetPostsQuery {
 				$this->omit_post_type = $new_omits;
 			}
 		} 
+
 		// Don't do this: WP uses 'ID' as a db column
 		//$arg = strtolower($arg);
 		
@@ -1643,12 +1645,16 @@ class GetPostsQuery {
 	 * @return array  result set
 	 */
 	public function get_posts($args=array(), $ignore_defaults=false) {
+		global $wpdb;
 		
 		if ($ignore_defaults) {
 			$this->set_defaults(array(), true);
 		}
 		
-		global $wpdb;
+		// Include no IDs = empty result set
+		if (isset($args['include']) && empty($args['include'])) {
+			return array(array());
+		}
 		
 		foreach ($args as $k => $v) {
 			$this->$k = $v; // this will utilize the _sanitize_arg() function.

@@ -236,11 +236,12 @@ class StandardizedCustomFields
 				$output_this_field = $FieldObj->get_create_field_instance();
 			}
 			else {
+				//print_r($validation_errors); exit;
 				//$current_value = htmlspecialchars( get_post_meta( $post->ID, $def['name'], true ) );
 				$current_value = get_post_meta( $post->ID, $def['name'], true );
 				// set error class if field did not validate... cctm_validation_error
-				if (isset($validation_errors[$def['name']])) {
-					$def['class'] .= ' cctm_validation_error';
+				if (isset($validation_errors[$def['name']]) && $def['name'] == $validation_errors[$def['name']]) {
+					//$def['class'] .= ' cctm_validation_error';
 				}
 
 				$FieldObj->set_props($def);

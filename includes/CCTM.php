@@ -379,7 +379,7 @@ class CCTM {
 
 		// Only add our junk if we are creating/editing a post or we're on
 		// on of our CCTM pages
-		if ( in_array($file, array('post.php', 'post-new.php', 'edit.php')) || preg_match('/^cctm.*/', $page) ) {
+		if ( in_array($file, array('post.php', 'post-new.php', 'edit.php', 'widgets.php')) || preg_match('/^cctm.*/', $page) ) {
 
 			wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
 			wp_enqueue_style('CCTM_css');
@@ -402,7 +402,7 @@ class CCTM {
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226
 			$data = array();
 			$data['cctm_url'] = CCTM_URL;
-			$data['ajax_url'] = admin_url( 'admin-ajax.php' );
+			$data['ajax_url'] = admin_url('admin-ajax.php');
 			$data['ajax_nonce'] = wp_create_nonce('ajax_nonce');			
 			wp_localize_script( 'cctm_manager', 'cctm', $data );
 

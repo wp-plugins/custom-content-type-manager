@@ -146,7 +146,7 @@ and if the custom field *is* a list of items, then attach it as such.
 */
 function get_post_complete($id) {
 	$complete_post = get_post($id, ARRAY_A);
-	// die(print_r($complete_post,true));
+
 	if ( empty($complete_post) ) {
 		return array();
 	}
@@ -305,12 +305,40 @@ function print_custom_field_meta($fieldname, $item, $post_type=null) {
 	print call_user_func_array('get_custom_field_meta', func_get_args());
 }
 
+
 //------------------------------------------------------------------------------
 /**
- * Show posts that link to this post via a relation field.
+ * Print posts that link to this post via a relation field.
  * @param	string	$tpl
  */
 function print_incoming_links($tpl=null) {
+	if (empty($tpl)) {
+		$tpl = '<span><a href="[+permalink+]">[+post_title+] ([+ID+])</a></span> &nbsp;';
+	}
+	
+	$Q = new GetPostsQuery();
+	$args = array();
+	
+	$args['include'] = get_incoming_links();
+//	$args['post_status'] = 'draft,publish,inherit';
+	
+	$results = $Q->get_posts($args);
+	
+	$output = '';
+	foreach ($results as $r) {
+		$output .= CCTM::parse($tpl, $r);
+	}
+
+	print $output;
+
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Get posts that link to this post via a relation field.
+ * @return array post IDs
+ */
+function get_incoming_links() {
 	
 	require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 	require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
@@ -318,9 +346,6 @@ function print_incoming_links($tpl=null) {
 	global $post;
 	global $wpdb;
 	
-	if (empty($tpl)) {
-		$tpl = '<span><a href="post.php?post=[+ID+]&action=edit">[+post_title+] ([+ID+])</a></span> &nbsp;';
-	}
 	
 	// We need fields that point to THIS post
 	$post_id = $post->ID;
@@ -404,19 +429,7 @@ function print_incoming_links($tpl=null) {
 		$mixed[] = $r['post_id'];
 	}
 	
-	$Q = new GetPostsQuery();
-	$args = array();
-	$args['include'] = array_unique($mixed);
-//	$args['post_status'] = 'draft,publish,inherit';
-	
-	$results = $Q->get_posts($args);
-	
-	$output = '';
-	foreach ($results as $r) {
-		$output .= CCTM::parse($tpl, $r);
-	}
-
-	print $output;
+	return array_unique($mixed);
 }
 
 /*EOF*/

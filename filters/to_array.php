@@ -16,16 +16,25 @@ class CCTM_to_array extends CCTM_OutputFilter {
 	 */
 	public function filter($input, $options=null) {
 		$the_array = array();
-		
-		if (is_array($input)) {
+//		print '------>'; print_r($input); print '<--------';
+		// Check for empty JSON arrays.  
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=315
+		if ($input == '[""]') {
+			return array();
+		}
+		elseif (is_array($input)) {
 			$the_array = $input; // No JSON converting necessary: PHP array supplied.
 		}
 		else {
 			$output = json_decode($input, true);
-	
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
-			if ( !is_array($output) ) {
-				$the_array = array($output);
+			if ( !is_array($output)) {
+				if (!empty($output)) {
+					$the_array = array($output);
+				}
+				else {
+					$the_array = array();
+				}			
 			}
 			else {
 				$the_array = $output;

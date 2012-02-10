@@ -67,8 +67,8 @@ class CCTM_Columns {
 	 *
 	 */
 	public function populate_custom_column_data($column) {
-		print_custom_field($column.':formatted_list');
-		return; 
+//		print_custom_field($column.':formatted_list');
+//		return; 
 		global $post;
 //		print 'x'; return;
 //return $column;
@@ -111,7 +111,7 @@ class CCTM_Columns {
 				
 			// Custom field?
 			default:
-				print_custom_field($column.':formatted_list');
+				print_custom_field($column);
 				
 		}
 	}
