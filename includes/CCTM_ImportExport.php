@@ -516,15 +516,7 @@ class CCTM_ImportExport {
 				}
 			}
 		}
-		
-		// Check encoding, warn if it differs (warn only: it may not be a problem for the importer)
-		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=322
-		$this_charset = get_bloginfo('charset');
-		if (isset($def['export_info']['_charset']) && $def['export_info']['_charset'] != $this_charset) {
-			CCTM::$warnings['encoding'] = sprintf( __("Your site's encoding differs from the encoding used to create this definition file.  This may create problems if the post-type and field definitions use foreign characters.  Adding the following to your wp-config.php file may alleviate problems with character encoding: <code>define('DB_CHARSET', '%s');</code>", CCTM_TXTDOMAIN)
-			, $def['export_info']['_charset']); 
-		}
-		
+				
 		return $def;
 	}
 	

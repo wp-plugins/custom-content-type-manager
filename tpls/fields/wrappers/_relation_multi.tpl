@@ -15,6 +15,6 @@
 	<div id="cctm_instance_wrapper_[+id+]" class="cctm_instance_wrapper">
 		[+content+]
 	</div> 
-	
+	[+error_msg+]
 	<p class="cctm_description">[+description+]</p>
 </div>

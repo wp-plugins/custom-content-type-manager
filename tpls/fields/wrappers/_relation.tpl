@@ -8,6 +8,6 @@
 	<div id="cctm_instance_wrapper_[+id+]">
 		[+content+]
 	</div> 
-	
+	[+error_msg+]
 	<p class="cctm_description">[+description+]</p>
 </div>

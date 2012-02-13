@@ -200,10 +200,15 @@ class CCTM {
 
 
 	/**
-	 * used to store validation errors. The errors take this format:
+	 * used to store some validation errors or serious problems. The errors take this format:
 	 * self::$errors['field_name'] = 'Description of error';
 	 */
 	public static $errors;
+
+	/**
+	 * Used by the "required" fields and any custom validations on post/page fields.
+	 */
+	public static $post_validation_errors;
 
 	/**
 	 * Used for search parameters

@@ -66,6 +66,8 @@ class StandardizedCustomFields
 
 		global $post;
 		
+		$error_flag = false; // goes to true if there are errors, forces post to draft status
+		
 		$Q = new GetPostsQuery();
 		$full_post = $Q->get_post($post->ID);
 		
@@ -102,12 +104,12 @@ class StandardizedCustomFields
 				
 				// Is this field required?  OR did validation fail?
 				if ($FieldObj->required && empty($value_copy)) {
-					// Override!! set post to draft status
-					global $wpdb;
-					$post_id = (int) CCTM::get_value($_POST, 'ID');
-					$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $post_id ) );
-					
-					$validation_errors[$FieldObj->name] = 'required';
+					$error_flag = true;					
+					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->name);
+				}
+				// Do any other validation checks here
+				else {
+				
 				}
 				
 			}
@@ -116,14 +118,15 @@ class StandardizedCustomFields
 			}
 		}
 		
-		if(!empty($validation_errors)) {
-			$output = '<div class="error"><p>'
+		// Print any validation errors.
+		if(!empty(CCTM::$post_validation_errors)) {
+			$output = '<div class="error"><p><strong>'
 				. __('This post has validation errors.  The post will remain in draft status until they are corrected.', CCTM_TXTDOMAIN) 
-				. '</p>
+				. '</strong></p>
 				<ul>';
-			// TODO: clean this up and localize it.
-			foreach ($validation_errors as $fieldname => $e) {
-				$output .= '<li>'.$fieldname .' '. $e.'</li>';
+			
+			foreach (CCTM::$post_validation_errors as $fieldname => $e) {
+				$output .= '<li>'.$e.'</li>';
 			}
 			$output .= '</ul></div>';
 			
@@ -134,13 +137,20 @@ class StandardizedCustomFields
 			// We can use this variable to pass data to a point later in the page request. 
 			// global $cctm_validation;
 			// CCTM::$errors 
-			// CCTM::$errors['my_field'] = array('required' => 'This field is required', 'other_validator' => 'Some other thing is wrong');
+			// CCTM::$errors['my_field'] = 'This is the validation error with that field';
 			
-			//$output .= '<style>';
-			//$output .= file_get_contents(CCTM_PATH.'/css/validation.css');
-			//$output .= '</style>';
+			$output .= '<style>';
+			$output .= file_get_contents(CCTM_PATH.'/css/validation.css');
+			$output .= '</style>';
 
 			print $output;
+		}
+		
+		// Override!! set post to draft status if there were validation errors.
+		if ($error_flag) {
+			global $wpdb;
+			$post_id = (int) CCTM::get_value($_POST, 'ID');
+			$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $post_id ) );
 		}
 	}
 
@@ -336,6 +346,11 @@ class StandardizedCustomFields
 			}
 			else {
 				$current_value = get_post_meta( $post->ID, $def['name'], true );
+				// Check for validation errors.
+				if (isset(CCTM::$post_validation_errors[ $def['name'] ])) {
+					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', CCTM::$post_validation_errors[ $def['name'] ]);
+					$def['class'] .= 'cctm_validation_error';
+				}
 				$FieldObj->set_props($def);
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}

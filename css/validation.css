@@ -17,3 +17,8 @@ label.cctm_validation_error {
 input.cctm_validation_error {
 	background-color:#ff8a96;
 }
+
+span.cctm_validation_error {
+	color: red;
+	display: block;
+}

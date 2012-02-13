@@ -4,6 +4,6 @@
 	</label>
 	
 	[+content+]
-	
+	[+error_msg+]
 	<span class="cctm_description">[+description+]</span>
 </div>
