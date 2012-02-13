@@ -174,8 +174,9 @@ class CCTM {
 	public static $built_in_post_types = array('post', 'page');
 
 	// Names that are off-limits for custom post types b/c they're already used by WP
+	// Re "preview" see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=321
 	public static $reserved_post_types = array('post', 'page', 'attachment', 'revision'
-		, 'nav_menu', 'nav_menu_item');
+		, 'nav_menu', 'nav_menu_item', 'preview');
 
 	// Custom field names are not allowed to use the same names as any column in wp_posts
 	public static $reserved_field_names = array('ID', 'post_author', 'post_date', 'post_date_gmt',
@@ -396,7 +397,6 @@ class CCTM {
 			wp_enqueue_script('jquery-ui-dialog');
 
 			wp_enqueue_script('cctm_manager', CCTM_URL . '/js/manager.js' );
-			//wp_enqueue_script('cctm_manager', CCTM_URL . '/js/summarize_posts.js' );
 
 			// The following makes PHP variables available to Javascript the "correct" way.
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=226

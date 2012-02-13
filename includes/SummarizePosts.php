@@ -22,19 +22,9 @@ class SummarizePosts
 	const db_key			= 'summarize_posts';
 	const admin_menu_slug 	= 'summarize_posts';
 	
-	public static $group_concat_max_len	= 4096;  // bump this if you've got a lot of custom fields
 	
 	// The default options after being read from get_option()
 	public static $options; 
-	
-	// This goes to true if we were unable to increase the group_concat_max_len MySQL variable.
-	// If true, this means we have to run an additional query for EACH post returned in order to
-	// get that post's meta-data (i.e. to get that post's custom fields).  It's generally much
-	// faster if we don't have to do that, but the crazy complicated MySQL query that grabs it 
-	// all in one go does not work on all servers because it requires a beefy setting for the 
-	// 'group_concat_max_len' variable, or the ability to set it manually before we do our big
-	// query.
-	public static $manually_select_postmeta = false;
 	
 	const txtdomain 	= 'summarize-posts';
 	
@@ -204,26 +194,15 @@ class SummarizePosts
 	public function get_post_complete($id)
 	{
 		$complete_post = get_post($id, self::$options['output_type']);
-		if ( empty($complete_post) )
-		{
+		if ( empty($complete_post) ) {
 			return array();
 		}
 		$custom_fields = get_post_custom($id);
-		if (empty($custom_fields))
-		{
+		if (empty($custom_fields)) {
 			return $complete_post;
 		}
-		foreach ( $custom_fields as $fieldname => $value )
-		{
-			if ( self::$options['output_type'] == OBJECT )
-			{			
-				$complete_post->$fieldname = $value[0];
-			}
-			// ARRAY_A
-			else
-			{
-				$complete_post[$fieldname] = $value[0];		
-			}
+		foreach ( $custom_fields as $fieldname => $value ) {
+			$complete_post[$fieldname] = $value[0];		
 		}
 		
 		return $complete_post;	

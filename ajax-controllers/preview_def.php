@@ -19,6 +19,7 @@ include_once(CCTM_PATH.'/includes/CCTM_ImportExport.php');
 
 // Make sure a file was specified
 $filename = CCTM::get_value($_REQUEST,'file');
+
 if (empty($filename)) {
 	print CCTM::format_error_msg( __('Definition file not specified.', CCTM_TXTDOMAIN));
 	exit;
@@ -26,7 +27,7 @@ if (empty($filename)) {
 
 // Make sure the filename is legit
 if (!CCTM_ImportExport::is_valid_basename($filename)) {
-	CCTM::format_error_msg( __('Invalid filename: the definition filename should not contain spaces and should use an extension of <code>.cctm.json</code>.', CCTM_TXTDOMAIN));
+	print CCTM::format_error_msg( __('Invalid filename: the definition filename should not contain spaces and should use an extension of <code>.cctm.json</code>.', CCTM_TXTDOMAIN));
 	exit;
 }
 
@@ -35,6 +36,7 @@ $upload_dir = wp_upload_dir();
 $dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::def_dir .'/';
 
 $data = CCTM_ImportExport::load_def_file($dir.$filename);
+$data['filename'] = $filename;
 
 // Bail if there were errors
 if (!empty(CCTM::$errors)) {
@@ -42,7 +44,15 @@ if (!empty(CCTM::$errors)) {
 	exit;
 }
 
-$data['filename'] = $filename;
+// Check encoding, warn if it differs (warn only: it may not be a problem for the importer)
+// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=322
+$this_charset = get_bloginfo('charset');
+if (isset($data['export_info']['_charset']) && $data['export_info']['_charset'] != $this_charset) {
+	CCTM::$errors['encoding'] = sprintf( __("Your site's encoding differs from the encoding used to create this definition file.  This may create problems if the post-type and field definitions use foreign characters.  Adding the following to your wp-config.php file may alleviate problems with character encoding: <code>define('DB_CHARSET', '%s');</code>", CCTM_TXTDOMAIN)
+	, $data['export_info']['_charset']); 
+}
+
+print CCTM::format_errors(); // but do NOT exit.  It's only a warning, so we continue.
 
 print CCTM::load_view('preview_def.php', $data);
 

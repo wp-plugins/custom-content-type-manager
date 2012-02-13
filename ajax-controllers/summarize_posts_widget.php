@@ -1,6 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
-This is 
+This is what drives the search forms that pop when you define a Summarize Posts 
+Widget.
+
 Remember: the output here MUST be wrapped in HTML tags, otherwise jQuery's .html()
 method will kack.
 ------------------------------------------------------------------------------*/

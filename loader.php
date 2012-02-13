@@ -73,7 +73,7 @@ if ( empty(CCTM::$errors) )
 		add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
 		
 		// Message user if required field is missing or validation failed
-		add_filter('post_updated_messages', 'CCTM::validation_messages');
+//		add_filter('post_updated_messages', 'CCTM::validation_messages');
 		
 		// Customize the page-attribute box for custom page hierarchies
 		add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
@@ -100,6 +100,8 @@ if ( empty(CCTM::$errors) )
 				add_filter("manage_edit-{$post_type}_columns" , array(CCTM::$Columns, $post_type));
 				// Handle the data in each cell
 				add_action('manage_posts_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
+				add_action('manage_pages_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
+				
 				// Handle the sorting on custom columns
 				add_filter('posts_join', array(CCTM::$Columns, 'posts_join') );
 				//add_filter('posts_where', array(CCTM::$Columns, 'posts_where') );

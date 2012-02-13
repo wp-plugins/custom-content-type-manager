@@ -67,15 +67,7 @@ class CCTM_Columns {
 	 *
 	 */
 	public function populate_custom_column_data($column) {
-//		print_custom_field($column.':formatted_list');
-//		return; 
-		global $post;
-//		print 'x'; return;
-//return $column;
-//		print 'Here...' . $this->post_type;
-		if (isset(CCTM::$data['post_type_defs'][$this->post_type]['cctm_custom_columns'])) {
-		
-		}
+
 /*
 		if ('ID' == $column) echo $post->ID;
 		elseif ('agent' == $column) echo 'agent-name';
@@ -83,37 +75,7 @@ class CCTM_Columns {
 		elseif ('status' == $column) echo 'status';
 */
 
-		switch ($column)
-		{
-			case 'ID':
-				print $post->ID;
-				break;
-			case 'author':
-				print $post->post_author; // ???
-				break;
-			case 'title':
-				print __($post->post_title);
-				break;
-			// Only print the first collection it's a member of.
-/*
-			case 'collection':
-				$collections = get_the_terms( $post->ID, 'collection' );
-				if ($collections)
-				{
-					$first_collection = array_shift($collections);
-					print $first_collection->name;
-				}
-				break;
-*/
-			case 'order':
-				print $post->menu_order;
-				break;
-				
-			// Custom field?
-			default:
-				print_custom_field($column);
-				
-		}
+		print_custom_field($column);
 	}
 	
 	//------------------------------------------------------------------------------

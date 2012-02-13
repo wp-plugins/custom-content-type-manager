@@ -201,14 +201,14 @@ class CCTM_ImportExport {
 			return true;
 		}
 		else {
-			CCTM::$errors['file_exists'] = sprintf(__('An error was encountered while trying to write to the definition library directory (%s). Please check the permissions on your server.', CCTM_TXTDOMAIN)
+			CCTM::$errors['file_exists'] = sprintf(__('An error was encountered while trying to write to the definition library directory (%s). Please check the file permissions on your server.', CCTM_TXTDOMAIN)
 				, "<code>$dir</code>");
 			return false;
 		}
 	}
 
 	/**
-	 * see http://pastebin.com/api
+	 * FUTURE: see http://pastebin.com/api
 	 */
 	public static function export_to_pastebin() {
 
@@ -488,6 +488,7 @@ class CCTM_ImportExport {
 	 * @return	mixed	
 	 */
 	public static function load_def_file($filename) {
+
 		if (!file_exists($filename)) {
 			CCTM::$errors['definition_not_found'] = sprintf(__('The definition file could not be found: %s', CCTM_TXTDOMAIN), "<code>$filename</code>");
 			return array();
@@ -514,6 +515,14 @@ class CCTM_ImportExport {
 					$d['menu_icon'] = '/'. $subdir . $d['menu_icon'];
 				}
 			}
+		}
+		
+		// Check encoding, warn if it differs (warn only: it may not be a problem for the importer)
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=322
+		$this_charset = get_bloginfo('charset');
+		if (isset($def['export_info']['_charset']) && $def['export_info']['_charset'] != $this_charset) {
+			CCTM::$warnings['encoding'] = sprintf( __("Your site's encoding differs from the encoding used to create this definition file.  This may create problems if the post-type and field definitions use foreign characters.  Adding the following to your wp-config.php file may alleviate problems with character encoding: <code>define('DB_CHARSET', '%s');</code>", CCTM_TXTDOMAIN)
+			, $def['export_info']['_charset']); 
 		}
 		
 		return $def;

@@ -66,6 +66,7 @@
 		<hr />
 		<strong><?php _e('Source file', CCTM_TXTDOMAIN); ?>:</strong> <?php print $data['filename']; ?><br />
 		<strong><?php _e('Created in CCTM Version', CCTM_TXTDOMAIN); ?>:</strong> <?php print $data['export_info']['_cctm_version']; ?><br />
+		<strong><?php _e('Database Encoding', CCTM_TXTDOMAIN); ?>:</strong> <?php print $data['export_info']['_charset']; ?><br />
 		<strong><?php _e('Date Created', CCTM_TXTDOMAIN); ?>:</strong> <?php print strftime('%Y-%m-%d %H:%M:%S', $data['export_info']['_timestamp_export']); ?><br />
 	</form>
 </div>

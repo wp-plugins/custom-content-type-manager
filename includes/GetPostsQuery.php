@@ -377,6 +377,34 @@ class GetPostsQuery {
 
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Given an array of post_ids, look up all the metadata for those posts. This needs
+	 * to come back keyed off of post_id so we can merge it later.
+	 *
+	 * @param	array	$post_ids array of integer post ids
+	 * @return	array	associative array of associative arrays, keyed off post_id
+	 */
+	public function _append_posts_metadata($post_ids) {
+		global $wpdb; 
+		
+		if (empty($post_ids)) {
+			return array(array());
+		}
+		
+		$id_str = implode(',',$post_ids);
+		
+		$query = "SELECT * FROM {$wpdb->postmeta} WHERE post_id IN($id_str)";
+		
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		
+		$output = array();
+		foreach ($results as $r) {
+			$output[ $r['post_id'] ][ $r['meta_key'] ] = $r['meta_value'];
+		}
+		
+		return $output;
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1032,7 +1060,6 @@ class GetPostsQuery {
 			, author.display_name as 'author'
 			, thumbnail.ID as 'thumbnail_id'
 			, thumbnail.guid as 'thumbnail_src'
-			, metatable.metadata
 
 			[+select_metasortcolumn+]
 
@@ -1046,15 +1073,6 @@ class GetPostsQuery {
 				AND thumb_join.meta_key='_thumbnail_id'
 			LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value
 			LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID={$wpdb->postmeta}.post_id
-			LEFT JOIN
-			(
-				SELECT
-				{$wpdb->postmeta}.post_id,
-				CONCAT( GROUP_CONCAT( CONCAT({$wpdb->postmeta}.meta_key,'[+colon_separator+]', {$wpdb->postmeta}.meta_value) SEPARATOR '[+comma_separator+]'), '[+caboose+]') as metadata
-				FROM {$wpdb->postmeta}
-				[+hidden_fields+]
-				GROUP BY {$wpdb->postmeta}.post_id
-			) metatable ON {$wpdb->posts}.ID=metatable.post_id
 
 			[+join_for_metasortcolumn+]
 
@@ -1659,7 +1677,7 @@ class GetPostsQuery {
 		foreach ($args as $k => $v) {
 			$this->$k = $v; // this will utilize the _sanitize_arg() function.
 		}
-		
+
 		// if we are doing hierarchical queries, we need to trace down all the components before
 		// we do our query!
 
@@ -1667,13 +1685,6 @@ class GetPostsQuery {
 			&& ($this->taxonomy_term || $this->taxonomy_slug)
 			&& $this->taxonomy_depth > 1) {
 			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
-		}
-		
-		// Bump the group_concat_max_len unless the user has selected to manually select it.
-		if ( !SummarizePosts::$manually_select_postmeta ) {
-			$query = $wpdb->prepare("SET SESSION group_concat_max_len=%d", SummarizePosts::$group_concat_max_len);
-			$wpdb->query($query);			
-			//TODO: run a simplified query... ugh... all the filters required would suck.
 		}
 			
 		// Execute the big old query.
@@ -1690,44 +1701,24 @@ class GetPostsQuery {
 			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
 		}
 
+		// Get additional data for each post and collect the ids
+		$post_ids = array();
 		foreach ($results as &$r) {
-		
-			if ( !empty($r['metadata']) ) {
-				// Manually grab the data
-				if ( SummarizePosts::$manually_select_postmeta ) {
-					$r = SummarizePosts::get_post_complete($r['ID']);
-				}
-				// Parse out the metadata, concat'd by MySQL
-				else {
-					$caboose = preg_quote(self::caboose);
-					$count = 0;
-					$r['metadata'] = preg_replace("/$caboose$/", '', $r['metadata'], -1, $count );
-					if (!$count) {
-						$this->errors[] = __('There was a problem accessing custom fields. Try increasing the <code>group_concat_max_len</code> setting.', CCTM_TXTDOMAIN);
-						$r = SummarizePosts::get_post_complete($r['ID']);
-					}
-					else {
-						$pairs = explode( self::comma_separator, $r['metadata'] );
-						foreach ($pairs as $p) {
-							list($key, $value) = explode(self::colon_separator, $p);
-							$r[$key] = $value;
-						}
-					}
-				}
-			}
-
-			unset($r['metadata']); // remove the concatenated meta data.
-
-			// Additional Data
 			$r['permalink']  = get_permalink( $r['ID'] );
 			$r['parent_permalink'] = get_permalink( $r['parent_ID'] );
-			// See http://stackoverflow.com/questions/3602941/why-isnt-apply-filterthe-content-outputting-anything
-			// $r['the_content']  = get_the_content(); // only works inside the !@#%! loop
-			// $r['the_content']  = apply_filters('the_content', $r['post_content']); // this will loop and die if you hit a [summarize_posts] shortcode!
-			//$r['the_author'] = get_the_author(); // only works inside the !@#%! loop
 			$r['post_id']  = $r['ID'];
+			$post_ids[] = (int) $r['ID'];
 		}
 
+		$postmeta = $this->_append_posts_metadata($post_ids);
+		
+		// Merge post data and postmeta data
+		foreach ($results as &$r) {
+			if (isset($postmeta[$r['ID']]) ) {
+				$r = array_merge($r, $postmeta[$r['ID']]);
+			}
+		}
+		
 		$results = $this->_normalize_recordset($results);
 
 		// Optionally adjust date format (depends on the 'date_format' option)

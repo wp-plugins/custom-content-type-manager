@@ -24,7 +24,8 @@ if ( file_exists($dir) && is_dir($dir) ) {
 	// Read the files
 	$data['defs_array'] = CCTM_ImportExport::get_defs();
 	
-} elseif ( !mkdir ( $dir, self::new_dir_perms, true) ) {
+} 
+elseif (!@mkdir($dir, self::new_dir_perms, true)) {
 	$data['msg'] = sprintf('<div class="error"><p>%s</p></div>'
 		, __('Failed to create the CCTM base storage directory: <code>'.$dir.'</code></p>
 		<p><a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Permissions" target="_blank">Click here</a> for more information about correcting permissions errors on your server.</p>')
@@ -92,7 +93,7 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 				$basename .= CCTM_ImportExport::extension;
 			}
 
-			if ( !move_uploaded_file($_FILES['cctm_settings_file']['tmp_name'], $dir.'/'.$basename )) {
+			if ( !@move_uploaded_file($_FILES['cctm_settings_file']['tmp_name'], $dir.'/'.$basename )) {
 				self::$errors['library'] = sprintf( 
 					__('We could not upload the definition file to your library. This may be due to permissions errors or some other server configuration.  Use FTP to upload your file to %', CCTM_TXTDOMAIN)
 					, "<code>$dir/$basename</code>");	
