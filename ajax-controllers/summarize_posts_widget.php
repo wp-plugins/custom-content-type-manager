@@ -34,6 +34,7 @@ foreach($custom_fields as $cf) {
 	$custom_field_options .= sprintf('<option value="%s:%s">%s</option>', $cf['name'], $cf['label'], $cf['label']);
 }
 $Form->set_placeholder('custom_fields', $custom_field_options);
+$Form->set_placeholder('cctm_url', CCTM_URL);
 print $Form->generate(CCTM::$search_by);
 
 

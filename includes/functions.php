@@ -114,19 +114,123 @@ function get_custom_image($fieldname) {
 	return wp_get_attachment_image($id, 'full');
 }
 
+
+
 //------------------------------------------------------------------------------
 /**
- * Gets the link href (guid) of the post referenced.
- * @param	integer	$post_id
+ * Get posts that link to this post via a relation field.
+ *
+ * @param	array	(optional) post_types you want to display. Default behavior 
+ *					calculates which post types contain relation fields
+ * @return array post IDs
  */
-/*
-function get_link(int $post_id) {
-	$post = get_post($post_id);
-	if (!empty($post)) {
-		return $post->guid;
+function get_incoming_links($post_types_filter=array()) {
+	
+	require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+	require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+	
+	global $post;
+	global $wpdb;
+	
+	
+	// We need fields that point to THIS post
+	$post_id = $post->ID;
+
+	// Get post-types containing relation fields
+	// First: gather up the relation fields
+	$relation_fields = array();
+	$relation_fields_str = '';
+	$post_types = array();
+	$post_types_str = '';
+
+	if (isset(CCTM::$data['custom_field_defs']) && is_array(CCTM::$data['custom_field_defs']) ) {
+		foreach (CCTM::$data['custom_field_defs'] as $name => $def) {
+			if ($def['type'] == 'relation') {
+				$relation_fields[] = $name; 
+			}
+		}
 	}
+
+	if (empty($relation_fields)) {
+		return array();
+	}
+
+	// Which post types contain the relations?
+	if (isset(CCTM::$data['post_type_defs']) && is_array(CCTM::$data['post_type_defs']) ) {
+		foreach (CCTM::$data['post_type_defs'] as $post_type => $def) {
+			if (!isset($def['is_active']) || !$def['is_active']) {
+				continue; // only track active post types.
+			}
+			
+			if (isset($def['custom_fields']) && is_array($def['custom_fields'])) {
+				foreach($relation_fields as $field) {
+					$custom_fields = $def['custom_fields'];
+					if (in_array($field, $custom_fields)) {
+						$post_types[] = $post_type;
+						continue 2; // skip to the next post type
+					}
+				}
+			}
+		}
+	}
+
+	if (empty($post_types)) {
+		return array();
+	}
+	
+	// Filter post-types
+	if (!empty($post_types_filter)) {
+		$new_post_types = array();
+		foreach ($post_types_filter as $ptf) {
+			if (in_array($ptf, $post_types)) {
+				$new_post_types[] = $ptf;
+			}
+		}
+		$post_types = $new_post_types;
+	}
+	
+	foreach ($relation_fields as $i => $f) {
+		$relation_fields[$i] = $wpdb->prepare('%s', $f); // quote each entry
+	}
+	foreach ($post_types as $i => $pt) {
+		$post_types[$i] = $wpdb->prepare('%s', $pt); // quote each entry
+	}
+
+	$relation_fields_str = implode(',', $relation_fields);
+	$post_types_str = implode(',', $post_types);
+	
+	// normal fields		
+	$sql = $wpdb->prepare("SELECT {$wpdb->postmeta}.post_id 
+		FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+		WHERE {$wpdb->postmeta}.meta_value=%s
+		AND {$wpdb->postmeta}.meta_key IN ($relation_fields_str)
+		AND {$wpdb->posts}.post_type IN ($post_types_str)"
+	, $post_id);
+//		die($sql);
+	$single_results = $wpdb->get_results( $sql, ARRAY_A );
+			
+
+	// relations
+	$sql = $wpdb->prepare("SELECT {$wpdb->postmeta}.post_id 
+		FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+		WHERE {$wpdb->postmeta}.meta_value LIKE %s
+		AND {$wpdb->postmeta}.meta_key IN ($relation_fields_str)
+		AND {$wpdb->posts}.post_type IN ($post_types_str)"
+	, '%"'.$post_id.'"%');
+
+	$multi_results = $wpdb->get_results( $sql, ARRAY_A );		
+
+	// Harvest the IDs
+	$mixed = array();
+	foreach($single_results as $r) {
+		$mixed[] = $r['post_id'];
+	}
+	foreach($multi_results as $r) {
+		$mixed[] = $r['post_id'];
+	}
+	
+	return array_unique($mixed);
 }
-*/
 
 //------------------------------------------------------------------------------
 /**
@@ -331,105 +435,6 @@ function print_incoming_links($tpl=null) {
 
 	print $output;
 
-}
-
-//------------------------------------------------------------------------------
-/**
- * Get posts that link to this post via a relation field.
- * @return array post IDs
- */
-function get_incoming_links() {
-	
-	require_once(CCTM_PATH.'/includes/SummarizePosts.php');
-	require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
-	
-	global $post;
-	global $wpdb;
-	
-	
-	// We need fields that point to THIS post
-	$post_id = $post->ID;
-
-	// Get post-types containing relation fields
-	// First: gather up the relation fields
-	$relation_fields = array();
-	$relation_fields_str = '';
-	$post_types = array();
-	$post_types_str = '';
-
-	if (isset(CCTM::$data['custom_field_defs']) && is_array(CCTM::$data['custom_field_defs']) ) {
-		foreach (CCTM::$data['custom_field_defs'] as $name => $def) {
-			if ($def['type'] == 'relation') {
-				$relation_fields[] = $name; 
-			}
-		}
-	}
-
-	if (empty($relation_fields)) {
-		return;
-	}
-
-	// Which post types contain the relations?
-	if (isset(CCTM::$data['post_type_defs']) && is_array(CCTM::$data['post_type_defs']) ) {
-		foreach (CCTM::$data['post_type_defs'] as $post_type => $def) {
-			if (!isset($def['is_active']) || !$def['is_active']) {
-				continue; // only track active post types.
-			}
-			
-			if (isset($def['custom_fields']) && is_array($def['custom_fields'])) {
-				foreach($relation_fields as $field) {
-					$custom_fields = $def['custom_fields'];
-					if (in_array($field, $custom_fields)) {
-						$post_types[] = $wpdb->prepare('%s', $post_type);
-						continue 2; // skip to the next post type
-					}
-				}
-			}
-		}
-	}
-
-	if (empty($post_types)) {
-		return;
-	}
-			
-	foreach ($relation_fields as $i => $f) {
-		$relation_fields[$i] = $wpdb->prepare('%s', $f); // quote each entry
-	}
-
-	$relation_fields_str = implode(',', $relation_fields);
-	$post_types_str = implode(',', $post_types);
-	
-	// normal fields		
-	$sql = $wpdb->prepare("SELECT {$wpdb->postmeta}.post_id 
-		FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
-		WHERE {$wpdb->postmeta}.meta_value=%s
-		AND {$wpdb->postmeta}.meta_key IN ($relation_fields_str)
-		AND {$wpdb->posts}.post_type IN ($post_types_str)"
-	, $post_id);
-//		die($sql);
-	$single_results = $wpdb->get_results( $sql, ARRAY_A );
-			
-
-	// relations
-	$sql = $wpdb->prepare("SELECT {$wpdb->postmeta}.post_id 
-		FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
-		WHERE {$wpdb->postmeta}.meta_value LIKE %s
-		AND {$wpdb->postmeta}.meta_key IN ($relation_fields_str)
-		AND {$wpdb->posts}.post_type IN ($post_types_str)"
-	, '%"'.$post_id.'"%');
-
-	$multi_results = $wpdb->get_results( $sql, ARRAY_A );		
-
-	// Harvest the IDs
-	$mixed = array();
-	foreach($single_results as $r) {
-		$mixed[] = $r['post_id'];
-	}
-	foreach($multi_results as $r) {
-		$mixed[] = $r['post_id'];
-	}
-	
-	return array_unique($mixed);
 }
 
 /*EOF*/

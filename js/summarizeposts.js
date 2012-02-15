@@ -7,8 +7,8 @@ function widget_summarize_posts() {
 	
 	// Prepare the AJAX query
 	var data = {
-	        "action" : 'summarize_posts_form',
-	        "summarize_posts_form_nonce" : cctm.ajax_nonce
+	        "action" : 'summarize_posts_widget',
+	        "summarize_posts_widget_nonce" : cctm.ajax_nonce
 	    };
 	    
 	jQuery.post(
@@ -33,5 +33,6 @@ function widget_summarize_posts() {
 
 ------------------------------------------------------------------------------*/
 function save_widget_criteria(form_id) {
-
+	alert('here...');
+	tb_remove();
 }

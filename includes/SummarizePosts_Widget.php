@@ -22,12 +22,15 @@ class SummarizePosts_Widget extends WP_Widget {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * 
+	 * Create only form elements.
 	 */
 	public function form($instance) {
 
-		print '<span class="button" onclick="javascript:widget_summarize_posts(\''.$this->get_field_id('selector') . '\');">Define Search</span>
-			<div id="target_'.$this->get_field_id('selector').'"></div>';
+		print '<p>This feature is in development.  Check back later for full functionality!</p>
+			<span class="button" onclick="javascript:widget_summarize_posts(\''.$this->get_field_id('selector') . '\');">Define Search</span>
+			<div id="target_'.$this->get_field_id('selector').'"></div>
+			
+			<input name="" id="" value="" />';
 	}
 	
 	//------------------------------------------------------------------------------
