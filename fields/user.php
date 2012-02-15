@@ -128,6 +128,13 @@ class CCTM_user extends CCTM_FormElement
 
 		// Get the options.  This currently is not skinnable.
 		$this->all_options = '';
+
+		if (!isset($def['required']) || !$def['required']) {
+			$hash['value'] = '';
+			$hash['option'] = '';
+			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
+		}
+		
 		$this->options = get_users(); // WP: http://codex.wordpress.org/Function_Reference/get_users
 		$opt_cnt = count($this->options);
 

@@ -18,7 +18,10 @@ input.cctm_validation_error {
 	background-color:#ff8a96;
 }
 
+textarea.cctm_validation_error {
+	background-color:#ff8a96;
+}
+
 span.cctm_validation_error {
 	color: red;
-	display: block;
 }

@@ -120,10 +120,10 @@ class StandardizedCustomFields
 		
 		// Print any validation errors.
 		if(!empty(CCTM::$post_validation_errors)) {
-			$output = '<div class="error"><p><strong>'
+			$output = '<div class="error"><img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px; vertical-align:middle;"/><p style=""><strong>'
 				. __('This post has validation errors.  The post will remain in draft status until they are corrected.', CCTM_TXTDOMAIN) 
 				. '</strong></p>
-				<ul>';
+				<ul style="clear:both;">';
 			
 			foreach (CCTM::$post_validation_errors as $fieldname => $e) {
 				$output .= '<li>'.$e.'</li>';
@@ -349,7 +349,13 @@ class StandardizedCustomFields
 				// Check for validation errors.
 				if (isset(CCTM::$post_validation_errors[ $def['name'] ])) {
 					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', CCTM::$post_validation_errors[ $def['name'] ]);
-					$def['class'] .= 'cctm_validation_error';
+					if (isset($def['class'])) {
+						$def['class'] .= 'cctm_validation_error';
+					}
+					else {
+						$def['class'] = 'cctm_validation_error';
+					}
+					
 				}
 				$FieldObj->set_props($def);
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);

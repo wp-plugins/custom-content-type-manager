@@ -2,8 +2,6 @@
 /**
  * GetPostsQuery
  *
- * New and improved post selection functions, now with formatting!
- *
  * This class has similar functionality (and arguments) to the WordPress
  * get_posts() function, but this class does things that were simply not
  * possible using the built-in WP functions, including automatically fetching
@@ -14,21 +12,19 @@
  * weird and whacky restrictions with the WP db API functions; this lets me
  * join on foreign tables and cut down on multiple inefficient select queries.
  *
+ * The "query" is actually 3 queries that take place in stages:
+ *		1. Use all criteria to construct a query that fetches ONLY post IDs that match the criteria
+ *		2. Pass all post IDs to a secondary query that fetches all primary data for those posts
+ *		3. Pass all post IDs to a thrid query that fetches all meta data for those posts.
+ *
+ * This approach allows for pagination and it still performs respectibly when used on large data sets
+ * because the 2nd and 3rd queries rely on the indexed post IDs.
+ *
  * @package SummarizePosts
  */
 
 
 class GetPostsQuery {
-	// Used to separate post data from wp_postmeta into key=>value pairs.
-	// These values should be distinct enough so they will NOT appear in
-	// any of the custom fields' content.
-	const colon_separator = '::::';
-	const comma_separator = ',,,,';
-	// We append this to the end of concatenated results to ensure that the MySQL
-	// GROUP_CONCAT() function is getting everything.  If the 'group_concat_max_len'
-	// setting is too small, the caboose won't be at the end of the concatenated data,
-	// and then we'll know the results are borked.
-	const caboose = '$$$$';
 
 	private $P; // stores the Pagination object.
 	private $pagination_links = ''; // stores the html for the pagination links (if any).
@@ -194,6 +190,10 @@ class GetPostsQuery {
 
 	public $cnt; // number of search results
 	public $SQL; // store the query here for debugging.
+	
+	public $SQL1; 	// initial query (primary): returns only post IDs
+	public $SQL2;	// secondary query: returns all post data for the IDs from SQL1
+	public $SQL3;	// meta query: return all post meta for the IDs from SQL2
 
 
 	//------------------------------------------------------------------------------
@@ -375,35 +375,6 @@ class GetPostsQuery {
 
 		return array_unique($all_terms_array);
 
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Given an array of post_ids, look up all the metadata for those posts. This needs
-	 * to come back keyed off of post_id so we can merge it later.
-	 *
-	 * @param	array	$post_ids array of integer post ids
-	 * @return	array	associative array of associative arrays, keyed off post_id
-	 */
-	public function _append_posts_metadata($post_ids) {
-		global $wpdb; 
-		
-		if (empty($post_ids)) {
-			return array(array());
-		}
-		
-		$id_str = implode(',',$post_ids);
-		
-		$query = "SELECT * FROM {$wpdb->postmeta} WHERE post_id IN($id_str)";
-		
-		$results = $wpdb->get_results( $query, ARRAY_A );
-		
-		$output = array();
-		foreach ($results as $r) {
-			$output[ $r['post_id'] ][ $r['meta_key'] ] = $r['meta_value'];
-		}
-		
-		return $output;
 	}
 
 	//------------------------------------------------------------------------------
@@ -994,84 +965,30 @@ class GetPostsQuery {
 	 *	none; this relies on the values set in class variables.
 	 *
 	 * OUTPUT:
-	 * An array of results.
+	 * An array of post_ids.
 	 *
 	 * NOTE: You can't use the WP query_posts() function here because the global $wp_the_query
 	 * isn't defined yet.  get_posts() works, however, but its format is kinda whack.
 	 * See http://shibashake.com/wordpress-theme/wordpress-query_posts-and-get_posts
 	 *
-	 * The goal here is to get full data for all posts that match the filter criteria.  
-	 * There may be the following cases:
-	 	1. No filters (just get me the data)
-	 	2. Filters on just the primary wp_posts table
-	 	3. Filters on just the secondary wp_postmeta table
-	 	4. Filters on both the wp_posts and wp_postmeta table.
-	 	
-	 The problem we must avoid comes with large data sets: too many rows and the JOINS (???) become unbearably slow.
-	 Remember: the goal is to get all post-data (including custom fields) for each post returned, and 
-	 we want to do it with the least number of trips to the database.
+	 * The goal here is to get full data for all posts that match the filter criteria with as 
+	 * few trips to the database as possible.  All criteria need to be accounted for in the 
+	 * initial query: at a minimum, it needs to fetch post_ids, then a secondary query can
+	 * pull all data for those IDs.
 	 
-	 Here's how we might handle the queries:
-	 
-	 Case 1: Count number of matching rows.
-	 		 Get all matching posts from wp_posts, subject to limit/offset clauses
-	 		 Grab the post IDs, then pass them to a 2nd query on wp_postmeta e.g.
-	 			SELECT * from wp_postmeta WHERE post_id IN (...)
-	 		 Normalize all custom fields.
-	 		 Merge the result-sets
-	 		
-	 Case 2: Count number of matching rows in wp_posts.
-	 		 Filter on the wp_posts table, return the matching rows.  Then it's the same as #1
-	 
-	 Case 3: Count number of matching rows in wp_postmeta.
-	 		 Filter on the wp_postmeta table, return the matching rows.
-	 		 Normalize all custom fields.
-	 		 Grab the unique post_IDs from the secondary result set, pass them to a 2nd query on wp_posts, e.g.
-		 		SELECT * from wp_posts WHERE ID IN (...)
-	 		 Merge the result-sets
-	 
-	 Case 4: Count # of matching rows??? 
-	 		 Filter on the wp_posts table, return matching rows.
-	 		 Filter on the wp_postmeta table, return matching rows.
-	 		 Conduct a union of the two sets
-	 
-	 The pitfalls here are many: pagination, especially, can be a total headache.  There is a limit to the # of integers
-	 that can be specified in a single IN(...) statement.
-	 
-	 Maybe this will work if we do the following:
-	 is the GROUP_CONCAT the bottleneck?  Do it in PHP instead.
-	 OR
-	 Use the big beefy query to count rows and fetch only relevant post IDs (subject to limit/offset clauses).
-	 Next then use a simple query on wp_posts retrieving all data, then use a simple query on wp_post_meta, retrieving 
-	 all data, then merge the result-sets in PHP.
-	 
-	 * @return string
+	 * @return array of ids
 	 */
-	private function _get_sql() {
+	private function _get_sql1() {
 		global $wpdb;
 
-		$this->SQL =
+		$this->SQL1 =
 			"SELECT
-			[+select+]
-			{$wpdb->posts}.*
-			, parent.ID as 'parent_ID'
-			, parent.post_title as 'parent_title'
-			, parent.post_excerpt as 'parent_excerpt'
-			, author.display_name as 'author'
-			, thumbnail.ID as 'thumbnail_id'
-			, thumbnail.guid as 'thumbnail_src'
-
-			[+select_metasortcolumn+]
-
+			[+count_found_rows+]
+			{$wpdb->posts}.ID
+			
 			FROM {$wpdb->posts}
-			LEFT JOIN {$wpdb->posts} parent ON {$wpdb->posts}.post_parent=parent.ID
-			LEFT JOIN {$wpdb->users} author ON {$wpdb->posts}.post_author=author.ID
-			LEFT JOIN {$wpdb->term_relationships} ON {$wpdb->posts}.ID={$wpdb->term_relationships}.object_id
-			LEFT JOIN {$wpdb->term_taxonomy} ON {$wpdb->term_taxonomy}.term_taxonomy_id={$wpdb->term_relationships}.term_taxonomy_id
-			LEFT JOIN {$wpdb->terms} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id
-			LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
-				AND thumb_join.meta_key='_thumbnail_id'
-			LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value
+			[+author_join+]
+			[+taxonomy_join+]
 			LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID={$wpdb->postmeta}.post_id
 
 			[+join_for_metasortcolumn+]
@@ -1110,10 +1027,7 @@ class GetPostsQuery {
 
 		// Substitute into the query.
 		$hash = array();
-		$hash['select'] = ($this->paginate)? 'SQL_CALC_FOUND_ROWS' : '';
-		$hash['colon_separator'] = self::colon_separator;
-		$hash['comma_separator'] = self::comma_separator;
-		$hash['caboose']  = self::caboose;
+		$hash['count_found_rows'] = ($this->paginate)? 'SQL_CALC_FOUND_ROWS' : '';
 
 		$hash['include'] = $this->_sql_filter($wpdb->posts, 'ID', 'IN', $this->include);
 		$hash['exclude'] = $this->_sql_filter($wpdb->posts, 'ID', 'NOT IN', $this->exclude);
@@ -1126,11 +1040,23 @@ class GetPostsQuery {
 		$hash['post_status'] = $this->_sql_filter($wpdb->posts, 'post_status', 'IN', $this->post_status);
 		$hash['yearmonth'] = $this->_sql_yearmonth();
 		$hash['meta'] = $this->_sql_meta();
-		$hash['author'] = $this->_sql_filter('author', 'display_name', '=', $this->author);
-
-		$hash['taxonomy'] = $this->_sql_filter($wpdb->term_taxonomy, 'taxonomy', '=', $this->taxonomy);
-		$hash['taxonomy_term'] = $this->_sql_filter($wpdb->terms, 'name', 'IN', $this->taxonomy_term);
-		$hash['taxonomy_slug'] = $this->_sql_filter($wpdb->terms, 'slug', 'IN', $this->taxonomy_slug);
+		
+		// Only add this join if the user has searched on this criteria
+		if (isset($this->author) && !empty($this->author)) {
+			$hash['author'] = $this->_sql_filter('author', 'display_name', '=', $this->author);
+			$hash['author_join'] = "LEFT JOIN {$wpdb->users} author ON {$wpdb->posts}.post_author=author.ID";
+		}
+		
+		// Only add these if a user has searched on taxonomy criteria
+		if (isset($this->taxonomy) && !empty($this->taxonomy)) {
+			$hash['taxonomy'] = $this->_sql_filter($wpdb->term_taxonomy, 'taxonomy', '=', $this->taxonomy);
+			$hash['taxonomy_term'] = $this->_sql_filter($wpdb->terms, 'name', 'IN', $this->taxonomy_term);
+			$hash['taxonomy_slug'] = $this->_sql_filter($wpdb->terms, 'slug', 'IN', $this->taxonomy_slug);
+			$hash['taxonomy_join'] = "
+				LEFT JOIN {$wpdb->term_relationships} ON {$wpdb->posts}.ID={$wpdb->term_relationships}.object_id
+				LEFT JOIN {$wpdb->term_taxonomy} ON {$wpdb->term_taxonomy}.term_taxonomy_id={$wpdb->term_relationships}.term_taxonomy_id
+				LEFT JOIN {$wpdb->terms} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id";
+		}
 
 		if ($this->custom_field_date_flag) {
 			$hash['exact_date'] = $this->_sql_custom_date_filter($this->post_date);
@@ -1194,13 +1120,109 @@ class GetPostsQuery {
 			$hash['hidden_fields'] = "WHERE {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
 		}
 
-		$this->SQL = self::parse($this->SQL, $hash);
+		$this->SQL1 = self::parse($this->SQL1, $hash);
 		// Strip whitespace
-		$this->SQL  = preg_replace('/\s\s+/', ' ', $this->SQL );
+		$this->SQL1  = preg_replace('/\s\s+/', ' ', $this->SQL1 );
 
-		return $this->SQL;
+		return $this->SQL1;
 
 	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Given an array of post_ids, look up all the main for those posts. This needs
+	 * to come back keyed off of post_id so we can merge it later.
+	 *
+	 * @param	array	$post_ids array of integer post ids
+	 * @return	array	associative array of associative arrays, keyed off post_id
+	 */
+	public function _get_sql2($post_ids) {
+		global $wpdb; 
+		
+		$where = '';
+		if (!empty($post_ids)) {
+			$id_str = implode(',',$post_ids);
+			$where = "WHERE {$wpdb->posts}.ID IN ($id_str)";
+		}
+		
+		$this->SQL2 = "SELECT {$wpdb->posts}.*
+			, parent.ID as 'parent_ID'
+			, parent.post_title as 'parent_title'
+			, parent.post_excerpt as 'parent_excerpt'
+			, author.display_name as 'author'
+			, thumbnail.ID as 'thumbnail_id'
+			, thumbnail.guid as 'thumbnail_src'
+		FROM {$wpdb->posts}
+
+		LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
+			AND thumb_join.meta_key='_thumbnail_id'
+		LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value
+		LEFT JOIN {$wpdb->posts} parent ON {$wpdb->posts}.post_parent=parent.ID
+		LEFT JOIN {$wpdb->users} author ON {$wpdb->posts}.post_author=author.ID
+
+		$where";
+		
+		return $this->SQL2;		
+
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Given an array of post_ids, look up all the metadata for those posts. This needs
+	 * to come back keyed off of post_id so we can merge it later.
+	 *
+	 * @param	array	$post_ids array of integer post ids
+	 * @return	array	associative array of associative arrays, keyed off post_id
+
+		global $wpdb; 
+		
+		if (empty($post_ids)) {
+			return array(array());
+		}
+		
+		$id_str = implode(',',$post_ids);
+		
+		$query = "SELECT * FROM {$wpdb->postmeta} WHERE post_id IN($id_str)";
+		
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		
+		$output = array();
+		foreach ($results as $r) {
+			$output[ $r['post_id'] ][ $r['meta_key'] ] = $r['meta_value'];
+		}
+		
+		return $output;
+	 */
+	public function _get_sql3($post_ids) {
+	
+		global $wpdb; 
+
+		$hash = array();		
+		$hash['where'] = '1';
+		
+		$id_str = implode(',',$post_ids);
+		if (!empty($post_ids)) {
+			$hash['where'] = "{$wpdb->postmeta}.post_id IN($id_str)";
+		}
+		
+
+		
+		$query = "SELECT {$wpdb->postmeta}.*
+			FROM {$wpdb->postmeta}
+			WHERE [+where+]
+			[+hiddenfields+]";
+		
+		if (!$this->include_hidden_fields) {
+			$hash['hidden_fields'] = "AND {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
+		}
+		
+		$this->SQL3 = self::parse($query, $hash);
+	
+		return $this->SQL3;
+	}
+
 
 
 	//------------------------------------------------------------------------------
@@ -1449,14 +1471,58 @@ class GetPostsQuery {
 	//------------------------------------------------------------------------------
 	//! Public Functions
 	//------------------------------------------------------------------------------
+	
+	/**
+	 * Instead of returning the posts, this function will return a count of the number
+	 * of posts that match the filter criteria.
+	 *
+	 * @param	array	same arguments accepted by get_posts()
+	 * @return integer
+	 */
+	public function count_posts($args) {
+		global $wpdb;
+		
+		if ($ignore_defaults) {
+			$this->set_defaults(array(), true);
+		}
+		
+		// Include no IDs = empty result set
+		if (isset($args['include']) && empty($args['include'])) {
+			return array(array());
+		}
+		
+		foreach ($args as $k => $v) {
+			$this->$k = $v; // this will utilize the _sanitize_arg() function.
+		}
+		$this->paginate = 1;  // We force this in order to trigger the count.
+		
+		// if we are doing hierarchical queries, we need to trace down all the components before
+		// we do our query!
+
+		if ( $this->taxonomy
+			&& ($this->taxonomy_term || $this->taxonomy_slug)
+			&& $this->taxonomy_depth > 1) {
+			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
+		}
+			
+		// Execute the primary query: get the post IDs that match the filters, 
+		// then fetch the data for those IDs.
+		$raw_ids = $wpdb->get_results( $this->_get_sql1(), ARRAY_A );
+		
+		$this->found_rows = $this->_count_posts();
+		
+		return (int) $this->found_rows;
+	}
+	
+	//------------------------------------------------------------------------------
 	/**
 	 * Prints debugging messages for those intrepid souls who are encountering problems...
 	 *
 	 * @return string
 	 */
 	public function debug() {
-		if ( empty($this->SQL) ) {
-			$this->SQL = $this->_get_sql();
+		if ( empty($this->SQL1) ) {
+			$this->SQL1 = $this->_get_sql1();
 		}
     
 		return sprintf(
@@ -1475,7 +1541,9 @@ class GetPostsQuery {
 					<div class="summarize-post-arguments">%s</div>
 
 				<h2>%s</h2>
-					<div class="summarize-posts-query"><textarea rows="20" cols="80">%s</textarea></div>
+					<div class="summarize-posts-query"><textarea rows="10" cols="80">%s</textarea></div>
+					<div class="summarize-posts-query"><textarea rows="10" cols="80">%s</textarea></div>
+					<div class="summarize-posts-query"><textarea rows="10" cols="80">%s</textarea></div>
 
 				<h2>%s</h2>
 					<div class="summarize-posts-shortcode"><textarea rows="3" cols="80">%s</textarea></div>
@@ -1490,8 +1558,10 @@ class GetPostsQuery {
 			, __('Arguments', CCTM_TXTDOMAIN)
 			, __('For more information on how to use this function, see the documentation for the <a href="http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts">GetPostsQuery::get_posts()</a> function.', CCTM_TXTDOMAIN)
 			, $this->get_args()
-			, __('Raw Database Query', CCTM_TXTDOMAIN)
-			, $this->SQL
+			, __('Raw Database Queries', CCTM_TXTDOMAIN)
+			, $this->SQL1
+			, $this->SQL2
+			, $this->SQL3
 			, __('Comparable Shortcode', CCTM_TXTDOMAIN)
 			, $this->get_shortcode()
 			, __('Results', CCTM_TXTDOMAIN)
@@ -1663,6 +1733,7 @@ class GetPostsQuery {
 	 * @return array  result set
 	 */
 	public function get_posts($args=array(), $ignore_defaults=false) {
+	
 		global $wpdb;
 		
 		if ($ignore_defaults) {
@@ -1687,9 +1758,35 @@ class GetPostsQuery {
 			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
 		}
 			
-		// Execute the big old query.
-		$results = $wpdb->get_results( $this->_get_sql(), ARRAY_A );
+		// Execute the primary query: get the post IDs that match the filters, 
+		// then fetch the data for those IDs.
+		$raw_ids = $wpdb->get_results( $this->_get_sql1(), ARRAY_A );
+		$post_ids = array();
+		foreach ($raw_ids as $r) {
+			$post_ids[] = $r['ID'];
+		}
+		//die(print_r($this->_get_sql2($post_ids), true));
+		$postdata = $wpdb->get_results( $this->_get_sql2($post_ids), ARRAY_A );
+		$metadata = $wpdb->get_results( $this->_get_sql3($post_ids), ARRAY_A );
+		
+		// Index the metadata -- we do this to aid merging
+		$indexed_meta = array();
+		foreach ($metadata as $r) {
+			$indexed_meta[ $r['post_id'] ][ $r['meta_key'] ] = $r['meta_value'];			
+		}
 
+		// Merge the postdata with the metadata
+		foreach ($postdata as &$r) {
+			// die(print_r($indexed_meta[$r['ID']], true));
+			if (isset($indexed_meta[$r['ID']]) ) {
+				$r = array_merge($r, $indexed_meta[$r['ID']]);
+			}		
+			$r['permalink']  = get_permalink( $r['ID'] );
+			$r['parent_permalink'] = get_permalink( $r['parent_ID'] );
+			$r['post_id']  = $r['ID'];
+		}
+
+		
 		if ( $this->paginate ) {
 			$this->found_rows = $this->_count_posts();
 			include_once 'CCTM_Pagination.conf.php';
@@ -1700,31 +1797,13 @@ class GetPostsQuery {
 			$this->P->set_results_per_page($this->limit);  // You can optionally expose this to the user.
 			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
 		}
-
-		// Get additional data for each post and collect the ids
-		$post_ids = array();
-		foreach ($results as &$r) {
-			$r['permalink']  = get_permalink( $r['ID'] );
-			$r['parent_permalink'] = get_permalink( $r['parent_ID'] );
-			$r['post_id']  = $r['ID'];
-			$post_ids[] = (int) $r['ID'];
-		}
-
-		$postmeta = $this->_append_posts_metadata($post_ids);
 		
-		// Merge post data and postmeta data
-		foreach ($results as &$r) {
-			if (isset($postmeta[$r['ID']]) ) {
-				$r = array_merge($r, $postmeta[$r['ID']]);
-			}
-		}
-		
-		$results = $this->_normalize_recordset($results);
+		$postdata = $this->_normalize_recordset($postdata);
 
 		// Optionally adjust date format (depends on the 'date_format' option)
-		$results = $this->_date_format($results);
+		$postdata = $this->_date_format($postdata);
 
-		return $results;
+		return $postdata;
 
 	}
 
@@ -1771,7 +1850,7 @@ class GetPostsQuery {
 	 * @return string
 	 */
 	public function get_sql() {
-		return $this->SQL;
+		return $this->SQL1;
 	}
 
 	//------------------------------------------------------------------------------

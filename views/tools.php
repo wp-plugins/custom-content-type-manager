@@ -16,8 +16,15 @@
 		<a href="?page=cctm_tools&a=clear_cache"><img src="<?php print CCTM_URL; ?>/images/clear_cache.png" height="32" width="32" alt="Clear cache"/></a>
 		<a href="?page=cctm_tools&a=clear_cache"><?php _e('Clear Cache', CCTM_TXTDOMAIN); ?></a>
 		:
-		<?php _e("Clear any cached images or other files that have been generated.",CCTM_TXTDOMAIN); ?>
+		<?php _e('Clear any cached images or other files that have been generated.',CCTM_TXTDOMAIN); ?>
 	</li>
+	<li>
+		<a href="?page=cctm_tools&a=purge"><img src="<?php print CCTM_URL; ?>/images/eraser.png" height="32" width="32" alt="Purge posts"/></a>
+		<a href="?page=cctm_tools&a=purge"><?php _e('Purge Posts', CCTM_TXTDOMAIN); ?></a>
+		:
+		<?php _e('Purge your database of orphaned posts that do not have a post-type defined for them.  Warning: this will permanently delete data!',CCTM_TXTDOMAIN); ?>
+	</li>
+
 
 	<!-- li><a href="?page=cctm_tools&a=detect_post_types"><?php _e('Detect Post Types', CCTM_TXTDOMAIN); ?></a></li -->
 </ul>

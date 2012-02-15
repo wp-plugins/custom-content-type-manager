@@ -35,13 +35,19 @@ class SummarizePosts_Widget extends WP_Widget {
 	 * Process the $args to something GetPostsQuery. 
 	 */
 	function widget($args, $instance) {
-		require_once(CCTM.'/includes/SummarizePosts.php');
-		require_once(CCTM.'/includes/GetPostsQuery.php');
+		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
+		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 		$Q = new GetPostsQuery();
+		$args['limit'] = 5;
 		$results = $Q->get_posts($args);
+		
+		$output = '<ul>';
 		foreach ($results as $r) {
-			print_r($r);
+			$output .= sprintf('<li><a href="%s">%s</a></li>', $r['guid'], $r['post_title']);
 		}
+		$output .= '</ul>';
+		
+		print $output;
 	}
 
 	
