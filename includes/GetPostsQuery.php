@@ -707,7 +707,8 @@ class GetPostsQuery {
 		// Some corrections required: if you set the post_type that you want, remove that post_type
 		// from the 'omit_post_type' argument.
 		if ($arg == 'post_type') {
-			$omit_post_type = $this->omit_post_type;
+			
+			$omit_post_type = $this->_comma_separated_to_array($this->omit_post_type, 'post_type');// $this->omit_post_type;
 			if (in_array($val, $omit_post_type)) {
 				$new_omits = array();
 				foreach ($omit_post_type as $pt) {
@@ -1743,7 +1744,7 @@ class GetPostsQuery {
 		
 		// Include no IDs = empty result set
 		if (isset($args['include']) && empty($args['include'])) {
-			return array(array());
+			return array();
 		}
 		
 		foreach ($args as $k => $v) {
@@ -1767,7 +1768,18 @@ class GetPostsQuery {
 			$post_ids[] = $r['ID'];
 		}
 		if (empty($post_ids)) {
-			return array(array());
+			return array();
+		}
+
+		if ( $this->paginate ) {
+			$this->found_rows = $this->_count_posts();			
+			include_once 'CCTM_Pagination.conf.php';
+			include_once 'CCTM_Pagination.php';
+			$this->P = new CCTM_Pagination();
+			$this->P->set_base_url( self::get_current_page_url() );
+			$this->P->set_offset($this->offset); //
+			$this->P->set_results_per_page($this->limit);  // You can optionally expose this to the user.
+			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
 		}
 		
 		$postdata = $wpdb->get_results( $this->_get_sql2($post_ids), ARRAY_A );
@@ -1791,16 +1803,7 @@ class GetPostsQuery {
 		}
 
 		
-		if ( $this->paginate ) {
-			$this->found_rows = $this->_count_posts();
-			include_once 'CCTM_Pagination.conf.php';
-			include_once 'CCTM_Pagination.php';
-			$this->P = new CCTM_Pagination();
-			$this->P->set_base_url( self::get_current_page_url() );
-			$this->P->set_offset($this->offset); //
-			$this->P->set_results_per_page($this->limit);  // You can optionally expose this to the user.
-			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
-		}
+
 		
 		$postdata = $this->_normalize_recordset($postdata);
 

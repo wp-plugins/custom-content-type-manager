@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3
 Tested up to: 3.3.1
-Stable tag: 0.9.5.7
-Version: 0.9.5.8-dev
+Stable tag: 0.9.5.8
+Version: 0.9.5.8-pl
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -76,6 +76,11 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.5.8 =
+
+* Added Summarize Posts Widget
+* Fixed pagination issue with Relation thickboxes.
 
 = 0.9.5.7 =
 
@@ -318,6 +323,11 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.5.8 =
+
+Fixed pagination issue with Relation-field thickboxes, added Summarize Posts Widget.
+
 
 = 0.9.5.7 =
 

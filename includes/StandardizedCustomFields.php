@@ -247,7 +247,7 @@ class StandardizedCustomFields
 	 */
 	public static function print_admin_header() {
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
-		if ( !in_array($file, array('post.php', 'post-new.php'))) {
+		if ( !in_array($file, array('post.php', 'post-new.php','edit.php'))) {
 			return;
 		}
 		$post_type = CCTM::get_value($_GET, 'post_type');

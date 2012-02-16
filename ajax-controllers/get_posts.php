@@ -25,10 +25,6 @@ $d['page_number']		= '0';
 $d['orderby'] 			= 'ID';
 $d['order'] 			= 'ASC';
 
-$results_per_page = 10;
-
-
-
 
 // Generate a search form
 // we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
@@ -121,13 +117,20 @@ foreach($additional_defaults as $k => $v) {
 // Begin!
 //------------------------------------------------------------------------------
 $Q = new GetPostsQuery(); 
-$Q->set_defaults(CCTM::$post_selector);
-	
+// print '<pre>'.print_r(CCTM::$post_selector, true) . '</pre>';
+//$Q->set_defaults(CCTM::$post_selector); // BRoken!
+
+foreach(CCTM::$post_selector as $k => $v) {
+	if (!isset($args[$k]) || empty($args[$k])) {
+		$args[$k] = $v;
+	}
+}
+
 
 $args['offset'] = 0; // assume 0, unless we got a page number
 // Calculate offset based on page number
 if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
-	$args['offset'] = ($d['page_number'] - 1) * $results_per_page;
+	$args['offset'] = ($d['page_number'] - 1) * CCTM::$post_selector['limit'];
 }
 
 // Get the results

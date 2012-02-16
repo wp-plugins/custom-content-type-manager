@@ -676,6 +676,8 @@ class GetPostsForm {
 		$ph3['label'] = __('Descending', CCTM_TXTDOMAIN);
 		$ph3['id'] = 'order_desc';
 		$ph3['name'] = 'order';
+		$ph3['input_class'] = 'input_radio';
+		$ph3['label_class'] = 'label_radio';
 		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph3);
 
 		$this->register_global_placeholders($ph, 'order');

@@ -30,6 +30,7 @@ http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts
 
 CCTM::$search_by[] = 'post_type';
 // CCTM::$search_by[] = 'post_status';  // Don't bother with this: it's ineffective to try to show anything other than published posts
+CCTM::$search_by[] = 'include';
 CCTM::$search_by[] = 'author';
 CCTM::$search_by[] = 'taxonomy';
 CCTM::$search_by[] = 'taxonomy_term';

@@ -1,13 +1,15 @@
 <?php
 class SummarizePosts_Widget extends WP_Widget {
 
-	public $name = 'Summarize Posts';
-	public $description = 'List your posts via a dynamic and flexible search form.';
+	public $name;
+	public $description;
 	public $control_options = array(
 		'title' => 'Posts'
 	);
 	
 	public function __construct() {
+		$this->name = __('Summarize Posts', CCTM_TXTDOMAIN);
+		$this->description = __('List posts according to flexible search criteria.', CCTM_TXTDOMAIN);
 		$widget_options = array(
 			'classname' => __CLASS__,
 			'description' => $this->description,
@@ -30,6 +32,9 @@ class SummarizePosts_Widget extends WP_Widget {
 
 		$args_str = ''; // formatted args for the user to look at so they remember what they searched for.
 		
+		if (!isset($instance['title'])) {
+			$instance['title'] = ''; 	// default value
+		}
 		if (!isset($instance['parameters'])) {
 			$instance['parameters'] = ''; 	// default value
 		}
@@ -44,14 +49,15 @@ class SummarizePosts_Widget extends WP_Widget {
 		$args_str = $Q->get_args();
 
 		
-		print '<p>'.__('List posts according to flexible search criteria.', CCTM_TXTDOMAIN)
-			. '<a href="http://code.google.com/p/wordpress-custom-content-type-manager/"><img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" /></a></p>
-			<h4>'.__('Search Criteria', CCTM_TXTDOMAIN).'</h4>
+		print '<p>'.$this->description
+			. '<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Widget"><img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" /></a></p>
+			<label class="cctm_label" for="'.$this->get_field_id('title').'">'.__('Title', CCTM_TXTDOMAIN).'</label>
+			<input type="text" name="'.$this->get_field_name('title').'" id="'.$this->get_field_id('title').'" value="'.$instance['title'].'" />
 			
-			<span class="button" onclick="javascript:widget_summarize_posts(\''.$this->get_field_id('parameters') . '\');">'.__('Define Search', CCTM_TXTDOMAIN).'</span>
+			<p style="margin-top:10px;"><strong>'.__('Search Criteria', CCTM_TXTDOMAIN).'</strong> <span class="button" onclick="javascript:widget_summarize_posts(\''.$this->get_field_id('parameters') . '\');">'.__('Define Search', CCTM_TXTDOMAIN).'</span></p>
 			
 			<!-- also target for Ajax writes -->
-			<div id="existing_'.$this->get_field_id('parameters').'">'.
+			<div id="existing_'.$this->get_field_id('parameters').'" style="padding-left:10px;">'.
 			$args_str
 			.'</div>
 			<input type="hidden" name="'.$this->get_field_name('parameters').'" id="'.$this->get_field_id('parameters').'" value="'.$instance['parameters'].'" />
@@ -72,19 +78,23 @@ class SummarizePosts_Widget extends WP_Widget {
 		
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 
-		$args = array();
+		$q_args = array();
 		$search_parameters_str = $instance['parameters'];
-		parse_str($search_parameters_str, $args);
+		parse_str($search_parameters_str, $q_args);
 		
 		$Q = new GetPostsQuery();
 		
-		$results = $Q->get_posts($args);
+		$results = $Q->get_posts($q_args);
 		
-		$output = '<ul>';
+		$output = $args['before_widget']
+			.$args['before_title'].$instance['title'].$args['after_title']
+			.'<ul>';
 		foreach ($results as $r) {
 			$output .= CCTM::parse($instance['formatting_string'], $r);
 		}
-		$output .= '</ul>';
+		$output .= '</ul>'
+		
+		. $args['after_widget'];
 		
 		print $output;
 	}
