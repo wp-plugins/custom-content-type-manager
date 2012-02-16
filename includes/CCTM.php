@@ -146,6 +146,7 @@ class CCTM {
 		'has_archive' => 0,
 		'custom_order' => 'ASC',
 		'custom_orderby' => '',
+		'cctm_custom_columns_enabled' => 0
 	);
 
 	/**

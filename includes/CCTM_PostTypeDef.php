@@ -382,6 +382,9 @@ class CCTM_PostTypeDef {
 		if ( empty($raw['cctm_hierarchical_post_types'])) {
 			$sanitized['cctm_hierarchical_post_types'] = array();
 		}
+		if ( !isset($raw['cctm_custom_columns_enabled'])) {
+			$sanitized['cctm_custom_columns_enabled'] = 0;
+		}
 
 		// This will be empty if no "supports" items are checked.
 		if (!empty($raw['supports']) ) {

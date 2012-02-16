@@ -433,7 +433,7 @@ just want to make sure that the form is presented uncorrupted.
 	<div id="columns-tab">
 		<!-- cctm_custom_columns -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_custom_columns_enabled">
-			<input type="checkbox" name="cctm_custom_columns_enabled" class="cctm_checkbox" id="cctm_custom_columns_enabled" value="1" <?php print CCTM::is_checked(CCTM::get_value($data['def'],'cctm_custom_columns_enabled')); ?> /> 
+			<input type="checkbox" name="cctm_custom_columns_enabled" class="cctm_checkbox" id="cctm_custom_columns_enabled" value="1" <?php print CCTM::is_checked(CCTM::get_value($data['def'],'cctm_custom_columns_enabled', 0)); ?>/> 
 			<label for="cctm_custom_columns_enabled" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_custom_columns_enabled">
 			<?php _e('Customize Columns', CCTM_TXTDOMAIN); ?></label>
 			<span class="cctm_description"><?php _e("You can customize the columns visible when you display a list of all posts in this post-type. WARNING: the post-type name must not contain hyphens, only underscores.", CCTM_TXTDOMAIN); ?></span>
