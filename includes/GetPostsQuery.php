@@ -1595,7 +1595,8 @@ class GetPostsQuery {
 					$v = 'true';
 				}
 				elseif ( empty($v) ) {
-					$v = '--';
+					continue;  // skip empties
+//					$v = '--';
 				}
 				$output .= '<li class="summarize-posts-arg"><strong>'.$k.'</strong>: '.$v.'</li>'."\n";
 			}
@@ -1765,7 +1766,10 @@ class GetPostsQuery {
 		foreach ($raw_ids as $r) {
 			$post_ids[] = $r['ID'];
 		}
-		//die(print_r($this->_get_sql2($post_ids), true));
+		if (empty($post_ids)) {
+			return array(array());
+		}
+		
 		$postdata = $wpdb->get_results( $this->_get_sql2($post_ids), ARRAY_A );
 		$metadata = $wpdb->get_results( $this->_get_sql3($post_ids), ARRAY_A );
 		

@@ -8,9 +8,6 @@ Author URI: http://www.fireproofsocks.com/
 Plugin URI: http://code.google.com/p/wordpress-custom-content-type-manager/
 
 To see the full version name, see the readme.txt file or includes/CCTM.php.
-
-See also Related plugins listed here:
-http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SeeAlso
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------

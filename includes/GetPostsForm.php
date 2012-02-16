@@ -311,18 +311,21 @@ class GetPostsForm {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Post author (display name)
+	 * Post author (display name, not author ID)
 	 *
 	 * @return string
 	 */
 	private function _author() {
 		$ph = $this->placeholders;
 		$current_value = $this->get_value('author');
+
 		global $wpdb;
+
 		$authors = $wpdb->get_results("SELECT ID, display_name from {$wpdb->users} ORDER BY display_name");
 
-		$ph['options'] = '';
+		$ph['options'] = '<option value="">'.__('All Authors',CCTM_TXTDOMAIN).'</option>';
 		foreach ($authors as $a) {
+			$ph['is_selected'] = ''; // reset
 			$ph['value'] = $a->display_name;
 			$ph['label'] = $a->display_name .'('.$a->ID.')';
 			if ($current_value == $a->display_name) {
@@ -336,7 +339,7 @@ class GetPostsForm {
 		$ph['id']  = 'author';
 		$ph['label'] = __('Author', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Select an author whose posts you want to see.', CCTM_TXTDOMAIN);
-		$ph['size'] = 5;
+//		$ph['size'] = 5;
 		$this->register_global_placeholders($ph, 'author');
 		return self::parse($this->select_wrapper_tpl, $ph);
 	}
@@ -636,6 +639,7 @@ class GetPostsForm {
 	 * @return string
 	 */
 	private function _order() {
+	
 		$ph = $this->placeholders;
 
 		$current_value = $this->get_value('order');
@@ -675,6 +679,7 @@ class GetPostsForm {
 		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph3);
 
 		$this->register_global_placeholders($ph, 'order');
+		
 		return self::parse($this->checkbox_wrapper_tpl, $ph);
 
 	}
@@ -692,7 +697,7 @@ class GetPostsForm {
 		$ph['name'] = 'orderby';
 		$ph['id']  = 'orderby';
 		$ph['label'] = __('Order By', CCTM_TXTDOMAIN);
-		$ph['description'] = __('Which column should results be sorted by. Default: ID', CCTM_TXTDOMAIN);
+		$ph['description'] = __('Which column should results be sorted by. This can be any column from the wp_posts table or any custom field. Default: ID', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'orderby');
 		return self::parse($this->text_tpl, $ph);
 	}
@@ -1293,9 +1298,9 @@ class GetPostsForm {
 	/**
 	 * This assists us in making custom formatting templates as flexible as possible.
 	 *
-	 * @return none this populates keys in $this->placeholders
 	 * @param array   $array     contains key/value pairs corresponding to placeholder => replacement-values
 	 * @param string  $fieldname is the name of the field for which these placeholders are being generated.
+	 * @return none this populates keys in $this->placeholders
 	 */
 	public function register_global_placeholders($array, $fieldname) {
 		foreach ($array as $key => $value) {

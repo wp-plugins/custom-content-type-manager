@@ -263,7 +263,7 @@ function get_post_complete($id) {
 			$complete_post[$fieldname] = $value[0];
 		}
 		else {
-			$complete_post[$fieldname] = $value[0];		
+			$complete_post[$fieldname] = $value;		
 		}
 	}
 	

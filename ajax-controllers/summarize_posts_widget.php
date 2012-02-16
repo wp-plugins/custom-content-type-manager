@@ -10,12 +10,25 @@ require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 
+// Id of the field that will store the values (we need to pass it through here
+// because it is not static: there may be multiple instances of the widget)
+$storage_field = CCTM::get_value($_POST,'storage_field', 'storage_field');
+
+$search_parameters_str = '';
+if (isset($_POST['search_parameters'])) {
+	$search_parameters_str = $_POST['search_parameters'];
+}
+
+$existing_values = array();
+parse_str($search_parameters_str, $existing_values);
+
+
 $Form = new GetPostsForm();
 
 // What options should be displayed on the form that defines the search?  
 // Load up the config...
 $possible_configs = array();
-$possible_configs[] = '/config/search_parameters/_summarize_posts.php';
+$possible_configs[] = '/config/search_parameters/_widget.php';
 
 if (!CCTM::load_file($possible_configs)) {
 	print '<p>'.__('Search parameter configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
@@ -33,9 +46,15 @@ $custom_field_options = '';
 foreach($custom_fields as $cf) {
 	$custom_field_options .= sprintf('<option value="%s:%s">%s</option>', $cf['name'], $cf['label'], $cf['label']);
 }
+
+if (!isset($existing_values['limit']) || $existing_values['limit'] == 0) {
+	$existing_values['limit'] = 5;
+}
+
 $Form->set_placeholder('custom_fields', $custom_field_options);
 $Form->set_placeholder('cctm_url', CCTM_URL);
-print $Form->generate(CCTM::$search_by);
+$Form->set_placeholder('storage_field', $storage_field);
+print $Form->generate(CCTM::$search_by, $existing_values);
 
 
 

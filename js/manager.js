@@ -131,7 +131,8 @@ function generate_field_filter(dropdown_id, target_id) {
 	}
 
 
-	var form_element = '<label for="'+fieldname+'">'+fieldlabel+'</label><input type="text" id="'+fieldname+'" name="'+fieldname+'" value=""/><br/>';
+	var form_element = '<div id="'+fieldname+'_wrapper"><label for="'+fieldname+'">'+fieldlabel+'</label><input type="text" id="'+fieldname+'" name="'+fieldname+'" value=""/><span class="cctm_close_rollover" onclick="javascript:remove_html(\''+fieldname+'_wrapper\');"></span><br/></div>';
+	
 	jQuery('#'+target_id).append(form_element);
 }
 

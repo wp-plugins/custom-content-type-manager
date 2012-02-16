@@ -18,6 +18,6 @@
 	<br/>
 	<hr/>
 	<br/>
-	<span class="button" onclick="javascript:save_widget_criteria('search_parameters_form');">Save Criteria</span>
+	<span class="button" onclick="javascript:save_widget_criteria('search_parameters_form','[+storage_field+]');">Save Criteria</span>
 	<span class="button" onclick="javascript:tb_remove();">Cancel</span>
 </form>
