@@ -17,6 +17,7 @@ require_once('includes/constants.php');
 require_once('includes/SummarizePosts.php');
 require_once('includes/GetPostsQuery.php');
 require_once('includes/SummarizePosts_Widget.php');
+require_once('includes/CCTM_Post_Widget.php');
 
 // Admin-only files
 if( is_admin()) {
@@ -59,6 +60,8 @@ if ( empty(CCTM::$errors) )
 	// Register any custom post-types (a.k.a. content types)
 	add_action('init', 'CCTM::register_custom_post_types', 11 );
 	add_action('widgets_init', 'SummarizePosts_Widget::register_this_widget');
+	add_action('widgets_init', 'CCTM_Post_Widget::register_this_widget');
+	
 	if( is_admin()) {	
 		// Generate admin menu, bootstrap CSS/JS
 		add_action('admin_init', 'CCTM::admin_init');	
