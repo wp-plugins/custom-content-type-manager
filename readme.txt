@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.3
 Tested up to: 3.3.1
 Stable tag: 0.9.5.8
-Version: 0.9.5.8-pl
+Version: 0.9.5.9-dev
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -76,6 +76,10 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.5.9 =
+
+* Added new "Post Content" widget.
 
 = 0.9.5.8 =
 
@@ -323,6 +327,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.5.9 =
+
+Added "Post Content" widget, fixed issue with empty radio button option.
 
 = 0.9.5.8 =
 
