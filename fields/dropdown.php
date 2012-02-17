@@ -138,11 +138,12 @@ class CCTM_dropdown extends CCTM_FormElement
 
 		// Get the options.  This currently is not skinnable.
 		// $this->props['options'] is already bogarted by the definition.
+		// Add an empty <option> for non-required dropdowns
 		$this->all_options = '';
-		if (!isset($def['required']) || !$def['required']) {
+		if ($this->display_type != 'radio' && (!isset($def['required']) || !$def['required'])) {
 			$hash['value'] = '';
 			$hash['option'] = '';
-			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
+			$this->all_options .= CCTM::parse($optiontpl, $hash);
 		}
 		
 		$opt_cnt = count($this->options);
