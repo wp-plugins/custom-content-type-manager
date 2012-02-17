@@ -33,8 +33,8 @@ $Form = new GetPostsForm();
 
 //! Validation
 $args = array();
+$post_id_field = CCTM::get_value($_POST, 'post_id_field');
 $target_id = CCTM::get_value($_POST, 'target_id');
-$target_name = CCTM::get_value($_POST, 'target_name');
 $args['post_type'] = CCTM::get_value($_POST, 'post_type');
 
 
@@ -118,8 +118,9 @@ $search_by = array('search_term','yearmonth');
 
 // Pass these to hidden fields so jQuery can read them
 $Form->set_placeholder('post_type', $args['post_type']);
+$Form->set_placeholder('post_id_field', $post_id_field);		
 $Form->set_placeholder('target_id', $target_id);		
-$Form->set_placeholder('target_name', $target_name); 
+
 $d['search_form'] = $Form->generate($search_by, $args);
 
 

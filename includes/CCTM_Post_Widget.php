@@ -42,9 +42,22 @@ class CCTM_Post_Widget extends WP_Widget {
 		if (!isset($instance['post_id'])) {
 			$instance['post_id'] = ''; 	// default value
 		}
+		// Similar stuff here as in get_widget_post_tpl.php
 		else {
 			$Q = new GetPostsQuery();
 			$post = $Q->get_post($instance['post_id']);
+			$tpl = CCTM::load_tpl('widgets/post_item.tpl');
+			$post['post_icon'] = CCTM::get_thumbnail($instance['post_id']);
+			if ($post['post_type'] == 'attachment') {
+				$post['edit_url'] = get_admin_url('','media.php')."?attachment_id={$post['ID']}&action=edit";
+			}
+			else {
+				$post['edit_url'] = get_admin_url('','post.php')."?post={$post['ID']}&action=edit";
+			}
+			
+			$post['target_id'] = $this->get_field_id('target_id');
+
+			$formatted_post = CCTM::parse($tpl, $post);
 		}
 		if (!isset($instance['formatting_string'])) {
 			$instance['formatting_string'] = '[+post_content+]'; 	// default value
@@ -65,25 +78,28 @@ class CCTM_Post_Widget extends WP_Widget {
 			$post_type_options .= sprintf('<option value="%s" %s>%s</option>', $k, $is_selected, $v);
 		}
 
-		
+		$is_checked = '';
+		if (isset($instance['override_title']) && $instance['override_title'] ==1) {
+			$is_checked = ' checked="checked"';	
+		}
 		print '<p>'.$this->description
 			. '<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Post_Widget"><img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" /></a></p>
 			<label class="cctm_label" for="'.$this->get_field_id('post_type').'">Post Type</label>
-
+			<input type="hidden" id="'.$this->get_field_id('post_id').'" name="'.$this->get_field_name('post_id').'" value="[+ID+]" />
 			<select name="'.$this->get_field_name('post_type').'" id="'.$this->get_field_id('post_type').'">
 				'.$post_type_options.'
 			</select>
-			<span class="button" onclick="javascript:select_post(\''.$this->get_field_id('target_id').'\',\''.$this->get_field_name('target_id').'\',\''.$this->get_field_id('post_type').'\');">'. __('Choose Post', CCTM_TXTDOMAIN).'</span>
+			<span class="button" onclick="javascript:select_post(\''.$this->get_field_id('post_id').'\',\''.$this->get_field_id('target_id').'\',\''.$this->get_field_id('post_type').'\');">'. __('Choose Post', CCTM_TXTDOMAIN).'</span>
 
 			<br/><br/>
 			<strong>Selected Post</strong><br/>
-			<!-- also target for Ajax writes -->
-			<div id="'.$this->get_field_id('target_id').'"></div>
+			<!-- This is where we wrote the preview HTML -->
+			<div id="'.$this->get_field_id('target_id').'">'.$formatted_post.'</div>
 			<!-- Thickbox ID -->
-			<div id="target_'.$this->get_field_id('target_id').'"></div>
+			<div id="thickbox_'.$this->get_field_id('target_id').'"></div>
 			<br/><br/>
 			
-			<input type="checkbox" value="1"/> <label class="">Override Post Title</label>
+			<input type="checkbox" name="'.$this->get_field_name('override_title').'" value="1" '.$is_checked.'/> <label class="">'.__('Override Post Title',CCTM_TXTDOMAIN).'</label>
 			<label class="cctm_label" for="'.$this->get_field_id('title').'">'.__('Title', CCTM_TXTDOMAIN).'</label>
 			<input type="text" name="'.$this->get_field_name('title').'" id="'.$this->get_field_id('title').'" value="'.$instance['title'].'" />
 			
@@ -107,15 +123,20 @@ class CCTM_Post_Widget extends WP_Widget {
 		
 		$post = $Q->get_post($post_id);
 		
-		$output = $args['before_widget']
-			.$args['before_title'].$instance['title'].$args['after_title']
-			.'<ul>';
-		foreach ($results as $r) {
-			$output .= CCTM::parse($instance['formatting_string'], $r);
+		$title = $post['post_title']; // default is to use the post's title
+		if (isset($instance['override_title']) && $instance['override_title'] == 1) {
+			$title = $instance['title'];
 		}
-		$output .= '</ul>'
 		
-		. $args['after_widget'];
+		$output = $args['before_widget'];
+		$output .= $args['before_title'] . $title . $args['after_title'];
+		if (!empty($instance['formatting_string'])) {
+			$output .= CCTM::parse($instance['formatting_string'], $post);
+		}
+		else {
+			$output .= $post['post_content'];
+		}	
+		$output .= $args['after_widget'];
 		
 		print $output;
 	}

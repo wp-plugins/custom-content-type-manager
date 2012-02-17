@@ -3,7 +3,7 @@
 
 <input type="hidden" name="post_type" id="post_type" value="[+post_type+]" />
 <input type="hidden" name="target_id" id="target_id" value="[+target_id+]" />
-<input type="hidden" name="target_name" id="target_name" value="[+target_name+]" />
+<input type="hidden" name="post_id_field" id="post_id_field" value="[+post_id_field+]" />
 
 <select size="[+yearmonth.size+]" name="[+name_prefix+][+yearmonth.name+]" class="[+input_class+]" id="[+id_prefix+][+yearmonth.id+]">
 	<option value="">[+show_all_dates+]</option>

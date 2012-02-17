@@ -1,5 +1,4 @@
 <div id="wrapper_[+target_id+]">
-	<input type="hidden" id="[+target_id+]" name="[+target_name+]" value="[+ID+]" />
 	<table>
 		<tbody>
 			<tr>

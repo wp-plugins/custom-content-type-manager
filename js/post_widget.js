@@ -51,15 +51,6 @@ function remove_relation( target_id, target_html ) {
 
 
 /*------------------------------------------------------------------------------
-Add the selected posts to the parent post and close the thickbox.
-------------------------------------------------------------------------------*/
-function save_and_close() {
-	send_selected_posts_to_wp();
-	tb_remove();
-	return false;	
-}
-
-/*------------------------------------------------------------------------------
 Shows a search form from the "edit custom field" definition.
 We send along the fieldname and fieldtype to allow for customizations.
 On new definitions, the behavior defaults to the fieldtype because we don't 
@@ -109,7 +100,7 @@ Similar to the send_selected_posts_to_wp() function.
 function send_single_post_to_wp( post_id ) {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var target_id = jQuery('#target_id').val();
-	var target_name = jQuery('#target_name').val();
+	var post_id_field = jQuery('#post_id_field').val();
 	
 	//console.log('here...' + fieldname);
 	var data = {
@@ -118,6 +109,8 @@ function send_single_post_to_wp( post_id ) {
 	       	"post_id": post_id
 	    };
 
+	jQuery('#'+post_id_field).val(post_id); // set the post_id value
+	
 	jQuery.post(
 	    cctm.ajax_url,
 	    data,
@@ -125,7 +118,6 @@ function send_single_post_to_wp( post_id ) {
 	    	//alert('cctm_instance_wrapper_'+fieldname);
 	    	// Write the response to the div
 			jQuery('#'+target_id).html(response);
-			
 	    }
 	);
 
@@ -206,11 +198,11 @@ a behavior similar to those web forms where you can move items from one
 list to another.  We use it for the multi-select fields where we don't 
 want the user adding the same post over and over again.
 
-@param	string target_id	CSS id of where tpl result will be written
-@param	string target_name	CSS name of the field where the post_id will be stored.
+@param	string post_id_field	CSS id of where we need to store the selected post_id
+@param	string target_id	CSS name of the div where we write the tpl displaying the selected post
 @param	string post_type_field_id	the id of the select element containing the post-type options.
 ------------------------------------------------------------------------------*/
-function select_post(target_id, target_name, post_type_field_id) {
+function select_post(post_id_field, target_id, post_type_field_id) {
 
 	var post_type = jQuery('#'+post_type_field_id).val();;
 	
@@ -220,20 +212,20 @@ function select_post(target_id, target_name, post_type_field_id) {
 	    {
 	        "action" : 'post_content_widget',
 	        "post_content_widget_nonce" : cctm.ajax_nonce,
-	        "target_id" : target_id,
-	        "target_name": target_name,
+	        "post_id_field" : post_id_field,
 	        "post_type" : post_type,
+	        "target_id" : target_id,
 	        "wrap_thickbox": 1
 	    },
 	    function( response ) {
 	    	// Write the response to the div
-			jQuery('#target_'+target_id).html(response);
+			jQuery('#thickbox_'+target_id).html(response);
 			//tb_remove();
 			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
 			W = W - 80;
 			H = H - 84;
 			// then thickbox the div
-			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+target_id );			
+			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=thickbox_'+target_id );			
 
 	    }
 	);	

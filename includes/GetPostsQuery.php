@@ -1797,9 +1797,15 @@ class GetPostsQuery {
 			if (isset($indexed_meta[$r['ID']]) ) {
 				$r = array_merge($r, $indexed_meta[$r['ID']]);
 			}		
-			$r['permalink']  = get_permalink( $r['ID'] );
-			$r['parent_permalink'] = get_permalink( $r['parent_ID'] );
-			$r['post_id']  = $r['ID'];
+			$r['permalink'] 		= get_permalink( $r['ID'] );
+			$r['parent_permalink'] 	= get_permalink( $r['parent_ID'] );
+			$r['post_id']  			= $r['ID'];
+			$r['post_title'] 		= __($r['post_title']);
+//			$r['post_content']		= do_shortcode(wpautop(__($r['post_content'])));
+			$r['post_content']		= __($r['post_content']);
+			$r['post_excerpt']		= __($r['post_excerpt']);
+			
+			
 		}
 
 		
