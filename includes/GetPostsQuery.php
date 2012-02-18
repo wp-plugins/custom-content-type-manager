@@ -766,6 +766,7 @@ class GetPostsQuery {
 		case 'orderby':
 			if ($val == 'random') {
 				$this->sort_by_random = true;
+				return $val;
 				// $args['order'] = ''; // blank this out
 			}
 			elseif (!in_array( $val, self::$wp_posts_columns) ) {
@@ -1547,9 +1548,8 @@ class GetPostsQuery {
 				%s
 				
 				<h2>%s</h2>
-				<p>%s</p>
 					<div class="summarize-post-arguments">%s</div>
-
+					<p>%s</p>
 				<h2>%s</h2>
 					<div class="summarize-posts-query"><textarea rows="10" cols="80">%s</textarea></div>
 					<div class="summarize-posts-query"><textarea rows="10" cols="80">%s</textarea></div>
@@ -1566,8 +1566,8 @@ class GetPostsQuery {
 			, $this->get_notices()
 			, $this->get_duration()
 			, __('Arguments', CCTM_TXTDOMAIN)
-			, __('For more information on how to use this function, see the documentation for the <a href="http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts">GetPostsQuery::get_posts()</a> function.', CCTM_TXTDOMAIN)
 			, $this->get_args()
+			, __('For more information on how to use this function, see the documentation for the <a href="http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts">GetPostsQuery::get_posts()</a> function.', CCTM_TXTDOMAIN)
 			, __('Raw Database Queries', CCTM_TXTDOMAIN)
 			, $this->SQL1
 			, $this->SQL2

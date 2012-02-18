@@ -75,6 +75,10 @@ class SummarizePosts_Widget extends WP_Widget {
 	 * Process the $args to something GetPostsQuery. 
 	 */
 	function widget($args, $instance) {
+	
+		if (!isset($instance['parameters']) || empty($instance['parameters'])) {
+			return; // don't do anything until the search is defined.
+		}
 		
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 
@@ -82,10 +86,16 @@ class SummarizePosts_Widget extends WP_Widget {
 		$search_parameters_str = $instance['parameters'];
 		parse_str($search_parameters_str, $q_args);
 		
+		//print_r($q_args); exit;
+		if (isset($q_args['include']) && empty($q_args['include'])) {
+			unset($q_args['include']);
+		}
+		
 		$Q = new GetPostsQuery();
 		
 		$results = $Q->get_posts($q_args);
-		
+		//print $Q->debug(); return;
+
 		$output = $args['before_widget']
 			.$args['before_title'].$instance['title'].$args['after_title']
 			.'<ul>';

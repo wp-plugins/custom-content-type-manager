@@ -117,6 +117,11 @@ class CCTM_Post_Widget extends WP_Widget {
 	 */
 	function widget($args, $instance) {
 		
+		// Avoid placing empty widgets
+		if (!isset($instance['post_id']) || empty($instance['post_id'])) {
+			return;
+		} 
+		
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 
 		$post_id = (int) $instance['post_id'];
@@ -126,13 +131,21 @@ class CCTM_Post_Widget extends WP_Widget {
 		$post = $Q->get_post($post_id);
 		$post['post_content'] = do_shortcode(wpautop($post['post_content']));
 		
-		$title = $post['post_title']; // default is to use the post's title
+		$output = $args['before_widget'];
+		
+		
 		if (isset($instance['override_title']) && $instance['override_title'] == 1) {
 			$title = $instance['title'];
 		}
+
+		else {
+			$title = $post['post_title']; // default is to use the post's title
+		}
 		
-		$output = $args['before_widget'];
-		$output .= $args['before_title'] . $title . $args['after_title'];
+		if (!empty($title)) {
+			$output .= $args['before_title'] . $title . $args['after_title'];
+		}
+				
 		if (!empty($instance['formatting_string'])) {
 			$output .= CCTM::parse($instance['formatting_string'], $post);
 		}
