@@ -11,15 +11,18 @@ Used for flipping through pages of thickbox'd search results.
 ------------------------------------------------------------------------------*/
 function change_page(page_number) {
 
-	// It's easier to read it from a hidden field than it is to pass it to this function
-	var fieldname = jQuery('#fieldname').val();
-
 	jQuery('#page_number').val(page_number); // store the value so it can be serialized
 
+	var post_id_field = jQuery('#post_id_field').val();
+	var post_type = jQuery('#post_type').val();
+	var target_id = jQuery('#target_id').val();
+	
 	var data = {
-	        "action" : 'get_posts',
-	        "fieldname" : fieldname,
-	        "get_posts_nonce" : cctm.ajax_nonce
+	        "action" : 'post_content_widget',
+	        "post_content_widget_nonce" : cctm.ajax_nonce,
+	       	"post_id_field" : post_id_field,
+	        "post_type" : post_type,
+	        "target_id" : target_id,
 	    };
 	    
 	data.search_parameters = jQuery('#select_posts_form').serialize();
@@ -167,13 +170,15 @@ Reset search -- back to the original results
 ------------------------------------------------------------------------------*/
 function thickbox_reset_search() {
 
+	var post_type = jQuery('#post_type').val();
 	
 	jQuery('#page_number').val('0');
 	
 	var data = 
 		{
 	        "action" : 'post_content_widget',
-	        "post_content_widget_nonce" : cctm.ajax_nonce
+	        "post_content_widget_nonce" : cctm.ajax_nonce,
+	        "post_type" : post_type
 	    };
 	
 	jQuery.post(
@@ -237,7 +242,6 @@ Fired when a column header is clicked.
 ------------------------------------------------------------------------------*/
 function thickbox_sort_results(sort_column) {
 		// It's easier to read it from a hidden field than it is to pass it to this function
-	var fieldname = jQuery('#fieldname').val();
 	var order = jQuery('#order').val();
 	var orderby = jQuery('#orderby').val(); 
 	
@@ -255,9 +259,8 @@ function thickbox_sort_results(sort_column) {
 	jQuery('#page_number').val('0'); // go back to first page when we resort
 	var data = 
 		{
-	        "action" : 'get_posts',
-	        "fieldname" : fieldname,
-	        "get_posts_nonce" : cctm.ajax_nonce
+	        "action" : 'post_content_widget',
+	        "post_content_widget_nonce" : cctm.ajax_nonce
 	    };
 
 	data.search_parameters = jQuery('#select_posts_form').serialize();

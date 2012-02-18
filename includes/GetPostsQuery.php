@@ -588,19 +588,28 @@ class GetPostsQuery {
 	 */
 	private function _normalize_recordset($records) {
 		// Default values will force an attribute, even if the attribute doesn't exist in the recordset
-		$unique_attributes = array_keys($this->custom_default_values);
+		$tmp = array_keys($this->custom_default_values);
+		$unique_attributes = array();
+		
+		foreach ($tmp as $item) {
+			$unique_attributes[$item] = 1;
+		}
 
 		// Get unique attributes
 		foreach ($records as $r) {
-			$unique_attributes = array_merge( array_keys( (array) $r), $unique_attributes);
+			foreach ($r as $k => $v) {
+				$unique_attributes[$k] = 1;
+			}
+
 		}
-		$unique_attributes = array_unique($unique_attributes);
+
+		$unique_attributes = array_keys($unique_attributes);
 
 		// Ensure that each record has the same attributes
-		foreach ($records as &$r) {
+		foreach ($records as $i => $r) {
 			foreach ($unique_attributes as $a) {
-				if (!isset($r[$a])) {
-					$r[$a] = '';
+				if (!isset($records[$i][$a])) {
+					$records[$i][$a] = '';
 				}
 			}
 		}
@@ -608,9 +617,9 @@ class GetPostsQuery {
 		// Set any default values
 		if (!empty($this->custom_default_values)) {
 			foreach ($this->custom_default_values as $key => $value) {
-				foreach ($records as &$r) {
-					if (empty($r[$key])) {
-						$r[$key] = $value;
+				foreach ($records as $i => $r) {
+					if (empty($records[$i][$key])) {
+						$records[$i][$key] = $value;
 					}
 				}
 			}
@@ -1713,7 +1722,7 @@ class GetPostsQuery {
 	 */
 	public function get_post($id) {
 
-		$post = $this->get_posts(array('ID' => $id ), true);
+		$post = $this->get_posts(array('ID' => $id, 'limit'=>1 ), true);
 		if (!empty($post) ) {
 			return $post[0]; // return first post
 		}
@@ -1807,8 +1816,6 @@ class GetPostsQuery {
 			
 			
 		}
-
-		
 
 		
 		$postdata = $this->_normalize_recordset($postdata);

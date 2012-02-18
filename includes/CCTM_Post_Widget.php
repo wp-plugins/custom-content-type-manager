@@ -32,6 +32,8 @@ class CCTM_Post_Widget extends WP_Widget {
 	 */
 	public function form($instance) {
 		
+		// print '<pre>'.print_r($instance,true).'</pre>';
+		
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 
 		$formatted_post = ''; // Formatted post
@@ -85,10 +87,10 @@ class CCTM_Post_Widget extends WP_Widget {
 		print '<p>'.$this->description
 			. '<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Post_Widget"><img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" /></a></p>
 			<label class="cctm_label" for="'.$this->get_field_id('post_type').'">Post Type</label>
-			<input type="hidden" id="'.$this->get_field_id('post_id').'" name="'.$this->get_field_name('post_id').'" value="[+ID+]" />
+			<input type="hidden" id="'.$this->get_field_id('post_id').'" name="'.$this->get_field_name('post_id').'" value="'.$instance['post_id'].'" />
 			<select name="'.$this->get_field_name('post_type').'" id="'.$this->get_field_id('post_type').'">
 				'.$post_type_options.'
-			</select>
+			</select><br/>
 			<span class="button" onclick="javascript:select_post(\''.$this->get_field_id('post_id').'\',\''.$this->get_field_id('target_id').'\',\''.$this->get_field_id('post_type').'\');">'. __('Choose Post', CCTM_TXTDOMAIN).'</span>
 
 			<br/><br/>
@@ -122,6 +124,7 @@ class CCTM_Post_Widget extends WP_Widget {
 		$Q = new GetPostsQuery();
 		
 		$post = $Q->get_post($post_id);
+		$post['post_content'] = do_shortcode(wpautop($post['post_content']));
 		
 		$title = $post['post_title']; // default is to use the post's title
 		if (isset($instance['override_title']) && $instance['override_title'] == 1) {

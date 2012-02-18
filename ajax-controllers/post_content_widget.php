@@ -13,8 +13,8 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 // Template Variables Initialization
 $d = array(); 
 $d['search_parameters'] = '';
-$d['fieldname'] 		= '';
 $d['menu']				= '';
+$d['fieldname']			= ''; // needed for thickbox.php
 $d['search_form']		= '';
 $d['content']			= '';
 $d['page_number']		= '0'; 
@@ -54,10 +54,14 @@ if (isset($_POST['search_parameters'])) {
 	
 	// Unsest these, otherwise the query will try to search them as custom field values.
 	unset($args['page_number']);
-	
+	unset($args['post_id_field']);
+	unset($args['target_id']);	
 }
 
 
+// defaults....
+$args['orderby'] = $d['orderby'];
+$args['order'] = $d['order'];
 
 // Set up search boundaries (i.e. the parameters used when nothing else is specified).
 // Load up the config...
@@ -107,6 +111,7 @@ if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 // Get the results
 $results = $Q->get_posts($args);
 
+
 $search_form_tpl = CCTM::load_tpl(
 	array('post_selector/search_forms/_post_content_widget.tpl')
 );
@@ -143,6 +148,7 @@ $hash['post_date'] 		= __('Date', CCTM_TXTDOMAIN);
 $hash['post_status'] 	= __('Status', CCTM_TXTDOMAIN);
 $hash['post_parent'] 	= __('Parent', CCTM_TXTDOMAIN);
 $hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
+$hash['fieldname'] = ''; // needed for thickbox_inner.php
 //$hash['filter'] 		= __('Filter', CCTM_TXTDOMAIN);
 //$hash['show_all']		= __('Show All', CCTM_TXTDOMAIN);
 
@@ -152,16 +158,9 @@ $hash['content'] = '';
 //$results = array();
 foreach ($results as $r){
 	
-//	$r['name'] = $raw_fieldname;
 	$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 	$r['select'] = __('Select', CCTM_TXTDOMAIN);	
-//	$r['field_id'] = $raw_fieldname;
-	$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);
-	// Translate stuff (issue 279)
-	$r['post_title'] = __($r['post_title']);
-	$r['post_content'] = __($r['post_content']);
-	$r['post_excerpt'] = __($r['post_excerpt']);
-	
+	$r['thumbnail_url'] = CCTM::get_thumbnail($r['ID']);	
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
 
@@ -175,6 +174,8 @@ if (isset($_POST['wrap_thickbox'])){
 }
 else {
 	//print CCTM::load_view('templates/thickbox_inner.php', $d);
+//	print '<pre>'. $Q->debug() . '</pre>';
+//	print '<pre>'. print_r($d, true) . '</pre>';
 	print $d['content'];
 }
 
