@@ -313,18 +313,19 @@ class SummarizePosts
 		This is my home-rolled version of how the_content() works.
 
 	 */
-	static function get_the_content($post_id, $content, $more_link_text = null, $stripteaser = 0) {
+	static function get_the_content($id, $content, $more_link_text = null, $stripteaser = 0) {
 
-		$content = get_the_content( 'read more &raquo;');
-		#print $content;
+		// $content = get_the_content( 'read more &raquo;');
+		//print $content;
 		// $post_id = get_the_ID();
 		//print $post_id; exit;
 		// $more = '<span id="more-'.$post_id.'"></span>';
 		$more = '<span id="more';
-#						$more = preg_quote('<span id="more-'.$post_id.'"></span>');						
-		// print $more; exit;
+
 		$content = preg_replace('/'.$more.'.*$/ms', '', $content);
-		$content = strip_tags($content) . '<a href="'.get_permalink(get_the_ID()).'">read more &raquo;</a>'; 
+		return $content;
+
+		//$content = $content . '<a href="'.get_permalink($id).'">read more &raquo;</a>'; 
 		
 		return $content;
 	}
@@ -577,7 +578,8 @@ Convenience:
 
 	*/
 	public static function get_posts($raw_args=array(), $content_tpl = null)
-	{	
+	{
+	
 		if (empty($raw_args) || !is_array($raw_args)) {
 			$raw_args = array();
 		}

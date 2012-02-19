@@ -448,9 +448,9 @@ class CCTM_Pagination {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Set the number of results to show per page.
 	 *
-	 *
-	 * @param unknown $results_per_page (optional)
+	 * @param integer $results_per_page (optional)
 	 */
 	public function set_results_per_page($results_per_page='') {
 		if ( $results_per_page=='') {
@@ -471,17 +471,24 @@ class CCTM_Pagination {
 	 * @param string $active_group (optional) specifies a group of tpls in the Config class.
 	 */
 	public function set_tpls($active_group='') {
-		if ($active_group=='') {
-			$active_group = $this->Config->active_group;
+		if (is_array($active_group)) {
+			foreach($active_group as $k => $v) {
+				$this->$k = $v;
+			}
 		}
-
-		$this->firstTpl   = $this->Config->tpls[$active_group]['firstTpl'];
-		$this->lastTpl    = $this->Config->tpls[$active_group]['lastTpl'];
-		$this->prevTpl    = $this->Config->tpls[$active_group]['prevTpl'];
-		$this->nextTpl    = $this->Config->tpls[$active_group]['nextTpl'];
-		$this->currentPageTpl  = $this->Config->tpls[$active_group]['currentPageTpl'];
-		$this->pageTpl    = $this->Config->tpls[$active_group]['pageTpl'];
-		$this->outerTpl   = $this->Config->tpls[$active_group]['outerTpl'];
+		else {			
+			if ($active_group=='') {
+				$active_group = $this->Config->active_group;
+			}
+	
+			$this->firstTpl   = $this->Config->tpls[$active_group]['firstTpl'];
+			$this->lastTpl    = $this->Config->tpls[$active_group]['lastTpl'];
+			$this->prevTpl    = $this->Config->tpls[$active_group]['prevTpl'];
+			$this->nextTpl    = $this->Config->tpls[$active_group]['nextTpl'];
+			$this->currentPageTpl  = $this->Config->tpls[$active_group]['currentPageTpl'];
+			$this->pageTpl    = $this->Config->tpls[$active_group]['pageTpl'];
+			$this->outerTpl   = $this->Config->tpls[$active_group]['outerTpl'];
+		}
 	}
 }
 

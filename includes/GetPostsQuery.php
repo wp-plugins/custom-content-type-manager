@@ -195,7 +195,8 @@ class GetPostsQuery {
 	public $SQL2;	// secondary query: returns all post data for the IDs from SQL1
 	public $SQL3;	// meta query: return all post meta for the IDs from SQL2
 
-
+	public $tpls; // stores formatting templates for Pagination links
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Read input arguments into the global parameters. Relies on the WP shortcode_atts()
@@ -328,13 +329,18 @@ class GetPostsQuery {
 	 *
 	 * See http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=21
 	 *
-	 * @param array   taxonomy_terms that we want to follow down for their children terms
-	 * @param unknown $all_terms_array
+	 * @param array   $all_terms_array taxonomy_terms that we want to follow down for their children terms
+	 * @param string $type 'name' or 'slug', depending on whether you're searching by a tax. term (name) or by slug. 
 	 * @return array inital taxonomy_terms and their children (to the nth degree as def'd by taxonomy_depth)
 	 */
-	private function _append_children_taxonomies($all_terms_array) {
+	private function _append_children_taxonomies($all_terms_array, $type='name') {
 
 		global $wpdb;
+
+		// Just in case this arrives as a string.
+		if (!is_array($all_terms_array)) {
+			$all_terms_array = array($all_terms_array);
+		}
 
 		// We start with the parent terms...
 		$parent_terms_array = $all_terms_array;
@@ -347,7 +353,7 @@ class GetPostsQuery {
 
 			$terms = '('. implode(',', $parent_terms_array) . ')';
 
-			$query = $wpdb->prepare("SELECT {$wpdb->terms}.name
+			$query = $wpdb->prepare("SELECT {$wpdb->terms}.$type
 				FROM
 				{$wpdb->terms} JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id
 				WHERE
@@ -355,7 +361,7 @@ class GetPostsQuery {
 					SELECT {$wpdb->terms}.term_id
 					FROM {$wpdb->terms}
 					JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id
-					WHERE {$wpdb->terms}.name IN $terms
+					WHERE {$wpdb->terms}.$type IN $terms
 					AND {$wpdb->term_taxonomy}.taxonomy=%s
 				)", $this->taxonomy);
 
@@ -367,8 +373,8 @@ class GetPostsQuery {
 
 			$parent_terms_array = array(); // <-- reset this thing for the next iteration
 			foreach ($results as $r) {
-				$all_terms_array[] = $r['name']; // append
-				$parent_terms_array[] = $r['name']; // and set this for the next generation
+				$all_terms_array[] = $r[$type]; // append
+				$parent_terms_array[] = $r[$type]; // and set this for the next generation
 			}
 			$i++;
 		}
@@ -834,6 +840,9 @@ class GetPostsQuery {
 				break;
 			case '5': // e.g. 3/30/2011
 				return 'n/j/Y';
+				break;
+			case '6': // e.g. January 20, 2012
+				return 'F j, Y';
 				break;
 			default:
 				return $val;
@@ -1513,7 +1522,12 @@ class GetPostsQuery {
 		if ( $this->taxonomy
 			&& ($this->taxonomy_term || $this->taxonomy_slug)
 			&& $this->taxonomy_depth > 1) {
-			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
+			if (!empty($this->taxonomy_term)) {
+				$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term, 'name');
+			}
+			else {
+				$this->taxonomy_slug = $this->_append_children_taxonomies($this->taxonomy_slug, 'slug');
+			}
 		}
 			
 		// Execute the primary query: get the post IDs that match the filters, 
@@ -1751,10 +1765,13 @@ class GetPostsQuery {
 			$this->set_defaults(array(), true);
 		}
 		
-		// Include no IDs = empty result set
+		// Include no IDs = empty result set.  Gotta uncomment this or shortcodes and other 
+		// forms break
+/*
 		if (isset($args['include']) && empty($args['include'])) {
 			return array();
 		}
+*/
 		
 		foreach ($args as $k => $v) {
 			$this->$k = $v; // this will utilize the _sanitize_arg() function.
@@ -1766,7 +1783,12 @@ class GetPostsQuery {
 		if ( $this->taxonomy
 			&& ($this->taxonomy_term || $this->taxonomy_slug)
 			&& $this->taxonomy_depth > 1) {
-			$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term);
+			if (!empty($this->taxonomy_term)) {
+				$this->taxonomy_term = $this->_append_children_taxonomies($this->taxonomy_term, 'name');
+			}
+			else {
+				$this->taxonomy_slug = $this->_append_children_taxonomies($this->taxonomy_slug, 'slug');
+			}
 		}
 			
 		// Execute the primary query: get the post IDs that match the filters, 
@@ -1788,6 +1810,9 @@ class GetPostsQuery {
 			$this->P->set_base_url( self::get_current_page_url() );
 			$this->P->set_offset($this->offset); //
 			$this->P->set_results_per_page($this->limit);  // You can optionally expose this to the user.
+			if (!empty($this->tpls)) {
+				$this->P->set_tpls($this->tpls);
+			}
 			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
 		}
 		
@@ -1802,7 +1827,7 @@ class GetPostsQuery {
 
 		// Merge the postdata with the metadata
 		foreach ($postdata as &$r) {
-			// die(print_r($indexed_meta[$r['ID']], true));
+			
 			if (isset($indexed_meta[$r['ID']]) ) {
 				$r = array_merge($r, $indexed_meta[$r['ID']]);
 			}		
@@ -1982,6 +2007,24 @@ class GetPostsQuery {
 	 */
 	public function set_include_hidden_fields($yn) {
 		$this->include_hidden_fields = (bool) $yn;
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Set tpls to be used for formatting of pagination links
+	 * @param	array
+	 */
+	public function set_tpls($tpls) {
+		$valid_tpls = array('firstTpl','lastTpl','prevTpl','nextTpl','currentPageTpl','pageTpl','outerTpl');
+		
+		foreach ($valid_tpls as $tpl) {
+			if (isset($tpls[$tpl])) {
+				$this->tpls[$tpl] = $tpls[$tpl];
+			}
+			else {
+				$this->tpls[$tpl] = '';
+			}
+		}		
 	}
 }
 

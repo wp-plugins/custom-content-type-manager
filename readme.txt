@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3
 Tested up to: 3.3.1
-Stable tag: 0.9.5.8
-Version: 0.9.5.9-dev
+Stable tag: 0.9.5.9
+Version: 0.9.5.9-pl
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -79,7 +79,8 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.9.5.9 =
 
-* Added new "Post Content" widget.
+* Added new "Post Content" widget (beta)
+* Fixed several problems with Summarize Posts (including shortcode execution)
 
 = 0.9.5.8 =
 
@@ -330,7 +331,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.5.9 =
 
-Added "Post Content" widget, fixed issue with empty radio button option.
+Fixed issues with Summarize Posts shortcodes, empty radio buttons. Added "Post Content" widget.
 
 = 0.9.5.8 =
 

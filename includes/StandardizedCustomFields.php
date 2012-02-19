@@ -256,31 +256,36 @@ class StandardizedCustomFields
 			$post = get_post($post_id);
 			$post_type = $post->post_type;
 		}
-		if (!empty($post_type)) {
-			// Show the big icon: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
-			if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
-				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
-				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-				// die($baseimg); 
-				if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
-					printf('
-					<style>
-						#icon-edit, #icon-post {
-						  background-image:url(%s);
-						  background-position: 0px 0px;
-						}
-					</style>'
-					, CCTM_URL . '/images/icons/32x32/'. $baseimg);
-				}
-			}
-			
-			// Validate the custom fields: only need to do this AFTER a post-new.php has been created.
-			$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
-			if ( in_array($file, array('post.php'))) {
-//				add_filter('post_updated_messages', 'CCTM::validation_messages');
-				self::_validate_fields($post_type);
+
+		// Only do this stuff for active post-types
+		if (!isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
+			return; 
+		}
+		
+		// Show the big icon: http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
+		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
+			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+			// die($baseimg); 
+			if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
+				printf('
+				<style>
+					#icon-edit, #icon-post {
+					  background-image:url(%s);
+					  background-position: 0px 0px;
+					}
+				</style>'
+				, CCTM_URL . '/images/icons/32x32/'. $baseimg);
 			}
 		}
+		
+		// Validate the custom fields: only need to do this AFTER a post-new.php has been created.
+		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
+		if ( in_array($file, array('post.php'))) {
+//				add_filter('post_updated_messages', 'CCTM::validation_messages');
+			self::_validate_fields($post_type);
+		}
+
 	}
 
 	/*------------------------------------------------------------------------------
