@@ -15,7 +15,9 @@ class CCTM_wrapper extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+
 		$inputs = $this->to_array($input);
+
 		$output = '';
 		
 		foreach ($inputs as $input) {

@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.9';
+	const version = '0.9.5.10';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -164,6 +164,7 @@ class CCTM {
 		, 'cache_thumbnail_images' => 0
 		, 'save_empty_fields' => 1
 		, 'summarizeposts_tinymce' => 1
+		, 'custom_fields_tinymce' => 1
 		, 'flush_permalink_rules' => 1
 	);
 
@@ -554,6 +555,38 @@ class CCTM {
 		self::load_file('/config/menus/admin_menu.php');
 	}
 
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Handles printing of custom fields in the main content blocks.
+	 *
+	 * @param	array	$raw_args: parameters from the shortcode: name, filter
+	 * @param	string	$options (optional)
+	 * @return string (printed)
+	 */
+	public static function custom_field($raw_args=array(), $options = null) {
+		$defaults = array(
+			'name' => '',
+			'filter' => '',
+		);
+		$args = shortcode_atts($defaults, $raw_args );
+		
+		if (empty($args['name'])) {
+			print __('custom_field shortcode requires the "name" parameter.', CCTM_TXTDOMAIN);
+		}
+
+		// Append the ':filter' to the name
+		if (!empty($args['filter'])) {
+			$args['name'] = $args['name'] . ':' . $args['filter'];
+		}
+		
+		if (!empty($options)) {
+			print_custom_field($args['name'], htmlspecialchars_decode($options));	
+		}
+		else {
+			print_custom_field($args['name']);
+		}
+	}
 
 	/**
 	 * Delete a directoroy and its contents.
@@ -2068,55 +2101,24 @@ class CCTM {
 		return $value;
 	}
 
-
 	//------------------------------------------------------------------------------
 	/**
-	 * Used to message the user if a req'd field was omitted or validation failed.
-	 * The message displayed comes from $_GET['message']... this is kinda a 
-	 * dumb way of doing this, but 
+	 * Adds the button to the TinyMCE 1st row.
 	 */
-	public static function validation_messages($msgs) {
-	
-		$flash = self::get_flash();
-		$validation_errors = json_decode( $flash, true);
-		if (!empty($validation_errors)) {
-			$msg = '';
-			foreach($validation_errors as $field_name => $error) {
-				if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
-					continue;
-				}
-				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
-				if (CCTM::include_form_element_class($field_type)) {
-					$field_type_name = CCTM::classname_prefix.$field_type;
-					$FieldObj = new $field_type_name(); // Instantiate the field element
-					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
-					
-					if ($error == 'required') {
-						$msg .= sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
-					}
-					else {
-						// get other validation errors
-					}
-				}
-			}
-			// Pop a validation message
-			$msg .= '<script type="text/javascript">
-				jQuery(document).ready(function() {
-				  alert("'.__('There were validation errors. This record will be kept in draft status until the errors are resolved.', CCTM_TXTDOMAIN).'");
-				});
-			</script>';
-			// You have to print the style because WP is overriding styles after the cctm manager.css is included.
-			$msg .= '<style>';
-			$msg .= file_get_contents(CCTM_PATH.'/css/validation.css');
-			$msg .= '</style>';
-			self::set_flash($flash); // pass this on to the StandardizeCustomFields ???
-			$msgs['post'][6] = $msg;
-			$msgs['page'][6] = $msg; 
-		}
-		
-		return $msgs;
+	public static function tinyplugin_add_button($buttons) {
+	    array_push($buttons, '|', 'custom_fields');
+	    return $buttons;
 	}
-
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	public static function tinyplugin_register($plugin_array) {
+	    $url = CCTM_URL.'/js/plugins/custom_fields.js';
+	    $plugin_array['custom_fields'] = $url;
+	    return $plugin_array;
+	}
 }
 
 

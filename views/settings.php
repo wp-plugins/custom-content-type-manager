@@ -92,9 +92,18 @@
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_summarizeposts_tinymce">
 			<input type="checkbox" name="summarizeposts_tinymce" class="cctm_checkbox" id="summarizeposts_tinymce" value="1" <?php print $data['settings']['summarizeposts_tinymce']; ?>/>
 			<label for="summarizeposts_tinymce" class="cctm_label cctm_checkbox_label" id="cctm_label_summarizeposts_tinymce">
-				<?php _e('Summarize Posts TinyMCE Button', CCTM_TXTDOMAIN); ?>
+				<?php _e('Summarize Posts TinyMCE Button', CCTM_TXTDOMAIN); ?> <img src="<?php print CCTM_URL; ?>/images/summarize_posts_icon.png" height="16" width="16" />
 			</label>
 			<span class="cctm_description"><?php _e("Provides a TinyMCE button for a graphically choosing search criteria and generating a Summarize Posts shortcode.", CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		<!--!Include Custom Fields TinyMCE button -->		
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_summarizeposts_tinymce">
+			<input type="checkbox" name="custom_fields_tinymce" class="cctm_checkbox" id="custom_fields_tinymce" value="1" <?php print $data['settings']['custom_fields_tinymce']; ?>/>
+			<label for="custom_fields_tinymce" class="cctm_label cctm_checkbox_label" id="cctm_label_custom_fields_tinymce">
+				<?php _e('Custom Fields TinyMCE Button', CCTM_TXTDOMAIN); ?> <img src="<?php print CCTM_URL; ?>/images/wrench.png" height="16" width="16" />
+			</label>
+			<span class="cctm_description"><?php _e("Provides a TinyMCE button for a graphically choosing a custom field whose value you wish to display in the main content block.", CCTM_TXTDOMAIN); ?></span>
 		</div>
 
 		<!--!Flush Permalink Rules -->		

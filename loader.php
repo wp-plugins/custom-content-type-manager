@@ -42,6 +42,7 @@ if ( empty(CCTM::$errors) )
 	// Shortcodes
 	add_shortcode('summarize-posts', 'SummarizePosts::get_posts');
 	add_shortcode('summarize_posts', 'SummarizePosts::get_posts');
+	add_shortcode('custom_field', 'CCTM::custom_field');
 
 	// Summarize Posts Tiny MCE button
 	if (CCTM::get_setting('summarizeposts_tinymce')) {
@@ -49,6 +50,13 @@ if ( empty(CCTM::$errors) )
 		add_filter('mce_external_plugins', 'SummarizePosts::tinyplugin_register');
 		add_filter('mce_buttons', 'SummarizePosts::tinyplugin_add_button', 0);
 	}
+	// Custom Fields Tiny MCE button
+	if (CCTM::get_setting('custom_fields_tinymce')) {
+//		die('....>'.CCTM::get_setting('summarizeposts_tinymce'));
+		add_filter('mce_external_plugins', 'CCTM::tinyplugin_register');
+		add_filter('mce_buttons', 'CCTM::tinyplugin_add_button', 0);
+	}	
+	
 	//add_action('init','PHP_Snippet_Functions::init');
 
 	//print_r(CCTM::$data); exit;
@@ -74,10 +82,7 @@ if ( empty(CCTM::$errors) )
 		add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
 		add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
 		add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
-		
-		// Message user if required field is missing or validation failed
-//		add_filter('post_updated_messages', 'CCTM::validation_messages');
-		
+				
 		// Customize the page-attribute box for custom page hierarchies
 		add_filter('wp_dropdown_pages','StandardizedCustomFields::customized_hierarchical_post_types', 100, 1);
 

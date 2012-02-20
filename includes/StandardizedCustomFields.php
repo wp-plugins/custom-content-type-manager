@@ -282,7 +282,6 @@ class StandardizedCustomFields
 		// Validate the custom fields: only need to do this AFTER a post-new.php has been created.
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		if ( in_array($file, array('post.php'))) {
-//				add_filter('post_updated_messages', 'CCTM::validation_messages');
 			self::_validate_fields($post_type);
 		}
 

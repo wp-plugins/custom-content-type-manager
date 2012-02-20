@@ -66,17 +66,28 @@ abstract class CCTM_OutputFilter {
 	 * @return	array
 	 */
 	public function to_array($input) {
+		
+		if (empty($input)) {
+			return array();
+		}
+		
 		$the_array = array();
 		
 		if (is_array($input)) {
 			return $input; // No JSON converting necessary: PHP array supplied.
 		}
 		else {
+			// This will destroy the input if it's not json
 			$output = json_decode($input, true);
-	
+			
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
 			if ( !is_array($output) ) {
-				return array($output);
+				if (empty($output) && !empty($input)) {
+					return array($input);
+				}
+				else {
+					return array($output);
+				}			
 			}
 			else {
 				return $output;

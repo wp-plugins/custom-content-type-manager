@@ -48,6 +48,42 @@ function remove_all_relations(field_id) {
 This is called by the TinyMCE button click.  Make sure this function name 
 matched the one in editor_plugin.js!
 ------------------------------------------------------------------------------*/
+function show_custom_fields() {
+	// Read post-type from the page (WP stores it in a hidden field)
+	var post_type = jQuery('#post_type').val();
+
+	// Make us a place for the thickbox
+	jQuery('body').append('<div id="cctm_fields_thickbox"></div>');
+
+	// Prepare the AJAX query
+	var data = {
+	        "action" : 'list_custom_fields',
+	        "list_custom_fields_nonce" : cctm.ajax_nonce,
+	        "post_type":post_type
+	    };
+	    
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	
+	    	// Write the response to the div
+			jQuery('#cctm_fields_thickbox').html(response);
+
+			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
+			W = W - 80;
+			H = H - 114; // 84?
+			// then thickbox the div
+			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=cctm_fields_thickbox' );			
+	    }
+	);
+	
+}
+
+/*------------------------------------------------------------------------------
+This is called by the TinyMCE button click.  Make sure this function name 
+matched the one in editor_plugin.js!
+------------------------------------------------------------------------------*/
 function show_summarize_posts() {
 	// Make us a place for the thickbox
 	jQuery('body').append('<div id="summarize_posts_thickbox"></div>');

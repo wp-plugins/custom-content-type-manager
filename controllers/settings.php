@@ -34,6 +34,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['cache_thumbnail_images'] 	= (int) CCTM::get_value($_POST, 'cache_thumbnail_images', 0);
 	self::$data['settings']['save_empty_fields'] 		= (int) CCTM::get_value($_POST, 'save_empty_fields', 0);
 	self::$data['settings']['summarizeposts_tinymce'] 		= (int) CCTM::get_value($_POST, 'summarizeposts_tinymce', 0);
+	self::$data['settings']['custom_fields_tinymce'] 		= (int) CCTM::get_value($_POST, 'custom_fields_tinymce', 0);
 	self::$data['settings']['flush_permalink_rules'] 		= (int) CCTM::get_value($_POST, 'flush_permalink_rules', 0);
 	
 	update_option( self::db_key, self::$data );
@@ -62,6 +63,7 @@ $checkboxes = array(
  	, 'cache_thumbnail_images'
  	, 'save_empty_fields'
  	, 'summarizeposts_tinymce'
+ 	, 'custom_fields_tinymce'
  	, 'flush_permalink_rules'
 );
 

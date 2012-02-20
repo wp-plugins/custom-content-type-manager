@@ -1685,7 +1685,15 @@ class GetPostsQuery {
 			, $output);
 	}
 
-
+	//------------------------------------------------------------------------------
+	/**
+	 * Gets the # of rows found given the criteria
+	 * @return integer
+	 */
+	public function get_found_rows() {
+		return (int) $this->found_rows;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Format any errors in an unordered list, or returns a message saying there were no errors.
