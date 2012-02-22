@@ -22,9 +22,14 @@ class CCTM_Post_Widget extends WP_Widget {
 		
 		parent::__construct(__CLASS__, $this->name, $widget_options, $this->control_options);
 
-		wp_enqueue_script('thickbox');
-		wp_register_script('cctm_post_widget', CCTM_URL.'/js/post_widget.js', array('jquery', 'media-upload', 'thickbox'));
-		wp_enqueue_script('cctm_post_widget');	}
+		// We only need the additional functionality for the back-end.
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=331
+		if( is_admin() && is_active_widget( false, false, $this->id_base, true )) {	
+			wp_enqueue_script('thickbox');
+			wp_register_script('cctm_post_widget', CCTM_URL.'/js/post_widget.js', array('jquery', 'media-upload', 'thickbox'));
+			wp_enqueue_script('cctm_post_widget');	
+		}
+	}
 
 	//------------------------------------------------------------------------------
 	/**
