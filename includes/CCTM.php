@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.10';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.5.11';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -1465,9 +1465,10 @@ class CCTM {
 	 *
 	 * @param	array|string	$files: filename relative to the path, e.g. '/config/x.php'. Should begin with "/"
 	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
+	 * @param	string			$load_type (optional) include|include_once|require|require_once -- default is 'include'
 	 * @param	mixed	file name used on success, false on fail.
 	 */
-	public static function load_file($files, $additional_paths=array()) {
+	public static function load_file($files, $additional_paths=array(), $load_type='include') {
 
 		if (!is_array($files)){
 			$files = array($files);
@@ -1497,15 +1498,30 @@ class CCTM {
 		
 		// Look through the directories in order.
 		foreach ($paths as $dir) {
-			if (file_exists($dir.$file)) { 
-				include($dir.$file);
+			if (file_exists($dir.$file)) {
+				// Variable functions didn't seem to work here.
+				switch ($load_type) {
+					case 'include':
+						include($dir.$file);
+						break;
+					case 'include_once':
+						include_once($dir.$file);
+						break;
+					case 'require':
+						require($dir.$file);
+						break;
+					case 'require_once':
+						require_once($dir.$file);
+						break;
+				}
+				
 				return $dir.$file;
 			}
 		}
 		
 		// Try again with the remaining files... or fail.
 		if (!empty($files)) {
-			return self::load_file($files, $additional_paths);
+			return self::load_file($files, $additional_paths, $load_type);
 		}
 		else {
 			return false;
@@ -1574,6 +1590,37 @@ class CCTM {
 		else {
 			return false;
 		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Load up a validator PHP class/file into a string via an include statement. MVC type usage here.
+	 *
+	 * @param string  $shortname of the file, e.g. 'number' for number.php
+	 * @return object instantiated instance of the object
+	 */
+	public static function load_validator($shortname) {
+		$validator_class = self::classname_prefix . $shortname;
+		
+		if (!class_exists('CCTM_Validator')) {
+			require_once(CCTM_PATH.'/includes/CCTM_Validator.php');
+		}
+		
+		// Child class?
+		if (class_exists($validator_class) ) {
+			return new $validator_class();
+		}
+		
+		if(!self::load_file('/validators/'.$shortname.'.php')) {
+			// validator not found!
+			die( sprintf(__('Validator not found: %s', CCTM_TXTDOMAIN), $shortname ) );
+		}
+		
+		// Child class again?
+		if (class_exists($validator_class) ) {
+			return new $validator_class();
+		}
+		
 	}
 
 	//------------------------------------------------------------------------------

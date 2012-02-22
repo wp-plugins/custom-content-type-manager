@@ -374,6 +374,24 @@ abstract class CCTM_FormElement {
 	abstract public function get_name();
 
 
+			// 
+			// this might come in as ["123"] instead of 123 or ["123","456"]...
+			// So we need the first id in the list.
+	//------------------------------------------------------------------------------
+	/**
+	 * Relations only store the foreign key, but if the field def was changed from multi- to single,
+	 * then the "post id" might come in as ["123"] instead of 123 or ["123","456"]...
+	 * So this function needs to either get the raw integer number
+	 */		
+	public function get_post_id($str) {
+		if (is_numeric($str)) {
+			return (int) $str;
+		}
+		else {
+			$array = json_decode($str, true);
+			return (int) $array[0];
+		}
+	}
 	//------------------------------------------------------------------------------
 	/**
 	 * This function should return the URL where users can read more information about

@@ -1745,11 +1745,13 @@ class GetPostsQuery {
 	public function get_post($id) {
 
 		$post = $this->get_posts(array('ID' => $id, 'limit'=>1 ), true);
-		if (!empty($post) ) {
+
+		if (isset($post[0]) && !empty($post[0]) ) {
 			return $post[0]; // return first post
 		}
-
-		return null;
+		else {
+			return null;
+		}	
 	}
 
 

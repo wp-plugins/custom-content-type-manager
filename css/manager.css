@@ -112,9 +112,13 @@ div.cctm_def_preview {
 	border-width: 0 1px 1px;
 }
 
-input.cctm_error { 
-	background: #fed; 
-	border: 1px solid red;
+.cctm_error { 
+	background-color: #FFEBE8;
+    border-color: #CC0000;
+    padding: 0 0.6em;
+    border-radius: 3px 3px 3px 3px;
+    border-style: solid;
+    border-width: 1px;
 }
 
 table.custom_field_info {

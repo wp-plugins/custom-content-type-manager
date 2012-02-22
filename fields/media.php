@@ -138,7 +138,7 @@ class CCTM_media extends CCTM_FormElement
 		}
 		// Regular old Single-selection
 		else {
-			$this->post_id    = (int) $current_value; // Relations only store the foreign key.
+			$this->post_id    = $this->get_post_id($current_value); 
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 
 			$fieldtpl = CCTM::load_tpl(
@@ -160,14 +160,19 @@ class CCTM_media extends CCTM_FormElement
 				// We gotta watch out: what if the related post has custom fields like "description" or 
 				// anything that would conflict with the definition?
 				$post = (array) $Q->get_post($this->post_id);
-				foreach($post as $k => $v) {
-					// Don't override the def's attributes!
-					if (!isset($this->$k)) {
-						$this->$k = $v;
-					}
+				
+				if (empty($post)) {
+					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Attachment %s not found.', CCTM_TXTDOMAIN), $this->post_id).'</p></div>';
 				}
-			
-				$this->content = CCTM::parse($fieldtpl, $this->get_props());
+				else {
+					foreach($post as $k => $v) {
+						// Don't override the def's attributes!
+						if (!isset($this->$k)) {
+							$this->$k = $v;
+						}
+					}
+					$this->content = CCTM::parse($fieldtpl, $this->get_props());				
+				}
 			}
 		}
 		

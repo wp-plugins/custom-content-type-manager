@@ -5,7 +5,7 @@ class CCTM_numeric extends CCTM_Validator {
 	 * @return string	a description of what the validation rule is and does.
 	 */
 	public function get_description() {
-		return __('Requires that the input consists only of digits, e.g. 000123', CCTM_TXTDOMAIN);
+		return __('Requires that the input consists only of digits, e.g. 000123. This allows for leading zeros.', CCTM_TXTDOMAIN);
 	}
 
 

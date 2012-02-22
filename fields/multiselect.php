@@ -21,6 +21,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		'values'	=> array(), // only used if use_key_values = 1
 		'use_key_values' => 0, // if 1, then 'options' will use key => value pairs.
 		'output_filter' => 'to_array',
+		'display'	=> 'checkboxes', // checkboxes|multiselect
 		// 'type'	=> '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
@@ -95,29 +96,42 @@ class CCTM_multiselect extends CCTM_FormElement
 		$fieldtpl = '';
 		$wrappertpl = '';
 
-		$optiontpl = CCTM::load_tpl(
-			array('fields/options/'.$this->name.'.tpl'
-				, 'fields/options/_'.$this->type.'.tpl'
-				, 'fields/options/_checkbox.tpl'
-			)
-		);
+		// Multi-select
+		if (isset($this->display) && $this->display == 'multiselect') { 
+//		if (true) { 
 
-/*
-		$fieldtpl = CCTM::load_tpl(
-			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
-				, 'fields/elements/_default.tpl'
-			)
-		);
-*/
+			$optiontpl = CCTM::load_tpl(
+				array('fields/options/'.$this->name.'.tpl'
+					, 'fields/options/_option.tpl'
+				)
+			);		
+
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_multiselect.tpl'
+				)
+			);
+
+		} 
+		// Multi-checkboxes
+		else {
 		
-		$wrappertpl = CCTM::load_tpl(
-			array('fields/wrappers/'.$this->name.'.tpl'
-				, 'fields/wrappers/_'.$this->type.'.tpl'
-				, 'fields/wrappers/_default.tpl'
-			)
-		);
+			$optiontpl = CCTM::load_tpl(
+				array('fields/options/'.$this->name.'.tpl'
+					, 'fields/options/_'.$this->type.'.tpl'
+					, 'fields/options/_checkbox.tpl'
+				)
+			);
+			
+			$wrappertpl = CCTM::load_tpl(
+				array('fields/wrappers/'.$this->name.'.tpl'
+					, 'fields/wrappers/_multi_checkboxes.tpl'
+					, 'fields/wrappers/_default.tpl'
+				)
+			);
+		}
 		
+				
 		// $current_values_arr: represents what's actually been selected.
 		$current_values_arr = (array) json_decode(html_entity_decode($current_value), true );
 	
@@ -322,6 +336,28 @@ class CCTM_multiselect extends CCTM_FormElement
 		}
 			
 		$out .= '</table>'; // close id="dropdown_options" 
+		
+		// Display: multi-select or as multiple checkboxes
+				$checkboxes_is_selected = '';
+		$multiselect_is_selected = '';
+		if (isset($def['display']) && $def['display'] == 'checkboxes') {
+			$checkboxes_is_selected = ' selected="selected"';
+		}
+		elseif (isset($def['display']) && $def['display'] == 'multiselect') {
+			$multiselect_is_selected = ' selected="selected"';
+		}
+		$out .= '<div class="'.self::wrapper_css_class .'" id="display_wrapper">
+				 <label for="display" class="cctm_label" id="display_label">'
+			. __('Display', CCTM_TXTDOMAIN) .
+			'</label>
+				 <select name="display" id="display">
+				 	<option value="checkboxes" '.$checkboxes_is_selected.'>'. __('Checkboxes', CCTM_TXTDOMAIN) .'</option>
+				 	<option value="multiselect" '.$multiselect_is_selected.'>'. __('Multi-select', CCTM_TXTDOMAIN) .'</option>
+				 </select>
+				<span class="cctm_description">'.__('Multiple options can be selected either as a series of checkboxes or as a multi-select field.', CCTM_TXTDOMAIN).'</span>
+			 	</div>';		
+		
+		
 		
 		// Is Required?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
