@@ -124,15 +124,20 @@ class CCTM_image extends CCTM_FormElement
 					// Look up all the data on that foriegn key
 					// We gotta watch out: what if the related post has custom fields like "description" or 
 					// anything that would conflict with the definition?
-					$post = (array) $Q->get_post($hash['post_id']);
-					foreach($post as $k => $v) {
-						// Don't override the def's attributes!
-						if (!isset($hash[$k])) {
-							$hash[$k] = $v;
+					$post =  $Q->get_post($hash['post_id']);
+					if (empty($post)) {
+						$this->content = '<div class="cctm_error"><p>'.sprintf(__('Image %s not found.', CCTM_TXTDOMAIN), $this->post_id).'</p></div>';
+					}	
+					else {
+						foreach($post as $k => $v) {
+							// Don't override the def's attributes!
+							if (!isset($hash[$k])) {
+								$hash[$k] = $v;
+							}
 						}
+						
+						$this->content .= CCTM::parse($fieldtpl, $hash);					
 					}
-					
-					$this->content .= CCTM::parse($fieldtpl, $hash);
 				}
 			}
 		}
