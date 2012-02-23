@@ -2069,11 +2069,10 @@ class CCTM {
 			}
 		}
 		elseif ($query->is_search || $query->is_category) {
-			// die('ouch');
-			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
+			if ( !isset($_GET['post_type']) && empty($_GET['post_type']) 
+				&& !isset($query->query_vars['post_type'])
+				&& empty($query->query_vars['post_type'])) {
 				$post_types = get_post_types( array('exclude_from_search'=>false) );
-				//die(print_r(self::$data['post_type_defs'], true));
-				//die(print_r($post_types,true));
 				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')
 				$query->set('post_type', $post_types);
 			}
