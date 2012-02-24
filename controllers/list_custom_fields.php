@@ -8,7 +8,6 @@ if (!current_user_can('administrator')) exit('Admins only.');
  * @param string $post_type
  * @param boolen $reset true only if we've just reset all custom fields
  */
-
 $data=array();
 $data['page_title'] = __('Manage Custom Fields', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DefinedCustomFields';
@@ -31,6 +30,9 @@ foreach ($defs as $field_name => $d) {
 	
 	$d['name'] = $field_name; // just in case the key and the 'name' got out of sync.
 	
+	if (isset($d['required']) && $d['required']) {
+		$d['label'] = $d['label'] . ' *'; // Asterix for req'd fields
+	}
 
 	$field_type_name = CCTM::classname_prefix.$d['type'];
 	if (!CCTM::include_form_element_class($d['type']) ) {

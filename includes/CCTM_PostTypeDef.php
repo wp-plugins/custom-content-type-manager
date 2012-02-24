@@ -246,7 +246,7 @@ class CCTM_PostTypeDef {
 	 * $built_in_post_types array.
 	 *
 	 * @param string  $post_type        the lowercase database slug identifying a post type.
-	 * @param boolean $search_built_ins (optional) whether or not to search inside the
+	 * @param boolean $search_foreigns (optional) whether or not to search ANY defined post-type
 	 * @return boolean indicating whether this is a valid post-type
 	 */
 	public static function is_existing_post_type($post_type, $search_built_ins=true) {
@@ -264,7 +264,7 @@ class CCTM_PostTypeDef {
 			return true;
 		}
 		// Check the built-ins
-		elseif ( $search_built_ins && in_array($post_type, CCTM::$built_in_post_types) ) {
+		elseif ( $search_built_ins && in_array($post_type, get_post_types()) ) {
 			return true;
 		}
 		else {

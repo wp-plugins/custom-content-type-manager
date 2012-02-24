@@ -30,7 +30,16 @@ $data['nonce_name']  = 'custom_content_type_mgr_deactivate_content_type_nonce';
 $data['submit']   = __('Deactivate', CCTM_TXTDOMAIN);
 
 // If properly submitted, Proceed with deleting the post type
-if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
+// OR if it's a built-in post-type OR a foreign post-type
+$is_built_in = false;
+if (in_array($post_type, CCTM::$built_in_post_types )) {
+	$is_built_in = true;
+}
+$is_foreign = false;
+if (isset(self::$data['post_type_defs'][$post_type]['is_foreign']) && self::$data['post_type_defs'][$post_type]['is_foreign']) {
+	$is_foreign = true;
+}
+if ( ($is_foreign || $is_built_in) || !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 	// get current values from database
 	self::$data['post_type_defs'][$post_type]['is_active'] = 0;
 	update_option( self::db_key, self::$data );

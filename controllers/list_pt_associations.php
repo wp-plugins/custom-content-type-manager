@@ -11,6 +11,7 @@ if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
 require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
 
+$is_foreign = (int) CCTM::get_value($_GET, 'f');
 
 $data     = array();
 $data['page_title'] = sprintf( __('Custom Fields for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
@@ -37,6 +38,9 @@ if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_nam
 	self::$data['post_type_defs'][$post_type]['custom_fields'] = array();
 	if (!empty($_POST['custom_fields']) && is_array($_POST['custom_fields'])) {
 		self::$data['post_type_defs'][$post_type]['custom_fields'] = $_POST['custom_fields'];
+	}
+	if ($is_foreign){
+		self::$data['post_type_defs'][$post_type]['is_foreign'] = 1;
 	}
 
 	update_option( self::db_key, self::$data );

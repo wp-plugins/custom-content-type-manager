@@ -11,7 +11,8 @@ require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
 // Variables for our template
 $data = array();
 $d = array();
-if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
+if ( isset(CCTM::$data['post_type_defs'][$post_type]) 
+	&& (!isset(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) || !CCTM::$data['post_type_defs'][$post_type]['is_foreign']) ) {
 	$d['def'] = CCTM::$data['post_type_defs'][$post_type];
 	// Older definitions may be missing nodes, so we fill from
 	// the default in order to avoid "Undefined index" notices
@@ -23,7 +24,7 @@ if ( isset(CCTM::$data['post_type_defs'][$post_type])) {
 }
 // Oops... bail.
 else {
-	$data['msg'] = sprintf('<div class="error"><p>%s</p></div>', __('Unrecognized post_type.', CCTM_TXTDOMAIN));
+	$data['msg'] = sprintf('<div class="error"><p>%s</p></div>', __('Invalid post_type.', CCTM_TXTDOMAIN));
 	$data['page_title']  = __('Unrecognized Content type');
 	$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
 	$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm" title="%s" class="button">%s</a>', __('Back'), __('Back'));

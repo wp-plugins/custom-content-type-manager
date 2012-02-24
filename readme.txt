@@ -82,6 +82,7 @@ or by going to your wp-content/plugins directory and executing the following com
 * Added ability to change field types (e.g. from dropdown to multiselect or from textarea to WYSIWYG) -- (Issue 318)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=318]
 * Added ability to format multi-selects as a multi-select field instead of just multiple checkboxes.
 * Fixed interference with WP_Query
+* Added ability to standardize custom fields for foreign post-types.
 
 = 0.9.5.10=
 
@@ -326,7 +327,7 @@ This plugin was written in part for the book [WordPress 3 Plugin Development Ess
 
 On the surface, this plugin is similar, but this plugin "correctly" stores custom field data as post meta data, which allows allows for different input types (e.g. checkboxes, dropdowns, and images) and the custom fields offered by this plugin can support data of virtually unlimited size. For example, you could define a WYSIWYG custom field for your custom content type and it could hold many pages of data.
 
-The architecture for this plugin was also inspired by [MODx](http://modx.com/). WordPress is making progress as a viable content management system, but even after the thousands of lines of code in this plugin, it still does not support all the features in a system like MODx. WordPress templates are particularly limited by comparison. WordPress is great system for many scenarios, but if you're feeling that WordPress is starting to tear apart at the seams when it comes to custom content, it may be worth a look at another plugin or some of the other available systems.
+The architecture for this plugin was also inspired by [MODX](http://modx.com/). WordPress is making progress as a viable content management system, but even after the thousands of lines of code in this plugin, it still does not support all the features in a system like MODx. WordPress templates are particularly limited by comparison. WordPress is great system for many scenarios, but if you're feeling that WordPress is starting to tear apart at the seams when it comes to custom content, it may be worth a look at another plugin or some of the other available systems.
 
 == Future TO-DO == 
 

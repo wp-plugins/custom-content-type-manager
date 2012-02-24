@@ -2,7 +2,13 @@
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
-Lists all defined post types
+Lists all defined post types:
+Post-types are separated into 3 sections:
+	1. Built-in post-types whose custom fields may be managed: posts, pages
+	2. Post-Types for which the CCTM can have full control over (this includes
+		both active post-types and post-types which have full definitions for)
+	3. "Foreign" post-types registered by some other plugin whose custom fields
+		the CCTM may standardize upon request.
 ------------------------------------------------------------------------------*/
 $data 				= array();
 $data['page_title']	= __('List Content Types', CCTM_TXTDOMAIN);
@@ -22,10 +28,14 @@ $displayable_types = array_unique($displayable_types);
 $data['row_data'] = '';
 
 foreach ( $displayable_types as $post_type ) {
+	// Skip the foreigners till later
+	if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) ) {
+		continue;
+	}
 	$hash = array(); // populated for the tpl
 	$hash['post_type'] = $post_type;
 
-	// Get our links
+	// Get our default links
 	$deactivate    = sprintf(
 			'<a href="?page=cctm&a=deactivate_post_type&pt=%s" title="%s">%s</a>'
 			, $post_type
@@ -59,50 +69,68 @@ foreach ( $displayable_types as $post_type ) {
 		);
 	
 
-
-	$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates . ' | ' . $duplicate_link;
-
-	if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
-		$hash['class'] = 'active';
-		$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
-		$is_active = true;
-	}
-	else {
-		$hash['class'] = 'inactive';
-		$hash['activate_deactivate_delete_links'] = '<span class="activate">'
-			. sprintf(
-				'<a href="?page=cctm&a=activate_post_type&pt=%s" title="%s">%s</a>'
-				, $post_type
-				, __('Activate this content type', CCTM_TXTDOMAIN)
-				, __('Activate', CCTM_TXTDOMAIN)
-			) . ' | </span>'
-			. '<span class="delete">'. sprintf(
-			'<a href="?page=cctm&a=delete_post_type&pt=%s" title="%s">%s</a>'
-				, $post_type
-				, __('Delete this content type', CCTM_TXTDOMAIN)
-				, __('Delete', CCTM_TXTDOMAIN)
-			).'</span>';
-		$is_active = false;
-	}
-
 	// Built-in post types use a canned description and override a few other behaviors
 	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
+		$deactivate    = sprintf(
+			'<a href="?page=cctm&a=deactivate_post_type&pt=%s" title="%s">%s</a>'
+			, $post_type
+			, __('Stop standardizing custom fields this content type', CCTM_TXTDOMAIN)
+			, __('Release Custom Fields', CCTM_TXTDOMAIN)
+		);
 		$hash['description']  = __('Built-in post type.', CCTM_TXTDOMAIN);
 		$hash['edit_manage_view_links'] = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp"/> ' . $manage_custom_fields . ' | ' . $view_templates;
-		if (!$is_active) {
+		// Not active
+		if (!isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
+			$hash['class'] = 'inactive';
 			$hash['activate_deactivate_delete_links'] = '<span class="activate">'
 				. sprintf(
-				'<a href="?page=cctm&a=activate_post_type&pt=%s" title="%s">%s</a>'
+					'<a href="?page=cctm&a=activate_post_type&pt=%s" title="%s">%s</a>'
+					, $post_type
+					, __('Standardize Custom Fields for this content type', CCTM_TXTDOMAIN)
+					, __('Standardize Custom Fields', CCTM_TXTDOMAIN)
+				) . '</span>';
+		}
+		// Active
+		else {
+			$hash['class'] = 'active';
+			$hash['activate_deactivate_delete_links'] = sprintf(
+				'<a href="?page=cctm&a=deactivate_post_type&pt=%s" title="%s">%s</a>'
 				, $post_type
-				, __('Activate this content type', CCTM_TXTDOMAIN)
-				, __('Activate', CCTM_TXTDOMAIN)
-			) . '</span>';
+				, __('Stop standardizing custom fields this content type', CCTM_TXTDOMAIN)
+				, __('Release Custom Fields', CCTM_TXTDOMAIN)
+			);
 		}
 	}
 	// Whereas users define the description for custom post types
 	else {
 		$hash['description']  = CCTM::get_value(CCTM::$data['post_type_defs'][$post_type], 'description');
+		if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
+	
+			$hash['class'] = 'active';
+			$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
+			$is_active = true;
+		}
+		else {
+			$hash['class'] = 'inactive';
+			$hash['activate_deactivate_delete_links'] = '<span class="activate">'
+				. sprintf(
+					'<a href="?page=cctm&a=activate_post_type&pt=%s" title="%s">%s</a>'
+					, $post_type
+					, __('Activate this content type', CCTM_TXTDOMAIN)
+					, __('Activate', CCTM_TXTDOMAIN)
+				) . ' | </span>'
+				. '<span class="delete">'. sprintf(
+				'<a href="?page=cctm&a=delete_post_type&pt=%s" title="%s">%s</a>'
+					, $post_type
+					, __('Delete this content type', CCTM_TXTDOMAIN)
+					, __('Delete', CCTM_TXTDOMAIN)
+				).'</span>';
+			$is_active = false;
+		}
 	}
+	
+	$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates . ' | ' . $duplicate_link;
+
 
 	// Images
 	$hash['icon'] = '';
@@ -122,18 +150,61 @@ foreach ( $displayable_types as $post_type ) {
 	$data['row_data'] .= CCTM::load_view('tr_post_type.php', $hash);
 }
 
-// Flag foreign post types
+// Foreign post types... loop over all registered post-types, skip ones that don't have "is_foreign"
 if (CCTM::get_setting('show_foreign_post_types')) {
 	$registered_post_types = get_post_types();
-	$cctm_post_types = array_keys(self::$data['post_type_defs']);
-	$other_post_types = array_diff($registered_post_types, $cctm_post_types);
-	$other_post_types = array_diff($other_post_types, self::$reserved_post_types);
+//	$cctm_post_types = array_keys(self::$data['post_type_defs']);
+//	$other_post_types = array_diff($registered_post_types, $cctm_post_types);
+//	$other_post_types = array_diff($other_post_types, self::$reserved_post_types);
 	
-	foreach($other_post_types as $post_type){
-		$hash['edit_manage_view_links'] = '';
+	foreach($registered_post_types as $post_type) {
+		// Only foreign post-types in this section
+		if ( !isset(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) || empty(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) ) {
+			continue;
+		}
+		
+		// Get our links
+		$deactivate    = sprintf(
+				'<a href="?page=cctm&a=deactivate_post_type&pt=%s" title="%s">%s</a>'
+				, $post_type
+				, __('Stop standardizing custom fields this content type', CCTM_TXTDOMAIN)
+				, __('Release Custom Fields', CCTM_TXTDOMAIN)
+			);
+		// note the &f=1 to denote a foreign post-type
+		$manage_custom_fields  = sprintf(
+				'<a href="?page=cctm&a=list_pt_associations&pt=%s&f=1" title="%s">%s</a>'
+				, $post_type
+				, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+				, __('Manage Custom Fields', CCTM_TXTDOMAIN)
+			);
+		$view_templates   = sprintf('<a href="?page=cctm&a=template_single&pt=%s" title="%s">%s</a>'
+				, $post_type
+				, __('View Sample Templates for this content type', CCTM_TXTDOMAIN )
+				, __('View Sample Templates', CCTM_TXTDOMAIN)
+			);
+			
+		$hash['edit_manage_view_links'] = '<img src="'. CCTM_URL .'/images/spy.png" height="16" width="16" alt="spy"/> '. $manage_custom_fields . ' | ' . $view_templates;
 		$hash['post_type'] = $post_type;
-		$hash['class'] = 'inactive';
-		$hash['activate_deactivate_delete_links'] = '';
+		
+		if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
+			$hash['class'] = 'active';
+			$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
+			$is_active = true;
+		}
+		else {
+			$hash['class'] = 'inactive';
+			$hash['activate_deactivate_delete_links'] = '<span class="activate">'
+				. sprintf(
+					'<a href="?page=cctm&a=activate_post_type&pt=%s" title="%s">%s</a>'
+					, $post_type
+					, __('Standardize Custom Fields for this content type', CCTM_TXTDOMAIN)
+					, __('Standardize Custom Fields', CCTM_TXTDOMAIN)
+				) . '</span>';
+			$is_active = false;
+		}
+		
+//		$hash['class'] = 'inactive';
+//		$hash['activate_deactivate_delete_links'] = '';
 		$hash['description'] = __('This post type has been registered by some other plugin.');
 		$hash['icon'] = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
 		// $data['row_data'] .= CCTM::parse($tpl, $hash);

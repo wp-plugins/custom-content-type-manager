@@ -1924,7 +1924,9 @@ class CCTM {
 
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
-				&& !in_array($post_type, self::$built_in_post_types)) {
+				&& !in_array($post_type, self::$built_in_post_types)
+				&& (!isset($def['is_foreign']) || !$def['is_foreign'])
+				) {
 				register_post_type( $post_type, $def );
 			}
 		}
