@@ -129,7 +129,7 @@ class CCTM_relation extends CCTM_FormElement
 				// anything that would conflict with the definition?
 				$post = $Q->get_post($hash['post_id']);
 				if (empty($post)) {
-					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $this->post_id).'</p></div>';
+					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $v).'</p></div>';
 				}
 				else {
 					foreach($post as $k => $v) {

@@ -50,9 +50,15 @@ foreach ($data['results'] as &$r) {
 
 // If properly submitted, Proceed with purging the database
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
-	die('submitted.');
+
 	if (!$data['inactive_cnt']) {
 		// Nothing to do
+		$msg = '<div class="updated"><p>'
+			.__('Your database is clean: there are no inactive post-types that need to be purged.', CCTM_TXTDOMAIN)
+			. '</p></div>';
+		self::set_flash($msg);
+		include( CCTM_PATH . '/controllers/tools.php');	
+		return;
 	}
 	
 	// Purge the database
@@ -65,9 +71,13 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	global $wpdb;
 	
 	// Delete the custom fields
-	$query = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( SELECT post_id FROM {$wpdb->posts} WHERE post_type IN ($post_type_str) )";
+	$query = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($post_type_str) )";
 	$wpdb->query($query);
 	
+	// Delete taxonomy refs
+	$query = "DELETE FROM {$wpdb->term_relationships} WHERE object_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($post_type_str) )";
+	$wpdb->query($query);
+		
 	// Delete any revisions, e.g.
 	// DELETE a FROM wp_posts a INNER JOIN wp_posts b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type='post'
 	$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type IN ($post_type_str)"
@@ -79,6 +89,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		, $post_type);
 	$wpdb->query($query);		
 
+	
 	
 	$msg = '<div class="updated"><p>'
 		.sprintf( __('The database has been purged from the following post-types: %s', CCTM_TXTDOMAIN), "<em>$post_type_str</em>")

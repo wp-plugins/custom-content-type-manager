@@ -34,10 +34,14 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		global $wpdb;
 		
 		// Delete the custom fields
-		$query = $wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( SELECT post_id FROM {$wpdb->posts} WHERE post_type=%s)"
+		$query = $wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type=%s)"
 			, $post_type);
 		$wpdb->query($query);		
 		
+		// Delete taxonomy refs
+		$query = "DELETE FROM {$wpdb->term_relationships} WHERE object_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($post_type_str) )";
+		$wpdb->query($query);
+
 		// Delete any revisions, e.g.
 		// DELETE a FROM wp_posts a INNER JOIN wp_posts b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type='post'
 		$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.post_type=%s"

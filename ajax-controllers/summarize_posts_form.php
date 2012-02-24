@@ -22,7 +22,7 @@ $form_tpl = CCTM::load_tpl('summarize_posts/search.tpl');
 
 $Form->set_name_prefix('');
 $Form->set_id_prefix('');
-
+$Form->set_placeholder('cctm_url', CCTM_URL);
 $Form->set_tpl($form_tpl);
 
 $custom_fields = CCTM::get_custom_field_defs();

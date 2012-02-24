@@ -1,7 +1,7 @@
 <style>
 [+css+]
 </style>
-<p>Dynamically list posts according to the criteria below. <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SearchParameters"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a></p>
+<p>Dynamically list posts according to the criteria below. <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SearchParameters"><img src="[+cctm_url+]/images/question-mark.gif" width="16" height="16" /></a></p>
 <form id="search_parameters_form" class="[+form_name+]">
 	[+content+]
 

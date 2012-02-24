@@ -131,7 +131,7 @@ class CCTM_user extends CCTM_FormElement
 		// Get the options.  This currently is not skinnable.
 		$this->all_options = '';
 
-		if (!isset($def['required']) || !$def['required']) {
+		if (!isset($this->required) || !$this->required) {
 			$hash['value'] = '';
 			$hash['option'] = '';
 			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
@@ -178,7 +178,6 @@ class CCTM_user extends CCTM_FormElement
 
 		// Populate the values (i.e. properties) of this field
 		$this->id      = $this->name;
-		//$this->value    = htmlspecialchars( html_entity_decode($current_value) );
 
 		// wrap
 		$this->content = CCTM::parse($fieldtpl, $this->get_props());
