@@ -21,6 +21,8 @@
 	</table>
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
+	<p><strong><?php _e('Field Type', CCTM_TXTDOMAIN); ?>:</strong> <?php print $data['field_type']; ?> &nbsp; <a href="?page=cctm_fields&a=change_field_type&field=<?php print $data['field_name']; ?>&_wpnonce=<?php print wp_create_nonce('cctm_change_field_type'); ?>"><?php _e('Change Field Type', CCTM_TXTDOMAIN); ?></a></p>
+	
 	<?php print $data['fields']; ?>
 	
 	<h3><?php _e('Associations', CCTM_TXTDOMAIN); ?></h3>
@@ -30,8 +32,6 @@
 	
 	<br />
 	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" />
-	
-	<br/>
 
 	<a href="<?php print get_admin_url(false, 'admin.php'); ?>'?page=cctm_fields&a=list_custom_field_types" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
 </form>

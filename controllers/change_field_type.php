@@ -2,9 +2,9 @@
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
-* Change the type of a custom field, e.g. from text to textarea.
-*
-* @param string $field_name	uniquely identifies this field
+Change the type of a custom field, e.g. from text to textarea.
+
+@param string $field_name	uniquely identifies this field
 ------------------------------------------------------------------------------*/
 $field_name = CCTM::get_value($_GET, 'field');
 
@@ -29,7 +29,7 @@ $data['action_name']  = 'custom_content_type_mgr_edit_custom_field';
 $data['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
 
 $nonce = self::get_value($_GET, '_wpnonce');
-if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
+if (! wp_verify_nonce($nonce, 'cctm_change_field_type') ) {
 	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 }
 		
@@ -56,7 +56,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 				, '<em>'.$field_name.'</em>', $field_type_str));		
 		self::set_flash($data['msg']);
 		include(CCTM_PATH.'/controllers/list_custom_fields.php');
-
+		return;
 	}
 	else {
 		die(__('There was a problem converting the field type.', CCTM_TXTDOMAIN));

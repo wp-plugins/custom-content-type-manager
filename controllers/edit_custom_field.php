@@ -26,11 +26,20 @@ $data['submit'] = __('Save', CCTM_TXTDOMAIN);
 $data['action_name']  = 'custom_content_type_mgr_edit_custom_field';
 $data['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
 
+
 $nonce = self::get_value($_GET, '_wpnonce');
 if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 }
-		
+
+// Get the post-types for listing associations.
+// this has the side-effect of sorting the post-types
+if ( isset(CCTM::$data['post_type_defs']) && !empty(CCTM::$data['post_type_defs']) ) {
+	$customized_post_types =  array_keys(CCTM::$data['post_type_defs']);
+}
+$displayable_types = array_merge(CCTM::$built_in_post_types , $customized_post_types);
+$displayable_types = array_unique($displayable_types);
+
 	
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
@@ -41,17 +50,70 @@ $FieldObj = new $field_type_name(); // Instantiate the field element
 
 $field_data['original_name'] = $field_name;
 $FieldObj->set_props($field_data);  
-//$FieldObj->props 	= $field_data;  
-// THIS is what keys us off to the fact that we're EDITING a field: 
-// the logic in CCTM_FormElement->save_definition_filter() ensures we don't overwrite other fields.
-// This attribute is nuked later
-//$FieldObj->props['original_name'] = $field_name; 
+
 
 // Save if submitted...
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 	// A little cleanup before we handoff to save_definition_filter
 	unset($_POST[ $data['nonce_name'] ]);
 	unset($_POST['_wp_http_referer']);
+
+	// Handle editing of the associations
+	// All associations were removed
+	$post_type_defs = CCTM::get_post_type_defs();
+	
+	if ( !isset($_POST['post_types'])) {
+		// die('All associations removed...');
+		foreach($displayable_types as $pt) {
+			$def = array();
+			if ( isset(self::$data['post_type_defs'][$pt])) {
+				$def = self::$data['post_type_defs'][$pt];
+			}
+			
+			if (in_array($field_name, $def['custom_fields'])) {
+				$revised_custom_fields = array();
+				foreach ($def['custom_fields'] as $cf) {
+					if ( $cf != $field_name ) {
+						$revised_custom_fields[] = $cf;
+					}
+				}
+				self::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;
+			}
+		}
+	}
+	else {
+		foreach($displayable_types as $pt) {
+			$def = array();
+			if ( isset(self::$data['post_type_defs'][$pt])) {
+				$def = self::$data['post_type_defs'][$pt];
+			}
+			
+			// Add the association
+			if (in_array($pt, $_POST['post_types'])) {
+				if (!isset($def['custom_fields']) 
+					|| !is_array($def['custom_fields'])
+					|| !in_array($field_name, $def['custom_fields'])) {
+					$def['custom_fields'][] = $field_name;
+					self::$data['post_type_defs'][$pt]['custom_fields'] = $def['custom_fields'];
+				}
+			}
+			// Remove the association
+			else {
+				$revised_custom_fields = array();
+				if (isset($def['custom_fields'])) {
+					foreach ($def['custom_fields'] as $cf) {
+						if ( $cf != $field_name ) {
+							$revised_custom_fields[] = $cf;
+						}
+					}
+				}
+				self::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;								
+			}
+		}
+	}
+	// Clear this up... the rest of the data is for the field definition.
+	unset($_POST['post_types']);
+
 
 	// Validate and sanitize any submitted data
 	$field_data 		= $FieldObj->save_definition_filter($_POST);
@@ -72,6 +134,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		self::$data['custom_field_defs'][ $field_data['name'] ] = $field_data;
 		update_option( self::db_key, self::$data );
 		unset($_POST);
+		
+		
 		$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'
 			, sprintf(__('The %s custom field has been edited.', CCTM_TXTDOMAIN)
 			, '<em>'.$field_name.'</em>'));		
@@ -85,12 +149,91 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 $data['icon'] = sprintf('<img src="%s" class="cctm-field-icon" id="cctm-field-icon-%s"/>'
 				, $FieldObj->get_icon(), $field_type);
 $data['url'] = $FieldObj->get_url();
-$data['name'] = $FieldObj->get_name();
+if (empty($FieldObj->label)) {
+	$data['name'] = $FieldObj->get_name();
+}
+else {
+	$data['name'] = $FieldObj->label; //$FieldObj->get_name();
+}
+
 $data['description'] = htmlentities($FieldObj->get_description());
 
 $data['fields'] = $FieldObj->get_edit_field_definition($FieldObj->get_props());
 $data['associations'] = ''; // TODO
 
-$data['content'] = CCTM::load_view('custom_field.php', $data);
+
+//------------------------------------------------------------------------------
+// Get field associations: which post-types does this field belong to
+//------------------------------------------------------------------------------
+$data['associations'] .= '<table>';
+foreach ($displayable_types as $post_type) {
+	$def = array();
+	if (isset(self::$data['post_type_defs'][$post_type])) {
+		$def = self::$data['post_type_defs'][$post_type];
+	}
+	
+	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
+		$def['description']  = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post type.', CCTM_TXTDOMAIN);
+	}
+	elseif (!isset(self::$data['post_type_defs'][$post_type]['description'])) {
+		$def['description'] = '';
+	} 
+	else {
+		$def['description']  = self::$data['post_type_defs'][$post_type]['description'];
+	}
+	// Images
+	$icon = '';
+	switch ($post_type) {
+	case 'post':
+		$icon = '<img src="'. CCTM_URL . '/images/icons/post.png' . '" width="15" height="15"/>';
+		break;
+	case 'page':
+		$icon = '<img src="'. CCTM_URL . '/images/icons/page.png' . '" width="14" height="16"/>';
+		break;
+	default:
+		if ( !empty($def['menu_icon']) && !$def['use_default_menu_icon'] ) {
+			$icon = '<img src="'. $def['menu_icon'] . '" />';
+		}
+		break;
+	}
+	
+	$target_url = sprintf(
+		'<a href="?page=cctm&a=list_pt_associations&pt=%s" title="%s">%s</a>'
+		, $post_type
+		, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+		, __('Manage Custom Fields', CCTM_TXTDOMAIN)
+	);
+
+	$is_checked = '';
+
+	if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields']) 
+		&& in_array($field_name, self::$data['post_type_defs'][$post_type]['custom_fields'])) {
+		$is_checked = ' checked="checked"';
+	}
+	$data['associations'] .= sprintf('
+		<tr>
+			<td><input type="checkbox" name="post_types[]" id="%s" value="%s" %s/></td>
+			<td>%s</td>
+			<td><label for="%s" class="cctm_label">%s</label></td>
+			<td><span class="cctm_description" style="margin-left:20px;">%s</span><td>
+			<td>%s</td>
+		</tr>'
+		, $post_type
+		, $post_type
+		, $is_checked
+		, $icon
+		, $post_type
+		, $post_type
+		, $def['description']
+		, $target_url
+	);
+}
+
+$data['associations'] .= '</table>';
+$data['field_name'] = $field_name;
+$data['field_type'] = $FieldObj->get_name();
+
+
+$data['content'] = CCTM::load_view('custom_field_edit.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 /*EOF*/

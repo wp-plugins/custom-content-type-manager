@@ -95,7 +95,7 @@ class CCTM_text extends CCTM_FormElement
 			);
 
 			$this->i = 0;
-			$values = (array) json_decode($current_value);
+			$values = $this->get_value($current_value,'to_array');
 			//die(print_r($values,true));
 			$content = '';
 			foreach ($values as $v) {
@@ -106,7 +106,7 @@ class CCTM_text extends CCTM_FormElement
 		}
 		// Normal text field
 		else {
-			$this->value  = htmlspecialchars( html_entity_decode($current_value) );
+			$this->value  = htmlspecialchars( html_entity_decode($this->get_value($current_value,'to_string') ));
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'

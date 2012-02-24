@@ -92,6 +92,7 @@ class CCTM_checkbox extends CCTM_FormElement
 	public function get_edit_field_instance($current_value) {
 
 		$this->is_checked = '';
+		$current_value = $this->get_value($current_value, 'to_string');
 		if ($current_value == $this->checked_value) {
 			$this->is_checked = 'checked="checked"';
 		}

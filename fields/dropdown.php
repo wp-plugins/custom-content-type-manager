@@ -83,6 +83,8 @@ class CCTM_dropdown extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
+		$current_value = $this->get_value($current_value, 'to_string');
+		
 		// Format for Radio buttons
 		if ( $this->display_type == 'radio' ) {
 

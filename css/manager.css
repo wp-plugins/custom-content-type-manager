@@ -27,6 +27,7 @@ label.cctm_muticheckbox {
 	display: inline;
 }
 div.cctm_muticheckbox_wrapper {
+	margin-bottom: -15px;
 	margin-left: 20px;
 }
 /*

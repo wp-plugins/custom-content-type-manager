@@ -84,7 +84,7 @@ class CCTM_user extends CCTM_FormElement
 
 		// Format for multi-select
 		if ($this->is_repeatable) {
-			$current_value = json_decode($current_value, true);
+			$current_value = $this->get_value($current_value, 'to_array');
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user_multi.tpl'
@@ -106,6 +106,8 @@ class CCTM_user extends CCTM_FormElement
 		}
 		// For regular dropdowns
 		else {
+			$current_value = $this->get_value($current_value,'to_string');
+			
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user.tpl'

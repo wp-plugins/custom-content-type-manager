@@ -113,37 +113,35 @@ class CCTM_image extends CCTM_FormElement
 				)
 			);
 
-			// Test for an empty JSON array
-			if ($current_value != '[""]') {
-				$values = (array) json_decode($current_value);
-				foreach ($values as $v) {
-					$hash 					= $this->get_props();
-					$hash['post_id']    	= (int) $v;
-					$hash['thumbnail_url']	= CCTM::get_thumbnail($hash['post_id']);
+			$values = $this->get_value($current_value,'to_array');
+			foreach ($values as $v) {
+				$hash 					= $this->get_props();
+				$hash['post_id']    	= (int) $v;
+				$hash['thumbnail_url']	= CCTM::get_thumbnail($hash['post_id']);
 
-					// Look up all the data on that foriegn key
-					// We gotta watch out: what if the related post has custom fields like "description" or 
-					// anything that would conflict with the definition?
-					$post =  $Q->get_post($hash['post_id']);
-					if (empty($post)) {
-						$this->content = '<div class="cctm_error"><p>'.sprintf(__('Image %s not found.', CCTM_TXTDOMAIN), $this->post_id).'</p></div>';
-					}	
-					else {
-						foreach($post as $k => $v) {
-							// Don't override the def's attributes!
-							if (!isset($hash[$k])) {
-								$hash[$k] = $v;
-							}
+				// Look up all the data on that foriegn key
+				// We gotta watch out: what if the related post has custom fields like "description" or 
+				// anything that would conflict with the definition?
+				$post =  $Q->get_post($hash['post_id']);
+				if (empty($post)) {
+					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Image %s not found.', CCTM_TXTDOMAIN), $this->post_id).'</p></div>';
+				}	
+				else {
+					foreach($post as $k => $v) {
+						// Don't override the def's attributes!
+						if (!isset($hash[$k])) {
+							$hash[$k] = $v;
 						}
-						
-						$this->content .= CCTM::parse($fieldtpl, $hash);					
 					}
+					
+					$this->content .= CCTM::parse($fieldtpl, $hash);					
 				}
 			}
+
 		}
 		// Regular old Single-selection
 		else {
-			$this->post_id    = $this->get_post_id($current_value); 
+			$this->post_id    = $this->get_value($current_value,'to_string'); 
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'

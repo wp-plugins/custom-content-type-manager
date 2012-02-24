@@ -124,7 +124,7 @@ class CCTM_date extends CCTM_FormElement
 			);
 
 			$this->i = 0;
-			$values = (array) json_decode($current_value);
+			$values = $this->get_value($current_value,'to_array');
 			//die(print_r($values,true));
 			$this->content = '';
 			foreach ($values as $v) {
@@ -151,7 +151,7 @@ class CCTM_date extends CCTM_FormElement
 				)
 			);
 
-			$this->value = htmlspecialchars( html_entity_decode($current_value) );
+			$this->value = htmlspecialchars(html_entity_decode($this->get_value($current_value,'to_string')));
 			$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		}
 

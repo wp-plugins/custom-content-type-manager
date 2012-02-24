@@ -2052,7 +2052,7 @@ class CCTM {
 	 * @return unknown
 	 */
 	public static function search_filter($query) {
-		//die(print_r($query, true));
+
 		if ($query->is_feed) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
 				$post_types = get_post_types();
@@ -2068,6 +2068,7 @@ class CCTM {
 				$query->set('post_type', $post_types);
 			}
 		}
+		// See issue http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=330
 		elseif ($query->is_search || $query->is_category) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type']) 
 				&& !isset($query->query_vars['post_type'])

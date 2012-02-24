@@ -85,7 +85,7 @@ class CCTM_textarea extends CCTM_FormElement
 	public function get_edit_field_instance($current_value) {
 
 		$this->id   = $this->name;
-		$this->value = $current_value;
+
 
 		$fieldtpl = '';
 		$wrappertpl = '';
@@ -106,7 +106,7 @@ class CCTM_textarea extends CCTM_FormElement
 
 			$this->i = 0;
 
-			$values = (array) json_decode($current_value);
+			$values = $this->get_value($current_value,'to_array');
 
 			foreach ($values as $v) {
 				$this->value = htmlspecialchars( html_entity_decode($v) );
@@ -129,7 +129,7 @@ class CCTM_textarea extends CCTM_FormElement
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
-
+			$this->value = $this->get_value($current_value,'to_string');
 			$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		}
 
@@ -144,7 +144,7 @@ class CCTM_textarea extends CCTM_FormElement
 	 *
 	 *
 	 * @param mixed   $def field definition; see the $props array
-	 * @return unknown
+	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
 		$is_checked = '';

@@ -157,7 +157,7 @@ abstract class CCTM_FormElement {
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] .= sprintf('<br /><span style="color:red;">%s</span>'
-			, __('WARNING: if you change the name, you will have to update any template files that use the <code>get_custom_field()</code> or <code>print_custom_field()</code> functions or any other functions that reference this field by its name.', CCTM_TXTDOMAIN));
+			, __('WARNING: if you change the field name, you will have to update any functions that reference this field by name, e.g. <code>get_custom_field()</code>, <code>print_custom_field()</code>,  or any search criteria.', CCTM_TXTDOMAIN));
 			
 		$this->descriptions['is_repeatable'] = __('If selected, the user will be able to enter multiple instances of this field, e.g. multiple images. Storing multiple values infers storing an array of values, so you will have to use the "to_array" output filter, even if you only use one instance of the field.', CCTM_TXTDOMAIN);
 		$this->descriptions['required'] = __('If checked, users must add a value to this field before the page can be published.', CCTM_TXTDOMAIN);
@@ -372,26 +372,7 @@ abstract class CCTM_FormElement {
 	 * @return string
 	 */
 	abstract public function get_name();
-
-
-			// 
-			// this might come in as ["123"] instead of 123 or ["123","456"]...
-			// So we need the first id in the list.
-	//------------------------------------------------------------------------------
-	/**
-	 * Relations only store the foreign key, but if the field def was changed from multi- to single,
-	 * then the "post id" might come in as ["123"] instead of 123 or ["123","456"]...
-	 * So this function needs to either get the raw integer number
-	 */		
-	public function get_post_id($str) {
-		if (is_numeric($str)) {
-			return (int) $str;
-		}
-		else {
-			$array = json_decode($str, true);
-			return (int) $array[0];
-		}
-	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * This function should return the URL where users can read more information about
@@ -403,6 +384,49 @@ abstract class CCTM_FormElement {
 	 */
 	abstract public function get_url();
 
+
+	/**
+	 * If the field def was changed from dropdown to multi-select, the value would be
+	 * MYVALUE instead of ["MULTI"]... so the selection would fail.
+	 *
+	 * If to_array is the conversion, then single values get converted to arrays.
+	 * If to_string is the conversion, then JSON encoded arrays return only the 1st
+	 * value stored. E.g. ["1","2"] ==> 1
+	 *
+	 * @param	string	$str
+	 * @param	string	$conversion to_string|to_array
+	 */		
+	public function get_value($str, $conversion='to_array') {
+		if ($conversion == 'to_array') {			
+			if (empty($str) || $str=='[""]') {
+				return array();
+			}
+			
+			$out = (array) json_decode($str, true );
+			// the $str was not JSON encoded
+			if (empty($out)) {
+				return array($str);
+			}
+			else {
+				return $out;
+			}
+		}
+		// to_string
+		else {
+			if ($str=='[""]') {
+				return '';
+			}
+			$out = (array) json_decode($str, true );
+			// the $str was not JSON encoded
+			if (empty($out)) {
+				return $str;
+			}
+			else {
+				return $out[0];
+			}
+
+		}
+	}
 
 	//------------------------------------------------------------------------------
 	/**

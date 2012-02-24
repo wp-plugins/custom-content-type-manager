@@ -90,15 +90,14 @@ class CCTM_multiselect extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->id 					= $this->name; 
+		$this->id = $this->name; 
 
 		$optiontpl = '';
 		$fieldtpl = '';
 		$wrappertpl = '';
 
 		// Multi-select
-		if (isset($this->display) && $this->display == 'multiselect') { 
-//		if (true) { 
+		if (isset($this->display) && $this->display == 'multiselect') {
 
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
@@ -133,7 +132,8 @@ class CCTM_multiselect extends CCTM_FormElement
 		
 				
 		// $current_values_arr: represents what's actually been selected.
-		$current_values_arr = (array) json_decode(html_entity_decode($current_value), true );
+		//$current_values_arr = (array) json_decode(html_entity_decode($current_value), true );
+		$current_values_arr = $this->get_value(html_entity_decode($current_value), 'to_array');
 	
 		// Bring the foreign characters back from the dead.  We need this extra step 
 		// because we have to do exact comparisons to see if the options are selected or not.

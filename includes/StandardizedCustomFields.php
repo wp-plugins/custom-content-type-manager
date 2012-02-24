@@ -90,9 +90,10 @@ class StandardizedCustomFields
 				}
 				
 				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
-				$value_copy = $value;
+				$value_copy = '';
 				if ($FieldObj->is_repeatable) {
-					$value_copy = json_decode(stripslashes($value), true);
+					//$value_copy = json_decode(stripslashes($value), true);
+					$value_copy = $FieldObj->get_value($value, 'to_array');
 					if (is_array($value_copy)) {
 						foreach ($value_copy as $k => $v) {
 							if (empty($v)) {
@@ -100,6 +101,9 @@ class StandardizedCustomFields
 							}
 						}
 					}
+				}
+				else {
+					$value_copy = $FieldObj->get_value($value, 'to_string');
 				}
 				
 				// Is this field required?  OR did validation fail?

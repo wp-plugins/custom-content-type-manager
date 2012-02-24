@@ -71,6 +71,7 @@ foreach ($defs as $field_name => $d) {
 		, __('Delete this custom field', CCTM_TXTDOMAIN)
 		, __('Delete', CCTM_TXTDOMAIN)
 	);
+/*
 	$d['manage_associations_link'] = sprintf(
 		'<a href="?page=cctm_fields&a=list_field_associations&field=%s&_wpnonce=%s" title="%s">%s</a>'
 		, $d['name']
@@ -78,6 +79,7 @@ foreach ($defs as $field_name => $d) {
 		, __('Manage which content types this custom field is associated with.', CCTM_TXTDOMAIN)
 		, __('Manage Associations', CCTM_TXTDOMAIN)
 	);
+*/
 	//$data['fields'] .= self::parse($tpl, $d);
 	$data['fields'] .= CCTM::load_view('tr_custom_field.php',$d);
 }
