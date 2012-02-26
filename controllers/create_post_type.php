@@ -32,7 +32,9 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals, true);
 
 	if ( empty($error_msg) ) {
-		// clean slate:
+		// clean slate.  This nukes any instance of 'is_foreign' (and potentially other issues)
+		// that may arise if the post-type name was used by another plugin and the CCTM tracked
+		// custom fields for that plugin.
 		unset(CCTM::$data['post_type_defs'][ $sanitized_vals['post_type'] ]);
 		CCTM_PostTypeDef::save_post_type_settings($sanitized_vals);
 		

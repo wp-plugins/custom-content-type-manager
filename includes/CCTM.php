@@ -1373,10 +1373,14 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Using something like the following:
-	 * if (!@fclose(@fopen($src, 'r'))) {
-	 *  $src = CCTM_URL.'/images/custom-fields/default.png';
-	 * }
+	 * This translates a local URL to a path on this server so that we can use 
+	 * file_exists() to check whether or not it exists.  
+	 *
+	 * Alternatives for checking for files by their URL, such as:
+	 *  if (!@fclose(@fopen($src, 'r'))) {
+	 * 		$src = CCTM_URL.'/images/custom-fields/default.png';
+	 * 	}
+	 *
 	 * caused segfaults in some server configurations (see issue 60):
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=60
 	 * So in order to check whether an image path is broken or not, we translate the
@@ -1386,7 +1390,7 @@ class CCTM {
 	 *
 	 *     or 'http://mysite.com/some/img.jpg'
 	 *
-	 * @param string  $src a path to an image ON THIS SERVER, e.g. '/wp-content/uploads/img.jpg'
+	 * @param string  $src a URL path to an image ON THIS SERVER, e.g. '/wp-content/uploads/img.jpg'
 	 * @return boolean true if the img is valid, false if the img link is broken
 	 */
 	public static function is_valid_img($src) {
@@ -1397,9 +1401,19 @@ class CCTM {
 		if (!$info) {
 			return false;
 		}
+		// Ensure places in the array
+		if(!isset($info['port'])) { $info['port'] = ''; }
+		if(!isset($info['scheme'])) { $info['scheme'] = ''; }
+		if(!isset($info['host'])) { $info['host'] = ''; }
+		
 		// Is this image hosted on another server? (currently that's not allowed)
 		if ( isset($info['scheme']) ) {
 			$this_site_info = parse_url( get_site_url() );
+			// Ensure places in the array
+			if(!isset($this_site_info['port'])) { $this_site_info['port'] = ''; }
+			if(!isset($this_site_info['scheme'])) { $this_site_info['scheme'] = ''; }
+			if(!isset($this_site_info['host'])) { $this_site_info['host'] = ''; }
+
 			if ( $this_site_info['scheme'] != $info['scheme']
 				|| $this_site_info['host'] != $info['host']
 				|| $this_site_info['port'] != $info['port']) {
