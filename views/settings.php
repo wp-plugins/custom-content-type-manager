@@ -62,7 +62,7 @@
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_foreign_post_types">
 			<input type="checkbox" name="show_foreign_post_types" class="cctm_checkbox" id="show_foreign_post_types" value="1" <?php print $data['settings']['show_foreign_post_types']; ?>/>
 			<label for="show_foreign_post_types" class="cctm_label cctm_checkbox_label" id="cctm_label_show_foreign_post_types">
-				<?php _e('Display Foreign Post Types', CCTM_TXTDOMAIN); ?>
+				<?php _e('Display Foreign Post Types', CCTM_TXTDOMAIN); ?> <img src="<?php print CCTM_URL; ?>/images/spy.png" height="16" width="16" />
 			</label>
 			<span class="cctm_description"><?php _e("Check this box if you want to display any post-types registered with some other plugin. You won't be able to edit them, but you'll know they are there.", CCTM_TXTDOMAIN); ?></span>
 		</div>

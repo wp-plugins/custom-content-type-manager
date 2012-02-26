@@ -32,7 +32,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	$error_msg 		= CCTM_PostTypeDef::post_type_name_has_errors($sanitized_vals, true);
 
 	if ( empty($error_msg) ) {
-	
+		// clean slate:
+		unset(CCTM::$data['post_type_defs'][ $sanitized_vals['post_type'] ]);
 		CCTM_PostTypeDef::save_post_type_settings($sanitized_vals);
 		
 		$data['msg'] = CCTM::format_msg( sprintf(__('The content type %s has been created', CCTM_TXTDOMAIN), '<em>'.$sanitized_vals['post_type'].'</em>'));

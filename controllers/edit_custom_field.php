@@ -34,12 +34,20 @@ if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 
 // Get the post-types for listing associations.
 // this has the side-effect of sorting the post-types
+$customized_post_types = array();
 if ( isset(CCTM::$data['post_type_defs']) && !empty(CCTM::$data['post_type_defs']) ) {
 	$customized_post_types =  array_keys(CCTM::$data['post_type_defs']);
 }
 $displayable_types = array_merge(CCTM::$built_in_post_types , $customized_post_types);
-$displayable_types = array_unique($displayable_types);
-
+$tmp_types = array_unique($displayable_types);
+// weed out any foreign types that are no longer registered
+$registered_types = get_post_types();
+$displayable_types = array();
+foreach($tmp_types as $pt) {
+	if (in_array($pt, $registered_types) || isset(CCTM::$data['post_type_defs'][$pt]['post_type'])) {
+		$displayable_types[] = $pt;
+	}
+}
 	
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save

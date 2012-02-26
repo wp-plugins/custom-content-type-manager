@@ -29,9 +29,15 @@ $data['row_data'] = '';
 
 foreach ( $displayable_types as $post_type ) {
 	// Skip the foreigners till later
+	// these are the ones we KNOW are foreign:
 	if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) ) {
 		continue;
 	}
+	// these are the ones we don't know are foreign because hey, they're foreign
+	if (!isset(CCTM::$data['post_type_defs'][$post_type])) {
+		continue;
+	}
+	
 	$hash = array(); // populated for the tpl
 	$hash['post_type'] = $post_type;
 
@@ -104,6 +110,8 @@ foreach ( $displayable_types as $post_type ) {
 	// Whereas users define the description for custom post types
 	else {
 		$hash['description']  = CCTM::get_value(CCTM::$data['post_type_defs'][$post_type], 'description');
+		$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates . ' | ' . $duplicate_link;
+
 		if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
 	
 			$hash['class'] = 'active';
@@ -129,8 +137,6 @@ foreach ( $displayable_types as $post_type ) {
 		}
 	}
 	
-	$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates . ' | ' . $duplicate_link;
-
 
 	// Images
 	$hash['icon'] = '';
@@ -153,15 +159,15 @@ foreach ( $displayable_types as $post_type ) {
 // Foreign post types... loop over all registered post-types, skip ones that don't have "is_foreign"
 if (CCTM::get_setting('show_foreign_post_types')) {
 	$registered_post_types = get_post_types();
-//	$cctm_post_types = array_keys(self::$data['post_type_defs']);
-//	$other_post_types = array_diff($registered_post_types, $cctm_post_types);
-//	$other_post_types = array_diff($other_post_types, self::$reserved_post_types);
-	
 	foreach($registered_post_types as $post_type) {
 		// Only foreign post-types in this section
-		if ( !isset(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) || empty(CCTM::$data['post_type_defs'][$post_type]['is_foreign']) ) {
+		if (in_array($post_type, CCTM::$reserved_post_types)) {
 			continue;
 		}
+		if ( isset(CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
+			continue; // skip normally CCTM post-types
+		}
+
 		
 		// Get our links
 		$deactivate    = sprintf(

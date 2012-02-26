@@ -6,9 +6,9 @@
  *	1. It does not call any actions or filters when it is executed, so for better
  *		or for worse, there is no way for 3rd parties to intervene with this.
  *	2. It automatically creates/updates/deletes all custom fields in the postmeta
- *		table without the need to have use the update_post_meta() and related functions.
+ *		table without the need to have to use the update_post_meta() and related functions.
  *	3. It does not check for user permissions. If you're running around in the PHP
- *		code, you have rull run of the database. 
+ *		code, you have full run of the database. BEWARE!
  *
  * @pacakge SummarizePosts
  */

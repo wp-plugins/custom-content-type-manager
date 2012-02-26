@@ -233,8 +233,11 @@ abstract class CCTM_FormElement {
 	 * @return string	html dropdown
 	 */
 	public function format_available_output_filters($def) {
+		$available_output_filters = CCTM::get_available_output_filters();
+		require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
 
-		$out = '<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
+		$out = '
+			<div class="'.self::wrapper_css_class .'" id="output_filter_wrapper">
 			 	<label for="output_filter" class="cctm_label cctm_select_label" id="output_filter_label">'
 			.__('Default Output Filter', CCTM_TXTDOMAIN) .'
 			 		<a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/OutputFilters" target="_blank"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a>
@@ -243,9 +246,6 @@ abstract class CCTM_FormElement {
 		$out .= '<select name="output_filter" class="cctm_select" id="output_filter">
 				<option value="">'.__('None (raw)').'</option>
 				';
-
-		$available_output_filters = CCTM::get_available_output_filters();
-		require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
 		
 		foreach ($available_output_filters as $filter => $filename) {
 		

@@ -1,3 +1,12 @@
+<script type="text/javascript">
+jQuery(document).ready( function() {
+    jQuery('.postbox h3').prepend('<a class="togbox">+</a> ');
+    jQuery('.postbox h3').click( function() {
+        jQuery(jQuery(this).parent().get(0)).toggleClass('closed');
+    });
+}
+</script>
+
 <form id="custom_post_type_manager_basic_form" method="post" action="">
 
 
@@ -33,5 +42,5 @@
 	<br />
 	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" />
 
-	<a href="<?php print get_admin_url(false, 'admin.php'); ?>'?page=cctm_fields&a=list_custom_field_types" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
+	<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm_fields&a=list_custom_field_types" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
 </form>

@@ -303,10 +303,19 @@ class CCTM_PostTypeDef {
 		}
 
 		$registered_post_types = get_post_types();
-		$cctm_post_types = array_keys(CCTM::$data['post_type_defs']);
+		$cctm_post_types = array_keys(CCTM::$data['post_type_defs']); // this will include foreigns
 		$other_post_types = array_diff($registered_post_types, $cctm_post_types);
 		$other_post_types = array_diff($other_post_types, CCTM::$reserved_post_types);
-
+		$dead_foreigners = array();
+		foreach ($cctm_post_types as $pt) {
+			if (isset(CCTM::$data['post_type_defs'][$pt]['is_foreign']) 
+				&& CCTM::$data['post_type_defs'][$pt]['is_foreign']
+				&& !in_array($pt, $registered_post_types)
+				) {
+				$dead_foreigners[] = $pt;
+			}
+		}
+		
 		// Is reserved name?
 		if ( in_array($data['post_type'], CCTM::$reserved_post_types) ) {
 			$msg = __('Please choose another name.', CCTM_TXTDOMAIN );
@@ -325,7 +334,10 @@ class CCTM_PostTypeDef {
 		}
 		// If this is a new post_type or if the $post_type name has been changed,
 		// ensure that it is not going to overwrite an existing post type name.
-		elseif ( $new && is_array(CCTM::$data['post_type_defs']) && in_array($data['post_type'], $cctm_post_types ) ) {
+		elseif ( $new && is_array(CCTM::$data['post_type_defs']) 
+			&& in_array($data['post_type'], $cctm_post_types ) 
+			&& !in_array($data['post_type'], $dead_foreigners)
+			) {
 			return sprintf( __('The name %s is already in use.', CCTM_TXTDOMAIN), htmlspecialchars($data['post_type']) );
 		}
 		// Is the name taken by an existing post type registered by some other plugin?
@@ -340,7 +352,7 @@ class CCTM_PostTypeDef {
 				, htmlspecialchars($data['post_type'])
 				, get_stylesheet_directory());
 		}
-*/
+		*/
 
 		return; // no errors
 	}
