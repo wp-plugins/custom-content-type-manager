@@ -15,6 +15,7 @@ $data['msg'] = '';
 $data['menu'] = sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm_fields&a=list_custom_field_types" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['action_name']  = 'custom_content_type_mgr_create_new_custom_field';
 $data['nonce_name']  = 'custom_content_type_mgr_create_new_custom_field_nonce';
+$data['change_field_type'] = '<br/>';
 
 $field_data = array(); // Data object we will save
 
@@ -27,27 +28,10 @@ if (!self::include_form_element_class($field_type)) {
 }
 
 // Get the post-types for listing associations.
-// this has the side-effect of sorting the post-types
-$customized_post_types = array();
-if ( isset(CCTM::$data['post_type_defs']) && !empty(CCTM::$data['post_type_defs']) ) {
-	$customized_post_types =  array_keys(CCTM::$data['post_type_defs']);
-}
-$displayable_types = array_merge(CCTM::$built_in_post_types , $customized_post_types);
-$tmp_types = array_unique($displayable_types);
-// weed out any foreign types that are no longer registered
-$registered_types = get_post_types();
-$displayable_types = array();
-foreach($tmp_types as $pt) {
-	if (in_array($pt, $registered_types) || isset(CCTM::$data['post_type_defs'][$pt]['post_type'])) {
-		$displayable_types[] = $pt;
-	}
-}
-
+$displayable_types = self::get_post_types();
 
 $field_type_name = self::classname_prefix.$field_type;
 $FieldObj = new $field_type_name(); // Instantiate the field element
-
-
 
 
 
@@ -165,41 +149,61 @@ $data['associations'] = ''; // TODO
 $data['associations'] .= '<table>';
 foreach ($displayable_types as $post_type) {
 	$def = array();
+	$def['description'] = '';
+	
 	if (isset(self::$data['post_type_defs'][$post_type])) {
 		$def = self::$data['post_type_defs'][$post_type];
 	}
-	
-	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
-		$def['description']  = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post type.', CCTM_TXTDOMAIN);
-	}
-	elseif (!isset(self::$data['post_type_defs'][$post_type]['description'])) {
-		$def['description'] = '';
-	} 
-	else {
-		$def['description']  = self::$data['post_type_defs'][$post_type]['description'];
-	}
-	// Images
+
 	$icon = '';
-	switch ($post_type) {
-	case 'post':
-		$icon = '<img src="'. CCTM_URL . '/images/icons/post.png' . '" width="15" height="15"/>';
-		break;
-	case 'page':
-		$icon = '<img src="'. CCTM_URL . '/images/icons/page.png' . '" width="14" height="16"/>';
-		break;
-	default:
-		if ( !empty($def['menu_icon']) && !$def['use_default_menu_icon'] ) {
-			$icon = '<img src="'. $def['menu_icon'] . '" />';
-		}
-		break;
-	}
-	
 	$target_url = sprintf(
 		'<a href="?page=cctm&a=list_pt_associations&pt=%s" title="%s">%s</a>'
 		, $post_type
 		, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
 		, __('Manage Custom Fields', CCTM_TXTDOMAIN)
 	);
+
+
+	//------------------------------------------------------------------------------
+	// post,page: Built-in post types
+	//------------------------------------------------------------------------------
+	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
+		$def['description']	= '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post-type.', CCTM_TXTDOMAIN);
+		if ('page' == $post_type) {
+			$icon = '<img src="'. CCTM_URL . '/images/icons/page.png' . '" width="14" height="16"/>';
+		}
+		else {
+			$icon = '<img src="'. CCTM_URL . '/images/icons/post.png' . '" width="15" height="15"/>';
+		}
+	}
+	//------------------------------------------------------------------------------
+	// Full fledged CCTM post-types
+	//------------------------------------------------------------------------------
+	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
+		$def['description'] = self::$data['post_type_defs'][$post_type]['description'];
+		if ( !empty($def['menu_icon']) && !$def['use_default_menu_icon'] ) {
+			$icon = '<img src="'. $def['menu_icon'] . '" />';
+		}
+	}
+	//------------------------------------------------------------------------------
+	// Foreign post-types
+	//------------------------------------------------------------------------------
+	elseif(self::get_setting('show_foreign_post_types')) {
+		$def['description']	= '<img src="'. CCTM_URL .'/images/spy.png" height="16" width="16" alt="wp" /> '. __('Foreign post-type.', CCTM_TXTDOMAIN);
+		$icon = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
+	
+		$target_url = sprintf(
+			'<a href="?page=cctm&a=list_pt_associations&pt=%s&f=1" title="%s">%s</a>'
+			, $post_type
+			, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+			, __('Manage Custom Fields', CCTM_TXTDOMAIN)
+		);
+
+	}
+	else {
+		continue; 
+	}
+
 
 	$is_checked = '';
 

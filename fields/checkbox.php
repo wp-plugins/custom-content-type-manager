@@ -14,6 +14,7 @@ class CCTM_checkbox extends CCTM_FormElement
 		'label' => '',
 		'name' => '',
 		'description' => '',
+		'default_value' => '',
 		// checked_by_default determines whether 'checked_value' or 'unchecked_value' is passed to
 		// the current value for new field instances.  This value should be 1 (checked) or 0 (unchecked)
 		'checked_by_default' => '0',
@@ -128,37 +129,28 @@ class CCTM_checkbox extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
+
+		// Standard
+		$out = $this->format_standard_fields($def);
+		
+		// Options
 		$is_checked = '';
 		if (isset($def['checked_by_default']) && $def['checked_by_default']==1) {
 			$is_checked = 'checked="checked"';
 		}
-		$req_is_checked = '';
-		if (isset($def['required']) && $def['required'] == 1) {
-			$req_is_checked = 'checked="checked"';
-		}
-
-		// Label
-		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
-			 		<label for="label" class="'.self::label_css_class.'">'
-			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
-			 		' . $this->get_translation('label').'
-			 	</div>';
-		// Name
-		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
-			. __('Name', CCTM_TXTDOMAIN) .
-			'</label>
-				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
-			. $this->get_translation('name') .'
-			 	</div>';
-
+		
 		// Value when Checked
+		$out .= '
+			<div class="postbox">
+				<div class="handlediv" title="Click to toggle"><br /></div>
+				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
+				<div class="inside">';
+				
 		$out .= '<div class="'.self::wrapper_css_class .'" id="checked_value_wrapper">
 				 <label for="checked_value" class="cctm_label cctm_text_label" id="checked_value_label">'
 			. __('Value when checked', CCTM_TXTDOMAIN) .
 			'</label>
-				 <input type="text" name="checked_value" size="8" class="cctm_text" id="checked_value" value="'.htmlspecialchars($def['checked_value']) .'"/>'
+				 <input type="text" name="checked_value" size="8" class="cctm_text_short" id="checked_value" value="'.htmlspecialchars($def['checked_value']) .'"/>'
 			. $this->get_translation('checked_value') .'
 			 	</div>';
 
@@ -167,7 +159,7 @@ class CCTM_checkbox extends CCTM_FormElement
 				 <label for="unchecked_value" class="cctm_label cctm_text_label" id="unchecked_value_label">'
 			. __('Value when Unchecked', CCTM_TXTDOMAIN) .
 			'</label>
-				 <input type="text" name="unchecked_value" size="8" class="cctm_text" id="unchecked_value" value="'.htmlspecialchars($def['unchecked_value']) .'"/>'
+				 <input type="text" name="unchecked_value" size="8" class="cctm_text_short" id="unchecked_value" value="'.htmlspecialchars($def['unchecked_value']) .'"/>'
 			. $this->get_translation('unchecked_value') .'
 			 	</div>';
 		// Is Checked by Default?
@@ -178,43 +170,13 @@ class CCTM_checkbox extends CCTM_FormElement
 				 <br />
 				 <input type="checkbox" name="checked_by_default" class="cctm_checkbox" id="checked_by_default" value="1" '. $is_checked.'/> <span>'.$this->descriptions['checked_by_default'].'</span>
 			 	</div>';
-		// Extra
-		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
-			 		<label for="extra" class="'.self::label_css_class.'">'
-			.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
-			.htmlspecialchars($def['extra']).'"/>
-			 	' . $this->get_translation('extra').'
-			 	</div>';
+			 	
+		$out .= '</div><!-- /inside -->
+			</div><!-- /postbox -->';
 
-		// Class
-		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
-			 	<label for="class" class="'.self::label_css_class.'">'
-			.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="cctm_text" id="class" value="'
-			.htmlspecialchars($def['class']).'"/>
-			 	' . $this->get_translation('class').'
-			 	</div>';
-
-		// Is Required?
-		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
-				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
-			. __('Required?', CCTM_TXTDOMAIN) .
-			'</label>
-				 <br />
-				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
-			 	</div>';
-
-		// Description
-		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
-			 	<label for="description" class="'.self::label_css_class.'">'
-			.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
-			. htmlspecialchars($def['description'])
-			.'</textarea>
-			 	' . $this->get_translation('description').'
-			 	</div>';
-
+		// Validations / Required
+		$out .= $this->format_validators($def);
+		
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);
 

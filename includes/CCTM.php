@@ -179,6 +179,9 @@ class CCTM {
 	// Re "preview" see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=321
 	public static $reserved_post_types = array('post', 'page', 'attachment', 'revision'
 		, 'nav_menu', 'nav_menu_item', 'preview');
+	
+	// Any post-types that WP registers, but which the CCTM should ignore (can't have custom fields)
+	public static $ignored_post_types = array('attachment', 'revision', 'nav_menu', 'nav_menu_item');
 
 	// Custom field names are not allowed to use the same names as any column in wp_posts
 	public static $reserved_field_names = array('ID', 'post_author', 'post_date', 'post_date_gmt',
@@ -995,7 +998,48 @@ class CCTM {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Similar to WordPress' get_post_types(), this function retrieves all registered
+	 * post-types AND any inactive CCTM post-types that have a CCTM definition.
+	 * This will skip any post-types for which the CCTM only has custom field associations
+	 * but which are no longer registered (i.e. is_foreign=1, but now abandoned)
+	 *
+	 * @return 	array	of post_types
+	 */
+	public function get_post_types() {
+		$registered = get_post_types();
+		$cctm_types = array();
 
+		// this has the side-effect of sorting the post-types
+		if ( isset(CCTM::$data['post_type_defs']) && !empty(CCTM::$data['post_type_defs']) ) {
+			$cctm_types =  array_keys(CCTM::$data['post_type_defs']);
+		}
+		$all_types = array_merge($registered , $cctm_types);
+		$all_types = array_unique($all_types); // make unique
+		
+		$filtered = array();
+		
+		foreach ($all_types as $pt) {
+			if (in_array($pt, self::$ignored_post_types)) {
+				continue;
+			}
+			// Abandonded foreign
+			if (!isset(CCTM::$data['post_type_defs'][$pt]['post_type']) 
+			&& !in_array($pt, $registered)) {
+				continue;
+			}
+			// Optionall skip foreigns altogether
+			//if (!isset(CCTM::$data['post_type_defs'][$pt]['post_type'])
+			//	&& !self::get_setting('show_foreign_post_types')) {
+			//	continue;
+			//}
+			$filtered[] = $pt;
+		}
+
+		return $filtered;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Gets the plugin version (used to check if updates are available). This checks
@@ -1025,7 +1069,7 @@ class CCTM {
 	 * @return mixed
 	 */
 	public static function get_setting($setting) {
-		//die(print_r(self::$data, true));
+
 		if (empty($setting)) {
 			return '';
 		}

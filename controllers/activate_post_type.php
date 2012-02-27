@@ -13,8 +13,14 @@ if (!CCTM_PostTypeDef::is_existing_post_type($post_type) ) {
 	return;
 }
 
+$is_foreign = (int) CCTM::get_value($_GET, 'f');
+if ($is_foreign) {
+	self::$data['post_type_defs'][$post_type]['is_active'] = 2;
+}
+else {
+	self::$data['post_type_defs'][$post_type]['is_active'] = 1;
+}
 
-self::$data['post_type_defs'][$post_type]['is_active'] = 1;
 update_option( self::db_key, self::$data );
 $msg = '
 		<div class="updated">

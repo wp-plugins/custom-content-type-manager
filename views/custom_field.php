@@ -1,3 +1,17 @@
+<script type="text/javascript">
+jQuery(document).ready( function() {
+   // jQuery('.postbox h3').prepend('<a class="togbox">+</a> ');
+    jQuery('.postbox h3').click( function() {
+        jQuery(jQuery(this).parent().get(0)).toggleClass('closed');
+    });
+    jQuery('.handlediv').click( function() {
+        jQuery(jQuery(this).parent().get(0)).toggleClass('closed');
+    });
+});
+</script>
+
+<div class="metabox-holder">
+
 <form id="custom_post_type_manager_basic_form" method="post" action="">
 
 
@@ -21,15 +35,25 @@
 	</table>
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
+	
+	<?php print $data['change_field_type']; ?>
+	
 	<?php print $data['fields']; ?>
 	
-	<h3><?php _e('Associations', CCTM_TXTDOMAIN); ?></h3>
-	<p class="cctm_decscription"><?php _e('Which post-types should this field be attached to?', CCTM_TXTDOMAIN); ?></p>
-	
-	<?php print $data['associations']; ?>
-	
+	<div class="postbox">
+		<div class="handlediv" title="Click to toggle"><br /></div>
+		<h3 class="hndle"><span><?php _e('Associations', CCTM_TXTDOMAIN); ?></span></h3>
+		<div class="inside">
+			<p class="cctm_decscription"><?php _e('Which post-types should this field be attached to?', CCTM_TXTDOMAIN); ?></p>
+			
+			<?php print $data['associations']; ?>
+		</div><!-- /inside -->
+	</div><!-- /postbox -->
+		
 	<br />
 	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" />
 
 	<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm_fields&a=list_custom_field_types" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
 </form>
+
+</div><!-- /metabox-holder -->

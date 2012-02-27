@@ -36,7 +36,7 @@ if (in_array($post_type, CCTM::$built_in_post_types )) {
 	$is_built_in = true;
 }
 $is_foreign = false;
-if (isset(self::$data['post_type_defs'][$post_type]['is_foreign']) && self::$data['post_type_defs'][$post_type]['is_foreign']) {
+if (!isset(self::$data['post_type_defs'][$post_type]['post_type'])) {
 	$is_foreign = true;
 }
 if ( ($is_foreign || $is_built_in) || !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {

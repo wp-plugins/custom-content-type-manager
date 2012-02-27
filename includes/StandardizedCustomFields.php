@@ -111,7 +111,7 @@ class StandardizedCustomFields
 					$error_flag = true;					
 					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 				}
-				// Do any other validation checks here
+				// Do any other validation checks here: TODO
 				//elseif (isset($FieldObj->validator) && !empty($FieldObj->validator)) {
 /*
 				else {
@@ -274,7 +274,7 @@ class StandardizedCustomFields
 			$post_type = $post->post_type;
 		}
 
-		// Only do this stuff for active post-types
+		// Only do this stuff for active post-types (is_active can be 1 for built-in or 2 for foreign)
 		if (!isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
 			return; 
 		}
@@ -315,30 +315,10 @@ class StandardizedCustomFields
 	@return null	this function should print form fields.
 	------------------------------------------------------------------------------*/
 	public static function print_custom_fields($post, $callback_args='') 
-	{
-		//global $cctm_validation;
-		//die( print_r($cctm_validation, true));
-		
+	{		
 		$post_type = $callback_args['args']; // the 7th arg from add_meta_box()
 		$custom_fields = self::_get_custom_fields($post_type);
-		$output = '';		
-				
-		// Show the big icon @ top of page: 
-		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=136
-		if ( isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
-			&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0 ) { 
-			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-			if ( file_exists(CCTM_PATH . '/images/icons/32x32/'. $baseimg) ) {
-				$output .= sprintf('
-				<style>
-					#icon-edit, #icon-post {
-					  background-image:url(%s);
-					  background-position: 0px 0px;
-					}
-				</style>'
-				, CCTM_URL . '/images/icons/32x32/'. $baseimg);
-			}
-		}
+		$output = '';
 
 		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
 		if ( empty($custom_fields) ) {
@@ -385,8 +365,9 @@ class StandardizedCustomFields
 			$output .= $output_this_field;
 		}
 		
-		// Print the nonce: this offers security and it will help us know when we should do custom saving logic in the save_custom_fields function
-		$output .= '<input type="hidden" name="_cctm_nonce" value="'. wp_create_nonce('cctm_create_update_post') . '" />';
+		// Print the nonce: this offers security and it will help us know when we 
+		// should do custom saving logic in the save_custom_fields function
+		$output .= '<input type="hidden" name="_cctm_nonce" value="'.wp_create_nonce('cctm_create_update_post').'" />';
 
  		// Print the form
  		print '<div class="form-wrap">'.$output.'</div>';

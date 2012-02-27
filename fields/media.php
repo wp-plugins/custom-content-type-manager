@@ -38,6 +38,93 @@ class CCTM_media extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Get the standard fields
+	 *
+	 * @param	array	current def
+	 * @return	strin	HTML
+	 */
+	public function format_standard_fields($def, $show_repeatable=true) {
+		$is_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_checked = 'checked="checked"';
+		}
+
+		$out = '<div class="postbox">
+			<div class="handlediv" title="Click to toggle"><br /></div>
+			<h3 class="hndle"><span>'. __('Standard Fields', CCTM_TXTDOMAIN).'</span></h3>
+			<div class="inside">';
+			
+		// Label
+		$out .= '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
+			 		<label for="label" class="'.self::label_css_class.'">'
+			.__('Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
+			 		' . $this->get_translation('label').'
+			 	</div>';
+		// Name
+		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
+			. __('Name', CCTM_TXTDOMAIN) .
+			'</label>
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+			. $this->get_translation('name') .'
+			 	</div>';
+
+		// Default Value
+		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
+			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
+			.__('Default Value', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			.'"/>
+			 	' . $this->get_translation('default_value') .'
+			 	</div>';
+
+		// Extra
+		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
+			 		<label for="extra" class="'.self::label_css_class.'">'
+			.__('Extra', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
+			.htmlspecialchars($def['extra']).'"/>
+			 	' . $this->get_translation('extra').'
+			 	</div>';
+
+		// Class
+		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
+			 	<label for="class" class="'.self::label_css_class.'">'
+			.__('Class', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
+			.htmlspecialchars($def['class']).'"/>
+			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		if ($show_repeatable) {
+			// Is Repeatable?
+			$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+					 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+				. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+				'</label>
+					 <br />
+					 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
+				 	</div>';
+		}
+
+		// Description
+		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
+			 	<label for="description" class="'.self::label_css_class.'">'
+			.__('Description', CCTM_TXTDOMAIN) .'</label>
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'. htmlspecialchars($def['description']).'</textarea>
+			 	' . $this->get_translation('description').'
+			 	</div>';
+			 	
+		$out .= '</div><!-- /inside -->
+			</div><!-- /postbox -->';	 	
+		
+		return $out;	
+	}
+
+
+	//------------------------------------------------------------------------------
+	/**
 	 * This function provides a name for this type of field. This should return plain
 	 * text (no HTML). The returned value should be localized using the __() function.
 	 *
@@ -83,7 +170,7 @@ class CCTM_media extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		require_once CCTM_PATH.'/includes/SummarizePosts.php';
+
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
 		$Q = new GetPostsQuery();
@@ -205,41 +292,26 @@ class CCTM_media extends CCTM_FormElement
 	public function get_edit_field_definition($def) {
 
 		// Used to fetch the default value.
-		require_once CCTM_PATH.'/includes/SummarizePosts.php';
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-		$Q = new GetPostsQuery();
 
-		$is_checked = '';
-		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
-			$is_checked = 'checked="checked"';
-		}
-		$req_is_checked = '';
-		if (isset($def['required']) && $def['required'] == 1) {
-			$req_is_checked = 'checked="checked"';
-		}
-
-		// Note fieldtype: used to set the default value on new fields
-		$out = '<input type="hidden" id="fieldtype" value="media" />';
+		// Standard
+		$out = $this->format_standard_fields($def);
 		
-		// Label
-		$out .= '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
-			 		<label for="label" class="'.self::label_css_class.'">'
-			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
-			 		' . $this->get_translation('label').'
-			 	</div>';
-		// Name
-		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
-			. __('Name', CCTM_TXTDOMAIN) .
-			'</label>
-				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
-			. $this->get_translation('name') .'
-			 	</div>';
+		// Options
+		$Q = new GetPostsQuery();
+		
+		$out .= '
+			<div class="postbox">
+				<div class="handlediv" title="Click to toggle"><br /></div>
+				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
+				<div class="inside">';
+		
+		// Note fieldtype: used to set the default value on new fields
+		$out .= '<input type="hidden" id="fieldtype" value="image" />';
 
 		// Initialize / defaults
 		$preview_html = '';
-		$click_label = __('Choose Media');
+		$click_label = __('Choose Image');
 		$label = __('Default Value', CCTM_TXTDOMAIN);
 		$remove_label = __('Remove');
 
@@ -257,7 +329,6 @@ class CCTM_media extends CCTM_FormElement
 			);
 			$preview_html = CCTM::parse($fieldtpl, $hash);
 		}
-
 
 		// Button Label
 		$out .= '<div class="'.self::wrapper_css_class .'" id="button_label_wrapper">
@@ -280,49 +351,12 @@ class CCTM_media extends CCTM_FormElement
 				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def, 'search_parameters').'" />
 				<br/>
 			</div>';
+			
+		$out .= '</div><!-- /inside -->
+			</div><!-- /postbox -->';
 
-		// Default Value
-		$out .= '
-			<div class="cctm_element_wrapper" id="default_value_wrapper">
-				<input type="hidden" id="fieldname" value="'.$def['name'].'" />
-				<label for="default_value" class="'.self::label_css_class.'">'
-			.__('Default Value', CCTM_TXTDOMAIN).'</label>
-				<span class="cctm_description">'.__('Choose a default value(s) to display on new posts using this field.', CCTM_TXTDOMAIN).'</span>
-					<span class="button" onclick="javascript:thickbox_results(\'cctm_'.$def['name'].'\');">'.$label.'</span>
-				</span>
-				<div id="target_cctm_'.$def['name'].'"></div>
-				<input type="hidden" id="default_value" name="default_value" value="'
-			.htmlspecialchars($def['default_value']).'" /><br />
-				<div id="cctm_instance_wrapper_'.$def['name'].'">'.$preview_html.'</div>
-				<br />
-			</div>';
-
-		// Is Repeatable?
-		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
-				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
-			. __('Is Repeatable?', CCTM_TXTDOMAIN) .
-			'</label>
-				 <br />
-				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
-			 	</div>';
-			 	
-		// Is Required?
-		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
-				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
-			. __('Required?', CCTM_TXTDOMAIN) .
-			'</label>
-				 <br />
-				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
-			 	</div>';
-			 	
-		// Description
-		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
-			 	<label for="description" class="'.self::label_css_class.'">'
-			.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
-			. htmlspecialchars($def['description']).'</textarea>
-			 	' . $this->get_translation('description').'
-			 	</div>';
+		// Validations / Required
+		$out .= $this->format_validators($def);
 
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);

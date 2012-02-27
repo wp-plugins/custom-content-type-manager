@@ -204,60 +204,23 @@ class CCTM_multiselect extends CCTM_FormElement
 	 * @param mixed $def	nested array of existing definition.
 	 */
 	public function get_edit_field_definition($def) {
+	
 		$is_checked = '';
 		$readonly_str = ' readonly="readonly"';
 		if (isset($def['use_key_values']) && $def['use_key_values']) {
 			$is_checked = 'checked="checked"';
 			$readonly_str = '';
 		}
-		$req_is_checked = '';
-		if (isset($def['required']) && $def['required'] == 1) {
-			$req_is_checked = 'checked="checked"';
-		}
-
 			
-		// Label
-		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
-			 		<label for="label" class="'.self::label_css_class.'">'
-			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
-			 		' . $this->get_translation('label').'
-			 	</div>';
-		// Name
-		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
-					. __('Name', CCTM_TXTDOMAIN) .
-			 	'</label>
-				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
-				 . $this->get_translation('name') .'
-			 	</div>';
-			 	
-		// Default Value
-		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
-			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="default_value" class="cctm_text" id="default_value" value="'. CCTM::charset_decode_utf_8($def['default_value'])
-			 		.'"/>
-			 	' . $this->get_translation('default_value') .'
-			 	</div>';
+		// Standard
+		$out = $this->format_standard_fields($def);
 
-		// Extra
-		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
-			 		<label for="extra" class="'.self::label_css_class.'">'
-			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
-			 			.htmlspecialchars($def['extra']).'"/>
-			 	' . $this->get_translation('extra').'
-			 	</div>';
-
-		// Class
-		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
-			 	<label for="class" class="'.self::label_css_class.'">'
-			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="cctm_text" id="class" value="'
-			 			.htmlspecialchars($def['class']).'"/>
-			 	' . $this->get_translation('class').'
-			 	</div>';
+		// Options		
+		$out .= '
+			<div class="postbox">
+				<div class="handlediv" title="Click to toggle"><br /></div>
+				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
+				<div class="inside">';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
@@ -338,7 +301,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		$out .= '</table>'; // close id="dropdown_options" 
 		
 		// Display: multi-select or as multiple checkboxes
-				$checkboxes_is_selected = '';
+		$checkboxes_is_selected = '';
 		$multiselect_is_selected = '';
 		if (isset($def['display']) && $def['display'] == 'checkboxes') {
 			$checkboxes_is_selected = ' selected="selected"';
@@ -356,27 +319,12 @@ class CCTM_multiselect extends CCTM_FormElement
 				 </select>
 				<span class="cctm_description">'.__('Multiple options can be selected either as a series of checkboxes or as a multi-select field.', CCTM_TXTDOMAIN).'</span>
 			 	</div>';		
-		
-		
-		
-		// Is Required?
-		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
-				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
-			. __('Required?', CCTM_TXTDOMAIN) .
-			'</label>
-				 <br />
-				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
-			 	</div>';		
-				
-		// Description	 
-		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
-			 	<label for="description" class="'.self::label_css_class.'">'
-			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'
-			 		.htmlspecialchars($def['description'])
-			 		.'</textarea>
-			 	' . $this->get_translation('description').'
-			 	</div>';
+			 	
+		$out .= '</div><!-- /inside -->
+			</div><!-- /postbox -->';						
+
+		// Validations / Required
+		$out .= $this->format_validators($def);
 
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);

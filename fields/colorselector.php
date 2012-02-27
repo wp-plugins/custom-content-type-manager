@@ -28,6 +28,93 @@ class CCTM_colorselector extends CCTM_FormElement
 	public function admin_init() {
 		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
 	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Get the standard fields
+	 *
+	 * @param	array	current def
+	 * @return	strin	HTML
+	 */
+	public function format_standard_fields($def, $show_repeatable=true) {
+		$is_checked = '';
+		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
+			$is_checked = 'checked="checked"';
+		}
+
+		$out = '<div class="postbox">
+			<div class="handlediv" title="Click to toggle"><br /></div>
+			<h3 class="hndle"><span>'. __('Standard Fields', CCTM_TXTDOMAIN).'</span></h3>
+			<div class="inside">';
+			
+		// Label
+		$out .= '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
+			 		<label for="label" class="'.self::label_css_class.'">'
+			.__('Label', CCTM_TXTDOMAIN).'</label>
+			 		<input type="text" name="label" class="'.self::css_class_prefix.'text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
+			 		' . $this->get_translation('label').'
+			 	</div>';
+		// Name
+		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
+				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
+			. __('Name', CCTM_TXTDOMAIN) .
+			'</label>
+				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
+			. $this->get_translation('name') .'
+			 	</div>';
+			 	
+		// Default Value
+		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
+			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
+			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="color" name="default_value" class="cctm_colorselector" id="default_value" value="'. htmlspecialchars($def['default_value'])
+			 		.'" data-hex="true"/>
+			 	' . $this->get_translation('default_value') .'
+			 	</div>';
+
+		// Extra
+		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
+			 		<label for="extra" class="'.self::label_css_class.'">'
+			.__('Extra', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
+			.htmlspecialchars($def['extra']).'"/>
+			 	' . $this->get_translation('extra').'
+			 	</div>';
+
+		// Class
+		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
+			 	<label for="class" class="'.self::label_css_class.'">'
+			.__('Class', CCTM_TXTDOMAIN) .'</label>
+			 		<input type="text" name="class" class="cctm_text" id="class" value="'
+			.htmlspecialchars($def['class']).'"/>
+			 	' . $this->get_translation('class').'
+			 	</div>';
+
+		if ($show_repeatable) {
+			// Is Repeatable?
+			$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
+					 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
+				. __('Is Repeatable?', CCTM_TXTDOMAIN) .
+				'</label>
+					 <br />
+					 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
+				 	</div>';
+		}
+
+		// Description
+		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
+			 	<label for="description" class="'.self::label_css_class.'">'
+			.__('Description', CCTM_TXTDOMAIN) .'</label>
+			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'. htmlspecialchars($def['description']).'</textarea>
+			 	' . $this->get_translation('description').'
+			 	</div>';
+			 	
+		$out .= '</div><!-- /inside -->
+			</div><!-- /postbox -->';	 	
+		
+		return $out;	
+	}
+
 	
 	//------------------------------------------------------------------------------
 	/**
@@ -132,83 +219,11 @@ class CCTM_colorselector extends CCTM_FormElement
 	 */
 	public function get_edit_field_definition($def) {
 	
-		$is_checked = '';
-		if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
-			$is_checked = 'checked="checked"';
-		}		
-		$req_is_checked = '';
-		if (isset($def['required']) && $def['required'] == 1) {
-			$req_is_checked = 'checked="checked"';
-		}
+		// Standard
+		$out = $this->format_standard_fields($def);
 		
-		// Label
-		$out = '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
-			 		<label for="label" class="'.self::label_css_class.'">'
-			 			.__('Label', CCTM_TXTDOMAIN).'</label>
-			 		<input type="text" name="label" class="cctm_text" id="label" value="'.htmlspecialchars($def['label']) .'"/>
-			 		' . $this->get_translation('label').'
-			 	</div>';
-		// Name
-		$out .= '<div class="'.self::wrapper_css_class .'" id="name_wrapper">
-				 <label for="name" class="cctm_label cctm_text_label" id="name_label">'
-					. __('Name', CCTM_TXTDOMAIN) .
-			 	'</label>
-				 <input type="text" name="name" class="cctm_text" id="name" value="'.htmlspecialchars($def['name']) .'"/>'
-				 . $this->get_translation('name') .'
-			 	</div>';
-			 	
-		// Default Value
-		$out .= '<div class="'.self::wrapper_css_class .'" id="default_value_wrapper">
-			 	<label for="default_value" class="cctm_label cctm_text_label" id="default_value_label">'
-			 		.__('Default Value', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="color" name="default_value" class="cctm_colorselector" id="default_value" value="'. htmlspecialchars($def['default_value'])
-			 		.'" data-hex="true"/>
-			 	' . $this->get_translation('default_value') .'
-			 	</div>';
-
-		// Extra
-		$out .= '<div class="'.self::wrapper_css_class .'" id="extra_wrapper">
-			 		<label for="extra" class="'.self::label_css_class.'">'
-			 		.__('Extra', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="extra" class="cctm_text" id="extra" value="'
-			 			.htmlspecialchars($def['extra']).'"/>
-			 	' . $this->get_translation('extra').'
-			 	</div>';
-
-		// Class
-		$out .= '<div class="'.self::wrapper_css_class .'" id="class_wrapper">
-			 	<label for="class" class="'.self::label_css_class.'">'
-			 		.__('Class', CCTM_TXTDOMAIN) .'</label>
-			 		<input type="text" name="class" class="cctm_text" id="class" value="'
-			 			.htmlspecialchars($def['class']).'"/>
-			 	' . $this->get_translation('class').'
-			 	</div>';
-
-		// Is Repeatable?
-		$out .= '<div class="'.self::wrapper_css_class .'" id="is_repeatable_wrapper">
-				 <label for="is_repeatable" class="cctm_label cctm_checkbox_label" id="is_repeatable_label">'
-					. __('Is Repeatable?', CCTM_TXTDOMAIN) .
-			 	'</label>
-				 <br />
-				 <input type="checkbox" name="is_repeatable" class="cctm_checkbox" id="is_repeatable" value="1" '. $is_checked.'/> <span>'.$this->descriptions['is_repeatable'].'</span>
-			 	</div>';
-			 	
-		// Is Required?
-		$out .= '<div class="'.self::wrapper_css_class .'" id="required_wrapper">
-				 <label for="required" class="cctm_label cctm_checkbox_label" id="required_label">'
-			. __('Required?', CCTM_TXTDOMAIN) .
-			'</label>
-				 <br />
-				 <input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span>'.$this->descriptions['required'].'</span>
-			 	</div>';
-			 	
-		// Description	 
-		$out .= '<div class="'.self::wrapper_css_class .'" id="description_wrapper">
-			 	<label for="description" class="'.self::label_css_class.'">'
-			 		.__('Description', CCTM_TXTDOMAIN) .'</label>
-			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'.htmlspecialchars($def['description']).'</textarea>
-			 	' . $this->get_translation('description').'
-			 	</div>';
+		// Validations / Required
+		$out .= $this->format_validators($def);
 
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);
