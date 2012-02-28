@@ -339,6 +339,11 @@ class CCTM_media extends CCTM_FormElement
 			 	</div>';
 
 		// Set Search Parameters
+		$search_parameters_str = CCTM::get_value($def, 'search_parameters');
+		parse_str($search_parameters_str, $args);
+		$Q = new GetPostsQuery($args);
+		$search_parameters_visible = $Q->get_args();
+		
 		$out .= '
 			<div class="cctm_element_wrapper" id="search_parameters_wrapper">
 				<label for="name" class="cctm_label cctm_text_label" id="search_parameters_label">'
@@ -348,6 +353,9 @@ class CCTM_media extends CCTM_FormElement
 				<br/>
 				<span class="button" onclick="javascript:search_form_display(\''.$def['name'].'\',\''.$def['type'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
 				<div id="cctm_thickbox"></div>
+				<span id="search_parameters_visible">'.
+				$search_parameters_visible
+				.'</span>
 				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def, 'search_parameters').'" />
 				<br/>
 			</div>';

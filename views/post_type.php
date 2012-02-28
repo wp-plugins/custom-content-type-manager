@@ -98,7 +98,7 @@ just want to make sure that the form is presented uncorrupted.
 	{
 		jQuery('#menu_icon').val(src);
 		// show the user some eye-candy so they know something happened
-		alert('<?php _e('Icon updated.', CCTM_TXTDOMAIN); ?>');
+		jQuery('#sample_icon').html('<img src="'+src+'" height="16" width="16"/>');
 	}	
 
 </script>
@@ -163,6 +163,12 @@ just want to make sure that the form is presented uncorrupted.
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_icon">		
 				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon">Menu Icon</label>
 				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($data['def']['menu_icon'])) { print htmlspecialchars($data['def']['menu_icon']); } ?>" size="100"/>
+					
+					<span id="sample_icon"><?php 
+					if (isset($data['def']['menu_icon'])) { 
+						printf('<img src="%s" heigh="16" width="16" />', htmlspecialchars($data['def']['menu_icon']));
+					}
+					?></span>
 					<br /><br />
 						<span class="cctm_description"><?php _e('Choose an icon from the list below or paste a full URL to a 16x16 icon here.', CCTM_TXTDOMAIN); ?></span>
 			</div>

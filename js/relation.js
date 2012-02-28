@@ -236,8 +236,23 @@ function search_parameters_save(form_id) {
 	var search_parameters = jQuery('#'+form_id).serialize();
 	//alert(search_parameters);
 	jQuery('#search_parameters').val(search_parameters);
+	
+	// Visually print out the new search parameters
+	var data = {
+	        "action" : 'summarize_posts_get_args',
+	        "search_parameters" : search_parameters,
+	        "summarize_posts_get_args_nonce" : cctm.ajax_nonce
+	    };
+	    
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	jQuery('#search_parameters_visible').html(response);
+	    }
+	);
 	tb_remove();
-	alert('Search parameters saved.');
+//	alert('Search parameters saved.');
 }
 
 

@@ -4,7 +4,7 @@ if (!current_user_can('edit_posts')) exit('You do not have permission to do that
 
 /*------------------------------------------------------------------------------
 This controller retrieves a search form used for setting Search Parameters 
-(e.g. for the default value of a relation field).
+(e.g. for the default value of a relation, image, or media field).
 
 It expects the fieldname (without the cctm_ prefix), but it also needs to handle 
 setting search parameters for a new field (which won't have a fieldname yet)
@@ -36,7 +36,7 @@ $search_parameters_str = '';
 if (isset($_POST['search_parameters'])) {
 	$search_parameters_str = $_POST['search_parameters'];
 }
-//print '<pre>'.$search_parameters_str. '</pre>'; return;
+// print '<pre>'.$search_parameters_str. '</pre>'; return;
 $existing_values = array();
 parse_str($search_parameters_str, $existing_values);
 
