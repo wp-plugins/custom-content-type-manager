@@ -27,6 +27,7 @@ just want to make sure that the form is presented uncorrupted.
 	jQuery(document).ready(function(){
 		toggle_image_detail();
 //		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
+		toggle_page_attributes();
 		toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');
 		jQuery('.checkall').click(function () {
 			jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
@@ -86,9 +87,11 @@ just want to make sure that the form is presented uncorrupted.
 	function toggle_page_attributes() {
 		if( jQuery('#supports_page-attributes:checked').val()) {
 			//alert('Checked!');
+			jQuery('#extended_page_attributes :input').removeAttr('disabled');
         }
         else {
 			//alert('NOT Checked.');
+			jQuery('#extended_page_attributes :input').attr('disabled', true);
         }
 
 	}
