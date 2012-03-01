@@ -112,22 +112,26 @@ class StandardizedCustomFields
 					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 				}
 				// Do any other validation checks here: TODO
-				//elseif (isset($FieldObj->validator) && !empty($FieldObj->validator)) {
-/*
-				else {
-					$Validator = CCTM::load_validator('number');
-					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validation_options'])) {
-						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validation_options']);
+				elseif (isset($FieldObj->validator) && !empty($FieldObj->validator)) {
+					$Validator = CCTM::load_object($FieldObj->validator, 'validator');
+					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
+						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
 					}
 	
-					// $Validator->set_options($validation_options);
-					$value_copy = $Validator->validate($value_copy);
+					$Validator->set_options($FieldObj->validator_options);
+					if (is_array($value_copy)) {
+						foreach ($value_copy as $i => $val) {
+							$value_copy[$i] = $Validator->validate($val);
+						}
+					}
+					else {
+						$value_copy = $Validator->validate($value_copy);
+					}					
 					if (!empty($Validator->error_msg)) { 
 						$error_flag = true;
 						CCTM::$post_validation_errors[$FieldObj->name] = sprintf($Validator->get_error_msg(), $FieldObj->label);
 					}
 				}
-*/
 				
 			}
 			else {
@@ -464,7 +468,7 @@ class StandardizedCustomFields
 								}
 							}
 						}
-						// Is this field required?  OR did validation fail?
+						// Is this field required?  
 						if ($FieldObj->required && empty($value_copy)) {
 							// Override!! set post to draft status
 							global $wpdb;

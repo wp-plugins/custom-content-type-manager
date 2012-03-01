@@ -36,17 +36,52 @@ class CCTM_number extends CCTM_Validator {
 	 * an AJAX request if this validator is selected.  
 	 * Do not include the entire form, just the inputs you need!
 	 */
-	public function get_options($current_value) { 
-		$options = '<label class="cctm_label" for="'.$this->get_field_id('min').'">'.__('Minimum Value Allowed', CCTM_TXTDOMAIN).'</label>
-			<input type="text" name="'.$this->get_field_name('min').'" id="'.$this->get_field_id('min').'">
-			<label class="cctm_label" for="'.$this->get_field_id('max').'">'.__('Maximum Value Allowed', CCTM_TXTDOMAIN).'</label>
-			<input type="text" name="'.$this->get_field_name('max').'" id="'.$this->get_field_id('max').'">
-			<input type="checkbox" name="'.$this->get_field_name('allow_negative').'" id="validation_options_allow_negative" value="1" '.$this->is_checked('allow_negative').'> 
-			<label class="cctm_checkbox_label" for="'.$this->get_field_id('allow_negative').'">'.__('Allow Negative Numbers', CCTM_TXTDOMAIN).'</label>
-			<input type="checkbox" name="'.$this->get_field_name('allow_decimals').'" id="'.$this->get_field_id('allow_decimals').'" value="1" '.$this->is_checked('allow_decimals').'> 
-			<label class="cctm_checkbox_label" for="'.$this->get_field_id('allow_decimals').'">'.__('Allow Decimals', CCTM_TXTDOMAIN).'</label>
+	public function get_options() { 
+		$min = '';
+		if (is_numeric($this->min)) {
+			$min = $this->min;
+		}
+		$max = '';
+		if (is_numeric($this->max)) {
+			$max = $this->max;
+		}
+		$negative_is_checked = '';
+		if ($this->allow_negative) {
+			$negative_is_checked = ' checked="checked"';
+		}
+		$decimals_is_checked = '';
+		if ($this->allow_decimals) {
+			$decimals_is_checked = ' checked="checked"';
+		}
+		$decimal_places = '';
+		if ($this->decimal_places != '') {
+			$decimal_places = (int) $this->decimal_places;
+		}
+		$comma_selected = '';
+		$period_selected = '';
+		if ('.' == $this->decimal_separator) {
+			$period_selected = ' selected="selected"';
+		}
+		if (',' == $this->decimal_separator) {
+			$comma_selected = ' selected="selected"';
+		}	
+			
+		$options = '<label class="cctm_label" for="'.$this->get_field_id('min').'">'.__('Min Value', CCTM_TXTDOMAIN).'</label>
+			<input type="text" name="'.$this->get_field_name('min').'" id="'.$this->get_field_id('min').'" value="'.$min.'">
+			<label class="cctm_label" for="'.$this->get_field_id('max').'">'.__('Max Value', CCTM_TXTDOMAIN).'</label>
+			<input type="text" name="'.$this->get_field_name('max').'" id="'.$this->get_field_id('max').'" value="'.$max.'"><br/>
+			<input type="checkbox" name="'.$this->get_field_name('allow_negative').'" id="'.$this->get_field_id('allow_negative').'" value="1" class="cctm_checkbox" '.$this->is_checked('allow_negative').' '.$negative_is_checked.'>
+			<label class="cctm_checkbox_label" for="'.$this->get_field_id('allow_negative').'">'.__('Allow Negative Numbers', CCTM_TXTDOMAIN).'</label><br/>
+			<input type="checkbox" name="'.$this->get_field_name('allow_decimals').'" id="'.$this->get_field_id('allow_decimals').'" value="1" class="cctm_checkbox" '.$this->is_checked('allow_decimals').' '.$decimals_is_checked.'> 
+			<label class="cctm_checkbox_label" for="'.$this->get_field_id('allow_decimals').'">'.__('Allow Decimals', CCTM_TXTDOMAIN).'</label><br/>
 			<label class="cctm_label" for="'.$this->get_field_id('decimal_places').'">'.__('Maximum Decimal Places', CCTM_TXTDOMAIN).'</label>
-			<input type="text" name="'.$this->get_field_name('decimal_places').'" id="'.$this->get_field_id('decimal_places').'">
+			<input type="text" name="'.$this->get_field_name('decimal_places').'" id="'.$this->get_field_id('decimal_places').'" value="'.$decimal_places.'"><br/>
+			
+			<label class="cctm_label" for="'.$this->get_field_id('decimal_separator').'">'.__('Decimal Separator', CCTM_TXTDOMAIN).'</label>
+			<select name="'.$this->get_field_name('decimal_separator').'" id="'.$this->get_field_id('decimal_separator').'">
+				<option value="."'.$period_selected.'>'.__('Period', CCTM_TXTDOMAIN).' (.)</option>
+				<option value=","'.$comma_selected.'>'.__('Comma', CCTM_TXTDOMAIN).' (,)</option>
+			</select>
 			';
 			
 			return $options;

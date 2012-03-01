@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.11';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.5.12';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -96,6 +96,9 @@ class CCTM {
 	// Data object stored in the wp_options table representing all primary data
 	// for post_types and custom fields
 	public static $data = array();
+
+	// TODO: cached data will go here
+	public static $cache = array();
 
 	// integer iterator used to uniquely identify groups of field definitions for
 	// CSS and $_POST variables
@@ -773,12 +776,11 @@ class CCTM {
 	 * Gets an array of full pathnames/filenames for all custom field types.
 	 * This searches the built-in location AND the add-on location inside
 	 * wp-content/uploads.  If there are duplicate filenames, the one inside the
-	 * 3rd party directory will be registered: this allows developers to override
+	 * 3rd party directory will take precedence: this allows developers to override
 	 * the built-in custom field classes.
 	 *
 	 * This function will read the results from the cache
 	 *
-	 * @param boolean perform directory scan and update cache?
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
 	public static function get_available_custom_field_types() {
@@ -842,7 +844,7 @@ class CCTM {
 	 * Gets an array of full pathnames/filenames for all output filters.
 	 * This searches the built-in location AND the add-on location inside
 	 * wp-content/uploads. If there are duplicate filenames, the one inside the
-	 * 3rd party directory will be registered: this allows developers to override
+	 * 3rd party directory will take precedence: this allows developers to override
 	 * the built-in output filter classes.
 	 *
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
@@ -885,6 +887,54 @@ class CCTM {
 		return $files;
 	}
 
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Gets an array of full pathnames/filenames for all validators.
+	 * This searches the built-in location AND the add-on location inside
+	 * wp-content/uploads. If there are duplicate filenames, the one inside the
+	 * 3rd party directory will take precedence: this allows developers to override
+	 * the built-in output filter classes.
+	 *
+	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
+	 */
+	public static function get_available_validators() {
+	
+		// Ye olde output
+		$files = array();
+		
+		// Scan default directory (should this be hardcoded?)
+		$dir = CCTM_PATH .'/validators';
+		$rawfiles = scandir($dir);
+		foreach ($rawfiles as $f) {
+			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
+				$shortname = basename($f);
+				$shortname = preg_replace('/\.php$/', '', $shortname);
+				$files[$shortname] = $dir.'/'.$f;
+			}
+		}
+
+		// Scan 3rd party directory
+		$upload_dir = wp_upload_dir();
+		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
+			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
+		}
+		else {
+			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/validators';
+			if (is_dir($dir)) {
+				$rawfiles = scandir($dir);
+				foreach ($rawfiles as $f) {
+					if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
+						$shortname = basename($f);
+						$shortname = preg_replace('/\.php$/', '', $shortname);
+						$files[$shortname] = $dir.'/'.$f;
+					}
+				}
+			}
+		}
+	//die('<pre>'.print_r($files, true).'</pre>');
+		return $files;
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1586,6 +1636,51 @@ class CCTM {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Load up an object: this handles finding and including the object file, instantiating
+	 * it, and returning the object.
+	 *
+	 * @param	string $shortname
+	 * @param	string $object_type: field, filter, validator
+	 * @return	object
+	 */
+	public static function load_object($shortname, $object_type) {
+	
+		$object_classname = self::classname_prefix . $shortname;
+
+		// Load from cache?  You have to still include the parent classes in 
+		// order to work with a serialized object.
+
+		if (class_exists($object_classname)) {
+			return new $object_classname();
+		}	
+		
+		$result = false;
+		
+		switch ($object_type) {
+			case 'field':
+				require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
+				$result = CCTM::load_file('/fields/'.$shortname.'.php', '', 'require_once');
+				break;
+			case 'filter':
+				require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
+				$result = CCTM::load_file('/filters/'.$shortname.'.php', '', 'require_once');
+				break;
+			case 'validator':
+				require_once(CCTM_PATH.'/includes/CCTM_Validator.php');
+				$result = CCTM::load_file('/validators/'.$shortname.'.php', '', 'require_once');
+				break;
+		}
+		
+		if (!$result) {
+			return false;
+		}
+		
+		return new $object_classname();		
+
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Similar to the load_view function, this retrieves a tpl.  It allows users to

@@ -20,7 +20,7 @@ if(!empty($post_type)) {
 	$data['content'] .= '<p>'. sprintf(__('Create a custom field for the %s post_type', CCTM_TXTDOMAIN), "<em>$post_type</em>").'</p>';
 }
 
-$elements = CCTM::get_available_custom_field_types(true);
+$elements = CCTM::get_available_custom_field_types();
 
 foreach ( $elements as $field_type => $file ) {
 	if ( CCTM::include_form_element_class($field_type) ) {

@@ -23,6 +23,36 @@ abstract class CCTM_Validator {
 	 */
 	public $show_in_menus = true;
 	
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	public function __get($key) {
+		if (isset($this->options[$key])) {
+			return $this->options[$key];
+		}
+		
+		return '';
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	public function __isset($key) {
+		if (isset($this->options[$key])) {
+			return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * 
+	 */
+	public function __set($key, $value) {
+		$this->options[$key] = $value;
+	}
 
 	/**
 	 * @return string	a description of what the validation rule is and does.
@@ -41,13 +71,15 @@ abstract class CCTM_Validator {
 	 * return some form elements that will dynamically be shown on the page via 
 	 * an AJAX request if this validator is selected.  
 	 * Do not include the entire form, just the inputs you need! 
-	 * Form fields should use names that are nodes of $_POST['validation_options'], e.g.
-	 * 	<input name="validation_options[option1]" />
+	 * Form fields should use names that are nodes of $_POST['validator_options'], e.g.
+	 * 	<input name="validator_options[option1]" />
 	 *
 	 * @param	array	$current_values
 	 * @return string	HTML form elements
 	 */
-	public function get_options($current_values) { }
+	public function get_options() { 
+		return __('No configurable options.', CCTM_TXTDOMAIN);
+	}
 		
 	/**
 	 * Run the rule: check the user input. Return the (filtered) value that should
@@ -81,7 +113,7 @@ abstract class CCTM_Validator {
 	 * @return	string	
 	 */
 	public function get_field_id($id) {
-		return "validation_options_$id";
+		return "validator_options_$id";
 	}
 	
 	/**
@@ -91,7 +123,7 @@ abstract class CCTM_Validator {
 	 * @return	string	
 	 */
 	public function get_field_name($name) {
-		return "validation_options[$name]";
+		return "validator_options[$name]";
 	}
 	
 	/**
@@ -137,6 +169,8 @@ abstract class CCTM_Validator {
 	
 	//------------------------------------------------------------------------------
 	/**
+	 * Set the current options for this validator
+	 *
 	 * @param	array
 	 */
 	public function set_options($options) {

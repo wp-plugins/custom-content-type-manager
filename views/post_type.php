@@ -393,7 +393,7 @@ just want to make sure that the form is presented uncorrupted.
 				<input type="checkbox" name="cctm_hierarchical_custom" class="cctm_checkbox" id="cctm_hierarchical_custom" value="1" <?php if (isset($data['def']['cctm_hierarchical_custom'])) { print CCTM::is_checked($data['def']['cctm_hierarchical_custom']); } ?> 
 					onclick="javascript:toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');"/> 
 				<label for="cctm_hierarchical_custom" class="cctm_label cctm_checkbox_label" id="cctm_label_hierarchical"><?php _e('Use Custom Hierarchy', CCTM_TXTDOMAIN); ?></label>
-				<span class="cctm_description"><?php _e('Allows custom hierarchies to be specified.', CCTM_TXTDOMAIN); ?></span>
+				<span class="cctm_description"><?php _e('Allows custom hierarchies to be specified. Hierarchical must be checked.', CCTM_TXTDOMAIN); ?></span>
 
 				
 			<!-- Working : Custom hierarchy-->

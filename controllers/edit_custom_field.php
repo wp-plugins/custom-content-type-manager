@@ -122,6 +122,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	}
 	// Save;
 	else {
+		// die(print_r($field_data,true));
 		// Unset the old field if the name changed ($field_name is passed via $_GET)
 		if ($field_name != $field_data['name']) {
 			unset(self::$data['custom_field_defs'][$field_name]);
