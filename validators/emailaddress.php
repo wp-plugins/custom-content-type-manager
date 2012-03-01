@@ -31,7 +31,7 @@ class CCTM_emailaddress extends CCTM_Validator {
 	 */
 	public function validate($input) {
 		if (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $input)) {
-			$this->error_msg = 'The %s field is not a valid email address.';
+			$this->error_msg = sprintf(__('The %s field is not a valid email address.', CCTM_TXTDOMAIN), $this->get_subject());
 		}
 		
 		return $input;

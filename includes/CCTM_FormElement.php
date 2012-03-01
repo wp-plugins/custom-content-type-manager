@@ -393,7 +393,7 @@ abstract class CCTM_FormElement {
 			if ($this->validator == $shortname) {
 				$is_selected = ' selected="selected"';
 				$Vobj->set_options($this->validator_options);
-				$validator_options = $Vobj->get_options();
+				$validator_options = $Vobj->get_options_html();
 				
 				$validator_options = sprintf('<div class="postbox"><h3 class="hndle"><span>%s</span></h3>
 			<div class="inside">%s</div></div>', __('Options', CCTM_TXTDOMAIN), $validator_options);

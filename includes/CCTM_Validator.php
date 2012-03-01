@@ -17,6 +17,10 @@ abstract class CCTM_Validator {
 	 */
 	public $error_msg;
 	
+	
+	// The name of the field being validated, used for error messages.
+	public $subject;
+	
 	/**
 	 * Most validation rules should be publicly visible when you define a field,
 	 * but if desired, you can hide a rule from the menu.
@@ -77,7 +81,7 @@ abstract class CCTM_Validator {
 	 * @param	array	$current_values
 	 * @return string	HTML form elements
 	 */
-	public function get_options() { 
+	public function get_options_html() { 
 		return __('No configurable options.', CCTM_TXTDOMAIN);
 	}
 		
@@ -117,7 +121,8 @@ abstract class CCTM_Validator {
 	}
 	
 	/**
-	 * Get a unique field name for a field element, same idea as WP Widget functions.
+	 * Get a unique field name for a field element in the validation options html, 
+	 * same idea as WP Widget functions.
 	 *
 	 * @param	string	$id
 	 * @return	string	
@@ -125,7 +130,14 @@ abstract class CCTM_Validator {
 	public function get_field_name($name) {
 		return "validator_options[$name]";
 	}
-	
+
+	/**
+	 * @return string	name of the field being validated
+	 */
+	public function get_subject() {
+		return $this->subject;
+	}
+		
 	/**
 	 * @param	string	$key name inside of $this->options
 	 * @return	string	the value
@@ -165,6 +177,14 @@ abstract class CCTM_Validator {
 		else {
 			return '';
 		}
+	}
+	//------------------------------------------------------------------------------
+	/**
+	 * Used for validation messaging.
+	 * @param	string	$fieldname of the field being validated
+	 */
+	public function set_subject($fieldname) {
+		$this->subject = $fieldname;
 	}
 	
 	//------------------------------------------------------------------------------

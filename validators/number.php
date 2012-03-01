@@ -36,7 +36,7 @@ class CCTM_number extends CCTM_Validator {
 	 * an AJAX request if this validator is selected.  
 	 * Do not include the entire form, just the inputs you need!
 	 */
-	public function get_options() { 
+	public function get_options_html() { 
 		$min = '';
 		if (is_numeric($this->min)) {
 			$min = $this->min;
@@ -95,8 +95,30 @@ class CCTM_number extends CCTM_Validator {
 	 * @return string
 	 */
 	public function validate($input) {
+		
+		// Gotta be a number before we'll even talk to you
 		if (!is_numeric($input)) {
-			$this->error_msg = 'The %s field must be numeric.';
+			$this->error_msg = __('The %s field must be numeric.', CCTM_TXTDOMAIN);
+		}
+		elseif (!$this->allow_negative && $input < 0) {
+			$this->error_msg = sprintf(__('The %s field may not be negative.', CCTM_TXTDOMAIN), $this->get_subject());
+		}
+		elseif ($this->min && $this->max && ($input < $this->min || $input > $this->max)) {
+			$this->error_msg = sprintf(__('The %s field must be between %s and %s.', CCTM_TXTDOMAIN), $this->get_subject(), $this->min, $this->max);		
+		}
+		elseif ($this->min && $input < $this->min) {
+			$this->error_msg = sprintf(__('The %s field must be greater than %s.', CCTM_TXTDOMAIN), $this->get_subject(), $this->min);
+		}
+		elseif ($this->max && $input > $this->max) {
+			$this->error_msg = sprintf(__('The %s field must be less than %s.', CCTM_TXTDOMAIN), $this->get_subject(), $this->max);
+		}
+		// Whole integers only
+		elseif (!$this->allow_decimals && strpos($input, $this->decimal_separator) !== false) {
+			$this->error_msg = sprintf(__('The %s field must be a whole number (no decimals allowed).', CCTM_TXTDOMAIN), $this->get_subject());					
+		}
+		// We do some strrev trickery to count # of decimal places
+		elseif ($this->allow_decimals && strrpos(strrev($input), $this->decimal_separator) > $this->decimal_places) {
+			$this->error_msg = sprintf(__('The %s field cannot contain more than %s decimal places.', CCTM_TXTDOMAIN), $this->get_subject(), $this->decimal_places);			
 		}
 		
 		return $input;

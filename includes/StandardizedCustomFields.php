@@ -117,7 +117,7 @@ class StandardizedCustomFields
 					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
 						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
 					}
-	
+					$Validator->set_subject($FieldObj->label);
 					$Validator->set_options($FieldObj->validator_options);
 					if (is_array($value_copy)) {
 						foreach ($value_copy as $i => $val) {
@@ -129,7 +129,7 @@ class StandardizedCustomFields
 					}					
 					if (!empty($Validator->error_msg)) { 
 						$error_flag = true;
-						CCTM::$post_validation_errors[$FieldObj->name] = sprintf($Validator->get_error_msg(), $FieldObj->label);
+						CCTM::$post_validation_errors[$FieldObj->name] = $Validator->get_error_msg();
 					}
 				}
 				
