@@ -1084,7 +1084,7 @@ class GetPostsQuery {
 		$hash['append'] = $this->_sql_append($wpdb->posts);
 
 		$hash['omit_post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'NOT IN', $this->omit_post_type);
-//		$hash['post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'IN', $this->post_type);
+		$hash['post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'IN', $this->post_type);
 		$hash['post_mime_type'] = $this->_sql_filter_post_mime_type();
 		$hash['post_parent'] = $this->_sql_filter($wpdb->posts, 'post_parent', 'IN', $this->post_parent);
 		$hash['post_status'] = $this->_sql_filter($wpdb->posts, 'post_status', 'IN', $this->post_status);
@@ -1129,13 +1129,11 @@ class GetPostsQuery {
 		if ($this->sort_by_random) {
 			$hash['orderby'] = 'RAND()';
 			$hash['order'] = ''; // <-- blanks this out!
-			$hash['select_metasortcolumn'] = '';
 			$hash['join_for_metasortcolumn'] = '';
 		}
 		// See http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=20
 		elseif ($this->sort_by_meta_flag) {
-			$hash['orderby'] = 'metasortcolumn';
-			$hash['select_metasortcolumn'] = ', orderbymeta.meta_value as metasortcolumn';
+			$hash['orderby'] = 'orderbymeta.meta_value';
 			$hash['join_for_metasortcolumn'] = sprintf("LEFT JOIN {$wpdb->postmeta} orderbymeta ON %s.ID=orderbymeta.post_id AND orderbymeta.meta_key = %s"
 				, $wpdb->posts
 				, $wpdb->prepare('%s', $this->orderby)
@@ -1144,7 +1142,6 @@ class GetPostsQuery {
 		// Standard: sort by a column in wp_posts
 		else {
 			$hash['orderby'] = $wpdb->posts.'.'.$this->orderby;
-			$hash['select_metasortcolumn'] = '';
 			$hash['join_for_metasortcolumn'] = '';
 		}
 
@@ -1197,7 +1194,7 @@ class GetPostsQuery {
 			$where = "WHERE {$wpdb->posts}.ID IN ($id_str)";
 		}
 		
-		$this->SQL2 = "SELECT {$wpdb->posts}.*
+		$query = "SELECT {$wpdb->posts}.*
 			, parent.ID as 'parent_ID'
 			, parent.post_title as 'parent_title'
 			, parent.post_excerpt as 'parent_excerpt'
@@ -1212,8 +1209,35 @@ class GetPostsQuery {
 		LEFT JOIN {$wpdb->posts} parent ON {$wpdb->posts}.post_parent=parent.ID
 		LEFT JOIN {$wpdb->users} author ON {$wpdb->posts}.post_author=author.ID
 
-		$where";
+		[+join_for_metasortcolumn+]
 		
+		$where
+
+		ORDER BY [+orderby+] [+order+]";
+		
+		$hash = array();
+		$hash['order'] = $this->order;
+		
+		if ($this->sort_by_random) {
+			$hash['orderby'] = 'RAND()';
+			$hash['order'] = '';
+		}
+		// See http://code.google.com/p/wordpress-summarize-posts/issues/detail?id=20
+		elseif ($this->sort_by_meta_flag) {
+			$hash['orderby'] = 'orderbymeta.meta_value';
+			$hash['join_for_metasortcolumn'] = sprintf("LEFT JOIN {$wpdb->postmeta} orderbymeta ON %s.ID=orderbymeta.post_id AND orderbymeta.meta_key = %s"
+				, $wpdb->posts
+				, $wpdb->prepare('%s', $this->orderby)
+			);
+		}
+		else {
+			$hash['join_for_metasortcolumn'] = '';
+			$hash['orderby'] = $wpdb->posts.'.'.$this->orderby;		
+		}
+		
+		
+		$this->SQL2 = self::parse($query, $hash);
+		//die($this->SQL2);
 		return $this->SQL2;		
 
 	}
@@ -1262,8 +1286,10 @@ class GetPostsQuery {
 		
 		$query = "SELECT {$wpdb->postmeta}.*
 			FROM {$wpdb->postmeta}
+						
 			WHERE [+where+]
-			[+hiddenfields+]";
+			[+hiddenfields+]
+			";
 		
 		if (!$this->include_hidden_fields) {
 			$hash['hidden_fields'] = "AND {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
