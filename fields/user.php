@@ -198,7 +198,7 @@ class CCTM_user extends CCTM_FormElement
 		$out = $this->format_standard_fields($def);
 
 		// Validations / Required
-		$out .= $this->format_validators($def);
+		$out .= $this->format_validators($def,false);
 		
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);

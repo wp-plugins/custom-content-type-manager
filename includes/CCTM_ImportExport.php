@@ -558,9 +558,14 @@ class CCTM_ImportExport {
 	 * listed by the site_url();
 	 *
 	 * @param	string	$src	a full path to an image, e.g."http://x.com/my.jpg"
+	 *							OR "/sub/wp-content/plugins/custom-content-type-manager/images/icons/16x16/wizard.png"
 	 * @return	string	a relative path to that image, e.g. "my.jpg"
 	 */
 	public static function make_img_path_rel($src) {
+		// If left-most character is '/', then chop it and the subdir off
+		if ('/' == substr($src, 0 ,1)) {			
+			return str_replace('/'.self::get_subdir(), '', $src);
+		}
 		return str_replace(site_url(), '', $src);
 	}
 

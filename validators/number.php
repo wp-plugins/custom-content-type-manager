@@ -98,7 +98,7 @@ class CCTM_number extends CCTM_Validator {
 		
 		// Gotta be a number before we'll even talk to you
 		if (!is_numeric($input)) {
-			$this->error_msg = __('The %s field must be numeric.', CCTM_TXTDOMAIN);
+			$this->error_msg = sprintf(__('The %s field must be numeric.', CCTM_TXTDOMAIN), $this->get_subject());
 		}
 		elseif (!$this->allow_negative && $input < 0) {
 			$this->error_msg = sprintf(__('The %s field may not be negative.', CCTM_TXTDOMAIN), $this->get_subject());

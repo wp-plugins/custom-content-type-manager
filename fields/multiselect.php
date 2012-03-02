@@ -213,7 +213,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		}
 			
 		// Standard
-		$out = $this->format_standard_fields($def);
+		$out = $this->format_standard_fields($def, false);
 
 		// Options		
 		$out .= '
@@ -324,7 +324,7 @@ class CCTM_multiselect extends CCTM_FormElement
 			</div><!-- /postbox -->';						
 
 		// Validations / Required
-		$out .= $this->format_validators($def);
+		$out .= $this->format_validators($def,false);
 
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);

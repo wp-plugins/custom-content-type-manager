@@ -364,7 +364,7 @@ class CCTM_media extends CCTM_FormElement
 			</div><!-- /postbox -->';
 
 		// Validations / Required
-		$out .= $this->format_validators($def);
+		$out .= $this->format_validators($def,false);
 
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);

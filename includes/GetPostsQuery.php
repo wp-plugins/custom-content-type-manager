@@ -517,6 +517,11 @@ class GetPostsQuery {
 		if (empty($date)) {
 			return false;
 		}
+		
+		if( !strpos($date,'-') && is_numeric($date)) {
+			return true;
+		}
+		
 		list( $y, $m, $d ) = explode('-', $date );
 
 		if ( is_numeric($m) && is_numeric($d) && is_numeric($y) && checkdate( $m, $d, $y ) ) {
@@ -533,7 +538,7 @@ class GetPostsQuery {
 	 * Is a datetime in MySQL YYYY-MM-DD HH:MM:SS date format?  (Time is optional).
 	 *
 	 * @param string
-	 * @param unknown $datetime
+	 * @param string $datetime
 	 * @return boolean
 	 */
 	private function _is_datetime( $datetime ) {
@@ -579,6 +584,25 @@ class GetPostsQuery {
 		}
 		else {
 			return true;
+		}
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Retrieves the operator in use for a given argument.
+	 * @param	string	$arg identifying the column (built-in or custom) that the operator applies to
+	 * @return	string	operator.  For all but post_mime_type, the default is '='
+	 */
+	private function _get_operator($arg) {
+		if (isset($this->operators[$arg])) {
+			return $this->operators[$arg];
+		}
+		
+		if ('post_mime_type' == $arg) {
+			return 'starts_with';
+		}
+		else {
+			return '=';
 		}
 	}
 	
@@ -710,6 +734,13 @@ class GetPostsQuery {
 					case 'contains':
 						$this->operators[$arg] = 'like';
 						break;
+					case '!%':
+					case '!like':
+					case 'not_like':
+						$this->operators[$arg] = 'not_like';
+						break;
+					case '=':
+					case 'in':
 					default:
 						$this->operators[$arg] = '=';
 				}
@@ -799,11 +830,11 @@ class GetPostsQuery {
 			return $this->_comma_separated_to_array($val, 'integer');
 			break;
 			// Dates
-		case 'post_modified':
-		case 'post_date':
+//		case 'post_modified':
+//		case 'post_date':
 		case 'date':
 			// if it's a date
-			if ($this->_is_date($val) ) {
+			if ( in_array($this->_get_operator($arg), array('=','!=')) && $this->_is_date($val) ) {
 				return $val;
 			}
 			else {
@@ -861,7 +892,6 @@ class GetPostsQuery {
 		// Almost any value... prob. should use $wpdb->prepare( $query, $val )
 		case 'meta_key':
 		case 'meta_value':
-		case 'post_title':
 		case 'author':
 		case 'search_term':
 			return $val;
@@ -960,7 +990,7 @@ class GetPostsQuery {
 				else {
 					$val_str = $val;
 				}
-				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.':'.htmlspecialchars($val_str).'</em>');
+				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.': '.$this->_get_operator($arg).' '.htmlspecialchars($val_str).'</em>');
 				// We can easily filter for integers...
 				if (in_array($arg, array('ID','post_parent','menu_order','comment_count'))) {
 					return (int) $val;
@@ -1054,7 +1084,7 @@ class GetPostsQuery {
 		$hash['append'] = $this->_sql_append($wpdb->posts);
 
 		$hash['omit_post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'NOT IN', $this->omit_post_type);
-		$hash['post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'IN', $this->post_type);
+//		$hash['post_type'] = $this->_sql_filter($wpdb->posts, 'post_type', 'IN', $this->post_type);
 		$hash['post_mime_type'] = $this->_sql_filter_post_mime_type();
 		$hash['post_parent'] = $this->_sql_filter($wpdb->posts, 'post_parent', 'IN', $this->post_parent);
 		$hash['post_status'] = $this->_sql_filter($wpdb->posts, 'post_status', 'IN', $this->post_status);
@@ -1121,17 +1151,18 @@ class GetPostsQuery {
 		$hash['limit'] = $this->_sql_limit();
 		$hash['offset'] = $this->_sql_offset();
 
-		// Direct filters (if any), e.g. 
+		// Direct filters (if any), e.g. post_author = 123 or custom_field LIKE '%horse%'
 		$hash['direct_filter'] = '';
 		if ($this->direct_filter_flag) {
 			foreach($this->direct_filter_columns as $c) {
 				if (in_array($c, self::$wp_posts_columns)) {
-					$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
-					//$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, $this->operators[$c], $this->$c);
+					//$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
+					//die('direct filter on '. $c);
+					//print 'direct filter on '. $c;
+					$hash['direct_filter'] .= $this->_sql_filter_posts($c, $this->_get_operator($c), $this->$c);
 				}
 				else {
-					$query = " {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value = %s)";
-					$hash['direct_filter'] .= $wpdb->prepare( $query, $c, $this->$c );				
+					$hash['direct_filter'] .= $this->_sql_filter_postmeta($c,$this->_get_operator($c), $this->$c);
 				}
 			}
 		}
@@ -1334,7 +1365,262 @@ class GetPostsQuery {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * SQL filter generator to handle multiple filters acting on the postmeta table.
+	 * Similar to the _sql_filter_posts().  This got complicated as soon as we introduced
+	 * the various operators other than the simple "equals".
+	 *
+	 * @param string  $column    name of the custom field, i.e. the "virtual column"
+	 * @param string  $operation logical operator, e.g. '=' or 'NOT IN'
+	 * @param string  $value     being filtered for.
+	 * @return string part of the MySQL query.
+	 */
+	private function _sql_filter_postmeta($column, $operator, $value) {
 
+		if ( empty($value) ) {
+			return '';
+		}
+
+		global $wpdb;
+		
+		$sub_query = '';
+		$line_item_join_rule = 'OR'; // TODO
+		
+		switch($operator) {
+			case 'starts_with': 
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', $v.'%');
+						$sub_query .= sprint(" %s {$wpdb->postmeta}.meta_value LIKE %s", $line_item_join_rule, $v);
+					}
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND $sub_query)", $wpdb->prepare('%s',$column));				}
+				else {
+					$value = $wpdb->prepare('%s', $value.'%');
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s)", $wpdb->prepare('%s',$column), $value);
+				}
+			
+				break;
+				
+			case 'ends_with': 
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', '%'.$v);
+						$sub_query .= sprint(" %s {$wpdb->postmeta}.meta_value LIKE %s", $line_item_join_rule, $v);
+					}
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND $sub_query)", $wpdb->prepare('%s',$column));
+				}
+				else {
+					$value = $wpdb->prepare('%s', '%'.$value);
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s)", $wpdb->prepare('%s',$column), $value);
+				}
+
+				break;
+
+			case 'like': 
+
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', '%'.$v.'%');
+						$sub_query .= sprint(" %s {$wpdb->postmeta}.meta_value LIKE %s", $line_item_join_rule, $v);
+					}
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND $sub_query)", $wpdb->prepare('%s',$column));		
+				}
+				else {
+					$value = $wpdb->prepare('%s', '%'.$value.'%');
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value LIKE %s)", $wpdb->prepare('%s',$column), $value);
+				}
+
+				break;
+
+			case 'not_like': 
+
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', '%'.$v.'%');
+						$sub_query .= sprint(" %s {$wpdb->postmeta}.meta_value NOT LIKE %s", $line_item_join_rule, $v);
+					}
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND $sub_query)", $wpdb->prepare('%s',$column));				}
+				else {
+					$value = $wpdb->prepare('%s', '%'.$value.'%');
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value NOT LIKE %s)", $wpdb->prepare('%s',$column), $value);
+				}
+
+				break;
+
+
+			// Arrays make no sense for these guys:
+			case '>':
+			case '>=':
+			case '<':
+			case '<=':
+				if ( is_array($value) ) {
+					$this->errors[] = sprintf(__('The %s operator cannot operate on an array of values.', CCTM_TXTDOMAIN), $operator);
+					return '';
+				}
+				
+				return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value $operator %s)", $wpdb->prepare('%s',$column), $value);
+				
+				break;
+				
+			case '=':
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', $v);
+					}
+		
+					$value = '('. implode(',', $value) . ')';
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value IN %s)", $wpdb->prepare('%s',$column), $value);
+				}
+				else {
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value = %s)", $wpdb->prepare('%s',$column), $wpdb->prepare('%s',$value));
+				}
+			
+
+			case '!=':
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', $v);
+					}
+		
+					$value = '('. implode(',', $value) . ')';
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value NOT IN %s)", $wpdb->prepare('%s',$column), $value);
+				}
+				else {
+					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value != %s)", $wpdb->prepare('%s',$column), $wpdb->prepare('%s',$value));
+				}
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * SQL filter generator to handle multiple filters acting on the postmeta table.
+	 * Similar to the _sql_filter().  This got complicated as soon as we introduced
+	 * the various operators other than the simple "equals".
+	 *
+	 * @param string  $column    name of the custom field, i.e. the "virtual column"
+	 * @param string  $operation logical operator, e.g. '=' or 'NOT IN'
+	 * @param string  $value     being filtered for.
+	 * @return string part of the MySQL query.
+	 */
+	private function _sql_filter_posts($column, $operator, $value) {
+
+		if ( empty($value) ) {
+			return '';
+		}
+
+		global $wpdb;
+		
+		$sub_query = '1 AND';
+		$line_item_join_rule = 'OR'; // TODO
+		
+		switch($operator) {
+			case 'starts_with': 
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', $v.'%');
+						$sub_query .= sprint(" %s {$wpdb->posts}.$column LIKE %s", $line_item_join_rule, $v);
+					}
+					return " {$this->join_rule} ($sub_query)";
+				}
+				else {
+					$value = $wpdb->prepare('%s', $value.'%');
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column LIKE %s", $value);
+				}
+			
+				break;
+				
+			case 'ends_with': 
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', '%'.$v);
+						$sub_query .= sprint(" %s {$wpdb->posts}.$column LIKE %s", $line_item_join_rule, $v);
+					}
+					return " {$this->join_rule} ($sub_query)";
+				}
+				else {
+					$value = $wpdb->prepare('%s', '%'.$value);
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column LIKE %s", $value);
+				}
+
+				break;
+
+			case 'like': 
+
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', '%'.$v.'%');
+						$sub_query .= sprint(" %s {$wpdb->posts}.$column LIKE %s", $line_item_join_rule, $v);
+					}
+					return " {$this->join_rule} ($sub_query)";
+				}
+				else {
+					$value = $wpdb->prepare('%s', '%'.$value);
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column LIKE %s", $value);
+				}
+
+				break;
+
+			case 'not_like': 
+
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', '%'.$v.'%');
+						$sub_query .= sprint(" %s {$wpdb->posts}.$column NOT LIKE %s", $line_item_join_rule, $v);
+					}
+					return " {$this->join_rule} ($sub_query)";
+				}
+				else {
+					$value = $wpdb->prepare('%s', '%'.$value);
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column NOT LIKE %s", $value);
+				}
+
+				break;
+
+
+			// Arrays make no sense for these guys:
+			case '>':
+			case '>=':
+			case '<':
+			case '<=':
+				if ( is_array($value) ) {
+					$this->errors[] = sprintf(__('The %s operator cannot operate on an array of values.', CCTM_TXTDOMAIN), $operator);
+					return '';
+				}
+				
+				return sprintf(" {$this->join_rule} {$wpdb->posts}.$column $operator %s", $wpdb->prepare('%s',$value));
+				
+				break;
+				
+			case '=':
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', $v);
+					}
+		
+					$value = '('. implode(',', $value) . ')';
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column IN %s", $value);
+				}
+				else {
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column = %s", $wpdb->prepare('%s',$value));
+				}
+			
+
+			case '!=':
+				if ( is_array($value) ) {
+					foreach ($value as &$v) {
+						$v = $wpdb->prepare('%s', $v);
+					}
+		
+					$value = '('. implode(',', $value) . ')';
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column NOT IN %s", $value);
+				}
+				else {
+					return sprintf(" {$this->join_rule} {$wpdb->posts}.$column != %s", $wpdb->prepare('%s',$value));
+				}
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Generate string to be used in the main SQL query's LIMIT/OFFSET clause.

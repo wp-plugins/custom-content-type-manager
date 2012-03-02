@@ -18,11 +18,17 @@
 		<h4 style="text-decoration: underline;"><?php _e('Content Types', CCTM_TXTDOMAIN); ?></h4>
 		<ul style="margin-left:20px;">
 			<?php foreach($data['post_type_defs'] as $post_type => $def) {
+//				print_r($def);
 				$img = '';
 				$desc = '';
 				if ( in_array($post_type, CCTM::$built_in_post_types) ) {
 					$desc  = __('Built-in post type.', CCTM_TXTDOMAIN);
 					$img = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp"/>';
+				}
+				elseif (!isset($def['post_type'])) {
+					$desc = __('Foreign post-type', CCTM_TXTDOMAIN);
+					$img = '<img src="'.CCTM_URL.'/images/forbidden.png" height="16" width="16" />';
+
 				}
 				else {
 					$desc = $def['description'];

@@ -373,7 +373,7 @@ abstract class CCTM_FormElement {
 	 * @param	array	current def
 	 * @return	strin	HTML
 	 */
-	public function format_validators($def) {
+	public function format_validators($def, $show_validators=true) {
 		$req_is_checked = '';
 		if (isset($def['required']) && $def['required'] == 1) {
 			$req_is_checked = 'checked="checked"';
@@ -382,26 +382,42 @@ abstract class CCTM_FormElement {
 		// Is Required?
 
 		// Get available Validators
-		$validators = CCTM::get_available_validators();
 		$select_options = '';
+		$validation_select = ''; // containing select element
 		$validator_options = ''; // options for the active validator (if any)
-		foreach ($validators as $shortname => $path) {
-		
-			$Vobj = CCTM::load_object($shortname, 'validator');
+		if ($show_validators) {
+			$validators = CCTM::get_available_validators();
+			foreach ($validators as $shortname => $path) {
 			
-			$is_selected = '';
-			if ($this->validator == $shortname) {
-				$is_selected = ' selected="selected"';
-				$Vobj->set_options($this->validator_options);
-				$validator_options = $Vobj->get_options_html();
+				$Vobj = CCTM::load_object($shortname, 'validator');
 				
-				$validator_options = sprintf('<div class="postbox"><h3 class="hndle"><span>%s</span></h3>
-			<div class="inside">%s</div></div>', __('Options', CCTM_TXTDOMAIN), $validator_options);
+				$is_selected = '';
+				if ($this->validator == $shortname) {
+					$is_selected = ' selected="selected"';
+					$Vobj->set_options($this->validator_options);
+					$validator_options = $Vobj->get_options_html();
+					
+					$validator_options = sprintf('<div class="postbox"><h3 class="hndle"><span>%s</span></h3>
+				<div class="inside">%s</div></div>', __('Options', CCTM_TXTDOMAIN), $validator_options);
+				}
+				
+				$select_options .= sprintf('<option value="%s"%s>%s</option>', $shortname, $is_selected, $Vobj->get_name());
+				
+				$validation_select = '
+				<div class="'.self::wrapper_css_class .'" id="validator_wrapper">
+					<label for="validator" class="cctm_label cctm_dropdown_label" id="validator_label">'
+					. __('Validation Rule', CCTM_TXTDOMAIN) .
+					'</label>
+					<span class="cctm_description">'.__('A validation rule can ensure that any data entered into this field meets a specific criteria.', CCTM_TXTDOMAIN).'</span>
+					<br />
+					<select id="validator" name="validator" onchange="javascript:get_validator_options();">
+						<option value="">-- '.__('None', CCTM_TXTDOMAIN).'--</option>				
+						'. $select_options .'
+					</select>
+			 	</div>';
 			}
-			
-			$select_options .= sprintf('<option value="%s"%s>%s</option>', $shortname, $is_selected, $Vobj->get_name());
 		}
-
+		
 		$out = '
 		<div class="postbox">
 			<div class="handlediv" title="Click to toggle"><br /></div>
@@ -418,19 +434,9 @@ abstract class CCTM_FormElement {
 					'</label>
 					<br />
 					<input type="checkbox" name="required" class="cctm_checkbox" id="required" value="1" '. $req_is_checked.'/> <span class="cctm_checkbox_label">'.$this->descriptions['required'].'</span>
-			 	</div>
-				
-				<div class="'.self::wrapper_css_class .'" id="validator_wrapper">
-					<label for="validator" class="cctm_label cctm_dropdown_label" id="validator_label">'
-					. __('Validation Rule', CCTM_TXTDOMAIN) .
-					'</label>
-					<span class="cctm_description">'.__('A validation rule can ensure that any data entered into this field meets a specific criteria.', CCTM_TXTDOMAIN).'</span>
-					<br />
-					<select id="validator" name="validator" onchange="javascript:get_validator_options();">
-						<option value="">-- '.__('None', CCTM_TXTDOMAIN).'--</option>				
-						'. $select_options .'
-					</select>
-			 	</div>			 	
+			 	</div>'
+			 	.$validation_select.'
+						
 						</td>
 						<td width="100"></td>
 						<td style="vertical-align:top">
