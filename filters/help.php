@@ -78,6 +78,7 @@ class CCTM_help extends CCTM_OutputFilter {
 			else {
 				$output .= sprintf( __('File not found for %s output filter: %s', CCTM_TXTDOMAIN) 
 					, $filter
+					, $file
 				);
 			}
 		}
