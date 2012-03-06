@@ -673,7 +673,7 @@ just want to make sure that the form is presented uncorrupted.
 			<label for="has_archive" class="cctm_label cctm_checkbox_label" id="cctm_label_has_archive_label">
 				<?php _e('Enable Archives', CCTM_TXTDOMAIN); ?>
 			</label>
-			<span class="cctm_description"><?php _e('If enabled, posts will be listed in archive lists (e.g. by month).', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('If enabled, posts will be listed in archive lists (e.g. by month). This also enables posts to show up in tag or category lists.', CCTM_TXTDOMAIN); ?></span>
 		</div>
 
 
