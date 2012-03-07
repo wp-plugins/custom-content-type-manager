@@ -2203,19 +2203,25 @@ class CCTM {
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=143
 	 * See also http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=186
 	 *
-	 * @param unknown $query
-	 * @return unknown
+	 * @param string $query
+	 * @return string
 	 */
 	public static function search_filter($query) {
 
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
 		if ($query->is_feed) {
-			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])) {
+			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])
+			&& !isset($query->query_vars['post_type'])
+				&& empty($query->query_vars['post_type'])) {
 				$post_types = get_post_types();
 				unset($post_types['revision']);
 				unset($post_types['nav_menu_item']);
 				foreach ($post_types as $pt) {
 					// we only exclude it if it was specifically excluded.
 					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) {
+						unset($post_types[$pt]);
+					}
+					elseif('page' == $pt) {
 						unset($post_types[$pt]);
 					}
 				}
