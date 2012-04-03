@@ -577,7 +577,7 @@ just want to make sure that the form is presented uncorrupted.
 		
 		<!--!Public: check/uncheck all shortcut -->
 		<input type="checkbox" id="public_checkall" class="checkall" />
-		<label for="public_checkall" class="cctm_label cctm_checkbox_label" id="cctm_label_public_checkall"><?php _e('Public', CCTM_TXTDOMAIN); ?></label>
+		<label for="public_checkall" class="cctm_label cctm_checkbox_label" id="cctm_label_public_checkall"><?php _e('Check All', CCTM_TXTDOMAIN); ?></label>
 
 	<div style="margin-left: 30px;">
 		<!--!Public-->

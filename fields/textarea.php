@@ -23,18 +23,6 @@ class CCTM_textarea extends CCTM_FormElement
 		// 'sort_param' => '', // handled automatically
 	);
 
-
-
-	/**
-	 * Multi/repeatable support
-	 */
-	public function admin_init() {
-		// we double-up on the text fields.
-		wp_register_script('cctm_text', CCTM_URL.'/js/text.js');
-		wp_enqueue_script('cctm_text');
-	}
-
-
 	//------------------------------------------------------------------------------
 	/**
 	 * This function provides a name for this type of field. This should return plain

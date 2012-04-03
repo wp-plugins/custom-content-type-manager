@@ -122,9 +122,10 @@ function get_custom_image($fieldname) {
  *
  * @param	array	(optional) post_types you want to display. Default behavior 
  *					calculates which post types contain relation fields
+ * @param	integer	the post id. If not set, we assume it's the current post id.
  * @return array post IDs
  */
-function get_incoming_links($post_types_filter=array()) {
+function get_incoming_links($post_types_filter=array(), $post_id=null) {
 	
 	require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 	require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
@@ -134,7 +135,10 @@ function get_incoming_links($post_types_filter=array()) {
 	
 	
 	// We need fields that point to THIS post
-	$post_id = $post->ID;
+	if (empty($post_id)) {
+		$post_id = $post->ID;
+	}
+	
 
 	// Get post-types containing relation fields
 	// First: gather up the relation fields
