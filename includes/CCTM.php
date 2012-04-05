@@ -282,11 +282,14 @@ class CCTM {
 				__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
 				, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
 
-			$myFile = "/tmp/cctm.txt";
-			$fh = fopen($myFile, 'a') or die("can't open file");
-			fwrite($fh, 'Failed to create directory '.$cache_dir.$subdir."\n");
-			fclose($fh);	
 
+
+			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+				$myFile = "/tmp/cctm.txt";
+				$fh = fopen($myFile, 'a') or die("can't open file");
+				fwrite($fh, 'Failed to create directory '.$cache_dir.$subdir."\n");
+				fclose($fh);
+			}
 
 			// Failed to create the dir... now what?!?  We cram the full-sized image into the 
 			// small image tag, which is exactly what WP does (yes, seriously.)				
@@ -423,6 +426,7 @@ class CCTM {
 
 		// Allow each custom field to load up any necessary CSS/JS.
 		self::initialize_custom_fields();
+
 	}
 
 
@@ -2117,8 +2121,8 @@ class CCTM {
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
 	 * and http://bajada.net/2010/08/31/custom-post-types-in-the-loop-using-request-instead-of-pre_get_posts
 	 *
-	 * @param unknown $query
-	 * @return unknown
+	 * @param array $query
+	 * @return array
 	 */
 	public static function request_filter( $query ) {
 
@@ -2144,6 +2148,7 @@ class CCTM {
 
 		// Categories can apply to posts and pages
 		$search_me_post_types = array('post', 'page');
+//		die(print_r($search_me_post_types, true));
 		if ( isset($query['category_name']) ) {
 			foreach ($public_post_types as $pt => $tmp) {
 				$search_me_post_types[] = $pt;
@@ -2208,12 +2213,15 @@ class CCTM {
 	 */
 	public static function search_filter($query) {
 
-		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
+		// See the following bugs:
+		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
+		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=366
 		if ($query->is_feed) {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])
 			&& !isset($query->query_vars['post_type'])
 				&& empty($query->query_vars['post_type'])) {
-				$post_types = get_post_types();
+				$args = array( 'public' => true);
+				$post_types = get_post_types($args);
 				unset($post_types['revision']);
 				unset($post_types['nav_menu_item']);
 				foreach ($post_types as $pt) {

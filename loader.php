@@ -133,6 +133,7 @@ if ( empty(CCTM::$errors) )
 	
 	// Handle Ajax Requests
 	add_action('wp_ajax_get_search_form', 'CCTM::get_search_form');
+	
 }
 
 /*EOF*/
