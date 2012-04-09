@@ -188,14 +188,14 @@ class CCTM_media extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'_multi.tpl'
-					, 'fields/elements/_relation.tpl'
+					, 'fields/elements/_media_multi.tpl'
+					, 'fields/elements/_relation_multi.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_media_multi.tpl'
 					, 'fields/wrappers/_relation.tpl'
 				)
 			);
@@ -236,14 +236,14 @@ class CCTM_media extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_media.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_media.tpl'
 					, 'fields/wrappers/_relation.tpl'
 				)
 			);
@@ -323,7 +323,7 @@ class CCTM_media extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_media.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);

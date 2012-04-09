@@ -9,7 +9,7 @@
 					<p>[+post_title+] <span class="cctm_id_label">([+ID+])</span>
 					<span onclick="javascript:remove_html('wrapper_[+target_id+]');" class="cctm_close_rollover"></span><br/>
 					[+post_modified+]<br/>
-					<a href="[+edit_url+]">Edit Selected Post</a></p>
+					<a href="[+edit_url+]">[+edit_selected_post_label+]</a></p>
 				</td>
 			</tr>
 		</tbody>

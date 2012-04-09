@@ -28,14 +28,13 @@ if (empty($tpl)) {
 
 $Q = new GetPostsQuery();
 $post = $Q->get_post($post_id);
+$post['edit_selected_post_label'] = __('Edit Selected Post', CCTM_TXTDOMAIN);
 
 $post_type = $post['post_type'];
 
 $post['post_icon'] = CCTM::get_thumbnail($post_id);
 
 
-// http://cctm:8888/sub/wp-admin/post.php?post=1214&action=edit
-// http://cctm:8888/sub/wp-admin/post.php?post=1415&action=edit
 if ($post_type == 'attachment') {
 	$post['edit_url'] = get_admin_url('','media.php')."?attachment_id=$post_id&action=edit";
 }

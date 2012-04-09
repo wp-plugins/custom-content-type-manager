@@ -193,6 +193,9 @@ $hash['post_date'] 		= __('Date', CCTM_TXTDOMAIN);
 $hash['post_status'] 	= __('Status', CCTM_TXTDOMAIN);
 $hash['post_parent'] 	= __('Parent', CCTM_TXTDOMAIN);
 $hash['post_type'] 		= __('Post Type', CCTM_TXTDOMAIN);
+$hash['add_to_post'] 	= __('Add to Post', CCTM_TXTDOMAIN);
+$hash['add_to_post_and_close'] = __('Add to Post and Close', CCTM_TXTDOMAIN);
+
 //$hash['filter'] 		= __('Filter', CCTM_TXTDOMAIN);
 //$hash['show_all']		= __('Show All', CCTM_TXTDOMAIN);
 

@@ -1,5 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
+This powers the TinyMCE thumbtack button that displays a SummarizePosts search
+form.
+
 Remember: the output here MUST be wrapped in HTML tags, otherwise jQuery's .html()
 method will kack.
 ------------------------------------------------------------------------------*/
@@ -31,6 +34,15 @@ foreach($custom_fields as $cf) {
 	$custom_field_options .= sprintf('<option value="%s:%s">%s</option>', $cf['name'], $cf['label'], $cf['label']);
 }
 $Form->set_placeholder('custom_fields', $custom_field_options);
+
+// I18n for the search form
+$Form->set_placeholder('widget_desc', __('Dynamically list posts according to the criteria below.', CCTM_TXTDOMAIN));
+$Form->set_placeholder('post_title_label', __('Post Title', CCTM_TXTDOMAIN));
+$Form->set_placeholder('author_id_label', __('Author ID', CCTM_TXTDOMAIN));
+$Form->set_placeholder('add_filter_label', __('Add Filter', CCTM_TXTDOMAIN));
+$Form->set_placeholder('generate_shortcode_label', __('Generate Shortcode', CCTM_TXTDOMAIN));
+$Form->set_placeholder('cancel_label', __('Cancel', CCTM_TXTDOMAIN));
+
 print $Form->generate(CCTM::$search_by);
 
 

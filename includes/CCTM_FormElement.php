@@ -144,6 +144,9 @@ abstract class CCTM_FormElement {
 		$this->immutable['type'] = preg_replace('/^'. CCTM::classname_prefix.'/', '', get_class($this));
 		$this->props['id_prefix'] = self::css_id_prefix;
 		$this->props['name_prefix'] = self::post_name_prefix;
+		$this->props['add_to_post'] = __('Add to Post', CCTM_TXTDOMAIN);
+		$this->props['add_to_post_and_close'] = __('Add to Post and Close', CCTM_TXTDOMAIN);
+		
 		$this->props = array_merge($this->props, $this->immutable);
 
 		// Run-time Localization

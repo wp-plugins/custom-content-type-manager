@@ -37,9 +37,7 @@ class CCTM_Post_Widget extends WP_Widget {
 	 * Create only form elements.
 	 */
 	public function form($instance) {
-		
-		// print '<pre>'.print_r($instance,true).'</pre>';
-		
+				
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 
 		$formatted_post = ''; // Formatted post
@@ -55,6 +53,7 @@ class CCTM_Post_Widget extends WP_Widget {
 			$Q = new GetPostsQuery();
 			$post = $Q->get_post($instance['post_id']);
 			$tpl = CCTM::load_tpl('widgets/post_item.tpl');
+			$post['edit_selected_post_label'] = __('Edit Selected Post', CCTM_TXTDOMAIN);
 			$post['post_icon'] = CCTM::get_thumbnail($instance['post_id']);
 			if ($post['post_type'] == 'attachment') {
 				$post['edit_url'] = get_admin_url('','media.php')."?attachment_id={$post['ID']}&action=edit";

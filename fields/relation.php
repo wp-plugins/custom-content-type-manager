@@ -193,13 +193,13 @@ class CCTM_relation extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'_multi.tpl'
+					, 'fields/elements/_relation_multi.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_relation_multi.tpl'
 				)
 			);
 
@@ -236,13 +236,13 @@ class CCTM_relation extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_relation.tpl'
 				)
 			);
 

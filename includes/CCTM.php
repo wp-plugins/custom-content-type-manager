@@ -282,8 +282,6 @@ class CCTM {
 				__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
 				, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
 
-
-
 			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
 				$myFile = "/tmp/cctm.txt";
 				$fh = fopen($myFile, 'a') or die("can't open file");
@@ -2213,6 +2211,7 @@ class CCTM {
 	 */
 	public static function search_filter($query) {
 
+
 		// See the following bugs:
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=366
@@ -2220,10 +2219,11 @@ class CCTM {
 			if ( !isset($_GET['post_type']) && empty($_GET['post_type'])
 			&& !isset($query->query_vars['post_type'])
 				&& empty($query->query_vars['post_type'])) {
-				$args = array( 'public' => true);
+				$args = array('exclude_from_search'=>false); // array( 'public' => true);
 				$post_types = get_post_types($args);
 				unset($post_types['revision']);
 				unset($post_types['nav_menu_item']);
+				unset($post_types['page']); // TO-DO: configure this?
 				foreach ($post_types as $pt) {
 					// we only exclude it if it was specifically excluded.
 					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) {
@@ -2247,7 +2247,13 @@ class CCTM {
 				$query->set('post_type', $post_types);
 			}
 		}
-
+			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+				$myFile = "/tmp/cctm.txt";
+				$fh = fopen($myFile, 'a') or die("can't open file");
+				fwrite($fh, print_r($query->get('post_type'), true));
+				fclose($fh);
+			}
+			
 		return $query;
 	}
 
@@ -2304,7 +2310,7 @@ class CCTM {
 	/**
 	 * Recursively strips tags from all inputs, including nested ones.
 	 *
-	 * @param unknown $value
+	 * @param mixed $value
 	 * @return array the input array, with tags stripped out of each value.
 	 */
 	public static function striptags_deep($value) {
@@ -2328,7 +2334,7 @@ class CCTM {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * 
+	 * This is for the "Custom Fields" tinyMCE button.
 	 */
 	public static function tinyplugin_register($plugin_array) {
 	    $url = CCTM_URL.'/js/plugins/custom_fields.js';

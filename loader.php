@@ -46,20 +46,14 @@ if ( empty(CCTM::$errors) )
 
 	// Summarize Posts Tiny MCE button
 	if (CCTM::get_setting('summarizeposts_tinymce')) {
-//		die('....>'.CCTM::get_setting('summarizeposts_tinymce'));
 		add_filter('mce_external_plugins', 'SummarizePosts::tinyplugin_register');
 		add_filter('mce_buttons', 'SummarizePosts::tinyplugin_add_button', 0);
 	}
 	// Custom Fields Tiny MCE button
 	if (CCTM::get_setting('custom_fields_tinymce')) {
-//		die('....>'.CCTM::get_setting('summarizeposts_tinymce'));
 		add_filter('mce_external_plugins', 'CCTM::tinyplugin_register');
 		add_filter('mce_buttons', 'CCTM::tinyplugin_add_button', 0);
 	}	
-	
-	//add_action('init','PHP_Snippet_Functions::init');
-
-	//print_r(CCTM::$data); exit;
 	
 	// Run any updates for this version.
 	add_action('init', 'CCTM::check_for_updates', 0 );	
@@ -119,14 +113,14 @@ if ( empty(CCTM::$errors) )
 	}
 	
 	// Enable archives for custom post types
-	add_filter('getarchives_where', 'CCTM::get_archives_where_filter' , 10 , 2);
+//	add_filter('getarchives_where', 'CCTM::get_archives_where_filter' , 10 , 2);
 	add_filter('request', 'CCTM::request_filter');
 	
 	// Forces custom post types to sort correctly
 	add_filter('posts_orderby', 'CCTM::order_posts');
 	
 	// Forces front-end searches to return results for all registered post_types
-	add_filter('pre_get_posts','CCTM::search_filter');
+	//add_filter('pre_get_posts','CCTM::search_filter');
 	
 	// Modifies the "Right Now" widget
 	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');

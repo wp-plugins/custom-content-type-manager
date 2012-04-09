@@ -188,14 +188,14 @@ class CCTM_image extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'_multi.tpl'
+					, 'fields/elements/_image_multi.tpl'
 					, 'fields/elements/_relation_multi.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
+					, 'fields/wrappers/_image_multi.tpl'
 					, 'fields/wrappers/_relation_multi.tpl'
 				)
 			);
@@ -232,14 +232,14 @@ class CCTM_image extends CCTM_FormElement
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_'.$this->type.'.tpl'
+					, 'fields/elements/_image.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_'.$this->type.'.tpl'
+					, 'fields/wrappers/_image.tpl'
 					, 'fields/wrappers/_relation.tpl'
 				)
 			);

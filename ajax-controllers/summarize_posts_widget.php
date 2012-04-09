@@ -1,7 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
 This is what drives the search forms that pop when you define a Summarize Posts 
-Widget.
+Widget: Appearance --> Widgets --> (add a Summarize Posts Widget to a widget area)
+--> Click the "Define Search" button
 
 Remember: the output here MUST be wrapped in HTML tags, otherwise jQuery's .html()
 method will kack.
@@ -54,9 +55,17 @@ if (!isset($existing_values['limit']) || $existing_values['limit'] == 0) {
 $Form->set_placeholder('custom_fields', $custom_field_options);
 $Form->set_placeholder('cctm_url', CCTM_URL);
 $Form->set_placeholder('storage_field', $storage_field);
+
+// I18n for the widget
+$Form->set_placeholder('widget_desc', __('Dynamically list posts according to the criteria below.', CCTM_TXTDOMAIN));
+$Form->set_placeholder('post_title_label', __('Post Title', CCTM_TXTDOMAIN));
+$Form->set_placeholder('author_id_label', __('Author ID', CCTM_TXTDOMAIN));
+$Form->set_placeholder('add_filter_label', __('Add Filter', CCTM_TXTDOMAIN));
+$Form->set_placeholder('save_criteria_label', __('Save Criteria', CCTM_TXTDOMAIN));
+$Form->set_placeholder('cancel_label', __('Cancel', CCTM_TXTDOMAIN));
+
 print $Form->generate(CCTM::$search_by, $existing_values);
 
 
-
-//print '<pre>hey...</pre>';
+exit;
 /*EOF*/
