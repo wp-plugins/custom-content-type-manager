@@ -34,7 +34,7 @@ class CCTM_userinfo extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		$tpl = '<div class="cctm_userinfo" id="cctm_user_[+i+]">[+user_nicename+]: [+user_email+]</div>';
+		$tpl = '<div class="cctm_userinfo" id="cctm_user_[+ID+]">[+user_nicename+]: [+user_email+]</div>';
 		if (!empty($options)) {
 			$tpl = $options;
 		}
