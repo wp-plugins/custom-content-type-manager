@@ -169,6 +169,7 @@ class CCTM {
 		, 'summarizeposts_tinymce' => 1
 		, 'custom_fields_tinymce' => 1
 		, 'flush_permalink_rules' => 1
+		, 'pages_in_rss_feed'	=> 0
 	);
 
 	// Where are the icons for custom images stored?
@@ -2115,6 +2116,10 @@ class CCTM {
 	/**
 	 * This filters the basic page lookup so URLs like http://mysite.com/archives/date/2010/11
 	 * will return custom post types.
+	 *
+	 * This filter dictates what shows up in the RSS feed and what shows up in search results (!!).
+	 * You'd think the search_filter would be used to handle searches, but not in WP 3.3.1
+	 *
 	 * See issue 13 for full archive suport:
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
 	 * and http://bajada.net/2010/08/31/custom-post-types-in-the-loop-using-request-instead-of-pre_get_posts
@@ -2132,10 +2137,38 @@ class CCTM {
 		if ( empty($query)
 			|| isset($query['pagename'])
 			|| isset($query['preview'])
-			|| isset($query['feed'])
 			|| isset($query['page_id'])
+			|| isset($query['s'])  			// <-- searches
 			|| !empty($query['post_type']) ) {
 
+			return $query;
+		}
+		// Control what shows up in the RSS feed
+		elseif (isset($query['feed'])) {
+			$args = array( 'public' => true); // array('exclude_from_search'=>false); // 
+			$post_types = get_post_types($args);
+			unset($post_types['revision']);
+			unset($post_types['nav_menu_item']);
+			
+			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+				$myFile = "/tmp/cctm.txt";
+				$fh = fopen($myFile, 'a') or die("can't open file");
+				fwrite($fh, 'Request post-types:'. print_r($post_types, true));
+				fclose($fh);
+			}
+
+			foreach ($post_types as $pt) {
+				if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
+				//	unset($post_types[$pt]);
+				}
+				// Exclude it if it was specifically excluded.
+				elseif (!isset(self::$data['post_type_defs'][$pt]['include_in_rss']) || !self::$data['post_type_defs'][$pt]['include_in_rss']) {
+					unset($post_types[$pt]);
+				}
+			}
+			
+			$query['post_type'] = $post_types;
+			
 			return $query;
 		}
 
@@ -2143,10 +2176,9 @@ class CCTM {
 		$args = array( 'public' => true, '_builtin' => false );
 		$public_post_types = get_post_types( $args );
 
-
 		// Categories can apply to posts and pages
 		$search_me_post_types = array('post', 'page');
-//		die(print_r($search_me_post_types, true));
+
 		if ( isset($query['category_name']) ) {
 			foreach ($public_post_types as $pt => $tmp) {
 				$search_me_post_types[] = $pt;
@@ -2211,7 +2243,6 @@ class CCTM {
 	 */
 	public static function search_filter($query) {
 
-
 		// See the following bugs:
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=366
@@ -2223,7 +2254,7 @@ class CCTM {
 				$post_types = get_post_types($args);
 				unset($post_types['revision']);
 				unset($post_types['nav_menu_item']);
-				unset($post_types['page']); // TO-DO: configure this?
+//				unset($post_types['page']); // TO-DO: configure this?
 				foreach ($post_types as $pt) {
 					// we only exclude it if it was specifically excluded.
 					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) {
@@ -2247,12 +2278,13 @@ class CCTM {
 				$query->set('post_type', $post_types);
 			}
 		}
-			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
-				$myFile = "/tmp/cctm.txt";
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, print_r($query->get('post_type'), true));
-				fclose($fh);
-			}
+		
+		if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+			$myFile = "/tmp/cctm.txt";
+			$fh = fopen($myFile, 'a') or die("can't open file");
+			fwrite($fh, print_r($query->get('post_type'), true));
+			fclose($fh);
+		}
 			
 		return $query;
 	}

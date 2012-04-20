@@ -27,7 +27,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 				if (!empty($options)) {
 					$link_text = $options;
 				}
-				$output .= sprintf('<a href="%s">%s</a>', $post->guid, $link_text);
+				$output .= sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
 			}
 		}
 		return $output;

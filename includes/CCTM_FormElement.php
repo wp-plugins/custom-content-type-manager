@@ -595,10 +595,16 @@ abstract class CCTM_FormElement {
 				return $out;
 			}
 		}
-		// to_string
+		// to_string.  We do some special acrobatics here to handle the case where someone had a repeatable 
+		// field and they changed it to a normal singular field.  Repeatable fields would be JSON encoded,
+		// so we test for that and we try to extract the 1st value.
+		// Note that json_decode treats alphabetical strings differently than numeric strings.
 		else {
 			if ($str=='[""]') {
 				return '';
+			}
+			if (is_numeric($str)) {
+				return $str;
 			}
 			$out = (array) json_decode($str, true );
 			// the $str was not JSON encoded

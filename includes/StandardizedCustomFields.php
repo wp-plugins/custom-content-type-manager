@@ -70,7 +70,7 @@ class StandardizedCustomFields
 		
 		$Q = new GetPostsQuery();
 		$full_post = $Q->get_post($post->ID);
-		
+
 		$custom_fields = self::_get_custom_fields($post_type);
 		$validation_errors = array();
 		foreach ( $custom_fields as $field_name ) {
@@ -86,7 +86,7 @@ class StandardizedCustomFields
 
 				$value = '';
 				if (isset($full_post[$field_name])) {
-					$value = $full_post[$field_name]; 
+					$value = $full_post[$field_name];
 				}
 				
 				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
@@ -94,6 +94,7 @@ class StandardizedCustomFields
 				if ($FieldObj->is_repeatable) {
 					//$value_copy = json_decode(stripslashes($value), true);
 					$value_copy = $FieldObj->get_value($value, 'to_array');
+
 					if (is_array($value_copy)) {
 						foreach ($value_copy as $k => $v) {
 							if (empty($v)) {
@@ -107,7 +108,7 @@ class StandardizedCustomFields
 				}
 				
 				// Is this field required?  OR did validation fail?
-				if ($FieldObj->required && empty($value_copy)) {
+				if ($FieldObj->required && empty($value_copy) && strlen($value_copy) == 0) {
 					$error_flag = true;					
 					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 				}
