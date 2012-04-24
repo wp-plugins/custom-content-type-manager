@@ -26,8 +26,8 @@ just want to make sure that the form is presented uncorrupted.
 	/* Hide some of the divs by default */
 	jQuery(document).ready(function(){
 		toggle_image_detail();
-//		toggle_div('supports_page-attributes', 'extended_page_attributes', 'page-attributes');
 		toggle_page_attributes();
+		toggle_custom_columns();
 		toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');
 		jQuery('.checkall').click(function () {
 			jQuery(this).parents('fieldset:eq(0)').find(':checkbox').attr('checked', this.checked);
@@ -92,6 +92,21 @@ just want to make sure that the form is presented uncorrupted.
         else {
 			//alert('NOT Checked.');
 			jQuery('#extended_page_attributes :input').attr('disabled', true);
+        }
+
+	}
+
+	/*------------------------------------------------------------------------------
+	Visually grays out all custom column stuff
+	------------------------------------------------------------------------------*/
+	function toggle_custom_columns() {
+		if( jQuery('#cctm_custom_columns_enabled:checked').val()) {
+			//alert('Checked!');
+			jQuery('#custom-columns :input').removeAttr('disabled');
+        }
+        else {
+			//alert('NOT Checked.');
+			jQuery('#custom-columns :input').attr('disabled', true);
         }
 
 	}
@@ -442,10 +457,11 @@ just want to make sure that the form is presented uncorrupted.
 	<div id="columns-tab">
 		<!-- cctm_custom_columns -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_custom_columns_enabled">
-			<input type="checkbox" name="cctm_custom_columns_enabled" class="cctm_checkbox" id="cctm_custom_columns_enabled" value="1" <?php print CCTM::is_checked(CCTM::get_value($data['def'],'cctm_custom_columns_enabled', 0)); ?>/> 
+			<input type="checkbox" name="cctm_custom_columns_enabled" class="cctm_checkbox" id="cctm_custom_columns_enabled" value="1" <?php print CCTM::is_checked(CCTM::get_value($data['def'],'cctm_custom_columns_enabled', 0)); ?>
+				onclick="javascript:toggle_custom_columns();" /> 
 			<label for="cctm_custom_columns_enabled" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_custom_columns_enabled">
 			<?php _e('Customize Columns', CCTM_TXTDOMAIN); ?></label>
-			<span class="cctm_description"><?php _e("You can customize the columns visible when you display a list of all posts in this post-type. WARNING: the post-type name must not contain hyphens, only underscores.", CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e("You can customize the columns visible when you display a list of all posts in this post-type. WARNING: you can only use custom columns if the post-type name does not contain hyphens; underscores are Ok.", CCTM_TXTDOMAIN); ?></span>
 		</div>
 		<br />
 		<!-- the columns -->

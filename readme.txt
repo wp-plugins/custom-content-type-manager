@@ -3,7 +3,7 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3
-Tested up to: 3.3.1
+Tested up to: 3.3.2
 Stable tag: 0.9.5.11
 Version: 0.9.5.12-dev
 

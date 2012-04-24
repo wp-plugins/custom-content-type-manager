@@ -26,6 +26,7 @@ class CCTM_Columns {
 	 * @return	array	associative array of column ids and translated names.
 	 */
 	public function __call($post_type, $default_columns) {
+		//die('xhere.');
 		//return $default_columns;
 		$custom_columns = array('cb' => '<input type="checkbox" />',); // the output
 		$built_in_columns = array(

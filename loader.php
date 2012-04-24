@@ -87,13 +87,14 @@ if ( empty(CCTM::$errors) )
 		// Used to modify the large post icon
 		add_action('in_admin_header','StandardizedCustomFields::print_admin_header');
 		
-		// Handle Custom Columns: this is only relevant for the edit.php?post_type=xxxx pages
+		// Handle Custom Columns: this is only relevant for the edit.php?post_type=xxxx pages (i.e. the list view)
 		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'edit.php' ) {
 			$post_type = CCTM::get_value($_GET, 'post_type');
 			if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
 				&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
 				&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
 				&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) ) {
+//							die($post_type);
 				require_once('includes/CCTM_Columns.php');
 				require_once('includes/functions.php');
 				CCTM::$Columns = new CCTM_Columns();
