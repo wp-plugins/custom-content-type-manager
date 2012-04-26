@@ -778,13 +778,13 @@ class CCTM {
 	/**
 	 * Gets an array of full pathnames/filenames for all custom field types.
 	 * This searches the built-in location AND the add-on location inside
-	 * wp-content/uploads.  If there are duplicate filenames, the one inside the
-	 * 3rd party directory will take precedence: this allows developers to override
+	 * wp-content/uploads/cctm.  If there are duplicate filenames, the one inside the
+	 * 3rd-party directory will take precedence: this allows developers to override
 	 * the built-in custom field classes.
 	 *
-	 * This function will read the results from the cache
+	 * TODO: This function will read the results from the cache
 	 *
-	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
+	 * @return array e.g. array('shortname' => '/full/path/to/shortname.php')
 	 */
 	public static function get_available_custom_field_types() {
 
@@ -814,8 +814,8 @@ class CCTM {
 			if (is_dir($dir)) {
 				$rawfiles = scandir($dir);
 				foreach ($rawfiles as $subdir) {
-					if (preg_match('/^\./', $f)) {
-						continue; // skip the . and .. dirs
+					if (preg_match('/^\./', $subdir)) {
+						continue; // skip the '.' and '..' dirs
 					}
 					// check subdirectories
 					if (is_dir($dir.'/'.$subdir)) {
@@ -830,7 +830,7 @@ class CCTM {
 					}
 					// Check the main directory too.
 					elseif (preg_match('/\.php$/', $subdir) ) {
-						$shortname = basename($f);
+						$shortname = basename($subdir);
 						$shortname = preg_replace('/\.php$/', '', $shortname);
 						$files[$shortname] = $dir.'/'.$subdir;
 					}
