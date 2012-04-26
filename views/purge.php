@@ -58,7 +58,7 @@ endforeach;
 // FORM HERE
 //------------------------------------------------------------------------------
 if ( !isset($data['cancel_target_url']) ) {
-	$data['cancel_target_url'] = '?page=cctm';
+	$data['cancel_target_url'] = '?page=cctm_tools';
 }
 
 ?>

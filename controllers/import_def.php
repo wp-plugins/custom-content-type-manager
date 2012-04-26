@@ -13,6 +13,7 @@ $data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cc
 						sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_tools&a=export_def" title="%s" class="button">%s</a>',__('Export'), __('Export'));
 $data['msg']		= CCTM::get_flash();
 $data['content'] = '';
+$data['defs_array'] = array();
 
 // We reference this in a couple places.
 $upload_dir = wp_upload_dir();
@@ -73,15 +74,16 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 			
 			// Big no-no #3: bad data structure
 			$raw_file_contents = file_get_contents($_FILES['cctm_settings_file']['tmp_name']);
-			$data = json_decode( $raw_file_contents, true);
+			$data_from_file = json_decode( $raw_file_contents, true);
 
 			// Let's check that this thing is legit
-			if ( !CCTM_ImportExport::is_valid_def_structure($data) ) {
+			if ( !CCTM_ImportExport::is_valid_def_structure($data_from_file) ) {
 				self::$errors['format'] = __('The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);
 				$data['msg'] = self::format_errors();
 				$data['content'] = CCTM::load_view('import.php', $data);
 				print CCTM::load_view('templates/default.php', $data);
-				return;			}
+				return;	
+			}
 			
 			// create_verify_storage_directories will set errors, and we add another error here
 			// to let the user know that we can't interface with the library dir 

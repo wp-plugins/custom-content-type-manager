@@ -9,7 +9,8 @@ site administrators or for super_admin's (in a multi-site install).
 $capability = 'manage_options';
 
 if (defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE == true && is_super_admin()) {
-	$capability = 'manage_network';
+//	$capability = 'manage_network'; // <-- this doesn't work in 3.3.1. WTF???
+	$capability = 'manage_options';
 }
 
 $active_post_types = self::get_active_post_types();

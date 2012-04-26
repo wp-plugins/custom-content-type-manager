@@ -240,6 +240,7 @@ class CCTM_ImportExport {
 			}
 			closedir($handle);
 		}
+
 		return $available_defs;
 	} 
 

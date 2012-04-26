@@ -150,7 +150,7 @@ abstract class CCTM_FormElement {
 		$this->props = array_merge($this->props, $this->immutable);
 
 		// Run-time Localization
-		$this->descriptions['button_label'] = __('How should the button be labeled?', CCTM_TXTDOMAIN);
+		$this->descriptions['button_label'] = __('How should the button be labeled? (Users will click this button to select the image, media, or relation).', CCTM_TXTDOMAIN);
 		$this->descriptions['class'] = __('Add a CSS class to instances of this field. Use this to customize styling in the WP manager.', CCTM_TXTDOMAIN);
 		$this->descriptions['extra'] = __('Any extra attributes for this text field, e.g. <code>size="10"</code>', CCTM_TXTDOMAIN);
 		$this->descriptions['default_option'] = __('The default option will appear selected. Make sure it matches a defined option.', CCTM_TXTDOMAIN);
