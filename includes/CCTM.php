@@ -104,6 +104,10 @@ class CCTM {
 	// CSS and $_POST variables
 	public static $def_i = 0;
 
+
+	// Optionally used for shortcodes
+	public static $post_id = null;
+	
 	// This is the definition shown when a user first creates a post_type
 	public static $default_post_type_def = array
 	(
@@ -587,6 +591,12 @@ class CCTM {
 		// Append the ':filter' to the name
 		if (!empty($args['filter'])) {
 			$args['name'] = $args['name'] . ':' . $args['filter'];
+		}
+		
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=120
+		// This allows users to specify which post they want to retrieve the data from.
+		if (isset($args['post_id']) && !empty($args['post_id'])) {
+			CCTM::$post_id = $args['post_id'];
 		}
 		
 		if (!empty($options)) {

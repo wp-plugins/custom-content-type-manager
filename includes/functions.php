@@ -30,6 +30,15 @@ for the official documentation.
 function get_custom_field($raw_fieldname, $options=null)
 {
 	global $post;
+	
+	// Shortcodes can override which post they're retrieving data for
+	if (!empty(CCTM::$post_id)) {
+		$post_id = CCTM::$post_id;
+	}
+	else {
+		$post_id = $post->ID;
+	}
+	
 	$options_array = func_get_args();
 
 	// Extract any output filters.
@@ -53,7 +62,7 @@ function get_custom_field($raw_fieldname, $options=null)
 		}
 	}
 	// Raw value from the db
-	$value = get_post_meta($post->ID, $fieldname, true);
+	$value = get_post_meta($post_id, $fieldname, true);
 
 	// Default value?
 	if ( empty($value) && isset(CCTM::$data['custom_field_defs'][$fieldname]['default_value'])) {
