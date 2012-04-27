@@ -581,9 +581,9 @@ class CCTM {
 		$defaults = array(
 			'name' => '',
 			'filter' => '',
+			'post_id' => '',
 		);
 		$args = shortcode_atts($defaults, $raw_args );
-		
 		if (empty($args['name'])) {
 			print __('custom_field shortcode requires the "name" parameter.', CCTM_TXTDOMAIN);
 		}
@@ -595,7 +595,7 @@ class CCTM {
 		
 		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=120
 		// This allows users to specify which post they want to retrieve the data from.
-		if (isset($args['post_id']) && !empty($args['post_id'])) {
+		if (!empty($args['post_id'])) {
 			CCTM::$post_id = $args['post_id'];
 		}
 		
