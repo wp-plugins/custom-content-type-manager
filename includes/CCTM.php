@@ -97,7 +97,8 @@ class CCTM {
 	// for post_types and custom fields
 	public static $data = array();
 
-	// TODO: cached data will go here
+	// Cached data.
+	// CCTM::$cache['request'] = data cached for a single request, e.g. custom field values.
 	public static $cache = array();
 
 	// integer iterator used to uniquely identify groups of field definitions for
@@ -2124,11 +2125,8 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * This filters the basic page lookup so URLs like http://mysite.com/archives/date/2010/11
-	 * will return custom post types.
-	 *
-	 * This filter dictates what shows up in the RSS feed and what shows up in search results (!!).
-	 * You'd think the search_filter would be used to handle searches, but not in WP 3.3.1
+	 * We use this filter to customize the posts returned during an archive and during
+	 * an RSS feed so that archives and RSS feeds can return custom post-types.
 	 *
 	 * See issue 13 for full archive suport:
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=13
@@ -2144,18 +2142,11 @@ class CCTM {
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=108
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112
-		if ( empty($query)
-			|| isset($query['pagename'])
-			|| isset($query['preview'])
-			|| isset($query['page_id'])
-			|| isset($query['s'])  			// <-- searches
-			|| !empty($query['post_type']) ) {
+		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=360
 
-			return $query;
-		}
 		// Control what shows up in the RSS feed
-		elseif (isset($query['feed'])) {
-			$args = array( 'public' => true); // array('exclude_from_search'=>false); // 
+		if (isset($query['feed'])) {
+			$args = array( 'public' => true); // array('exclude_from_search'=>false); // ugh. WP has bad support here.
 			$post_types = get_post_types($args);
 			unset($post_types['revision']);
 			unset($post_types['nav_menu_item']);
@@ -2169,7 +2160,10 @@ class CCTM {
 
 			foreach ($post_types as $pt) {
 				if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
-				//	unset($post_types[$pt]);
+					// Leave pages in.
+				}
+				elseif($pt == 'post') {
+					// Do nothing.  Posts are always included in the RSS feed.
 				}
 				// Exclude it if it was specifically excluded.
 				elseif (!isset(self::$data['post_type_defs'][$pt]['include_in_rss']) || !self::$data['post_type_defs'][$pt]['include_in_rss']) {
@@ -2178,37 +2172,29 @@ class CCTM {
 			}
 			
 			$query['post_type'] = $post_types;
-			
-			return $query;
+
 		}
+		// Handle Archives
+		elseif (isset($query['year']) && isset($query['monthnum'])) {
+			// Get only public, custom post types
+			$args = array( 'public' => true, '_builtin' => false );
+			$public_post_types = get_post_types( $args );
 
-		// Get only public, custom post types
-		$args = array( 'public' => true, '_builtin' => false );
-		$public_post_types = get_post_types( $args );
-
-		// Categories can apply to posts and pages
-		$search_me_post_types = array('post', 'page');
-
-		if ( isset($query['category_name']) ) {
-			foreach ($public_post_types as $pt => $tmp) {
-				$search_me_post_types[] = $pt;
+			// Only posts get archives, not pages, so our first archivable post-type is "post"...
+			$search_me_post_types = array('post');
+	
+			// check which have 'has_archive' enabled.
+			foreach (self::$data['post_type_defs'] as $post_type => $def) {
+				if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
+					$search_me_post_types[] = $post_type;
+				}
 			}
+	
 			$query['post_type'] = $search_me_post_types;
-			return $query;
+	
+
 		}
-
-		// Only posts get archives, not pages, so our first archivable post-type is "post"...
-		$search_me_post_types = array('post');
-
-		// check which have 'has_archive' enabled.
-		foreach (self::$data['post_type_defs'] as $post_type => $def) {
-			if ( isset($def['has_archive']) && $def['has_archive'] && in_array($post_type, $public_post_types)) {
-				$search_me_post_types[] = $post_type;
-			}
-		}
-
-		$query['post_type'] = $search_me_post_types;
-
+		
 		return $query;
 	}
 
@@ -2252,7 +2238,8 @@ class CCTM {
 	 * @return string
 	 */
 	public static function search_filter($query) {
-
+		//die(print_r($query, true));
+		//return $query;
 		// See the following bugs:
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=366

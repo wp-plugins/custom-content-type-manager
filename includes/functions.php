@@ -10,7 +10,9 @@ for the official documentation.
 //------------------------------------------------------------------------------
 /**
  * SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
- * where you need to print out the value of a specific custom field.
+ * where you need to print out the value of a specific custom field. This can also
+ * get called via the [custom_field] shortcode.  If identical instances of the same
+ * call, the output will be from the request cache.
  * 
  * WordPress allows for multiple rows in wp_postmeta to share the same meta_key for 
  * a single post; the CCTM plugin expects all meta_key's for a given post_id to be 
@@ -40,6 +42,13 @@ function get_custom_field($raw_fieldname, $options=null)
 	}
 	
 	$options_array = func_get_args();
+
+	// Request cache: this helps speed up cases where there are identical instances of get_custom_field()
+	// Get the cache key
+	$cache_key = serialize($options_array) . $post_id;
+	if (isset(CCTM::$cache['request'][$cache_key])) {
+		return CCTM::$cache['request'][$cache_key]; // done!  Output comes from cache!
+	}
 
 	// Extract any output filters.
 	$input_array = explode(':',$raw_fieldname);	
@@ -84,7 +93,9 @@ function get_custom_field($raw_fieldname, $options=null)
 
 		$i++;
 	}
-
+	// Store in the request cache
+	CCTM::$cache['request'][$cache_key] = $value;
+	
 	return $value;	
 }
 
