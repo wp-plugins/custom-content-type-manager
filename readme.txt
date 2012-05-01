@@ -2,10 +2,10 @@
 Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
-Requires at least: 3.3
+Requires at least: 3.3.0
 Tested up to: 3.3.2
-Stable tag: 0.9.5.11
-Version: 0.9.5.12-dev
+Stable tag: 0.9.5.12
+Version: 0.9.5.12-pl
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -80,7 +80,7 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.0.5.12 =
 
 * Lots of fixes to the request_filter, search_filter
-* Date fields now support times and datetimes
+* Date fields now support times and datetimes!
 * Preparing for i18n!
 * Quick cache added (issue 351).
 * Bugs with duplicating fields fixed. (unreported)
