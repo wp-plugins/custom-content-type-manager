@@ -77,6 +77,12 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.0.5.12 =
+
+* Lots of fixes to the request_filter, search_filter
+* Date fields now support times and datetimes
+* Preparing for i18n!
+
 = 0.9.5.11 =
 
 * Added ability to change field types (e.g. from dropdown to multiselect or from textarea to WYSIWYG) -- (Issue 318)[http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=318]

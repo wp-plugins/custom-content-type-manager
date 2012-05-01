@@ -2231,6 +2231,9 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * Ensures that the front-end search form can find posts or view posts in the RSS
+	 * CONFUSED: Looks like only the request_filter handles the RSS stuff... and why is the 
+	 * $query variable here an object, whereas in the request_filter it's an array?
+	 * http://mysite.com/category/my_cat/ does not seem to trigger this filter anymore.
 	 * See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=143
 	 * See also http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=186
 	 *
@@ -2238,8 +2241,7 @@ class CCTM {
 	 * @return string
 	 */
 	public static function search_filter($query) {
-		//die(print_r($query, true));
-		//return $query;
+//		die(print_r($query,true));
 		// See the following bugs:
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=349
 		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=366
