@@ -67,6 +67,36 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	else {
 		$field_name = $field_data['name']; 
 		self::$data['custom_field_defs'][$field_name] = $field_data;
+
+		// We need this info for associations later:
+		$associations = array();
+		if (isset($_POST['post_types'])) {
+			$associations = $_POST['post_types'];
+		}
+		unset($_POST['post_types']);
+	
+		if ( !empty($associations)) {
+			
+			foreach($associations as $pt) {
+				$def = array();
+				if ( isset(self::$data['post_type_defs'][$pt])) {
+					$def = self::$data['post_type_defs'][$pt];
+				}
+								
+				if (isset($def['custom_fields']) && is_array($def['custom_fields']) && !in_array($field_name, $def['custom_fields'])) {
+					$revised_custom_fields = $def['custom_fields'];
+					$revised_custom_fields[] = $field_name;
+					self::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;
+				}
+				// For previously unused post-types
+				else {
+					self::$data['post_type_defs'][$pt]['custom_fields'] = array($field_name);
+				}
+			}
+		}
+
+	
+	
 		update_option( self::db_key, self::$data );
 		unset($_POST);
 		$success_msg = sprintf('<div class="updated"><p>%s</p></div>'
@@ -86,7 +116,104 @@ $data['name'] = $FieldObj->get_name();
 $data['description'] = htmlspecialchars($FieldObj->get_description());
 
 $data['fields'] = $FieldObj->get_edit_field_definition($field_data);
-$data['associations'] = '';
+
+
+//------------------------------------------------------------------------------
+// Get field associations: which post-types does this field belong to
+//------------------------------------------------------------------------------
+// Get the post-types for listing associations.
+$displayable_types = self::get_post_types();
+
+$data['associations'] = '<table>';
+foreach ($displayable_types as $post_type) {
+	$def = array();
+	$def['description'] = '';
+	
+	if (isset(self::$data['post_type_defs'][$post_type])) {
+		$def = self::$data['post_type_defs'][$post_type];
+	}
+
+	$icon = '';
+	$target_url = sprintf(
+		'<a href="?page=cctm&a=list_pt_associations&pt=%s" title="%s">%s</a>'
+		, $post_type
+		, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+		, __('Manage Custom Fields', CCTM_TXTDOMAIN)
+	);
+
+
+	//------------------------------------------------------------------------------
+	// post,page: Built-in post types
+	//------------------------------------------------------------------------------
+	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
+		$def['description']	= '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post-type.', CCTM_TXTDOMAIN);
+		if ('page' == $post_type) {
+			$icon = '<img src="'. CCTM_URL . '/images/icons/page.png' . '" width="14" height="16"/>';
+		}
+		else {
+			$icon = '<img src="'. CCTM_URL . '/images/icons/post.png' . '" width="15" height="15"/>';
+		}
+	}
+	//------------------------------------------------------------------------------
+	// Full fledged CCTM post-types
+	//------------------------------------------------------------------------------
+	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
+		$def['description'] = self::$data['post_type_defs'][$post_type]['description'];
+		if ( !empty($def['menu_icon']) && !$def['use_default_menu_icon'] ) {
+			$icon = '<img src="'. $def['menu_icon'] . '" />';
+		}
+	}
+	//------------------------------------------------------------------------------
+	// Foreign post-types
+	//------------------------------------------------------------------------------
+	elseif(self::get_setting('show_foreign_post_types')) {
+		$def['description']	= '<img src="'. CCTM_URL .'/images/spy.png" height="16" width="16" alt="wp" /> '. __('Foreign post-type.', CCTM_TXTDOMAIN);
+		$icon = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
+	
+		$target_url = sprintf(
+			'<a href="?page=cctm&a=list_pt_associations&pt=%s&f=1" title="%s">%s</a>'
+			, $post_type
+			, __('Manage Custom Fields for this content type', CCTM_TXTDOMAIN)
+			, __('Manage Custom Fields', CCTM_TXTDOMAIN)
+		);
+
+	}
+	else {
+		continue; 
+	}
+
+
+	$is_checked = '';
+
+	if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields']) 
+		&& in_array($field_name, self::$data['post_type_defs'][$post_type]['custom_fields'])) {
+		$is_checked = ' checked="checked"';
+	}
+	$data['associations'] .= sprintf('
+		<tr>
+			<td><input type="checkbox" name="post_types[]" id="%s" value="%s" %s/></td>
+			<td>%s</td>
+			<td><label for="%s" class="cctm_label">%s</label></td>
+			<td><span class="cctm_description" style="margin-left:20px;">%s</span><td>
+			<td>%s</td>
+		</tr>'
+		, $post_type
+		, $post_type
+		, $is_checked
+		, $icon
+		, $post_type
+		, $post_type
+		, $def['description']
+		, $target_url
+	);
+}
+
+$data['associations'] .= '</table>';
+
+
+
+
+
 $data['content'] = CCTM::load_view('custom_field.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 /*EOF*/

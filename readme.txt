@@ -82,6 +82,8 @@ or by going to your wp-content/plugins directory and executing the following com
 * Lots of fixes to the request_filter, search_filter
 * Date fields now support times and datetimes
 * Preparing for i18n!
+* Quick cache added (issue 351).
+* Bugs with duplicating fields fixed. (unreported)
 
 = 0.9.5.11 =
 

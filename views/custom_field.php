@@ -43,9 +43,6 @@ jQuery(document).ready( function() {
 	</table>
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
-	
-	<?php print $data['change_field_type']; ?>
-	
 	<?php print $data['fields']; ?>
 	
 	<div class="postbox">

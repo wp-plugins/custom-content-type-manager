@@ -56,7 +56,7 @@ class CCTM_date extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_name() {
-		return __('Date', CCTM_TXTDOMAIN);
+		return __('Date and Time', CCTM_TXTDOMAIN);
 	}
 
 
@@ -69,7 +69,7 @@ class CCTM_date extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Use date fields to store dates and times.', CCTM_TXTDOMAIN);
+		return __('Use these fields to store dates and times.', CCTM_TXTDOMAIN);
 	}
 
 

@@ -141,7 +141,7 @@ TimePicker
 div.time-picker {
   position: absolute;
   height: 191px;
-  width:4em; /* needed for IE */
+  width:10em; /* needed for IE */
   overflow: auto;
   background: #fff;
   border: 1px solid #aaa;
