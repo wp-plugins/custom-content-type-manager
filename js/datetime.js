@@ -1,11 +1,4 @@
-/* 
-Everett Griffiths everett@fireproofsocks.com for the CCTM
-Based on work by Scratch by Marc Grabanski 
-Enhanced by Keith Wood (kbwood@iprimus.com.au).
-Time picker functionality added by Gregor Petrin
-Under the Creative Commons Licence http://creativecommons.org/licenses/by/3.0/
-Share or Remix it but please Attribute the authors. 
-*/
+// Functions here were rewritten, new ones were added to handle custom use cases.
 var popUpCal = {
 	selectedDay: 0,
 	selectedMonth: 0, // 0-11
