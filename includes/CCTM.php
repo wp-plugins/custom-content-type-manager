@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.13';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.5.14';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -2174,7 +2174,7 @@ class CCTM {
 			$query['post_type'] = $post_types;
 
 		}
-		// Handle Archives
+		// Handle Year/Month Archives
 		elseif (isset($query['year']) && isset($query['monthnum'])) {
 			// Get only public, custom post types
 			$args = array( 'public' => true, '_builtin' => false );
@@ -2194,6 +2194,13 @@ class CCTM {
 	
 
 		}
+		// Handle Category Archives
+		elseif (isset($query['category_name'])) {
+			$args = array( 'has_archive' => true); 
+			$post_types = get_post_types($args);
+			$query['post_type'] = $post_types;
+		}
+
 		
 		return $query;
 	}

@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.3.0
 Tested up to: 3.3.2
 Stable tag: 0.9.5.13
-Version: 0.9.5.13-pl
+Version: 0.9.5.14-dev
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -76,6 +76,10 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.0.5.13 =
+
+* Release to combat WordPress removing the plugin from their repository for licensing dispute.
 
 = 0.0.5.12 =
 
