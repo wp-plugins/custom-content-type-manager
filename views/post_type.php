@@ -143,7 +143,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_post_type">
 
 			<label for="post_type" class="cctm_label cctm_text_label" id="cctm_label_post_type">
-				post_type* </label>
+				<?php _e('post_type', CCTM_TXTDOMAIN); ?>* </label>
 			<input type="text" name="post_type" class="cctm_text" id="post_type" value="<?php print htmlspecialchars($data['post_type']); ?>"/>
 			<span class="cctm_description"><?php _e('This name may show up in your URLs, e.g. ?movie=epic-movie. This will also make a new theme file available, starting with prefix named "single-", e.g. <code>single-movie.php</code>.', CCTM_TXTDOMAIN); ?> <?php print $data['edit_warning']; ?></span>
 		</div>
@@ -151,7 +151,7 @@ just want to make sure that the form is presented uncorrupted.
 		<!-- menu_name_label -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_name_label">
 			<label for="menu_name_label" class="cctm_label cctm_text_label" id="cctm_label_menu_name_label">
-				Menu Name* 
+				<?php _e('Menu Name', CCTM_TXTDOMAIN); ?>* 
 				<a rel="ungrouped" href="<?php print CCTM_URL; ?>/images/screenshots/menu-name.jpg" title="Menu Name*" class="thickbox">
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
@@ -165,21 +165,21 @@ just want to make sure that the form is presented uncorrupted.
 		<!--!Description-->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_description">
 					
-			<label for="description" class="cctm_label cctm_textarea_label" id="cctm_label_description">Description</label>
+			<label for="description" class="cctm_label cctm_textarea_label" id="cctm_label_description"><?php _e('Description', CCTM_TXTDOMAIN); ?></label>
 			<textarea name="description" class="cctm_textarea" id="description" rows="4" cols="60"><?php print htmlspecialchars($data['def']['description']); ?></textarea>
 		</div>
 		
 		<!--!Use Default Menu Icon -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_use_default_menu_icon">
 			<input type="checkbox" name="use_default_menu_icon" class="cctm_checkbox" id="use_default_menu_icon" value="1"  onclick="javascript:toggle_image_detail('menu_icon_container');" <?php print CCTM::is_checked($data['def']['use_default_menu_icon']); ?>/> 
-			<label for="use_default_menu_icon" class="cctm_label cctm_checkbox_label" id="cctm_label_use_default_menu_icon">Use Default Menu Icon</label>
+			<label for="use_default_menu_icon" class="cctm_label cctm_checkbox_label" id="cctm_label_use_default_menu_icon"><?php _e('Use Default Menu Icon', CCTM_TXTDOMAIN); ?></label>
 			<span class="cctm_description"><?php _e('Leave this checked to use the default posts icon.', CCTM_TXTDOMAIN); ?></span>
 		</div>
 		
 		<div id="menu_icon_container" style="display: none;">		
 			<!--!Menu Icon -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_icon">		
-				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon">Menu Icon</label>
+				<label for="menu_icon" class="cctm_label cctm_text_label" id="cctm_label_menu_icon"><?php _e('Menu Icon', CCTM_TXTDOMAIN); ?></label>
 				<input type="text" name="menu_icon" class="cctm_text" id="menu_icon" value="<?php if (isset($data['def']['menu_icon'])) { print htmlspecialchars($data['def']['menu_icon']); } ?>" size="100"/>
 					
 					<span id="sample_icon"><?php 
@@ -296,7 +296,7 @@ just want to make sure that the form is presented uncorrupted.
 		<!-- not_found_label -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_not_found_label">
 			<label for="not_found_label" class="cctm_label cctm_text_label" id="cctm_label_not_found_label">
-				Not Found 
+				<?php _e('Not Found', CCTM_TXTDOMAIN); ?> 
 				<a rel="label-screenshots" href="<?php print CCTM_URL; ?>/images/screenshots/not-found.jpg" title="Not Found" class="thickbox">
 					<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 				</a>
@@ -336,7 +336,7 @@ just want to make sure that the form is presented uncorrupted.
 		<!--!Supports -->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_title">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_title" value="title" <?php print CCTM::is_checked($data['def']['supports'], 'title'); ?> /> 
-			<label for="supports_title" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_title_label">Title</label>
+			<label for="supports_title" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_title_label"><?php _e('Title', CCTM_TXTDOMAIN); ?></label>
 			<span class="cctm_description"><?php _e('Post Title', CCTM_TXTDOMAIN); ?></span>
 		</div>
 			
@@ -369,7 +369,7 @@ just want to make sure that the form is presented uncorrupted.
 		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_post-formats">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_post-formats" value="post-formats" <?php print CCTM::is_checked($data['def']['supports'], 'post-formats'); ?> /> 
-			<label for="supports_post-formats" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_post_formats_label">Post Formats</label>
+			<label for="supports_post-formats" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_post_formats_label"><?php _e('Post Formats', CCTM_TXTDOMAIN); ?></label>
 			<span class="cctm_description"><?php _e('A Post Format is a piece of meta information that can be used by a theme to customize its presentation of a post.', CCTM_TXTDOMAIN); ?></span>
 		</div>
 		
@@ -558,7 +558,7 @@ just want to make sure that the form is presented uncorrupted.
 				
 			<span class="cctm_description"><?php _e('Use permalink rewrites for this post_type? Default: Off', CCTM_TXTDOMAIN); ?>
 				<ul style="margin-left:20px;">
-					<li><strong>Off</strong> - <?php _e('URLs for custom post_types will always look like: http://site.com/?post_type=book&p=39 even if the rest of the site is using a different permalink structure.', CCTM_TXTDOMAIN); ?></li>
+					<li><strong><?php _e('Off', CCTM_TXTDOMAIN); ?></strong> - <?php _e('URLs for custom post_types will always look like: http://site.com/?post_type=book&p=39 even if the rest of the site is using a different permalink structure.', CCTM_TXTDOMAIN); ?></li>
 					<li><strong>/%postname%/</strong> - <?php _e('Currently, this is the only custom permalink structure that is supported. Other formats are not supported.  Your URLs will look like http://site.com/your_post_type/your-title/', CCTM_TXTDOMAIN); ?></li>
 					<li><strong><?php _e('Custom', CCTM_TXTDOMAIN); ?></strong> - <?php _e('Evaluate the contents of slug', CCTM_TXTDOMAIN); ?></li>
 				<ul>

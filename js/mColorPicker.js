@@ -387,19 +387,19 @@ function add_color_controls() {
       try {
   
         jQuery.fn.mColorPicker.color = jQuery('#mColorPickerInput').val();
-        jQuery.fn.mColorPicker.setInputColor(id, $.fn.mColorPicker.color);
+        jQuery.fn.mColorPicker.setInputColor(id, jQuery.fn.mColorPicker.color);
     
         if (e.which == 13) $.fn.mColorPicker.colorPicked(id);
       } catch (r) {}
 
     }).bind('blur', function () {
   
-      jQuery.fn.mColorPicker.setInputColor(id, $.fn.mColorPicker.currentColor);
+      jQuery.fn.mColorPicker.setInputColor(id, jQuery.fn.mColorPicker.currentColor);
     });
   
     jQuery('#mColorPickerWrapper').bind('mouseleave', function () {
   
-      jQuery.fn.mColorPicker.setInputColor(id, $.fn.mColorPicker.currentColor);
+      jQuery.fn.mColorPicker.setInputColor(id, jQuery.fn.mColorPicker.currentColor);
     });
   };
 

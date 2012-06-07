@@ -76,12 +76,16 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+	
+= 0.9.5.14 =
 
-= 0.0.5.13 =
+* Complex sorting now allowed in GetPostsQuery via 'orderby_custom'
+
+= 0.9.5.13 =
 
 * Release to combat WordPress removing the plugin from their repository for licensing dispute.
 
-= 0.0.5.12 =
+= 0.9.5.12 =
 
 * Lots of fixes to the request_filter, search_filter
 * Date fields now support times and datetimes!
@@ -351,6 +355,12 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.5.14 =
+
+* Numerous fixes to request filter for tags and categories
+* Added support for complex ordering parameters.
+
 
 = 0.9.5.11 =
 

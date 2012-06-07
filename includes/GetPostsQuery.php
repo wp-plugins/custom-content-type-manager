@@ -37,6 +37,9 @@ class GetPostsQuery {
 
 	// Goes to true if orderby is set to 'random'
 	private $sort_by_random = false;
+	
+	// Goes to true if an 'orderby_custom' parameter is provided.  This nullifies any 'orderby' and 'order' parameters
+	private $orderby_custom_flag = false;
 
 	// Goes to true if the date_column is set to something not in wp_posts
 	private $custom_field_date_flag = false;
@@ -121,7 +124,8 @@ class GetPostsQuery {
 	public $defaults = array(
 		'limit'   => 0,
 		'offset'   => null,
-		'orderby'  => 'ID', // valid column (?) cannot be a metadata column
+		'orderby'  => 'ID', // valid column or valid custom field (i.e. a virtual column)
+		'orderby_custom' => null,
 		'order'   => 'DESC', // ASC or DESC
 		// include: comma-sparated string or array of IDs. Any posts you want to include. This shrinks the "pool" of resources available: all other search parameters will only search against the IDs listed, so this paramter is probably best suited to be used by itself alone. If you want to always return a list of IDs in addition to results returned by other search parameters, use the "append" parameter instead.
 		'include'  => '', // see above: usually this parameter is used by itself.
@@ -236,11 +240,6 @@ class GetPostsQuery {
 	 * @return mixed
 	 */
 	public function __get($var) {
-/*
-		if ($var == 'omit_post_type') {
-			die(print_r(debug_backtrace(), true));
-		}
-*/
 		if ( in_array($var, array_keys($this->args))) {
 			return $this->args[$var];
 		}
@@ -822,6 +821,10 @@ class GetPostsQuery {
 				return $val;
 			}
 			break;
+		case 'orderby_custom':
+			$this->orderby_custom_flag = true;
+			return $val;
+			break;
 		// List of Integers
 		case 'include':
 		case 'exclude':
@@ -1144,6 +1147,13 @@ class GetPostsQuery {
 			$hash['orderby'] = $wpdb->posts.'.'.$this->orderby;
 			$hash['join_for_metasortcolumn'] = '';
 		}
+		// This is when the user supplies their own ORDER BY parameters for complex sorting.
+		// Note: right now, I can only think of doing complex sorting on the primary columns from wp_posts 
+		// and NOT using custom columns from wp_postmeta.
+		if ($this->orderby_custom_flag) {
+			$hash['orderby'] = $this->orderby_custom;
+			$hash['order'] = ''; // <-- blanks this out!			
+		}
 
 		$hash['limit'] = $this->_sql_limit();
 		$hash['offset'] = $this->_sql_offset();
@@ -1167,8 +1177,9 @@ class GetPostsQuery {
 		if (!$this->include_hidden_fields) {
 			$hash['hidden_fields'] = "WHERE {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
 		}
-
+		
 		$this->SQL1 = self::parse($this->SQL1, $hash);
+		//die($this->SQL1);
 		// Strip whitespace
 		$this->SQL1  = preg_replace('/\s\s+/', ' ', $this->SQL1 );
 
@@ -1233,6 +1244,11 @@ class GetPostsQuery {
 		else {
 			$hash['join_for_metasortcolumn'] = '';
 			$hash['orderby'] = $wpdb->posts.'.'.$this->orderby;		
+		}
+
+		if ($this->orderby_custom_flag) {
+			$hash['orderby'] = $this->orderby_custom;
+			$hash['order'] = ''; // <-- blanks this out!			
 		}
 		
 		
