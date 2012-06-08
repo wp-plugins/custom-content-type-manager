@@ -2194,11 +2194,21 @@ class CCTM {
 	
 
 		}
-		// Handle Category Archives
+		// Handle posts that use categories.
 		elseif (isset($query['category_name'])) {
-			$args = array( 'has_archive' => true); 
-			$post_types = get_post_types($args);
-			$query['post_type'] = $post_types;
+			$args = array( 'public' => true, '_builtin' => false );
+			$public_post_types = get_post_types( $args );
+
+			// Only posts get categories, not pages, so our first post-type is "post"...  has_archive is not enabled.
+			$search_me_post_types = array('post');
+	
+			foreach (self::$data['post_type_defs'] as $post_type => $def) {
+				if ( isset($def['taxonomies']) && is_array($def['taxonomies']) && in_array('post_tag', $def['taxonomies'])) {
+					$search_me_post_types[] = $post_type;
+				}
+			}
+	
+			$query['post_type'] = $search_me_post_types;		
 		}
 		// Handle tag pages
 		elseif (isset($query['tag'])) {
