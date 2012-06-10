@@ -106,7 +106,7 @@ if ($error_items)
 // CLEARED FOR LAUNCH!!! ---> Load the plugin
 else
 {
-	include_once('loader.php');
+	require_once('loader.php');
 }
 
 /*EOF*/

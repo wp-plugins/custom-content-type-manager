@@ -154,7 +154,7 @@ class CCTM_PostTypeDef {
 	 * @param	string	HTML output (dropdown options)
 	 */
 	public static function get_orderby_options($post_type) {
-	
+
 		$output = '<option value="">'.__('Default', CCTM_TXTDOMAIN).'</option>';
 		
 		$built_in_columns = CCTM::$reserved_field_names;
@@ -167,7 +167,6 @@ class CCTM_PostTypeDef {
 			}
 			$output .= sprintf('<option value="%s" %s>%s</option>', $c, $is_selected, __($c));
 		}
-		
 		
 		$custom_fields = array();
 		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {

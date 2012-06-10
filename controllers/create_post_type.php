@@ -53,8 +53,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	}
 }
 $data['icons'] = CCTM_PostTypeDef::get_post_type_icons();
-$d['columns'] = CCTM_PostTypeDef::get_columns($post_type);
-$d['orderby_options'] = CCTM_PostTypeDef::get_orderby_options($post_type);
+$data['columns'] = CCTM_PostTypeDef::get_columns($post_type);
+$data['orderby_options'] = CCTM_PostTypeDef::get_orderby_options($post_type);
 $data['content'] = CCTM::load_view('post_type.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 /*EOF*/

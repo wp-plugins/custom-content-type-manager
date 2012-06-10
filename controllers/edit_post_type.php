@@ -59,15 +59,27 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 	
 	if ( empty($error_msg) ) {
 
-		// post_type name was changed (!!!)
+		// post_type name was changed (!!!)  This is kinda a big deal.
+		// We need to do the following big things:
+		// 1. update the post_type column to reflect the new name
+		// 2. update the guid  to reflect the new permalink
+		// 3. rename the relevant theme files 
+		// 4. update the CCTM data definitions
 		if ($sanitized_vals['post_type'] != $sanitized_vals['original_post_type_name']) {
-			// update the db
+			// update the post_type in the database
 			global $wpdb;
 			$query = $wpdb->prepare("UPDATE {$wpdb->posts} SET post_type=%s WHERE post_type=%s"
 				, $sanitized_vals['post_type']
 				, $sanitized_vals['original_post_type_name']);
 			$wpdb->query($query);
 			
+			// Update the guid (WARNING: may be time-intensive)
+			$query = $wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_type=%s", $sanitized_vals['post_type']);
+			$myrows = $wpdb->get_results($query, ARRAY_A);
+			foreach ($myrows as $r) {
+				$wpdb->update($wpdb->posts, array('guid' => get_permalink($r['ID'])), array('ID' => $r['ID']));
+			}
+
 			// Merge stuff so we don't obliterate settings such as "is_active" or "custom_fields"
 			$sanitized_vals = array_merge(self::$data['post_type_defs'][ $sanitized_vals['original_post_type_name'] ], $sanitized_vals);
 			// Out with the old: unset the old option in self::$data;
@@ -81,8 +93,8 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 				// May generate "Permission denied" warning, so we use @ to suppress it.
 				if (!@rename($oldfilename, $dir . '/single-'.$sanitized_vals['post_type'].'.php')) {
 					$warning = sprintf( __('You have changed the name of your post_type, so you must also rename your template file! Rename %s to %s.', CCTM_TXTDOMAIN)
-						, $oldfilename
-						, $newfilename
+						, "<code>$oldfilename</code>"
+						, '<code>'.basename($newfilename).'</code>'
 					);
 					self::register_warning($warning);
 				}

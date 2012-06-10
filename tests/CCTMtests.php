@@ -1,15 +1,16 @@
 <?php
 /*------------------------------------------------------------------------------
-Make sure we're cleared to launch.  Test the following
+Make sure we're cleared to launch.  The tests here are meant to run on each
+page request.  Ideally, the results could be cached so we don't have to hit
+the database and check other plugins repeatedly.
 
-When you add a dropdown custom field, does the JS fire to let you create options?
-When you deselect the dropdown as the field type, do the options clear?
 ------------------------------------------------------------------------------*/
 class CCTMtests
 {	
 	//------------------------------------------------------------------------------
 	/**
 	 * @param	array	list of names of incompatible plugins
+	 * @return	null	CCTM::$warnings gets populated if errors are detected.
 	 */
 	public static function incompatible_plugins($incompatible_plugins) {
 		require_once(ABSPATH.'/wp-admin/includes/admin.php');
@@ -62,61 +63,6 @@ class CCTMtests
 			CCTM::$errors[] = $exit_msg;
 		}
 	}
-
-	/*------------------------------------------------------------------------------
-	SUMMARY: This relies on the output of the get_plugins() function and the 
-		get_option('active_plugins') contents.
-		
-	INPUT:
-		$required_plugins should be an associative array with the names of the plugins
-		 and the required versions, e.g.
-		 array( 'My Great Plugin' => '0.9', 'Some Other Plugin' => '1.0.1' )
-		 
-	OUTPUT: null if no errors. There are 2 errors that can be generated: one if the 
-	plugin's version is too old, and another if it is missing altogether.
-	------------------------------------------------------------------------------*/
-	public static function wp_required_plugins($required_plugins) {
-		require_once(ABSPATH.'/wp-admin/includes/admin.php');
-		$all_plugins = get_plugins();
-		$active_plugins = get_option('active_plugins');
-		
-		// Re-index the $all_plugins array for easier testing. 
-		// We want to index it off of the name; it's not guaranteed to be unique, so this 
-		// test could throw some illigitimate errors if 2 plugins shared the same name.
-		$all_plugins_reindexed = array();
-		foreach ( $all_plugins as $path => $data ) {
-			$new_index = $data['Name'];
-			$all_plugins_reindexed[$new_index] = $data;
-		}
-		
-		foreach ( $required_plugins as $name => $version ) {
-			if ( isset($all_plugins_reindexed[$name]) ) {
-				if ( !empty($all_plugins_reindexed[$name]['Version']) )
-				{
-					if (version_compare($all_plugins_reindexed[$name]['Version'],$version,'<'))
-					{
-						CCTM::$errors[] = sprintf( __('%1$s requires version %$2% of the %3$s plugin.', CCTM_TXTDOMAIN )
-							, CCTM::name
-							, $version
-							, $name );			
-					}
-				}
-			}
-			else {
-				$msg = sprintf( __('%1$s requires version %$2% of the %3$s plugin.', CCTM_TXTDOMAIN )
-							, CCTM::name
-							, $version
-							, $name );
-							
-				 $msg .= ' ';
-				 $msg .=  sprintf( 
-					__('The %1$s plugin is not installed.', CCTM_TXTDOMAIN)
-					, $name
-				);
-				CCTM::$errors[] = $msg;
-			}
-		}
-	}
 	
 	//------------------------------------------------------------------------------
 	public static function wp_version_gt($ver) {
@@ -145,38 +91,13 @@ class CCTMtests
 	
 	
 	
-	/*------------------------------------------------------------------------------
-	PHP might have been compiled without some module that you require. Pass this 
-	function an array of $required_extensions and it will throw return a message 
-	about any missing modules.
-	INPUT: 
-		$required_extensions = array('pcre', 'posix', 'mysqli', 'mcrypt');
-	OUTPUT: null, or an error message.
-	------------------------------------------------------------------------------*/
-	public static function php_extensions($required_extensions) {
-		
-		$loaded_extensions = get_loaded_extensions();
-
-		foreach ( $required_extensions as $req ) {
-			if ( !in_array($req, $loaded ) ) {
-				$msg =  sprintf( __('%1$s requires the %2$s PHP extension.', CCTM_TXTDOMAIN)
-					, CCTM::name
-					, $req
-				);
-				$msg .= ' ';
-				$msg .= __('Talk to your system administrator about reconfiguring PHP.', CCTM_TXTDOMAIN);
-				CCTM::$errors[] = $msg;
-			}
-		}
-	
-	}
-
 	/**
 	 * List all tests to run here.
 	 * If there are errors, CCTMtests::$errors will get populated.
 	 * Die on error.
 	 */
 	public static function run_tests() {
+		
 		// Run Tests (add new tests to the CCCTMtests class as req'd)
 		self::wp_version_gt(CCTM::wp_req_ver);
 		self::php_version_gt(CCTM::php_req_ver);

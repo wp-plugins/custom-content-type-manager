@@ -13,44 +13,17 @@
  * RUNNING TESTS
  *
  * 
- * @package CCTM
+ * @package SummarizePosts
  * @author Everett Griffiths
  * @url http://fireproofsocks.com/
  */
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');
 
-class CCTMUnitTests extends UnitTestCase {
+class SummarizePostsUnitTests extends UnitTestCase {
 
 
-	
-	/**
-	 * Test whether a regular category page displays posts and 
-	 * any pages from custom post-types that have been categorized
-	 */
-    function testCategories() {
-    
-    }
 
-	/**
-	 * Make sure we didn't accidentally bundle software that's under the 
-	 * Creative Commons License.
-	 */
-	function testNoCCL() {
-	
-	}
-
-	/**
-	 * Check all pages in the admin for PHP warnings, errors, or notices
-	 */
-
-	/**
-	 * Change post_type name
-	 */
-
-	/**
-	 * Test RSS feed
-	 */
 }
  
 /*EOF*/

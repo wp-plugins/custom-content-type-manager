@@ -129,6 +129,9 @@ if ( empty(CCTM::$errors) )
 	// Handle Ajax Requests
 	add_action('wp_ajax_get_search_form', 'CCTM::get_search_form');
 	
+	// Needs to be first in priority (before WP) so we can look for any slashes indicating hierarchical post-types
+	add_filter('sanitize_title', 'CCTM::filter_sanitize_title',1,3);
+	
 }
 
 /*EOF*/

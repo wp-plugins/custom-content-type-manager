@@ -136,7 +136,8 @@ class CCTM {
 		'label' => '',
 		'menu_position' => '',
 		'show_in_menu' => 1,
-
+		'cctm_show_in_menu' => 1,
+		
 		'rewrite_with_front' => 1,
 		'permalink_action' => 'Off',
 		'rewrite_slug' => '',
@@ -633,7 +634,8 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * The static invocation of filtering an input through an Output Filter
+	 * This is CCTM's own filter function, the engine behind all available CCTM
+	 * Output Filters, but this can also be called statically. 
 	 *
 	 * @param mixed $value to be filtered, usually a string.
 	 * @param string $outputfilter name, e.g. 'to_array'
@@ -678,7 +680,43 @@ class CCTM {
 
 	}
 
-
+	/**
+	 * This filters the post_name (intercepting the WP sanitize_title event).
+	 * This is important for hierarchical post-types because WP incorrectly identifies
+	 * the post_name when a hiearchical post-type URL is encountere, e.g. 
+	 * 	http://wpcctm.com/movie/lord-of-the-rings/fellowship-of-the-ring/
+	 *
+	 * WP searches the database via post_name, and it thinks the post_name is:
+	 * "lord-of-the-ringsfellowship-of-the-ring".  So we have to grab the last segment
+	 * of the URL.
+	 *
+	 * @param	string	$title the post_name, e.g. "lord-of-the-rings/fellowship-of-the-ring"
+	 * @param	string	$raw_title
+	 * @param	string 	$context "query" or "save"
+	 *
+	 * @return string
+	 */
+	public static function filter_sanitize_title($title, $raw_title, $context) {
+		
+		// This isn't always called on the public-side... it gets called in the manager too.
+		if ('query' == $context) {
+			global $wp_query;	
+			$post_type = CCTM::get_value($wp_query->query_vars, 'post_type');
+			// To avoid problems when this filter is called unexpectedly...
+			if (empty($post_type)) {
+				return $title; // 
+			}
+			//checking cctm_hierarchical_custom is not necessary because BOTH boxes must be checked.
+			// Get the last URL segment.  E.g. given house/room/chair, this would return 'chair'
+			if (isset(CCTM::$data['post_type_defs'][$post_type]) && CCTM::$data['post_type_defs'][$post_type]['hierarchical'] ) {
+				$segments = explode('/',$title);
+				$title = array_pop($segments);
+			}
+		}
+		
+		return $title;
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Adds formatting to a string to make an "error" message.
