@@ -2256,7 +2256,7 @@ if($post_type == 'people') {
 			$search_me_post_types = array('post');
 	
 			foreach (self::$data['post_type_defs'] as $post_type => $def) {
-				if ( isset($def['taxonomies']) && is_array($def['taxonomies']) && in_array('post_tag', $def['taxonomies'])) {
+				if ( isset($def['taxonomies']) && is_array($def['taxonomies']) && in_array('category', $def['taxonomies'])) {
 					$search_me_post_types[] = $post_type;
 				}
 			}

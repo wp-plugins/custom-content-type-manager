@@ -31,6 +31,11 @@ class SummarizePostsUnitTests extends UnitTestCase {
 
 //	function setUp() { }
 
+
+	function __construct() {
+		parent::__construct('Summarize Posts Unit Tests');
+	}
+	
 	// Make sure we got WP loaded up
 	function testWP() {
 		$this->assertTrue(defined('CCTM_PATH'));
@@ -122,6 +127,12 @@ class SummarizePostsUnitTests extends UnitTestCase {
 		$warnings = strip_tags($Q->get_warnings());
 		$this->assertTrue(strpos($warnings, 'Taxonomy does not exist: does_not_exist'));
 	}
+
+	// Order By
+	
+	// Sort on Custom column
+	
+	// complex sorting
 
 }
  
