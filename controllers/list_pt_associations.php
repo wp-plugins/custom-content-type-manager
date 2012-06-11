@@ -67,7 +67,7 @@ $all_custom_fields_cnt = count($all_custom_fields);
 if (!$all_custom_fields_cnt) {
 	$data['msg'] .= '<div class="updated"><p>'
 		. __('There are no custom fields defined yet.', CCTM_TXTDOMAIN)
-		.'<a href="'.get_admin_url(false, 'admin.php').'?page=cctm_fields&a=list_custom_field_types">'
+		.' <a href="'.get_admin_url(false, 'admin.php').'?page=cctm_fields&a=list_custom_field_types">'
 		. __('Define custom fields', CCTM_TXTDOMAIN)
 		.'</a></p></div>';
 }

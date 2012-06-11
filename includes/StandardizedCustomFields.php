@@ -106,9 +106,10 @@ class StandardizedCustomFields
 				else {
 					$value_copy = $FieldObj->get_value($value, 'to_string');
 				}
+
 				
 				// Is this field required?  OR did validation fail?
-				if ($FieldObj->required && empty($value_copy) && strlen($value_copy) == 0) {
+				if ($FieldObj->required && empty($value_copy) ) { // && strlen($value_copy) == 0) {
 					$error_flag = true;					
 					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 				}
@@ -268,6 +269,7 @@ class StandardizedCustomFields
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=188
 	 */
 	public static function print_admin_header() {
+
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		if ( !in_array($file, array('post.php', 'post-new.php','edit.php'))) {
 			return;
@@ -275,10 +277,13 @@ class StandardizedCustomFields
 		$post_type = CCTM::get_value($_GET, 'post_type');
 		if (empty($post_type)) {
 			$post_id = (int) CCTM::get_value($_GET, 'post');
+			if (empty($post_id)) {
+				return;
+			}
 			$post = get_post($post_id);
 			$post_type = $post->post_type;
 		}
-
+		
 		// Only do this stuff for active post-types (is_active can be 1 for built-in or 2 for foreign)
 		if (!isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
 			return; 
@@ -447,12 +452,19 @@ class StandardizedCustomFields
 					continue;
 				}
 				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
-				
+
 				if (CCTM::include_form_element_class($field_type)) {
 					$field_type_name = CCTM::classname_prefix.$field_type;
 					$FieldObj = new $field_type_name(); // Instantiate the field element
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
+
+					if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+						$myFile = "/tmp/cctm.txt";
+						$fh = fopen($myFile, 'a') or die("can't open file");
+						fwrite($fh, "Field Type: $field_type  Value: $value\n");
+						fclose($fh);
+					}
 										
 					// Custom fields can return a literal null if they don't save data to the db.
 					if ($value !== null) {
@@ -461,6 +473,7 @@ class StandardizedCustomFields
 						$value_copy = $value;
 						if ($FieldObj->is_repeatable) {
 							$value_copy = json_decode(stripslashes($value), true);
+
 							if (is_array($value_copy)) {
 								foreach ($value_copy as $k => $v) {
 									if (empty($v)) {
@@ -471,6 +484,7 @@ class StandardizedCustomFields
 						}
 						// Is this field required?  
 						if ($FieldObj->required && empty($value_copy)) {
+
 							// Override!! set post to draft status
 							global $wpdb;
 							$post_id = (int) CCTM::get_value($_POST, 'ID');
@@ -496,11 +510,16 @@ class StandardizedCustomFields
 			}
 			
 			// Pass validation errors like this: fieldname => validator, e.g. myfield => required
-/*
 			if (!empty($validation_errors)) {
+				if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+					$myFile = "/tmp/cctm.txt";
+					$fh = fopen($myFile, 'a') or die("can't open file");
+					fwrite($fh, json_encode($validation_errors)."\n");
+					fclose($fh);
+				}
+
 				CCTM::set_flash(json_encode($validation_errors));
 			}
-*/
 		}
 	}
 

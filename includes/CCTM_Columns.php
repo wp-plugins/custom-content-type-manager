@@ -20,14 +20,23 @@ class CCTM_Columns {
 	public $post_type; 
 	
 	/**
+	 * Goes to true if the custom columns do not include the built-in title field
+	 */
+	public $no_title_flag = false;
+	
+	// Count as we iterate over columns in each row
+	public $new_row = true;
+	public $last_post;
+	
+	/**
+	 * This is the magic function, named after the post-type in question.
 	 *
 	 * @param	string	$post_type
 	 * @param	array	$default_columns associative array (set by WP);
 	 * @return	array	associative array of column ids and translated names.
 	 */
 	public function __call($post_type, $default_columns) {
-		//die('xhere.');
-		//return $default_columns;
+
 		$custom_columns = array('cb' => '<input type="checkbox" />',); // the output
 		$built_in_columns = array(
 			//'cb' => '<input type="checkbox" />',
@@ -40,6 +49,7 @@ class CCTM_Columns {
 		if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])) {
 			$raw_columns = CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'];
 		}
+		
 		// The $raw_columns contains a simple array, e.g. array('field1','wonky');
 		// we need to create an associative array.
 		// Look up what kind of column this is.
@@ -56,8 +66,10 @@ class CCTM_Columns {
 			
 			}
 		}
+		if (!isset($custom_columns['title'])) {
+			$this->no_title_flag = true;
+		}
 		return $custom_columns;
-		// die('here'. $post_type);	
 	}
 	
 	//------------------------------------------------------------------------------
@@ -65,18 +77,33 @@ class CCTM_Columns {
 	 * Populate the custom data for a given column.  This function should actually
 	 * *print* data, not just return it.
 	 * Oddly, WP doesn't even send the column this way unless it is something custom.
+	 * Note that things get all broken and wonky if you do not include the post title column,
+	 * so this function has some customizations here to print out the various eye-candy
+	 * Edit/Trash/View links in that case.
 	 *
 	 */
 	public function populate_custom_column_data($column) {
 
-/*
-		if ('ID' == $column) echo $post->ID;
-		elseif ('agent' == $column) echo 'agent-name';
-		elseif ('price' == $column) echo 'money';
-		elseif ('status' == $column) echo 'status';
-*/
+		global $post;
+		
+		if ($this->last_post != $post->ID) {
+			$this->new_row = true;
+		}
+		
+		if ($this->no_title_flag && $this->new_row) {
+			
+			print '<strong><a class="row-title" href="post.php?post='.$post->ID.'&amp;action=edit">';
+		}
 
 		print_custom_field($column);
+		
+		if ($this->no_title_flag && $this->new_row) {
+			print '</a></strong>
+				<div class="row-actions"><span class="edit"><a href="post.php?post='.$post->ID.'&amp;action=edit" title="'.__('Edit').'">'.__('Edit').'</a> | </span>
+				<span class="inline hide-if-no-js"><a href="#" class="editinline">'.__('Quick Edit').'</a> | </span><span class="trash"><a class="submitdelete" href="'.get_delete_post_link($post->ID).'">'.__('Trash').'</a> | </span><span class="view"><a href="'.get_permalink($post->ID).'" rel="permalink">'.__('View').'</a></span>';
+			$this->new_row = false;
+			$this->last_post = $post->ID;
+		}		
 	}
 	
 	//------------------------------------------------------------------------------
@@ -84,7 +111,7 @@ class CCTM_Columns {
 	 * Custom joining on postmeta table for sorting on custom columns
 	 */
 	public function posts_join($join) {
-	
+
 		global $wpdb;
 	
 		// We don't want searches
@@ -105,14 +132,6 @@ class CCTM_Columns {
 		}
 			
 		return $join;	
-	}
-	
-	public function posts_where($where) {
-	
-	}
-
-	public function posts_groupby($groupby) {
-	
 	}
 }
 /*EOF*/

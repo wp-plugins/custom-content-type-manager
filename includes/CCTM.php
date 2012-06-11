@@ -343,6 +343,9 @@ class CCTM {
 		else {
 			$def['show_in_menu'] = (bool) self::get_value($def, 'cctm_show_in_menu');
 		}
+		
+		$def['hierarchical'] = (bool) self::get_value($def, 'hierarchical');
+		
 		// We display "include" type options to the user, and here on the backend
 		// we swap this for the "exclude" option that the function requires.
 		$include = self::get_value($def, 'include_in_search');
@@ -702,10 +705,11 @@ class CCTM {
 		if ('query' == $context) {
 			global $wp_query;	
 			$post_type = CCTM::get_value($wp_query->query_vars, 'post_type');
-			// To avoid problems when this filter is called unexpectedly...
-			if (empty($post_type)) {
+			// To avoid problems when this filter is called unexpectedly... e.g. category pages has an array of post_types
+			if (empty($post_type) || is_array($post_type)) {
 				return $title; // 
 			}
+
 			//checking cctm_hierarchical_custom is not necessary because BOTH boxes must be checked.
 			// Get the last URL segment.  E.g. given house/room/chair, this would return 'chair'
 			if (isset(CCTM::$data['post_type_defs'][$post_type]) && CCTM::$data['post_type_defs'][$post_type]['hierarchical'] ) {
@@ -1866,7 +1870,14 @@ class CCTM {
 		if (empty($post_type)) {
 			return $orderBy;
 		}
-		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])) {
+		//die(print_r(self::$data['post_type_defs'][$post_type], true));
+		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) 
+			&& !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])
+			&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
+			&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
+			&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
+			&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) 
+			) {
 			global $wpdb;
 			$order = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_order', 'ASC');
 			$column = self::$data['post_type_defs'][$post_type]['custom_orderby'];
@@ -2126,7 +2137,11 @@ class CCTM {
 
 		foreach ($post_type_defs as $post_type => $def) {
 			$def = self::_prepare_post_type_def($def);
-
+/*
+if($post_type == 'people') {
+	die(print_r($def, true));
+}
+*/
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
 				&& !in_array($post_type, self::$built_in_post_types)

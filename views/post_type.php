@@ -408,7 +408,8 @@ just want to make sure that the form is presented uncorrupted.
 				<input type="checkbox" name="cctm_hierarchical_custom" class="cctm_checkbox" id="cctm_hierarchical_custom" value="1" <?php if (isset($data['def']['cctm_hierarchical_custom'])) { print CCTM::is_checked($data['def']['cctm_hierarchical_custom']); } ?> 
 					onclick="javascript:toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');"/> 
 				<label for="cctm_hierarchical_custom" class="cctm_label cctm_checkbox_label" id="cctm_label_hierarchical"><?php _e('Use Custom Hierarchy', CCTM_TXTDOMAIN); ?></label>
-				<span class="cctm_description"><?php _e('Allows custom hierarchies to be specified.', CCTM_TXTDOMAIN); ?><span style="color:red;"><?php _e('Hierarchical must be checked.', CCTM_TXTDOMAIN); ?></span></span>
+				<span class="cctm_description"><?php _e('Allows custom hierarchies to be specified.', CCTM_TXTDOMAIN); ?>
+				<span style="color:red;"><?php _e('Hierarchical must be checked.', CCTM_TXTDOMAIN); ?></span></span>
 
 				
 			<!-- Working : Custom hierarchy-->
@@ -461,7 +462,7 @@ just want to make sure that the form is presented uncorrupted.
 				onclick="javascript:toggle_custom_columns();" /> 
 			<label for="cctm_custom_columns_enabled" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_custom_columns_enabled">
 			<?php _e('Customize Columns', CCTM_TXTDOMAIN); ?></label>
-			<span class="cctm_description"><?php _e("You can customize the columns visible when you display a list of all posts in this post-type. WARNING: you can only use custom columns if the post-type name does not contain hyphens; underscores are Ok.", CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('You can customize the columns visible when you display a list of all posts in this post-type.', CCTM_TXTDOMAIN);?> <span style="color:red;"><?php _e('WARNING: you can only use custom columns if the post-type name does not contain hyphens; underscores are Ok.', CCTM_TXTDOMAIN); ?></span></span>
 		</div>
 		<br />
 		<!-- the columns -->
@@ -681,7 +682,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_revisions">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_revisions" value="revisions" <?php print CCTM::is_checked($data['def']['supports'], 'revisions'); ?> /> 
 			<label for="supports_revisions" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_revisions_label"><?php _e('Store Revisions', CCTM_TXTDOMAIN); ?></label>
-					<span class="cctm_description"><?php _e('Revisions are useful if you ever need to go back to an older version of a document. WARNING: revisions do not store custom field data!  This is a limitation of WordPress (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=266">issue 266</a>).', CCTM_TXTDOMAIN); ?></span>
+					<span class="cctm_description"><?php _e('Revisions are useful if you ever need to go back to an older version of a document.', CCTM_TXTDOMAIN);?> <span style="color:red;"><?php _e('WARNING: revisions do not store custom field data!  This is a limitation of WordPress (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=266">issue 266</a>).', CCTM_TXTDOMAIN); ?></span></span>
 		</div>
 
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_has_archive">
@@ -689,7 +690,7 @@ just want to make sure that the form is presented uncorrupted.
 			<label for="has_archive" class="cctm_label cctm_checkbox_label" id="cctm_label_has_archive_label">
 				<?php _e('Enable Archives', CCTM_TXTDOMAIN); ?>
 			</label>
-			<span class="cctm_description"><?php _e('If enabled, posts will be listed in archive lists (e.g. by month). This also enables posts to show up in tag or category lists.', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('If enabled, posts will be listed in archive lists (e.g. by month).', CCTM_TXTDOMAIN); ?></span>
 		</div>
 
 

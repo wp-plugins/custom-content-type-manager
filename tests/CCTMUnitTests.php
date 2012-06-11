@@ -12,6 +12,8 @@
  *
  * RUNNING TESTS
  *
+ *
+ * http://codex.wordpress.org/Automated_Testing
  * 
  * @package CCTM
  * @author Everett Griffiths
@@ -19,30 +21,48 @@
  */
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');
+require_once(dirname(__FILE__) . '/../../../../wp-config.php');
 
 class CCTMUnitTests extends UnitTestCase {
-
-
+	
+	private function _compare_html($a, $b) {
+	
+	}
 	
 	/**
 	 * Test whether a regular category page displays posts and 
 	 * any pages from custom post-types that have been categorized
 	 */
+
+/*
     function testCategories() {
-    
+    	$page = file_get_contents('http://cctm:8888/category/uncategorized/');
+    	
+    	print $page;
     }
+*/
+	// Archives
+	// Categories
+	// tags
+	
+/*
+    function testTags() {
+    	$page = file_get_contents('http://cctm:8888/category/uncategorized/');
+    	
+    	print $page;
+    }
+*/
 
 	/**
 	 * Make sure we didn't accidentally bundle software that's under the 
 	 * Creative Commons License.
 	 */
+/*
 	function testNoCCL() {
 	
 	}
+*/
 
-	/**
-	 * Check all pages in the admin for PHP warnings, errors, or notices
-	 */
 
 	/**
 	 * Change post_type name
@@ -51,6 +71,21 @@ class CCTMUnitTests extends UnitTestCase {
 	/**
 	 * Test RSS feed
 	 */
+	function testRSS() {
+		$xml = file_get_contents('http://cctm:8888/feed/');
+		
+		$this->assertTrue($xml);
+	}
+	
+	//------------------------------------------------------------------------------
+	// Test Global Settings
+	//------------------------------------------------------------------------------
+	// Delete Posts
+	// Delete Custom Fields
+	// Save Empty Fields
+	// Show Pages in RSS Feed
+	
+	// 
 }
  
 /*EOF*/

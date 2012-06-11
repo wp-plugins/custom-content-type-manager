@@ -192,7 +192,6 @@ class GetPostsQuery {
 	// normalized.
 	private $custom_default_values = array();
 
-	public $cnt; // number of search results
 	public $SQL; // store the query here for debugging.
 	
 	public $SQL1; 	// initial query (primary): returns only post IDs
@@ -1101,7 +1100,8 @@ class GetPostsQuery {
 		}
 		
 		// Only add these if a user has searched on taxonomy criteria
-		if (isset($this->taxonomy) && !empty($this->taxonomy)) {
+		if (isset($this->taxonomy) && !empty($this->taxonomy)
+			&& (isset($this->taxonomy_term) || isset($this->taxonomy_slug)) ) {
 			$hash['taxonomy'] = $this->_sql_filter($wpdb->term_taxonomy, 'taxonomy', '=', $this->taxonomy);
 			$hash['taxonomy_term'] = $this->_sql_filter($wpdb->terms, 'name', 'IN', $this->taxonomy_term);
 			$hash['taxonomy_slug'] = $this->_sql_filter($wpdb->terms, 'slug', 'IN', $this->taxonomy_slug);
@@ -1827,7 +1827,7 @@ class GetPostsQuery {
 	 * @param	array	same arguments accepted by get_posts()
 	 * @return integer
 	 */
-	public function count_posts($args) {
+	public function count_posts($args,$ignore_defaults=false) {
 		global $wpdb;
 		
 		if ($ignore_defaults) {
@@ -1836,7 +1836,7 @@ class GetPostsQuery {
 		
 		// Include no IDs = empty result set
 		if (isset($args['include']) && empty($args['include'])) {
-			return array(array());
+			return 0;
 		}
 		
 		foreach ($args as $k => $v) {
@@ -2238,33 +2238,6 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * SYNOPSIS: a simple parsing function for basic templating.
-	 * INPUT:
-	 * $tpl (str): a string containing [+placeholders+]
-	 * $hash (array): an associative array('key' => 'value');
-	 * OUTPUT
-	 * string; placeholders corresponding to the keys of the hash will be replaced
-	 * with the values and the string will be returned.
-	 *
-	 * @param string  $tpl
-	 * @param array   $hash associative array of placeholders => values
-	 * @return string
-	 */
-	public static function parse($tpl, $hash) {
-		foreach ($hash as $key => $value) {
-			if ( !is_array($value) ) {
-				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-			}
-		}
-
-		// Remove any unparsed [+placeholders+]
-		$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
-
-		return $tpl;
-	}
-
-	//------------------------------------------------------------------------------
-	/**
 	 * Format any errors in an unordered list, or returns a message saying there were no errors.
 	 *
 	 * @return string message detailing errors.
@@ -2288,6 +2261,33 @@ class GetPostsQuery {
 		return sprintf('<h2>%s</h2><div class="summarize-posts-warnings">%s</div>'
 			, __('Warnings', CCTM_TXTDOMAIN)
 			, $output);
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * SYNOPSIS: a simple parsing function for basic templating.
+	 * INPUT:
+	 * $tpl (str): a string containing [+placeholders+]
+	 * $hash (array): an associative array('key' => 'value');
+	 * OUTPUT
+	 * string; placeholders corresponding to the keys of the hash will be replaced
+	 * with the values and the string will be returned.
+	 *
+	 * @param string  $tpl
+	 * @param array   $hash associative array of placeholders => values
+	 * @return string
+	 */
+	public static function parse($tpl, $hash) {
+		foreach ($hash as $key => $value) {
+			if ( !is_array($value) ) {
+				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+			}
+		}
+
+		// Remove any unparsed [+placeholders+]
+		$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
+
+		return $tpl;
 	}
 
 	//------------------------------------------------------------------------------

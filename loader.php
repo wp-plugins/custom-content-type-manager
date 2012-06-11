@@ -90,11 +90,12 @@ if ( empty(CCTM::$errors) )
 		// Handle Custom Columns: this is only relevant for the edit.php?post_type=xxxx pages (i.e. the list view)
 		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'edit.php' ) {
 			$post_type = CCTM::get_value($_GET, 'post_type');
+			
 			if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
 				&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
 				&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
 				&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) ) {
-//							die($post_type);
+
 				require_once('includes/CCTM_Columns.php');
 				require_once('includes/functions.php');
 				CCTM::$Columns = new CCTM_Columns();
@@ -105,10 +106,9 @@ if ( empty(CCTM::$errors) )
 				add_action('manage_posts_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
 				add_action('manage_pages_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
 				
+
 				// Handle the sorting on custom columns
 				add_filter('posts_join', array(CCTM::$Columns, 'posts_join') );
-				//add_filter('posts_where', array(CCTM::$Columns, 'posts_where') );
-				//add_filter('posts_groupby', array(CCTM::$Columns, 'posts_groupby') );
 			}		
 		}
 	}
@@ -119,9 +119,6 @@ if ( empty(CCTM::$errors) )
 	
 	// Forces custom post types to sort correctly
 	add_filter('posts_orderby', 'CCTM::order_posts');
-	
-	// Forces front-end searches to return results for all registered post_types
-	//add_filter('pre_get_posts','CCTM::search_filter');
 	
 	// Modifies the "Right Now" widget
 	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');

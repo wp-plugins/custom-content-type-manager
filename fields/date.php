@@ -40,8 +40,8 @@ class CCTM_date extends CCTM_FormElement
 		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
 		// Datetime Picker
 		wp_enqueue_script( 'jquery-datetimepicker', CCTM_URL . '/js/datetime.js', 'jquery');
-		// Timepicker
-		wp_enqueue_script( 'jquery-timepicker', CCTM_URL . '/js/timepicker.js', 'jquery-ui-datepicker');
+		// Timepicker: TODO: fix
+		//wp_enqueue_script( 'jquery-timepicker', CCTM_URL . '/js/timepicker.js', 'jquery-ui-datepicker');
 		// My styles
 		wp_register_style('cctm-datetimepicker', CCTM_URL . '/css/date.css');
 		wp_enqueue_style('cctm-datetimepicker');
@@ -306,7 +306,7 @@ class CCTM_date extends CCTM_FormElement
 							<option value="DD, d MM, yy" '.$date_format['DD, d MM, yy'].'>'.__('Full',CCTM_TXTDOMAIN).' - DD, d MM, yy</option>
 							<option value="\'day\' d \'of\' MM \'in the year\' yy" '.$date_format["'day' d 'of' MM 'in the year' yy"].'>'.__('With text - \'day\' d \'of\' MM \'in the year\' yy',CCTM_TXTDOMAIN).'</option>
 						</optgroup>
-						<optgroup label="'.__('Date + Time', CCTM_TXTDOMAIN).'">
+						<!-- optgroup label="'.__('Date + Time', CCTM_TXTDOMAIN).'">
 							<option value="yyyy-mm-dd hh:mm:ss" '.$date_format['yyyy-mm-dd hh:mm:ss'].'>MySQL - yyyy-mm-dd hh:mm:ss '.__('24 hour',CCTM_TXTDOMAIN).'</option>
 							<option value="mm/dd/yy hh:mm" '.$date_format['mm/dd/yy hh:mm'].'>'.__('Full',CCTM_TXTDOMAIN).' - mm/dd/yy hh:mm '.__('24 hour',CCTM_TXTDOMAIN).'</option>
 							<option value="mm/dd/yy hh:mm am" '.$date_format['mm/dd/yy hh:mm am'].'>'.__('Full',CCTM_TXTDOMAIN).' - mm/dd/yy hh:mm AM/PM</option>
@@ -318,7 +318,7 @@ class CCTM_date extends CCTM_FormElement
 							<option value="show24Hours: false, step: 10" '.$date_format['show24Hours: false, step: 10'].'>hh:mm - AM/PM, '.__('10 minute intervals', CCTM_TXTDOMAIN).'</option>
 							<option value="show24Hours: false, step: 15" '.$date_format['show24Hours: false, step: 15'].'>hh:mm - AM/PM, '.__('15 minute intervals', CCTM_TXTDOMAIN).'</option>
 							<option value="show24Hours: false, step: 30" '.$date_format['show24Hours: false, step: 30'].'>hh:mm - AM/PM, '.__('30 minute intervals', CCTM_TXTDOMAIN).'</option>
-						</optgroup>
+						</optgroup-->
 					</select>
 					<span class="cctm_description">'.__('If you need to sort your dates, it is recommended to use the MySQL date formats. Change how the date displays using Output Filters in your template files.
 						Custom formatting options can be used by customizing the Javascript constructors in the .tpl files.', CCTM_TXTDOMAIN).'</span>
