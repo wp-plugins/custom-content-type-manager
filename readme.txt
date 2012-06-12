@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.3.0
 Tested up to: 3.3.2
 Stable tag: 0.9.5.13
-Version: 0.9.5.14-dev
+Version: 0.9.5.14-pl
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -79,7 +79,9 @@ or by going to your wp-content/plugins directory and executing the following com
 	
 = 0.9.5.14 =
 
+* Security vulnerability patched.
 * Complex sorting now allowed in GetPostsQuery via 'orderby_custom'
+* Various cleanups.
 
 = 0.9.5.13 =
 
@@ -358,8 +360,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.5.14 =
 
-* Numerous fixes to request filter for tags and categories
-* Added support for complex ordering parameters.
+* Security vulnerability fixed.  All users should upgrade if possible, or follow the steps outlined here: http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SecurityVulnerability
 
 
 = 0.9.5.11 =

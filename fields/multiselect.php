@@ -52,8 +52,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	* @return	string text description
 	*/
 	public function get_description() {
-		return __('Multi-select fields implement a <select> element which lets you select mutliple items.
-			"Extra" parameters, e.g. "size" can be specified in the definition.',CCTM_TXTDOMAIN);
+		return __('Multi-select fields implement a <select> element which lets you select mutliple items. "Extra" parameters, e.g. "size" can be specified in the definition.',CCTM_TXTDOMAIN);
 	}
 
 	//------------------------------------------------------------------------------

@@ -44,8 +44,7 @@ class CCTM_textarea extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Textarea fields implement the standard <textarea> element.
-			"Extra" parameters, e.g. "cols" can be specified in the definition.', CCTM_TXTDOMAIN);
+		return __('Textarea fields implement the standard <textarea> element. "Extra" parameters, e.g. "cols" can be specified in the definition.', CCTM_TXTDOMAIN);
 	}
 
 

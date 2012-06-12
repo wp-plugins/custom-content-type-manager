@@ -28,8 +28,8 @@ if ( file_exists($dir) && is_dir($dir) ) {
 } 
 elseif (!@mkdir($dir, self::new_dir_perms, true)) {
 	$data['msg'] = sprintf('<div class="error"><p>%s</p></div>'
-		, __('Failed to create the CCTM base storage directory: <code>'.$dir.'</code></p>
-		<p><a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Permissions" target="_blank">Click here</a> for more information about correcting permissions errors on your server.</p>')
+		, sprintf(__('Failed to create the CCTM base storage directory: <code>%s</code></p>
+		<p><a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Permissions" target="_blank">Click here</a> for more information about correcting permissions errors on your server.</p>', $dir))
 	);
 	$data['defs_array'] = array();
 }

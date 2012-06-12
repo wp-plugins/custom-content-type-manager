@@ -43,8 +43,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('What-you-see-is-what-you-get (WYSIWYG) fields implement a <textarea> element with formatting controls.
-			"Extra" parameters, e.g. "cols" can be specified in the definition, however a minimum size is required to make room for the formatting controls.', CCTM_TXTDOMAIN);
+		return __('What-you-see-is-what-you-get (WYSIWYG) fields implement a <textarea> element with formatting controls. "Extra" parameters, e.g. "cols" can be specified in the definition, however a minimum size is required to make room for the formatting controls.', CCTM_TXTDOMAIN);
 	}
 
 

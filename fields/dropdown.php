@@ -55,8 +55,7 @@ class CCTM_dropdown extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Dropdown fields implement a <select> element which lets you select a single item.
-			"Extra" parameters, e.g. "alt" can be specified in the definition.', CCTM_TXTDOMAIN);
+		return __('Dropdown fields implement a <select> element which lets you select a single item. "Extra" parameters, e.g. "alt" can be specified in the definition.', CCTM_TXTDOMAIN);
 	}
 
 

@@ -46,8 +46,7 @@ class CCTM_text extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Text fields implement the standard <input="text"> element.
-			"Extra" parameters, e.g. "size" can be specified in the definition.', CCTM_TXTDOMAIN);
+		return __('Text fields implement the standard <input="text"> element. "Extra" parameters, e.g. "size" can be specified in the definition.', CCTM_TXTDOMAIN);
 	}
 
 

@@ -320,8 +320,7 @@ class CCTM_date extends CCTM_FormElement
 							<option value="show24Hours: false, step: 30" '.$date_format['show24Hours: false, step: 30'].'>hh:mm - AM/PM, '.__('30 minute intervals', CCTM_TXTDOMAIN).'</option>
 						</optgroup-->
 					</select>
-					<span class="cctm_description">'.__('If you need to sort your dates, it is recommended to use the MySQL date formats. Change how the date displays using Output Filters in your template files.
-						Custom formatting options can be used by customizing the Javascript constructors in the .tpl files.', CCTM_TXTDOMAIN).'</span>
+					<span class="cctm_description">'.__('If you need to sort your dates, it is recommended to use the MySQL date formats. Change how the date displays using Output Filters in your template files. Custom formatting options can be used by customizing the Javascript constructors in the .tpl files.', CCTM_TXTDOMAIN).'</span>
 				</div>';
 			 	
 		$out .= '</div><!-- /inside -->
