@@ -25,39 +25,11 @@
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');
 require_once(dirname(__FILE__) . '/../../../../wp-config.php');
-
+require_once('functions.php');
 class CCTMUnitTestsMgr extends UnitTestCase {
 
 	public $ckfile; // used by curl as a cookie jar by all curl requests
-	
-	
-	/**
-	 * We use this to verify that the $needle is in the haystack. We have
-	 * to "normalize" whitespace here since file_get_contents can pull up
-	 * weird characters as output.
-	 *
-	 * http://stackoverflow.com/questions/1360610/how-to-show-a-comparison-of-2-html-text-blocks ???
-	 * @param	string	$needle
-	 * @param	string	$haystack
-	 * @return	boolean	true if the $needle is in the $haystack
-	 */
-	private function _in_html($needle, $haystack) {
-		// normalize whitespace
-		$needle = str_replace(array("\r","\r\n","\n","\t",chr(202),chr(173),chr(0xC2),chr(0xA0)), ' ', $needle);
-		$haystack = str_replace(array("\r","\r\n","\n","\t", chr(202),chr(173),chr(0xC2),chr(0xA0) ), ' ', $haystack);
-		$needle = preg_replace( '/\s+/', ' ', $needle);
-		$haystack = preg_replace( '/\s+/', ' ', $haystack);
 		
-		$i = strpos($haystack, $needle);
-		
-		if ($i === false) {
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
-	
 	// http://www.html-form-guide.com/php-form/php-form-submit.html
 	// http://coderscult.com/php/php-curl/2008/05/20/php-curl-cookies-example/
 	// Run before each test
@@ -121,7 +93,7 @@ class CCTMUnitTestsMgr extends UnitTestCase {
 		
 		$needle = "<div class='wp-submenu-head'>Custom Content Types</div>";		
 
-		$this->assertTrue($this->_in_html($needle, $haystack));
+		$this->assertTrue(in_html($needle, $haystack));
 	}
 */
 
@@ -153,7 +125,7 @@ class CCTMUnitTestsMgr extends UnitTestCase {
 		
 		$needle = "<select name='parent_id' id='parent_id'>  <option value=\"\">(no parent)</option>";		
 
-		$this->assertTrue($this->_in_html($needle, $haystack));
+		$this->assertTrue(in_html($needle, $haystack));
 		
 		curl_close($ch);
 	}
@@ -168,7 +140,7 @@ class CCTMUnitTestsMgr extends UnitTestCase {
 		
 		$needle = '<option class="level-0" value="28">123 Main Street (house)</option>';		
 
-		$this->assertTrue($this->_in_html($needle, $haystack));
+		$this->assertTrue(in_html($needle, $haystack));
 		curl_close($ch);
 	}
 
