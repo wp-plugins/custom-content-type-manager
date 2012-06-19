@@ -105,33 +105,5 @@ class CCTM_Columns {
 			$this->last_post = $post->ID;
 		}		
 	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	 * Custom joining on postmeta table for sorting on custom columns
-	 */
-	public function posts_join($join) {
-
-		global $wpdb;
-	
-		// We don't want searches
-		if(is_search() ) {
-			return $join;
-		}
-		
-		$post_type = CCTM::get_value($_GET, 'post_type');
-		if (empty($post_type)) {
-			return $join;
-		}
-		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(CCTM::$data['post_type_defs'][$post_type]['custom_orderby'])) {
-			$column = CCTM::$data['post_type_defs'][$post_type]['custom_orderby'];
-			// Req'd to sort on custom column
-			if (!in_array($column, CCTM::$reserved_field_names)) {
-				$join .= $wpdb->prepare(" LEFT JOIN {$wpdb->postmeta} ON  {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = %s", $column);
-			}
-		}
-			
-		return $join;	
-	}
 }
 /*EOF*/

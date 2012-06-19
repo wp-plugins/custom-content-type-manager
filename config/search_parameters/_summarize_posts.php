@@ -37,6 +37,8 @@ CCTM::$search_by[] = 'post_parent';
 CCTM::$search_by[] = 'meta_key';
 CCTM::$search_by[] = 'meta_value';
 CCTM::$search_by[] = 'limit';
+CCTM::$search_by[] = 'order';
+CCTM::$search_by[] = 'orderby';
 CCTM::$search_by[] = 'paginate';
 
 

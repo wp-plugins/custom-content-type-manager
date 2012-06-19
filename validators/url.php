@@ -38,7 +38,7 @@ class CCTM_url extends CCTM_Validator {
                          '(' . $allowed . '{1,63}\.)+'. // 1 or several sub domains with a max of 63 chars
                          '[a-z]' . '{2,6}'; // followed by a TLD
         if(!preg_match('@'.$regex.'@', $input)){ 
-			$this->error_msg = sprintf(__('The %s field is not a valid URL.', CCTM_TXTDOMAIN), $this->get_subject());
+			$this->error_msg = sprintf(__('The %s field is not a valid URL. The URL must include the protocol, e.g. http://wpcctm.com/', CCTM_TXTDOMAIN), $this->get_subject());
         }
 		
 		return $input;

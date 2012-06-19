@@ -577,9 +577,11 @@ Convenience:
 ;
 
 	*/
-	public static function get_posts($raw_args=array(), $content_tpl = null)
-	{
-	
+	public static function get_posts($raw_args=array(), $content_tpl = null) {
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=389	
+		$content_tpl = preg_replace('#^</p>#', '', $content_tpl);
+		$content_tpl = preg_replace('#<p>$#', '', $content_tpl);
+
 		if (empty($raw_args) || !is_array($raw_args)) {
 			$raw_args = array();
 		}

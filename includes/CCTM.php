@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.5.15';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.5.16';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -1873,10 +1873,10 @@ class CCTM {
 		//die(print_r(self::$data['post_type_defs'][$post_type], true));
 		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) 
 			&& !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])
-			&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
-			&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
-			&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
-			&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) 
+			//&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
+			//&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
+			//&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
+			//&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) 
 			) {
 			global $wpdb;
 			$order = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_order', 'ASC');
@@ -1993,6 +1993,34 @@ class CCTM {
 			$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
 		}
 		return $tpl;
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Custom joining on postmeta table for sorting on custom columns
+	 */
+	public static function posts_join($join) {
+
+		global $wpdb;
+	
+		// We don't want searches
+		if(is_search() ) {
+			return $join;
+		}
+		
+		$post_type = CCTM::get_value($_GET, 'post_type');
+		if (empty($post_type)) {
+			return $join;
+		}
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(CCTM::$data['post_type_defs'][$post_type]['custom_orderby'])) {
+			$column = CCTM::$data['post_type_defs'][$post_type]['custom_orderby'];
+			// Req'd to sort on custom column
+			if (!in_array($column, CCTM::$reserved_field_names)) {
+				$join .= $wpdb->prepare(" LEFT JOIN {$wpdb->postmeta} ON  {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = %s", $column);
+			}
+		}
+			
+		return $join;	
 	}
 
 

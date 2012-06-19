@@ -1189,7 +1189,7 @@ class GetPostsForm {
 		}
 		// in seconds
 		$time = $this->stop_time - $this->start_time;
-		return print_r($this->values,true);
+		//return print_r($this->values,true);
 		
 		if (!empty($this->errors)) {
 			$output = '';

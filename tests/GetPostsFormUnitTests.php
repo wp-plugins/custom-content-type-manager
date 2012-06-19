@@ -57,16 +57,18 @@ class GetPostsFormUnitTests extends UnitTestCase {
 */
 	// Test basic form generation
 	function testGenerate() {
-		$Q = new GetPostsForm(array('post_title','taxonomy'));
+		$Q = new GetPostsForm();
 		$Q->set_nonce_field(''); // override nonce
 
-		$actual = $Q->debug();
-//		$actual = $Q->generate(true);	
+		//$actual = $Q->debug();
+		//$actual = $Q->generate(true);	
+		$actual = $Q->generate();
 
 		
 		
-		print $actual; exit;
+		//print $actual; exit;
 		$expected = file_get_contents('generated_forms/default.html');
+		//print $expected; exit;
 		$this->assertTrue(in_html($expected, $actual));
 	}	
 
@@ -140,6 +142,7 @@ class GetPostsFormUnitTests extends UnitTestCase {
 		$Q->set_tpl('[+help+]');
 		$actual = $Q->generate();
 		$expected = '&#91;+name_prefix+&#93;, &#91;+id_prefix+&#93;, &#91;+wrapper_class+&#93;, &#91;+input_class+&#93;, &#91;+label_class+&#93;, &#91;+description_class+&#93;, &#91;+form_name+&#93;, &#91;+form_number+&#93;, &#91;+action+&#93;, &#91;+method+&#93;, &#91;+search+&#93;, &#91;+filter+&#93;, &#91;+show_all+&#93;, &#91;+show_all_dates+&#93;, &#91;+show_all_post_types+&#93;, &#91;+css+&#93;, &#91;+content+&#93;, &#91;+search_term.name_prefix+&#93;, &#91;+search_term.id_prefix+&#93;, &#91;+search_term.wrapper_class+&#93;, &#91;+search_term.input_class+&#93;, &#91;+search_term.label_class+&#93;, &#91;+search_term.description_class+&#93;, &#91;+search_term.form_name+&#93;, &#91;+search_term.form_number+&#93;, &#91;+search_term.action+&#93;, &#91;+search_term.method+&#93;, &#91;+search_term.search+&#93;, &#91;+search_term.filter+&#93;, &#91;+search_term.show_all+&#93;, &#91;+search_term.show_all_dates+&#93;, &#91;+search_term.show_all_post_types+&#93;, &#91;+search_term.css+&#93;, &#91;+search_term.content+&#93;, &#91;+search_term.value+&#93;, &#91;+search_term.name+&#93;, &#91;+search_term.id+&#93;, &#91;+search_term.label+&#93;, &#91;+search_term.description+&#93;, &#91;+search_term+&#93;';
+		print $actual; exit;
 		$this->assertTrue(in_html($expected, $actual));
 	}
 

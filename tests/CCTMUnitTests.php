@@ -22,6 +22,10 @@
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');
 require_once(dirname(__FILE__) . '/../../../../wp-config.php');
+//require_once(CCTM_PATH .'/includes/CCTM_Validator.php');
+//require_once(CCTM_PATH .'/validators/CCTM_FormElement.php');
+
+//require_once(CCTM_PATH .'/includes/CCTM_FormElement.php');
 
 class CCTMUnitTests extends UnitTestCase {
 	
@@ -86,6 +90,92 @@ class CCTMUnitTests extends UnitTestCase {
 	// Show Pages in RSS Feed
 	
 	// 
+	
+	//------------------------------------------------------------------------------
+	// Test Validators
+	//------------------------------------------------------------------------------
+	function testEmail() {
+		$V = CCTM::load_object('emailaddress','validator');
+		
+		$email = 'notan-emailaddress.';
+		
+		$V->validate($email);		
+		$this->assertFalse(empty($V->error_msg));
+	}
+
+	function testEmail2() {
+		$V = CCTM::load_object('emailaddress','validator');
+		$email = 'someone@yahoo.com';
+		$V->validate($email);
+		$this->assertTrue(empty($V->error_msg));
+	}
+
+	function testEmail3() {
+		$V = CCTM::load_object('emailaddress','validator');
+		$email = 'payer@player-hater.com';
+		$V->validate($email);
+		$this->assertTrue(empty($V->error_msg));
+	}
+
+	//------------------------------------------------------------------------------
+	function testNumber() {
+		$V = CCTM::load_object('number','validator');
+		$number = 'asdf';
+		$V->validate($number);
+		$this->assertFalse(empty($V->error_msg));
+	}
+
+	function testNumber2() {
+		$V = CCTM::load_object('number','validator');
+		$number = '';
+		$V->validate($number);
+		$this->assertTrue(empty($V->error_msg));
+	}
+
+	function testNumber3() {
+		$V = CCTM::load_object('number','validator');
+		$number = '123';
+		$V->validate($number);
+		$this->assertTrue(empty($V->error_msg));
+	}
+
+	function testNumber4() {
+		$V = CCTM::load_object('number','validator');
+		$V->min = 4;
+		$V->max = 6;
+		$number = '10';
+		$V->validate($number);
+		$this->assertFalse(empty($V->error_msg));
+	}
+
+	function testNumber5() {
+		$V = CCTM::load_object('number','validator');
+		$V->min = 4;
+		$V->max = 6;
+		$number = '5';
+		$V->validate($number);
+		$this->assertTrue(empty($V->error_msg));
+	}
+
+	function testNumber6() {
+		$V = CCTM::load_object('number','validator');
+		$V->allow_negative = 1;
+		$V->max = 6;
+		$number = '-5';
+		$V->validate($number);
+		$this->assertTrue(empty($V->error_msg));
+	}
+
+	function testNumber7() {
+		$V = CCTM::load_object('number','validator');
+		$V->allow_negative = 0;
+		$V->max = 6;
+		$number = '-5';
+		$V->validate($number);
+		$this->assertFalse(empty($V->error_msg));
+	}
+
+
 }
  
 /*EOF*/
