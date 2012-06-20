@@ -115,7 +115,7 @@
 			<span class="cctm_description"><?php _e("Usually, you need the CCTM to flush the WordPress permalink rules in order to support URL mappings to your custom posts.  Other plugins may also do this, so you can save on the overhead by disabling this.", CCTM_TXTDOMAIN); ?></span>
 		</div>
 
-		<!--!Show Pags in RSS feed -->		
+		<!--!Show Pages in RSS feed -->		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_pages_in_rss_feed">
 			<input type="checkbox" name="pages_in_rss_feed" class="cctm_checkbox" id="pages_in_rss_feed" value="1" <?php print $data['settings']['pages_in_rss_feed']; ?>/>
 			<label for="pages_in_rss_feed" class="cctm_label cctm_checkbox_label" id="cctm_label_pages_in_rss_feed">
@@ -123,6 +123,15 @@
 				<img src="<?php print CCTM_URL;?>/images/rss.jpg" height="16" width="16" als="RSS"/>
 			</label>
 			<span class="cctm_description"><?php _e("Should your pages show up in your RSS feed?", CCTM_TXTDOMAIN); ?></span>
+		</div>
+
+		<!--!Show Pags in RSS feed -->		
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_enable_right_now">
+			<input type="checkbox" name="enable_right_now" class="cctm_checkbox" id="enable_right_now" value="1" <?php print $data['settings']['enable_right_now']; ?>/>
+			<label for="enable_right_now" class="cctm_label cctm_checkbox_label" id="cctm_label_enable_right_now">
+				<?php _e('Right Now Widget Support', CCTM_TXTDOMAIN); ?>
+			</label>
+			<span class="cctm_description"><?php _e("Should custom post-types appear in the Dashboard's Right Now widget? You can customize this for each post-type.", CCTM_TXTDOMAIN); ?></span>
 		</div>
 	
 		

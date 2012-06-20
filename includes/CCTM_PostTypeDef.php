@@ -396,6 +396,10 @@ class CCTM_PostTypeDef {
 		if ( !isset($raw['cctm_custom_columns_enabled'])) {
 			$sanitized['cctm_custom_columns_enabled'] = 0;
 		}
+		if ( !isset($raw['cctm_enable_right_now'])) {
+			$sanitized['cctm_enable_right_now'] = 0;
+		}
+		
 
 		// This will be empty if no "supports" items are checked.
 		if (!empty($raw['supports']) ) {

@@ -643,7 +643,8 @@ just want to make sure that the form is presented uncorrupted.
 			?>/> 
 			<label for="include_in_rss" class="cctm_label cctm_checkbox_label" id="cctm_label_include_in_rss"><?php _e('Include in RSS feed', CCTM_TXTDOMAIN); ?> <img src="<?php print CCTM_URL;?>/images/rss.jpg" height="16" width="16" als="RSS"/></label>
 			<span class="cctm_description"><?php _e('Should posts with this post type be included in the RSS feed?', CCTM_TXTDOMAIN); ?></span>
-		</div>
+		</div>	
+		
 	</div>	
 </fieldset>		
 </div>
@@ -693,6 +694,14 @@ just want to make sure that the form is presented uncorrupted.
 			<span class="cctm_description"><?php _e('If enabled, posts will be listed in archive lists (e.g. by month).', CCTM_TXTDOMAIN); ?></span>
 		</div>
 
+		<!--! Appear in Right Now Widget -->			
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_cctm_enable_right_now">		
+			<input type="checkbox" name="cctm_enable_right_now" class="cctm_checkbox" id="cctm_enable_right_now" value="1" <?php 
+				print CCTM::is_checked($data['def']['cctm_enable_right_now']); 
+			?>/> 
+			<label for="cctm_enable_right_now" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_enable_right_now"><?php _e('Show in Right Now Widget', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Should posts with this post type appear in the Dashboard "Right Now" widget? The global setting must be enabled.', CCTM_TXTDOMAIN); ?></span>
+		</div>	
 
 		<!--!Custom Order By -->		
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_custom_orderby">

@@ -90,8 +90,7 @@ class CCTM_Columns {
 			$this->new_row = true;
 		}
 		
-		if ($this->no_title_flag && $this->new_row) {
-			
+		if ($this->no_title_flag && $this->new_row) {			
 			print '<strong><a class="row-title" href="post.php?post='.$post->ID.'&amp;action=edit">';
 		}
 

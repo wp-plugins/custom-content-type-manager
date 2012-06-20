@@ -37,7 +37,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['custom_fields_tinymce'] 	= (int) CCTM::get_value($_POST, 'custom_fields_tinymce', 0);
 	self::$data['settings']['flush_permalink_rules'] 	= (int) CCTM::get_value($_POST, 'flush_permalink_rules', 0);
 	self::$data['settings']['pages_in_rss_feed'] 		= (int) CCTM::get_value($_POST, 'pages_in_rss_feed', 0);	
-	
+	self::$data['settings']['enable_right_now'] 		= (int) CCTM::get_value($_POST, 'enable_right_now', 0);	
 	
 	update_option( self::db_key, self::$data );
 
@@ -68,6 +68,7 @@ $checkboxes = array(
  	, 'custom_fields_tinymce'
  	, 'flush_permalink_rules'
  	, 'pages_in_rss_feed'
+ 	, 'enable_right_now'
 );
 
 // this only works for checkboxes...

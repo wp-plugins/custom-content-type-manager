@@ -227,6 +227,12 @@ foreach ($displayable_types as $post_type) {
 		&& in_array($field_name, self::$data['post_type_defs'][$post_type]['custom_fields'])) {
 		$is_checked = ' checked="checked"';
 	}
+	
+	$post_type_label = '<span style="color:gray;">'.$post_type.'</span>';
+	if (isset(self::$data['post_type_defs'][$post_type]['is_active']) && self::$data['post_type_defs'][$post_type]['is_active']) {
+		$post_type_label = $post_type; // keep it black
+	}
+	
 	$data['associations'] .= sprintf('
 		<tr>
 			<td><input type="checkbox" name="post_types[]" id="%s" value="%s" %s/></td>
@@ -240,7 +246,7 @@ foreach ($displayable_types as $post_type) {
 		, $is_checked
 		, $icon
 		, $post_type
-		, $post_type
+		, $post_type_label
 		, $def['description']
 		, $target_url
 	);

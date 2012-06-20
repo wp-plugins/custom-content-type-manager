@@ -147,7 +147,7 @@ class CCTM {
 		'publicly_queryable' => 1,
 		'include_in_search' => 1, // this makes more sense to users than the exclude_from_search,
 		'exclude_from_search' => 0, // but this is what register_post_type expects. Boo.
-		'include_in_rss' => 1,  // this is a custom option
+		'include_in_rss' => 1,  // this is a custom option.. should use 'cctm' prefix. Oops.
 		'can_export' => 1,
 		'use_default_menu_icon' => 1,
 		'hierarchical' => 0,
@@ -155,11 +155,12 @@ class CCTM {
 		'has_archive' => 0,
 		'custom_order' => 'ASC',
 		'custom_orderby' => '',
-		'cctm_custom_columns_enabled' => 0
+		'cctm_custom_columns_enabled' => 0,
+		'cctm_enable_right_now' => 1
 	);
 
 	/**
-	 * List default settings here. (checkboxes only)
+	 * List default settings here. (see controllers/settings.php)
 	 */
 	public static $default_settings = array(
 		'delete_posts' => 0
@@ -176,6 +177,7 @@ class CCTM {
 		, 'custom_fields_tinymce' => 1
 		, 'flush_permalink_rules' => 1
 		, 'pages_in_rss_feed'	=> 0
+		, 'enable_right_now'	=> 1
 	);
 
 	// Where are the icons for custom images stored?
@@ -2319,6 +2321,11 @@ if($post_type == 'people') {
 	 * Adds custom post-types to dashboard "Right Now" widget
 	 */
 	public static function right_now_widget() {
+	
+		if (!self::get_setting('enable_right_now')) {
+			return;
+		}
+		
 		$args = array(
 			'public' => true ,
 			'_builtin' => false
@@ -2329,6 +2336,11 @@ if($post_type == 'people') {
 		$post_types = get_post_types( $args , $output , $operator );
 
 		foreach ( $post_types as $post_type ) {
+			//die(print_r($post_type, true));
+			if (isset(self::$data['post_type_defs'][$post_type->name]['cctm_enable_right_now']) && !self::$data['post_type_defs'][$post_type->name]['cctm_enable_right_now']) {
+				continue;
+			}
+			
 			$num_posts = wp_count_posts( $post_type->name );
 			$num = number_format_i18n( $num_posts->publish );
 			$text = _n( $post_type->labels->singular_name, $post_type->labels->name , intval( $num_posts->publish ) );
