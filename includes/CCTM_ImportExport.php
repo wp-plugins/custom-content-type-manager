@@ -318,9 +318,9 @@ class CCTM_ImportExport {
 	 * @return string
 	 */
 	public function get_subdir() {
-			$info = pathinfo(site_url());
-			if (isset($info['filename'])) {
-				return $info['filename'];
+			$info = parse_url(site_url());
+			if (isset($info['path'])) {
+				return $info['path'];
 			}
 			return '';
 	}

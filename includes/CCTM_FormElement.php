@@ -285,7 +285,9 @@ abstract class CCTM_FormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Get the standard fields
+	 * Get the standard fields for the field definition -- the "standard" fields are
+	 * the ones that represent the attributes that every field will have: 
+	 * Label, Name, Default Value, Extra, Class, is Repeatable, Description.
 	 *
 	 * @param	array	current def
 	 * @return	strin	HTML

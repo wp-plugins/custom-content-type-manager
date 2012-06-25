@@ -36,6 +36,7 @@ $upload_dir = wp_upload_dir();
 $dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::def_dir .'/';
 
 $data = CCTM_ImportExport::load_def_file($dir.$filename);
+
 $data['filename'] = $filename;
 
 // Bail if there were errors

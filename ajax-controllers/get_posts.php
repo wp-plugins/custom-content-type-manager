@@ -85,6 +85,7 @@ if (isset($_POST['search_parameters'])) {
 $possible_configs = array();
 $possible_configs[] = '/config/post_selector/'.$fieldname.'.php'; 	// e.g. my_field.php
 $possible_configs[] = '/config/post_selector/_'.$def['type'].'.php'; 		// e.g. _image.php
+$possible_configs[] = '/config/post_selector/_relation.php'; 		// default
 
 CCTM::$post_selector = array();
 if (!CCTM::load_file($possible_configs)) {
@@ -159,13 +160,13 @@ if (isset($def['is_repeatable']) && $def['is_repeatable'] == 1) {
 	$item_tpl = CCTM::load_tpl(
 		array('post_selector/items/'.$fieldname.'.tpl'
 			, 'post_selector/items/_'.$def['type'].'_multi.tpl'
-			, 'post_selector/items/_default.tpl'
+			, 'post_selector/items/_relation_multi.tpl'
 		)
 	);
 	$wrapper_tpl = CCTM::load_tpl(
 		array('post_selector/wrappers/'.$fieldname.'.tpl'
 			, 'post_selector/wrappers/_'.$def['type'].'_multi.tpl'
-			, 'post_selector/wrappers/_default.tpl'
+			, 'post_selector/wrappers/_relation_multi.tpl'
 		)
 	);
 }

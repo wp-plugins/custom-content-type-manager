@@ -29,9 +29,6 @@ require_once(dirname(__FILE__) . '/../../../../wp-config.php');
 
 class CCTMUnitTests extends UnitTestCase {
 	
-	private function _compare_html($a, $b) {
-	
-	}
 	
 	/**
 	 * Test whether a regular category page displays posts and 
@@ -107,6 +104,7 @@ class CCTMUnitTests extends UnitTestCase {
 		$V = CCTM::load_object('emailaddress','validator');
 		$email = 'someone@yahoo.com';
 		$V->validate($email);
+
 		$this->assertTrue(empty($V->error_msg));
 	}
 
@@ -125,12 +123,6 @@ class CCTMUnitTests extends UnitTestCase {
 		$this->assertFalse(empty($V->error_msg));
 	}
 
-	function testNumber2() {
-		$V = CCTM::load_object('number','validator');
-		$number = '';
-		$V->validate($number);
-		$this->assertTrue(empty($V->error_msg));
-	}
 
 	function testNumber3() {
 		$V = CCTM::load_object('number','validator');
