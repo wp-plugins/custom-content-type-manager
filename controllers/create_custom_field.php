@@ -19,9 +19,9 @@ $data['change_field_type'] = '<br/>';
 
 $field_data = array(); // Data object we will save
 
-// Fail if there's a problem
-if (!self::include_form_element_class($field_type)) {
-	$data['msg'] = CCTM::format_errors();
+// Fail if there's a that field type does not exist
+if (!$FieldObj = CCTM::load_object($field_type,'fields')) {
+	$data['msg'] = '<div class="error"><p>'.__('Invalid field type.',CCTM_TXTDOMAIN).'</p></div>';
 	$data['content'] = '';
 	print CCTM::load_view('templates/default.php', $data);
 	return;
@@ -123,7 +123,6 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		// We redirect to different places if we have auto-associated the field to a post_type
 		if (!empty($post_type)) {
 			self::redirect('?page=cctm&a=list_pt_associations&pt='.$post_type);
-			//include(CCTM_PATH.'/controllers/list_pt_associations.php');
 		}
 		else {
 			include CCTM_PATH.'/controllers/list_custom_fields.php';

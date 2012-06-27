@@ -1,12 +1,12 @@
 <?php
 /**
- * This class generates search forms that act as a graphical interface to the 
+ * This class generates search forms that act as a graphical interface to the
  * GetPostsQuery->get_posts() function.
  * In other words, the data submitted from one of the generated forms describes
  * a search that can be performed by GetPostsQuery->get_posts().  This is not to
  * say that you NEED to use this class to front-end any queries performed by GetPostsQuery,
  * this just lets you generate such a form quickly and via configuration. This class
- * also dynamically creates form elements based on what's in the database (e.g. it 
+ * also dynamically creates form elements based on what's in the database (e.g. it
  * lists Year/Months for filtering only if posts were created in those months).
  *
  * Requires: GetPostsQuery
@@ -27,12 +27,10 @@
 
 class GetPostsForm {
 
-	// GetPostsQuery
+	// Stores instance of GetPostsQuery
 	public $Q;
-	
-	/**
-	 * The super simple default search form includes only a search term.
-	 */
+
+	//The super simple default search form includes only a search term.
 	public static $defaults = array(
 		'search_term'
 	);
@@ -40,7 +38,7 @@ class GetPostsForm {
 	public static $small = array('search_term', 'match_rule', 'post_type', 'yearmonth');
 	public static $medium = array();
 	public static $large = array();
-	
+
 	// Used for text inputs
 	public $text_tpl = '
 		<div id="[+id+]_wrapper" class="[+wrapper_class+]">
@@ -150,12 +148,14 @@ class GetPostsForm {
 	// Describes how we're going to search
 	public $search_by = array();
 	// Our "Everything" search. See also $this->full. TODO: Small, Medium, Large???
-	public $search_by_everything = array('append','author','date_column','date_format','date_max','date_min'
-		,'exclude','include','limit','match_rule','meta_key','meta_value','offset','omit_post_type','order'
-		,'orderby','paginate','post_date','post_mime_type','post_modified','post_parent','post_status'
-		,'post_title','post_type','search_columns','search_term','taxonomy','taxonomy_depth','taxonomy_slug'
-		,'taxonomy_term','yearmonth');
-	
+	public $search_by_everything = array('append', 'author', 'date_column', 'date_format', 'date_max', 'date_min'
+		, 'exclude', 'include', 'limit', 'match_rule', 'meta_key', 'meta_value', 'offset', 'omit_post_type', 'order'
+		, 'orderby', 'paginate', 'post_date', 'post_mime_type', 'post_modified', 'post_parent', 'post_status'
+		, 'post_title', 'post_type', 'search_columns', 'search_term', 'taxonomy', 'taxonomy_depth', 'taxonomy_slug'
+		, 'taxonomy_term', 'yearmonth');
+
+
+
 	/**
 	 * Values to populate the fields with
 	 */
@@ -192,7 +192,7 @@ class GetPostsForm {
 		$ph['label'] = __($name, CCTM_TXTDOMAIN);
 		$ph['description'] = sprintf(__('Retrieve posts with this exact %s.', CCTM_TXTDOMAIN), "<em>$name</em>");
 
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -206,23 +206,23 @@ class GetPostsForm {
 	public function __construct($search_by=array()) {
 		$this->start_time = microtime(true);
 		$this->Q = new GetPostsQuery();
-		
+
 		$this->no_results_msg = '<p>'. __('Sorry, no results matched your search criteria.', CCTM_TXTDOMAIN) . '</p>';
 
 		// some localization
-		$this->placeholders['search'] 				= __('Search', CCTM_TXTDOMAIN);
-		$this->placeholders['filter'] 				= __('Filter', CCTM_TXTDOMAIN);
-		$this->placeholders['show_all'] 			= __('Show All', CCTM_TXTDOMAIN);
-		$this->placeholders['show_all_dates'] 		= __('Show all dates', CCTM_TXTDOMAIN);
-		$this->placeholders['show_all_post_types'] 	= __('Show all post-types', CCTM_TXTDOMAIN);
+		$this->placeholders['search']     = __('Search', CCTM_TXTDOMAIN);
+		$this->placeholders['filter']     = __('Filter', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all']    = __('Show All', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all_dates']   = __('Show all dates', CCTM_TXTDOMAIN);
+		$this->placeholders['show_all_post_types']  = __('Show all post-types', CCTM_TXTDOMAIN);
 
-		$this->placeholders['label_class'] 			= 'input_title';
-		$this->placeholders['wrapper_class'] 		= 'input_wrapper';
-		$this->placeholders['description_class'] 	= 'input_description';
-		$this->placeholders['input_class'] 			= 'input_field';
+		$this->placeholders['label_class']    = 'input_title';
+		$this->placeholders['wrapper_class']   = 'input_wrapper';
+		$this->placeholders['description_class']  = 'input_description';
+		$this->placeholders['input_class']    = 'input_field';
 
 		$this->valid_props = array_keys($this->Q->defaults);
-				
+
 		if (empty($search_by)) {
 			// push this through validation.
 			//foreach(self::$defaults as $k => $v) {
@@ -243,7 +243,7 @@ class GetPostsForm {
 	/**
 	 * Interface with $this->search_by
 	 *
-	 * @param string $k
+	 * @param string  $k
 	 * @return string
 	 */
 	public function __get($k) {
@@ -272,7 +272,7 @@ class GetPostsForm {
 	/**
 	 * Interface with $this->search_by
 	 *
-	 * @param string $k
+	 * @param string  $k
 	 */
 	public function __unset($k) {
 		unset($this->search_by[$k]);
@@ -300,7 +300,6 @@ class GetPostsForm {
 	//------------------------------------------------------------------------------
 	//! Private Functions (named after GetPostsQuery args)
 	//------------------------------------------------------------------------------
-	//------------------------------------------------------------------------------
 	/**
 	 * List which posts to append to search results.
 	 *
@@ -309,14 +308,14 @@ class GetPostsForm {
 	private function _append() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		$val = 
-		$ph['value'] = $this->get_value('append');
+		$val =
+			$ph['value'] = $this->get_value('append');
 		$ph['name'] = 'append';
 		$ph['id']  = 'append';
 		$ph['label'] = __('Append', CCTM_TXTDOMAIN);
 		$ph['description'] = __('List posts by their ID that you wish to include on every search. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'append');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -335,15 +334,15 @@ class GetPostsForm {
 
 		$authors = $wpdb->get_results("SELECT ID, display_name from {$wpdb->users} ORDER BY display_name");
 
-		$ph['options'] = '<option value="">'.__('All Authors',CCTM_TXTDOMAIN).'</option>';
+		$ph['options'] = '<option value="">'.__('All Authors', CCTM_TXTDOMAIN).'</option>';
 		foreach ($authors as $a) {
 			$ph['is_selected'] = ''; // reset
 			$ph['value'] = $a->display_name;
 			$ph['label'] = $a->display_name .'('.$a->ID.')';
 			if ($current_value == $a->display_name) {
 				$ph['is_selected'] = ' selected="selected"';
-			}		
-			$ph['options'] .=  self::parse($this->option_tpl, $ph, true);
+			}
+			$ph['options'] .=  CCTM::parse($this->option_tpl, $ph, true);
 		}
 
 		$ph['value'] = '';
@@ -351,9 +350,9 @@ class GetPostsForm {
 		$ph['id']  = 'author';
 		$ph['label'] = __('Author', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Select an author whose posts you want to see.', CCTM_TXTDOMAIN);
-//		$ph['size'] = 5;
+		//  $ph['size'] = 5;
 		$this->register_global_placeholders($ph, 'author');
-		return self::parse($this->select_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->select_wrapper_tpl, $ph, true);
 	}
 
 
@@ -368,7 +367,7 @@ class GetPostsForm {
 		//$ph = $this->placeholders;
 		$ph = array();
 
-		$ph['value'] = $this->get_value('date_column','post_modified');
+		$ph['value'] = $this->get_value('date_column', 'post_modified');
 		$ph['name'] = 'date_column';
 		$ph['id']  = 'date_column';
 		$ph['label'] = __('Date Columns', CCTM_TXTDOMAIN);
@@ -381,7 +380,7 @@ class GetPostsForm {
 				<span class="js_button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_column\').val(\'post_modified_gmt\');">post_modified_gmt</span><br/>
 			</div>';
 		$this->register_global_placeholders($ph, 'date_column');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -409,7 +408,7 @@ class GetPostsForm {
 			<span class="button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_format\').val(\'d MM, y\');">d MM, y</span>
 			<span class="button" onclick="jQuery(\'#'.$this->placeholders['id_prefix'].'date_format\').val(\'DD, d MM, yy\');">DD, d MM, yy</span>';
 		$this->register_global_placeholders($ph, 'date_format');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -438,7 +437,7 @@ class GetPostsForm {
 				});
 			</script>';
 		$this->register_global_placeholders($ph, 'date_max');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -467,7 +466,7 @@ class GetPostsForm {
 				});
 			</script>';
 		$this->register_global_placeholders($ph, 'date_min');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 
 	}
 
@@ -481,14 +480,14 @@ class GetPostsForm {
 	private function _exclude() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = $this->get_value('exclude');
 		$ph['name'] = 'exclude';
 		$ph['id']  = 'exclude';
 		$ph['label'] = __('Exclude', CCTM_TXTDOMAIN);
 		$ph['description'] = __('List posts by their ID that you wish to exclude from search results. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'exclude');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -501,14 +500,14 @@ class GetPostsForm {
 	private function _include() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = $this->get_value('include');
 		$ph['name'] = 'include';
 		$ph['id']  = 'include';
 		$ph['label'] = __('Include', CCTM_TXTDOMAIN);
 		$ph['description'] = __('List posts by their ID that you wish to return.  Usually this option is not used with any other search options. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'include');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -529,7 +528,7 @@ class GetPostsForm {
 		$ph['label'] = __('Limit', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Limit the number of results returned. If pagination is enabled, this number will be the number of results shown per page.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'limit');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -559,10 +558,10 @@ class GetPostsForm {
 		foreach ($match_rules as $value => $label) {
 			$ph2['value'] = $value;
 			$ph2['label'] = $label;
-			$ph['options'] .=  self::parse($this->option_tpl, $ph2, true);
+			$ph['options'] .=  CCTM::parse($this->option_tpl, $ph2, true);
 		}
 		$this->register_global_placeholders($ph, 'match_rule');
-		return self::parse($this->select_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->select_wrapper_tpl, $ph, true);
 	}
 
 
@@ -575,14 +574,14 @@ class GetPostsForm {
 	private function _meta_key() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = htmlspecialchars($this->get_value('meta_key'));
 		$ph['name'] = 'meta_key';
 		$ph['id']  = 'meta_key';
 		$ph['label'] = __('Meta Key', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Name of a custom field, to be used in conjuncture with <em>meta_value</em>.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'meta_key');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -595,14 +594,14 @@ class GetPostsForm {
 	private function _meta_value() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = htmlspecialchars($this->get_value('meta_value'));
 		$ph['name'] = 'meta_value';
 		$ph['id']  = 'meta_value';
 		$ph['label'] = __('Meta Value', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Value of a custom field, to be used in conjuncture with <em>meta_key</em>.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'meta_value');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -615,14 +614,14 @@ class GetPostsForm {
 	private function _offset() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = (int) $this->get_value('offset');
 		$ph['name'] = 'offset';
 		$ph['id']  = 'offset';
 		$ph['label'] = __('Offset', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Number of results to skip.  Usually this is used only programmatically when pagination is enabled.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'offset');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -654,11 +653,11 @@ class GetPostsForm {
 			$ph2['input_class'] = 'input_checkbox';
 			$ph2['label_class'] = 'label_checkbox';
 			$ph2['id'] = 'omit_post_type' . $i;
-			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2, true);
+			$ph['checkboxes'] .= CCTM::parse($this->checkbox_tpl, $ph2, true);
 			$i++;
 		}
 		$this->register_global_placeholders($ph, 'omit_post_type');
-		return self::parse($this->checkbox_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->checkbox_wrapper_tpl, $ph, true);
 	}
 
 
@@ -669,7 +668,7 @@ class GetPostsForm {
 	 * @return string
 	 */
 	private function _order() {
-	
+
 		//$ph = $this->placeholders;
 		$ph = array();
 
@@ -694,7 +693,7 @@ class GetPostsForm {
 		$ph2['name'] = 'order';
 		$ph2['input_class'] = 'input_radio';
 		$ph2['label_class'] = 'label_radio';
-		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph2, true);
+		$ph['checkboxes'] .= CCTM::parse($this->radio_tpl, $ph2, true);
 
 		$ph3 = $this->placeholders;
 		if ($current_value == 'DESC') {
@@ -709,11 +708,11 @@ class GetPostsForm {
 		$ph3['name'] = 'order';
 		$ph3['input_class'] = 'input_radio';
 		$ph3['label_class'] = 'label_radio';
-		$ph['checkboxes'] .= self::parse($this->radio_tpl, $ph3, true);
+		$ph['checkboxes'] .= CCTM::parse($this->radio_tpl, $ph3, true);
 
 		$this->register_global_placeholders($ph, 'order');
-		
-		return self::parse($this->checkbox_wrapper_tpl, $ph, true);
+
+		return CCTM::parse($this->checkbox_wrapper_tpl, $ph, true);
 
 	}
 
@@ -727,14 +726,14 @@ class GetPostsForm {
 	private function _orderby() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = $this->get_value('orderby');
 		$ph['name'] = 'orderby';
 		$ph['id']  = 'orderby';
 		$ph['label'] = __('Order By', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Which column should results be sorted by. This can be any column from the wp_posts table or any custom field. Default: ID', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'orderby');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -754,11 +753,11 @@ class GetPostsForm {
 		$ph['label'] = __('Paginate Results', CCTM_TXTDOMAIN);
 		$ph['description'] = 'Check this to paginate long result sets.'; // __('.', CCTM_TXTDOMAIN);
 		$ph['label_class'] = 'label_checkbox';
-		$ph['checkboxes'] = self::parse($this->checkbox_tpl, $ph, true);
+		$ph['checkboxes'] = CCTM::parse($this->checkbox_tpl, $ph, true);
 		$this->register_global_placeholders($ph, 'paginate');
 		$ph['label'] = __('Pagination', CCTM_TXTDOMAIN);
 		$ph['label_class'] = 'input_title';
-		return self::parse($this->checkbox_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->checkbox_wrapper_tpl, $ph, true);
 	}
 
 
@@ -771,7 +770,7 @@ class GetPostsForm {
 	private function _post_date() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = $this->get_value('post_date');
 		$ph['name'] = 'post_date';
 		$ph['id']  = 'post_date';
@@ -787,7 +786,7 @@ class GetPostsForm {
 				});
 			</script>';
 		$this->register_global_placeholders($ph, 'post_date');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -800,14 +799,14 @@ class GetPostsForm {
 	private function _post_mime_type() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = $this->get_value('post_mime_type');
 		$ph['name'] = 'post_mime_type';
 		$ph['id']  = 'post_mime_type';
 		$ph['label'] = __('Post MIME Type', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Specify either the full MIME type (e.g. image/jpeg) or just the beginning (e.g. application, image, audio, video).', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_mime_type');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -820,7 +819,7 @@ class GetPostsForm {
 	private function _post_modified() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = $this->get_value('post_modified');
 		$ph['name'] = 'post_modified';
 		$ph['id']  = 'post_modified';
@@ -836,7 +835,7 @@ class GetPostsForm {
 				});
 			</script>';
 		$this->register_global_placeholders($ph, 'post_modified');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -849,17 +848,17 @@ class GetPostsForm {
 	private function _post_parent() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$val = $this->get_value('post_parent');
 		if (!empty($val) && is_array($val)) {
-			$ph['value'] = implode(',',$val);
-		}		
+			$ph['value'] = implode(',', $val);
+		}
 		$ph['name'] = 'post_parent';
 		$ph['id']  = 'post_parent';
 		$ph['label'] = __('Post Parent', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Retrieve all posts that are children of the post ID(s) specified. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_parent');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -872,10 +871,10 @@ class GetPostsForm {
 	private function _post_status() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$post_status = (array) $this->get_value('post_status', array());
-		$ph['value'] = implode(',',$post_status);
-		
+		$ph['value'] = implode(',', $post_status);
+
 		$ph['name'] = 'post_status';
 		$ph['id']  = 'post_status';
 		$ph['label'] = __('Post Status', CCTM_TXTDOMAIN);
@@ -891,17 +890,17 @@ class GetPostsForm {
 			$ph2['is_checked'] = '';
 			if (in_array($ps, $post_status)) {
 				$ph2['is_checked'] = ' checked="checked"';
-			}	
+			}
 			$ph2['value'] = $ps;
 			$ph2['label'] = $ps;
 			$ph2['input_class'] = 'input_checkbox';
 			$ph2['label_class'] = 'label_checkbox';
 			$ph2['id'] = 'post_status' . $i;
-			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2, true);
+			$ph['checkboxes'] .= CCTM::parse($this->checkbox_tpl, $ph2, true);
 			$i++;
 		}
 		$this->register_global_placeholders($ph, 'post_status');
-		return self::parse($this->checkbox_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->checkbox_wrapper_tpl, $ph, true);
 	}
 
 
@@ -920,7 +919,7 @@ class GetPostsForm {
 		$ph['label'] = __('Post Title', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Retrieve posts with this exact title.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'post_title');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -931,13 +930,13 @@ class GetPostsForm {
 	 * @return string
 	 */
 	private function _post_type() {
-//		$ph = $this->placeholders;
+		//  $ph = $this->placeholders;
 		$ph = array();
 		$current_value = (array) $this->get_value('post_type');
-		
+
 		$ph['label'] = __('Post Types', CCTM_TXTDOMAIN);
 		$ph['id']  = 'post_type';
-		$ph['value'] = implode(',',$current_value);
+		$ph['value'] = implode(',', $current_value);
 		$ph['name'] = 'post_type[]';
 		$ph['description'] = __('Check which post-types you wish to search.', CCTM_TXTDOMAIN);
 
@@ -949,18 +948,18 @@ class GetPostsForm {
 		$ph2['input_class'] = 'input_checkbox';
 		$ph2['label_class'] = 'label_checkbox';
 		$ph2['label'] = __('Select post-type', CCTM_TXTDOMAIN);
-//		$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2);
-		$ph['options'] .= self::parse($this->option_tpl, $ph2, true);
-		
+		//  $ph['checkboxes'] .= CCTM::parse($this->checkbox_tpl, $ph2);
+		$ph['options'] .= CCTM::parse($this->option_tpl, $ph2, true);
+
 
 		$post_types = '';
 		if (isset($this->Q->defaults['post_type'])) {
 			$post_types = $this->Q->defaults['post_type'];
 		}
-		if(empty($post_types)) {
+		if (empty($post_types)) {
 			$post_types = get_post_types(array('public'=>true));
 		}
-		
+
 		sort($post_types);
 		foreach ($post_types as $pt) {
 			$ph2 = $this->placeholders;
@@ -976,12 +975,12 @@ class GetPostsForm {
 			$ph2['input_class'] = 'input_checkbox';
 			$ph2['label_class'] = 'label_checkbox';
 			$ph2['id'] = 'post_type' . $i;
-			$ph['checkboxes'] .= self::parse($this->checkbox_tpl, $ph2, true);
-			$ph['options'] .= self::parse($this->option_tpl, $ph2, true);
+			$ph['checkboxes'] .= CCTM::parse($this->checkbox_tpl, $ph2, true);
+			$ph['options'] .= CCTM::parse($this->option_tpl, $ph2, true);
 			$i++;
 		}
 		$this->register_global_placeholders($ph, 'post_type');
-		return self::parse($this->checkbox_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->checkbox_wrapper_tpl, $ph, true);
 	}
 
 
@@ -994,15 +993,15 @@ class GetPostsForm {
 	private function _search_columns() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$search_columns = (array) $this->get_value('search_columns');
-		$ph['value'] = implode(',',$search_columns);
+		$ph['value'] = implode(',', $search_columns);
 		$ph['name'] = 'search_columns';
 		$ph['id']  = 'search_columns';
 		$ph['label'] = __('Search Columns', CCTM_TXTDOMAIN);
 		$ph['description'] = __('When searching by a <em>search_term</em>, which define columns should be searched. Comma-separate multiple values. You can specify custom-fields as column names.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'search_columns');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -1015,14 +1014,14 @@ class GetPostsForm {
 	private function _search_term() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$ph['value'] = htmlspecialchars($this->get_value('search_term'));
 		$ph['name'] = 'search_term';
 		$ph['id']  = 'search_term';
 		$ph['label'] = __('Search Term', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Search posts for this term. Use the <em>search_columns</em> parameter to specify which columns are searched for the term.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'search_term');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -1035,14 +1034,14 @@ class GetPostsForm {
 	private function _taxonomy() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$current_value = $this->get_value('taxonomy');
 		$ph['options'] = '';
 		// put a blank option before all the rest
 		$ph2['name'] = 'taxonomy';
 		$ph2['label'] = __('Select taxonomy', CCTM_TXTDOMAIN);
-		$ph['options'] .= self::parse($this->option_tpl, $ph2, true);		
-		
+		$ph['options'] .= CCTM::parse($this->option_tpl, $ph2, true);
+
 		$taxonomies = get_taxonomies();
 		foreach ($taxonomies as $t) {
 			$ph2 = $this->placeholders;
@@ -1050,8 +1049,8 @@ class GetPostsForm {
 			$ph2['label'] = $t;
 			if ($current_value == $t) {
 				$ph2['is_selected'] = ' selected="selected"';
-			}		
-			$ph['options'] .=  self::parse($this->option_tpl, $ph2, true);
+			}
+			$ph['options'] .=  CCTM::parse($this->option_tpl, $ph2, true);
 		}
 
 		$ph['value'] = $current_value;
@@ -1061,7 +1060,7 @@ class GetPostsForm {
 		$ph['description'] = __('Choose which taxonomy to search in. Used in conjunction with <em>taxonomy_term</em>.', CCTM_TXTDOMAIN);
 		$ph['size'] = 1;
 		$this->register_global_placeholders($ph, 'taxonomy');
-		return self::parse($this->select_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->select_wrapper_tpl, $ph, true);
 	}
 
 
@@ -1081,7 +1080,7 @@ class GetPostsForm {
 		$ph['label'] = __('Taxonomy Depth', CCTM_TXTDOMAIN);
 		$ph['description'] = __('When doing a hierarchical taxonomical search (e.g. by sub-categories), increase this number to reflect how many levels down the hierarchical tree should be searched. For example, 1 = return posts classified with the given taxonomical term (e.g. mammals), 2 = return posts classified with the given term or with the sub-taxonomies (e.g. mammals or dogs). (default: 1).', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_depth');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -1101,7 +1100,7 @@ class GetPostsForm {
 		$ph['label'] = __('Taxonomy Slug', CCTM_TXTDOMAIN);
 		$ph['description'] = __('The taxonomy slug is the URL-friendly taxonomy term.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_slug');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 	}
 
 
@@ -1114,18 +1113,18 @@ class GetPostsForm {
 	private function _taxonomy_term() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		// print '<pre>'.print_r($this->get_value('taxonomy_term'), true).'</pre>';
 		$val = $this->get_value('taxonomy_term');
 		if (!empty($val) && is_array($val)) {
-			$ph['value'] = implode(',',$val);
+			$ph['value'] = implode(',', $val);
 		}
 		$ph['name'] = 'taxonomy_term';
 		$ph['id']  = 'taxonomy_term';
 		$ph['label'] = __('Taxonomy Term', CCTM_TXTDOMAIN);
 		$ph['description'] = __('Set a specific category(ies) or tag(s) to include in search results. Comma-separate multiple values.', CCTM_TXTDOMAIN);
 		$this->register_global_placeholders($ph, 'taxonomy_term');
-		return self::parse($this->text_tpl, $ph, true);
+		return CCTM::parse($this->text_tpl, $ph, true);
 
 	}
 
@@ -1139,9 +1138,9 @@ class GetPostsForm {
 	private function _yearmonth() {
 		//$ph = $this->placeholders;
 		$ph = array();
-		
+
 		$current_value = $this->get_value('yearmonth');
-		
+
 		$ph['options'] = '';
 		global $wpdb;
 		// if date_column is part of wp_posts: //!TODO
@@ -1160,7 +1159,7 @@ class GetPostsForm {
 				$this->placeholders['yearmonth.'.$ym->yearmonth.'.is_selected'] = ' selected="selected"';
 				$this->placeholders['yearmonth.'.$ym->yearmonth.'.is_checked'] = ' checked="checked"';
 			}
-			$ph['options'] .=  self::parse($this->option_tpl, $ph2, true);
+			$ph['options'] .=  CCTM::parse($this->option_tpl, $ph2, true);
 		}
 
 		$ph['value'] = $current_value;
@@ -1170,7 +1169,7 @@ class GetPostsForm {
 		$ph['description'] = __("Choose which month's posts you wish to view. This relies on the <em>date_column</em> parameter.", CCTM_TXTDOMAIN);
 		$ph['size'] = 1;
 		$this->register_global_placeholders($ph, 'yearmonth');
-		return self::parse($this->select_wrapper_tpl, $ph, true);
+		return CCTM::parse($this->select_wrapper_tpl, $ph, true);
 	}
 
 
@@ -1190,7 +1189,7 @@ class GetPostsForm {
 		// in seconds
 		$time = $this->stop_time - $this->start_time;
 		//return print_r($this->values,true);
-		
+
 		if (!empty($this->errors)) {
 			$output = '';
 			$items = '';
@@ -1210,13 +1209,13 @@ class GetPostsForm {
 	/**
 	 * Generate a form.  This is the main event.
 	 *
-	 * @param array (optional) $search_by specify which parameters you want to search by
-	 * @param array	(optional) $existing_values to populate the form e.g. from $_POST.
+	 * @param array   (optional) $search_by specify which parameters you want to search by
+	 * @param array   (optional) $existing_values to populate the form e.g. from $_POST.
 	 * @return string HTML form.
 	 */
 	public function generate($search_by=array(), $existing_values=array()) {
-		
-		foreach($existing_values as $k => $v) {
+
+		foreach ($existing_values as $k => $v) {
 			$this->Q->$k = $v; // to __call()
 		}
 		$this->values = $this->Q->args; // from GetPostsQuery
@@ -1224,13 +1223,13 @@ class GetPostsForm {
 		static $instantiation_count = 0; // used to generate a unique CSS for every form on the page
 		$instantiation_count++;
 		$this->placeholders['form_number'] = $instantiation_count;
-		
+
 		// Default CSS stuff
 		if (!isset($this->placeholders['css'])) {
 			$dir = dirname(dirname(__FILE__));
-			$this->set_css( $dir.'/css/searchform.css');		
+			$this->set_css( $dir.'/css/searchform.css');
 		}
-		
+
 		// Defaults
 		if (!empty($search_by)) {
 			// override
@@ -1240,7 +1239,7 @@ class GetPostsForm {
 		if ($search_by === true) {
 			$this->search_by = $this->search_by_everything;
 		}
-		
+
 		$output = '';
 		$this->placeholders['content'] = '';
 		// Each part of the form is generated by component functions that correspond
@@ -1270,8 +1269,8 @@ class GetPostsForm {
 		$this->placeholders['help'] = implode(', ', $all_placeholders);
 
 		// Two passes.
-		$this->form_tpl = self::parse($this->form_tpl, $this->placeholders, true);
-		$out = self::parse($this->form_tpl, $this->placeholders);
+		$this->form_tpl = CCTM::parse($this->form_tpl, $this->placeholders, true);
+		$out = CCTM::parse($this->form_tpl, $this->placeholders);
 		$this->stop_time = microtime(true);
 		return $out;
 	}
@@ -1298,12 +1297,13 @@ class GetPostsForm {
 		return $this->nonce_field;
 	}
 
+
 	//------------------------------------------------------------------------------
 	/**
 	 * Get a value -- these should be filtered via GetPostsQuery::sanitize_args()
 	 *
-	 * @param string $key     the key to search for in the $this->values array
-	 * @param mixed (optional) $default value to return if the value is not set.
+	 * @param string  $key the key to search for in the $this->values array
+	 * @param mixed   (optional) $default value to return if the value is not set.
 	 * @return mixed
 	 */
 	public function get_value($key, $default='') {
@@ -1315,11 +1315,12 @@ class GetPostsForm {
 		}
 	}
 
+
 	//------------------------------------------------------------------------------
 	/**
 	 * Ensure a valid date. 0000-00-00 qualifies as valid; if you need to ensure a REAL
 	 * date (i.e. where '0000-00-00' is not allowed), then simply marking the field required
-	 * won't work because the string '0000-00-00' is not empty.  
+	 * won't work because the string '0000-00-00' is not empty.
 	 *
 	 * @param string  $date to be checked
 	 * @return boolean whether or not the input is a valid date
@@ -1340,36 +1341,11 @@ class GetPostsForm {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * SYNOPSIS: a simple parsing function for basic templating.
-	 *
-	 * @param boolean if true, will not remove unused [+placeholders+]
-	 *
-	 * with the values and the string will be returned.
-	 * @param string  $tpl:                         a string containing [+placeholders+]
-	 * @param array   $hash:                        an associative array('key' => 'value');
-	 * @param boolean $preserve_unused_placeholders (optional)
-	 * @return string placeholders corresponding to the keys of the hash will be replaced
-	 */
-	public static function parse($tpl, $hash, $preserve_unused_placeholders=false) {
-
-		foreach ($hash as $key => $value) {
-			$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-		}
-
-		// Remove any unparsed [+placeholders+]
-		if (!$preserve_unused_placeholders) {
-			$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
-		}
-		return $tpl;
-	}
-
-	//------------------------------------------------------------------------------
-	/**
 	 * This assists us in making custom formatting templates as flexible as possible.
 	 *
+	 * @return none this populates keys in $this->placeholders
 	 * @param array   $array     contains key/value pairs corresponding to placeholder => replacement-values
 	 * @param string  $fieldname is the name of the field for which these placeholders are being generated.
-	 * @return none this populates keys in $this->placeholders
 	 */
 	public function register_global_placeholders($array, $fieldname) {
 		foreach ($array as $key => $value) {
@@ -1377,7 +1353,8 @@ class GetPostsForm {
 			$this->placeholders[$ph] = $value;
 		}
 	}
-	
+
+
 	//------------------------------------------------------------------------------
 	/**
 	 * Set CSS for the form.  Due to WP's way of printing everything instead of
@@ -1385,9 +1362,9 @@ class GetPostsForm {
 	 * we slurp the CSS defintions (either from a file or string), and print them
 	 * into a <style> tag above the form.  Janky-alert!
 	 *
+	 * @return void (sets a placeholder)
 	 * @param string  $css
 	 * @param boolean $is_file (optional)
-	 * @return	void (sets a placeholder)
 	 */
 	public function set_css($css, $is_file=true) {
 		if ($is_file) {
@@ -1471,26 +1448,28 @@ class GetPostsForm {
 			$this->errors['set_id_prefix'] = sprintf( __('Invalid data type passed to %s function. Input must be a string.', CCTM_TXTDOMAIN), __FUNCTION__);
 		}
 	}
-	
+
+
 	//------------------------------------------------------------------------------
 	/**
-	 * If you need to add your own custom placeholders to the form_tpl formatting 
+	 * If you need to add your own custom placeholders to the form_tpl formatting
 	 * string, this is the kosher way to do it.
 	 *
-	 * @param	string	$key the name of the [+placeholder+] e.g. 'custom_fields'
-	 * @param	string	$value to replace into the placeholder, e.g. '<p>My long text...</p>'	 
+	 * @param string  $key   the name of the [+placeholder+] e.g. 'custom_fields'
+	 * @param string  $value to replace into the placeholder, e.g. '<p>My long text...</p>'
 	 */
 	public function set_placeholder($key, $value) {
 		$this->placeholders[$key] = $value;
 	}
-	
+
+
 	//------------------------------------------------------------------------------
 	/**
-	 * Set the formatting template (tpl) used to format the final output of the 
+	 * Set the formatting template (tpl) used to format the final output of the
 	 * generate() method.
-	 * 
-	 * @param	string	$tpl containing the entire formatting string.
-	 * @return	none
+	 *
+	 * @return none
+	 * @param string  $tpl containing the entire formatting string.
 	 */
 	public function set_tpl($tpl) {
 		if (!is_scalar($tpl)) {
@@ -1501,9 +1480,11 @@ class GetPostsForm {
 			$this->errors['form_tpl_not_string'] = __('set_tpl(): Formatting string must not be empty!');
 			return;
 		}
-		
+
 		$this->form_tpl = $tpl;
 	}
+
+
 }
 
 

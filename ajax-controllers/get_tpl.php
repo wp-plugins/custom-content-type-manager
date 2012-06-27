@@ -54,10 +54,10 @@ if (empty($tpl)) {
 
 }
 
-CCTM::include_form_element_class($def['type']); // This will die on errors
-
-$field_type_name = CCTM::classname_prefix.$def['type'];
-$FieldObj = new $field_type_name(); // Instantiate the field element
+$FieldObj = CCTM::load_object($def['type'], 'fields');
+if (!$FieldObj) {
+	return;
+}
 $def['id'] = $fieldname;
 $def['i'] = $instance;
 $FieldObj->set_props($def);

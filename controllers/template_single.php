@@ -165,7 +165,7 @@ $hash['built_in_fields'] = $builtin_fields_str;
 $hash['custom_fields'] = $custom_fields_str;
 $hash['comments'] = $comments_str;
 
-$data['single_page_sample_code'] = self::parse($tpl, $hash, true);
+$data['single_page_sample_code'] = CCTM::parse($tpl, $hash, true);
 //die('d.x.x.');
 // include CCTM_PATH.'/views/sample_template.php';
 $data['content'] = CCTM::load_view('sample_template.php', $data);

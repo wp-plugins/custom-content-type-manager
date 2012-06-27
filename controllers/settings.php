@@ -79,13 +79,12 @@ foreach ( $checkboxes as $k) {
 }
 
 // Load up any settings pages for custom fields
-$element_files = CCTM::get_available_custom_field_types();
+$element_files = CCTM::get_available_helper_classes('fields');
 $flag = false;
 foreach ( $element_files as $shortname => $file ) {
 	require_once($file);
 
-	if ( class_exists(CCTM::classname_prefix.$shortname) )
-	{
+	if ( class_exists(CCTM::classname_prefix.$shortname) ) {
 		$d = array();
 		$field_type_name = CCTM::classname_prefix.$shortname;
 		$FieldObj = new $field_type_name();

@@ -86,9 +86,10 @@ foreach ($active_custom_fields as $cf) {
 	}
 	$d = self::$data['custom_field_defs'][$cf];
 
-	$field_type_name = CCTM::classname_prefix.$d['type'];
-	self::include_form_element_class($d['type']);
-	$FieldObj = new $field_type_name();
+	if (!$FieldObj = CCTM::load_object($d['type'], 'fields')) {
+		continue;
+	}
+	
 	$d['icon'] = $FieldObj->get_icon();
 
 	// $icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
@@ -120,9 +121,10 @@ $remaining_custom_fields = array_diff($all_custom_fields, $active_custom_fields)
 foreach ($remaining_custom_fields as $cf) {
 	$d = self::$data['custom_field_defs'][$cf];
 
-	$field_type_name = CCTM::classname_prefix.$d['type'];
-	self::include_form_element_class($d['type']);
-	$FieldObj = new $field_type_name();
+	if(!$FieldObj = CCTM::load_object($d['type'],'fields')) {
+		continue;
+	}
+	
 	$d['icon'] = $FieldObj->get_icon();
 
 	if ( !CCTM::is_valid_img($d['icon']) ) {

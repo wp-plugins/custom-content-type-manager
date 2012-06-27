@@ -17,6 +17,9 @@ class CCTM_to_image_tag extends CCTM_OutputFilter {
 	public function filter($input, $options='full') {
 		$inputs = $this->to_array($input);
 		$output = '';
+		if (!is_scalar($options)) {
+			$options = 'full'; // avoid arrays!
+		}
 		foreach ($inputs as $input) {
 			$output .= wp_get_attachment_image($input, $options);
 		}

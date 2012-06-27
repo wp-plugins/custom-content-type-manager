@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.6';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.6.1';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -621,7 +621,6 @@ class CCTM {
 	public static function delete_dir($dirPath) {
 	    if (! is_dir($dirPath)) {
 	    	return false;
-//	        throw new InvalidArgumentException('$dirPath must be a directory');
 	    }
 	    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
 	        $dirPath .= '/';
@@ -653,36 +652,12 @@ class CCTM {
 
 		require_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
 		
-		// If we've already loaded it, re-use it
-		if (class_exists($filter_class)) { 		
-			$OutputFilter = new $filter_class();
-			return $OutputFilter->filter($value, $options);
+		if ($OutputFilter = CCTM::load_object($outputfilter,'filters')) {
+			return $OutputFilter->filter($value, $options);		
 		}
-		
-		// Load the file if we haven't already
-		if (CCTM::load_file(array("/filters/$outputfilter.php"))) {
-		
-			// This checks if the file implemented the correct class 
-			if ( !class_exists($filter_class) ) {
-				self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s Output Filter. Expected class name: %s', CCTM_TXTDOMAIN)
-					, "<strong>$outputfilter</strong>"
-					, "<strong>$filter_class</strong>"
-				);
-				return $value;
-			}
-			// Ok, we've loaded the right class... let's use it.
-			$OutputFilter = new $filter_class();
-			return $OutputFilter->filter($value, $options);
-						
-		}		
 		else {
-			self::$errors['filter_not_found'] = sprintf(
-				__('Output filter not found: %s', CCTM_TXTDOMAIN)
-				, "<code>$outputfilter</code>");
 			return $value;
 		}
-
-
 	}
 
 	/**
@@ -828,26 +803,35 @@ class CCTM {
 		return str_replace( "post_type = 'post'" , "post_type IN ( $post_types )" , $where );
 	}
 
-
 	//------------------------------------------------------------------------------
 	/**
-	 * Gets an array of full pathnames/filenames for all custom field types.
+	 * Gets an array of full pathnames/filenames for all helper classes (validators,
+	 * Output Filters, or Custom Fields).
 	 * This searches the built-in location AND the add-on location inside
-	 * wp-content/uploads/cctm.  If there are duplicate filenames, the one inside the
-	 * 3rd-party directory will take precedence: this allows developers to override
-	 * the built-in custom field classes.
+	 * wp-content/uploads. If there are duplicate filenames, the one inside the
+	 * 3rd party directory will take precedence: this allows developers to override
+	 * the built-in classes.
 	 *
-	 * TODO: This function will read the results from the cache
+	 * 3rd party Custom field classes are special: they use a '.class.php' suffix and their 
+	 * files can reside in a subdirectory, e.g. fields/myfield/myfield.class.php
+	 * This is because custom fields may have ancillary php files that should not be 
+	 * counted as viable helper classes. 
 	 *
-	 * @return array e.g. array('shortname' => '/full/path/to/shortname.php')
+	 * @param string $type validators|filters|fields
+	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
-	public static function get_available_custom_field_types() {
-
-		// prep for output...
+	public static function get_available_helper_classes($type) {
+	
+		// return from cache, if available
+		if(isset(self::$data['cache']['helper_classes'][$type])) {
+			return self::$data['cache']['helper_classes'][$type];
+		}
+		
+		// Ye olde output
 		$files = array();
-
+		
 		// Scan default directory
-		$dir = CCTM_PATH .'/fields';
+		$dir = CCTM_PATH .'/'.$type;
 		$rawfiles = scandir($dir);
 		foreach ($rawfiles as $f) {
 			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
@@ -857,140 +841,44 @@ class CCTM {
 			}
 		}
 
-		// Scan 3rd party directory and subdirectories
+		// Scan 3rd party directory
 		$upload_dir = wp_upload_dir();
-		// it might come back something like
-		// Array ( [error] => Unable to create directory /path/to/wp-content/uploads/2011/10. Is its parent directory writable by the server? )
 		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
 			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
 		}
 		else {
-			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/' . CCTM::custom_fields_dir;
+			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/'.$type;
 			if (is_dir($dir)) {
 				$rawfiles = scandir($dir);
-				foreach ($rawfiles as $subdir) {
-					if (preg_match('/^\./', $subdir)) {
+				foreach ($rawfiles as $f) {
+					if (preg_match('/^\./', $f)) {
 						continue; // skip the '.' and '..' dirs
 					}
+					// Check the main dir
+					if (preg_match('/\.php$/', $f) ) {
+						$shortname = basename($f);
+						$shortname = preg_replace('/\.php$/', '', $shortname);
+						$files[$shortname] = $dir.'/'.$f;
+					}
 					// check subdirectories
-					if (is_dir($dir.'/'.$subdir)) {
-						$morerawfiles = scandir($dir.'/'.$subdir);
-						foreach ($morerawfiles as $f) {
-							if ( !preg_match('/^\./', $f) && preg_match('/\.class\.php$/', $f) ) {
-								$shortname = basename($f);
+					elseif (is_dir($dir.'/'.$f)) {
+						$morerawfiles = scandir($dir.'/'.$f);
+						foreach ($morerawfiles as $f2) {
+							if ( !preg_match('/^\./', $f2) && preg_match('/\.class\.php$/', $f2) ) {
+								$shortname = basename($f2);
 								$shortname = preg_replace('/\.class\.php$/', '', $shortname);
-								$files[$shortname] = $dir.'/'.$subdir.'/'.$f;
+								$files[$shortname] = $dir.'/'.$subdir.'/'.$f2;
 							}
 						}
 					}
-					// Check the main directory too.
-					elseif (preg_match('/\.php$/', $subdir) ) {
-						$shortname = basename($subdir);
-						$shortname = preg_replace('/\.php$/', '', $shortname);
-						$files[$shortname] = $dir.'/'.$subdir;
-					}
 				}
 			}
 		}
 		
-		return $files;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Gets an array of full pathnames/filenames for all output filters.
-	 * This searches the built-in location AND the add-on location inside
-	 * wp-content/uploads. If there are duplicate filenames, the one inside the
-	 * 3rd party directory will take precedence: this allows developers to override
-	 * the built-in output filter classes.
-	 *
-	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
-	 */
-	public static function get_available_output_filters() {
-	
-		// Ye olde output
-		$files = array();
+		// write to cache
+		self::$data['cache']['helper_classes'][$type] = $files;
+		update_option(self::db_key, self::$data);
 		
-		// Scan default directory (should this be hardcoded?)
-		$dir = CCTM_PATH .'/filters';
-		$rawfiles = scandir($dir);
-		foreach ($rawfiles as $f) {
-			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
-				$shortname = basename($f);
-				$shortname = preg_replace('/\.php$/', '', $shortname);
-				$files[$shortname] = $dir.'/'.$f;
-			}
-		}
-
-		// Scan 3rd party directory
-		$upload_dir = wp_upload_dir();
-		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
-			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
-		}
-		else {
-			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/filters';
-			if (is_dir($dir)) {
-				$rawfiles = scandir($dir);
-				foreach ($rawfiles as $f) {
-					if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
-						$shortname = basename($f);
-						$shortname = preg_replace('/\.php$/', '', $shortname);
-						$files[$shortname] = $dir.'/'.$f;
-					}
-				}
-			}
-		}
-	//die('<pre>'.print_r($files, true).'</pre>');
-		return $files;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Gets an array of full pathnames/filenames for all validators.
-	 * This searches the built-in location AND the add-on location inside
-	 * wp-content/uploads. If there are duplicate filenames, the one inside the
-	 * 3rd party directory will take precedence: this allows developers to override
-	 * the built-in output filter classes.
-	 *
-	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
-	 */
-	public static function get_available_validators() {
-	
-		// Ye olde output
-		$files = array();
-		
-		// Scan default directory (should this be hardcoded?)
-		$dir = CCTM_PATH .'/validators';
-		$rawfiles = scandir($dir);
-		foreach ($rawfiles as $f) {
-			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
-				$shortname = basename($f);
-				$shortname = preg_replace('/\.php$/', '', $shortname);
-				$files[$shortname] = $dir.'/'.$f;
-			}
-		}
-
-		// Scan 3rd party directory
-		$upload_dir = wp_upload_dir();
-		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
-			self::register_warning( __('WordPress issued the following error: ', CCTM_TXTDOMAIN) .$upload_dir['error']);
-		}
-		else {
-			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/validators';
-			if (is_dir($dir)) {
-				$rawfiles = scandir($dir);
-				foreach ($rawfiles as $f) {
-					if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
-						$shortname = basename($f);
-						$shortname = preg_replace('/\.php$/', '', $shortname);
-						$files[$shortname] = $dir.'/'.$f;
-					}
-				}
-			}
-		}
-	//die('<pre>'.print_r($files, true).'</pre>');
 		return $files;
 	}
 
@@ -1307,52 +1195,6 @@ class CCTM {
 		return $stuff;
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Includes the class file for the field type specified by $field_type. The
-	 * built-in directory is searched as well as the custom add-on directory.
-	 * Precedence is given to the built-in directory.
-	 * On success, the file is included and a true is returned.
-	 * On error, the file is NOT included and a false is returned: errors are registered.
-	 *
-	 * @param string  $field_type class name WITHOUT prefix
-	 * @return boolean
-	 */
-	public static function include_form_element_class($field_type) {
-		
-		if (empty($field_type) ) {
-			self::$errors['missing_field_type'] = __('Field type is empty.', CCTM_TXTDOMAIN);
-			return false;
-		}
-		
-		$classname = self::classname_prefix.$field_type;
-		
-		if (class_exists($classname)) {
-			return true;
-		}
-
-
-		require_once CCTM_PATH.'/includes/CCTM_FormElement.php';
-		
-		if (CCTM::load_file(array("/fields/$field_type.php","/fields/$field_type/$field_type.class.php"))) {
-			if ( !class_exists($classname) ) {
-				self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s file. Expected class name: %s', CCTM_TXTDOMAIN)
-					, $field_type
-					, $classname
-				);
-				return false;
-			}
-		}
-		else {
-			$msg = sprintf(__('The class file for %s fields could not be found. Did you move or delete the file?', CCTM_TXTDOMAIN), "<code>$field_type</code>");
-			self::register_warning($msg);
-			return false;
-		}
-
-		return true;
-	}
-
 	//------------------------------------------------------------------------------
 	/**
 	 * Each custom field can optionally do stuff during the admin_init event -- this
@@ -1373,7 +1215,6 @@ class CCTM {
 	public static function initialize_custom_fields() {
 
 		// Look around/read variables to get our bearings
-		// $available_custom_field_files = CCTM::get_available_custom_field_types(true);
 		$page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		$fieldtype = self::get_value($_GET, 'type');
 		$fieldname = self::get_value($_GET, 'field');
@@ -1435,19 +1276,8 @@ class CCTM {
 
 		// We only get here if we survived the gauntlet above
 		foreach ($field_types as $shortname) {
-			$classname = self::classname_prefix . $shortname;
-			if (class_exists($classname)) {
-				$Obj = new $classname();
-				$Obj->admin_init();				
-			}
-			else {
-				if (CCTM::load_file(array("/fields/$shortname.php", "/fields/$shortname/$shortname.class.php"))) {
-					$Obj = new $classname();
-					$Obj->admin_init();
-				}
-				else {
-					CCTM::$errors[] = sprintf( __('Could not locate file for %s field.', CCTM_TXTDOMAIN), "<strong>$shortname</strong>");
-				}
+			if ($FieldObj = CCTM::load_object($shortname, 'fields')) {			
+				$FieldObj->admin_init();
 			}
 		}
 
@@ -1612,19 +1442,18 @@ class CCTM {
 	//------------------------------------------------------------------------------
 	/**
 	 * When given a PHP file name relative to the CCTM_PATH, e.g. '/config/image_search_parameters.php',
-	 * this function will include that file using php include(). However, if the same file exists
+	 * this function will include (or require) that file. However, if the same file exists
 	 * in the same location relative to the wp-content/uploads/cctm directory, THAT version of 
 	 * the file will be used. E.g. calling load_file('test.php') will include 
 	 * wp-content/uploads/cctm/test.php (if it exists); if the file doesn't exist in the uploads
 	 * directory, then we'll look for the file inside the CCTM_PATH, e.g.
 	 * wp-content/plugins/custom-content-type-manager/test.php 
 	 *
-	 * The purpose of this is to let users override certain files by placing their own in a location
-	 * that is *outside* of this plugin's directory so that the user-created files will be safe
+	 * The purpose of this is to let users use their own version of files by placing them in a 
+	 * location *outside* of this plugin's directory so that the user-created files will be safe
 	 * from any overriting or deleting that may occur if the plugin is updated.
-	 *	 
 	 *
-	 * Developers of 3rd party components can supply additional paths $path if they wish to load files
+	 * Developers of 3rd party components can supply $additional_paths if they wish to load files
 	 * in their components: if the $additional_path is supplied, this directory will be searched for tpl in question.
 	 *
 	 * To prevent directory transversing, file names may not contain '..'!
@@ -1700,42 +1529,58 @@ class CCTM {
 	 * it, and returning the object.
 	 *
 	 * @param	string $shortname
-	 * @param	string $object_type: field, filter, validator
-	 * @return	object
+	 * @param	string $type: fields|filters|validators
+	 * @return	mixed obect if found, false if not
 	 */
-	public static function load_object($shortname, $object_type) {
+	public static function load_object($shortname, $type) {
 	
+		$path = '';	
 		$object_classname = self::classname_prefix . $shortname;
 
-		// Load from cache?  You have to still include the parent classes in 
-		// order to work with a serialized object.
-
+		// Already included?
 		if (class_exists($object_classname)) {
 			return new $object_classname();
-		}	
+		}
+
+		// The path to the file is cached?  See get_available_helper_classes()
+		if(isset(self::$data['cache']['helper_classes'][$type][$shortname])) {
+			$path = self::$data['cache']['helper_classes'][$type][$shortname];
+		}
+		// populate the cache and try again
+		else {
+			$classes = self::get_available_helper_classes($type);
+			if(isset($classes[$shortname])) {
+				$path = $classes[$shortname];
+			}
+			else {
+				return false;
+			}
+		}
 		
-		$result = false;
-		
-		switch ($object_type) {
-			case 'field':
+		switch ($type) {
+			case 'fields':				
 				require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
-				$result = CCTM::load_file('/fields/'.$shortname.'.php', '', 'require_once');
 				break;
-			case 'filter':
+			case 'filters':
 				require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
-				$result = CCTM::load_file('/filters/'.$shortname.'.php', '', 'require_once');
 				break;
-			case 'validator':
+			case 'validators':
 				require_once(CCTM_PATH.'/includes/CCTM_Validator.php');
-				$result = CCTM::load_file('/validators/'.$shortname.'.php', '', 'require_once');
 				break;
 		}
+		// Include the file whose path was cached
+		require_once($path);
 		
-		if (!$result) {
-			return false;
+		if (class_exists($object_classname)) {
+			return new $object_classname();
 		}
-		
-		return new $object_classname();		
+		else {
+			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s. Expected class name: %s', CCTM_TXTDOMAIN)
+					, "<strong>$path</strong>"
+					, "<strong>$object_classname</strong>"
+				);
+			return false; // bogus file that did not declare the correct class
+		}		
 
 	}
 	
@@ -1801,37 +1646,6 @@ class CCTM {
 		else {
 			return false;
 		}
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Load up a validator PHP class/file into a string via an include statement. MVC type usage here.
-	 *
-	 * @param string  $shortname of the file, e.g. 'number' for number.php
-	 * @return object instantiated instance of the object
-	 */
-	public static function load_validator($shortname) {
-		$validator_class = self::classname_prefix . $shortname;
-		
-		if (!class_exists('CCTM_Validator')) {
-			require_once(CCTM_PATH.'/includes/CCTM_Validator.php');
-		}
-		
-		// Child class?
-		if (class_exists($validator_class) ) {
-			return new $validator_class();
-		}
-		
-		if(!self::load_file('/validators/'.$shortname.'.php')) {
-			// validator not found!
-			die( sprintf(__('Validator not found: %s', CCTM_TXTDOMAIN), $shortname ) );
-		}
-		
-		// Child class again?
-		if (class_exists($validator_class) ) {
-			return new $validator_class();
-		}
-		
 	}
 
 	//------------------------------------------------------------------------------
@@ -1918,7 +1732,6 @@ class CCTM {
 		$field_name = self::get_value($_GET, 'field');
 
 
-
 		// Default Actions for each main menu item (see create_admin_menu)
 		if (empty($action)) {
 			$page = self::get_value($_GET, 'page', 'cctm');
@@ -1940,6 +1753,9 @@ class CCTM {
 				break;
 			case 'cctm_info': // info
 				$action = 'info';
+				break;
+			case 'cctm_cache':
+				$action = 'clear_cache';
 				break;
 			}
 		}
@@ -1964,32 +1780,55 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * SYNOPSIS: a simple parsing function for basic templating.
+	 * Our parsing function for basic templating, based on the MODX placeholders
+	 * and output filters
 	 *
-	 * @param boolean if true, will not remove unused [+placeholders+]
-	 *
-	 * with the values and the string will be returned.
-	 * @param string  $tpl:                         a string containing [+placeholders+]
-	 * @param array   $hash:                        an associative array('key' => 'value');
-	 * @param unknown $preserve_unused_placeholders (optional)
-	 * @return string placeholders corresponding to the keys of the hash will be replaced
+	 * @param string  $tpl: a string containing [+placeholders+]
+	 * @param array   $hash: an associative array('key' => 'value') corresponding to the keys of the hash will be replaced
+	 * @param boolean $preserve_unused_placeholders (optional) if true, will not remove unused [+placeholders+]
+	 * @return string parsed text
 	 */
 	public static function parse($tpl, $hash, $preserve_unused_placeholders=false) {
-
-		// Get all placeholders in this tpl
-		$all_placeholders = array_keys($hash);
-		$hash['help'] = '<ul>';
-		foreach ($all_placeholders as $p) {
-			$hash['help'] .= "<li>&#91;+$p+&#93;</li>";
-		}
-		$hash['help'] .= '</ul>';
-
-		foreach ($hash as $key => $value) {
-			if ( !is_array($value) ) {
-				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+		if (is_array($hash)) {
+			// Get all placeholders in this tpl
+			$all_placeholders = array_keys($hash);
+			$hash['help'] = '<ul>';
+			foreach ($all_placeholders as $p) {
+				$hash['help'] .= "<li>&#91;+$p+&#93;</li>";
 			}
-		}		
-
+			$hash['help'] .= '</ul>';
+	
+			// Simple Placeholders
+			foreach ($hash as $key => $value) {
+				if ( !is_array($value) ) {
+					$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+				}
+			}
+			// Check for in-line output filters, e.g. some_id:to_image_tag or post_id:get_post:guid
+			$pattern = preg_quote('[+').'(.*)'.preg_quote('+]');
+			$placeholders = array();
+			preg_match_all('/'.$pattern.'/U', $tpl,$placeholders);
+			foreach($placeholders[1] as $complex_ph) {
+				$components = explode(':', $complex_ph);
+				// does this value exist?
+				if (isset($hash[$components[0]]) && isset($components[1])) {
+					// $hash[$components[0]] = The original value
+					// $components[1] = the name of the filter
+					// array_slice($components, 2) = any options
+					$value = CCTM::filter($hash[$components[0]],$components[1],array_slice($components, 2));
+					$tpl = str_replace('[+'.$complex_ph.'+]', $value, $tpl);
+				}
+			}
+		}
+		else {
+			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
+				$myFile = "/tmp/cctm.txt";
+				$fh = fopen($myFile, 'a') or die("can't open file");
+				fwrite($fh, print_r(debug_backtrace(), true));
+				fclose($fh);
+			}		
+		}
+		
 		// Remove any unparsed [+placeholders+]
 		if (!$preserve_unused_placeholders) {
 			$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
@@ -2109,7 +1948,7 @@ class CCTM {
 	 *
 	 * @param string  the CCTM admin page to redirect to.
 	 * @return none; this prints the result.
-	 * @param unknown $url
+	 * @param string $url
 	 */
 	public static function redirect($url) {
 		print '<script type="text/javascript">window.location.replace("'.get_admin_url(false, 'admin.php').$url.'");</script>';
@@ -2167,11 +2006,7 @@ class CCTM {
 
 		foreach ($post_type_defs as $post_type => $def) {
 			$def = self::_prepare_post_type_def($def);
-/*
-if($post_type == 'people') {
-	die(print_r($def, true));
-}
-*/
+
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
 				&& !in_array($post_type, self::$built_in_post_types)
@@ -2450,7 +2285,7 @@ if($post_type == 'people') {
 	 * http://algorytmy.pl/doc/php/function.stripslashes.php
 	 *
 	 * @param array   possibly nested
-	 * @param unknown $value
+	 * @param mixed $value
 	 * @return array clensed of slashes
 	 */
 	public static function stripslashes_deep($value) {

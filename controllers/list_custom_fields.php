@@ -34,12 +34,9 @@ foreach ($defs as $field_name => $d) {
 		$d['label'] = $d['label'] . ' *'; // Asterix for req'd fields
 	}
 
-	$field_type_name = CCTM::classname_prefix.$d['type'];
-	if (!CCTM::include_form_element_class($d['type']) ) {
+	if (!$FieldObj = CCTM::load_object($d['type'],'fields') ) {
 		continue;
 	}
-	
-	$FieldObj = new $field_type_name();
 	
 	$d['icon'] 	= $FieldObj->get_icon();
 
@@ -73,16 +70,7 @@ foreach ($defs as $field_name => $d) {
 		, __('Delete this custom field', CCTM_TXTDOMAIN)
 		, __('Delete', CCTM_TXTDOMAIN)
 	);
-/*
-	$d['manage_associations_link'] = sprintf(
-		'<a href="?page=cctm_fields&a=list_field_associations&field=%s&_wpnonce=%s" title="%s">%s</a>'
-		, $d['name']
-		, wp_create_nonce('cctm_delete_field')
-		, __('Manage which content types this custom field is associated with.', CCTM_TXTDOMAIN)
-		, __('Manage Associations', CCTM_TXTDOMAIN)
-	);
-*/
-	//$data['fields'] .= self::parse($tpl, $d);
+
 	$data['fields'] .= CCTM::load_view('tr_custom_field.php',$d);
 }
 

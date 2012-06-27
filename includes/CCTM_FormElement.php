@@ -238,7 +238,7 @@ abstract class CCTM_FormElement {
 	 * @return string	html dropdown
 	 */
 	public function format_available_output_filters($def) {
-		$available_output_filters = CCTM::get_available_output_filters();
+		$available_output_filters = CCTM::get_available_helper_classes('filters');
 		require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
 
 		$out = '
@@ -391,11 +391,13 @@ abstract class CCTM_FormElement {
 		$validation_select = ''; // containing select element
 		$validator_options = ''; // options for the active validator (if any)
 		if ($show_validators) {
-			$validators = CCTM::get_available_validators();
+			$validators = CCTM::get_available_helper_classes('validators');
 			foreach ($validators as $shortname => $path) {
 			
-				$Vobj = CCTM::load_object($shortname, 'validator');
-				
+				$Vobj = CCTM::load_object($shortname, 'validators');
+				if (!$Vobj) {
+					continue;  // skip  bogus validators
+				}
 				$is_selected = '';
 				if ($this->validator == $shortname) {
 					$is_selected = ' selected="selected"';

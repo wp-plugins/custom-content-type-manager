@@ -39,15 +39,10 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	$new_field_type = CCTM::get_value($_POST,'new_field_type');
 	$old_field_type = CCTM::get_value($_POST,'old_field_type');
 	
-	if ( CCTM::include_form_element_class($new_field_type) ) {
-		$field_type_name = CCTM::classname_prefix.$new_field_type;
-		$FieldObj = new $field_type_name();
+	if ($FieldObj = CCTM::load_object($new_field_type,'fields') ) {
 		$field_type_str = $FieldObj->get_name();
 		$field_type_url = $FieldObj->get_url();
 		
-		// Specific conversion mappings?
-		// if ($new_field_type == 'multiselect')
-		// if ($old_field_type == 'multiselect')
 		self::$data['custom_field_defs'][$field_name]['type'] = $new_field_type;
 		
 		update_option( self::db_key, self::$data );
@@ -67,28 +62,22 @@ $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
 $field_type_str = '';
-if ( CCTM::include_form_element_class($field_type) ) {
-	$field_type_name = CCTM::classname_prefix.$field_type;
-	$FieldObj = new $field_type_name();
+if ($FieldObj = CCTM::load_object($field_type,'fields')) {
 	$field_type_str = $FieldObj->get_name();
 	$field_type_url = $FieldObj->get_url();
 }
 
 $data['content'] = '<p>'.sprintf(__('Change the %s field from a %s field into the following type of field:', CCTM_TXTDOMAIN), '<code>'.$field_data['name'].'</code>', sprintf('<a href="%s">%s</a>', $field_type_url, $field_type_str) ) . '</p>';
 
-$elements = CCTM::get_available_custom_field_types(true);
+$elements = CCTM::get_available_helper_classes('fields');
 $data['content'] .= '<input type="hidden" name="old_field_type" value="'.$field_type.'">';
 $data['content'] .= '<select name="new_field_type" id="new_field_type">';
 foreach ( $elements as $ft => $file ) {
 	if ($field_type == $ft) {
 		continue; //  can't  change a field to itself
 	}
-	if ( CCTM::include_form_element_class($ft) ) {
-		$d = array();
-		
-		$field_type_name = CCTM::classname_prefix.$ft;
-		$FieldObj = new $field_type_name();
-		
+	if ($FieldObj = CCTM::load_object($ft,'fields')) {
+		$d = array();		
 		$data['content'] .= sprintf('<option value="%s">%s</option>', $ft, $FieldObj->get_name());
 	}
 	else {

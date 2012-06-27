@@ -2,8 +2,7 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Obscures a string (e.g. an to_link_href address) to make it more difficult for it to 
- * be harvested by bots.
+ * Converts a numerical post-id to a full link href
  */
 
 class CCTM_to_link_href extends CCTM_OutputFilter {
@@ -18,8 +17,7 @@ class CCTM_to_link_href extends CCTM_OutputFilter {
 	public function filter($input, $options='') {
 		// we do this b/c default behavior is to return THIS post's guid if the $value is empty
 		if ($input) {
-			$post = get_post($input);
-			return $post->guid;
+			return get_permalink($input);
 		}
 		else {
 			return $options;

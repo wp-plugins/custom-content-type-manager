@@ -77,6 +77,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 	
+= 0.9.6 =
+
+* Now ready to accept translations. Various minor fixes.  Unit testing added (woot).
+
 = 0.9.5.16 =	
 
 * Customizations for Right Now Widget added.
@@ -365,6 +369,11 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.6 =
+
+* Now ready for internationalization!  Various minor fixes. Unit testing added!
+
 
 = 0.9.5.14 =
 

@@ -14,7 +14,7 @@ if ( defined('WP_UNINSTALL_PLUGIN'))
 	
 	// If the custom fields modified anything, we need to give them this 
 	// opportunity to clean it up.
-	$available_custom_field_files = CCTM::get_available_custom_field_types(true);
+	$available_custom_field_files = CCTM::get_available_helper_classes('fields');
 	foreach ( $available_custom_field_files as $shortname => $file ) {
 
 		include_once($file);

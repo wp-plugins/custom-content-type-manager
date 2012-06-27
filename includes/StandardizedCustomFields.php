@@ -79,11 +79,8 @@ class StandardizedCustomFields
 			}
 			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 			
-			if (CCTM::include_form_element_class($field_type)) {
-				$field_type_name = CCTM::classname_prefix.$field_type;
-				$FieldObj = new $field_type_name(); // Instantiate the field element
+			if ($FieldObj = CCTM::load_object($field_type,'fields')) {
 				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
-
 				$value = '';
 				if (isset($full_post[$field_name])) {
 					$value = $full_post[$field_name];
@@ -115,7 +112,7 @@ class StandardizedCustomFields
 				}
 				// Do any other validation checks here: TODO
 				elseif (!empty($value_copy) && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
-					$Validator = CCTM::load_object($FieldObj->validator, 'validator');
+					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
 					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
 						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
 					}
@@ -347,10 +344,9 @@ class StandardizedCustomFields
 			}
 			
 			$output_this_field = '';
-			CCTM::include_form_element_class($def['type']); // This will die on errors
-			$field_type_name = CCTM::classname_prefix.$def['type'];
-			$FieldObj = new $field_type_name(); // Instantiate the field element
-			
+			if (!$FieldObj = CCTM::load_object($def['type'],'fields')) {
+				continue;
+			}			
 			if ( self::_is_new_post() ) {	
 				$FieldObj->set_props($def);
 				$output_this_field = $FieldObj->get_create_field_instance();
@@ -453,9 +449,7 @@ class StandardizedCustomFields
 				}
 				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 
-				if (CCTM::include_form_element_class($field_type)) {
-					$field_type_name = CCTM::classname_prefix.$field_type;
-					$FieldObj = new $field_type_name(); // Instantiate the field element
+				if ($FieldObj = CCTM::load_object($field_type,'fields')) {
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 

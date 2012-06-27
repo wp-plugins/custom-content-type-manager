@@ -53,6 +53,15 @@ add_submenu_page(
 	'CCTM::page_main_controller'	// callback function
 );
 
+add_submenu_page(
+	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	__('CCTM Clear Cache', CCTM_TXTDOMAIN),   // page title
+	__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
+	$capability,					// capability
+	'cctm_cache',					// menu_slug
+	'CCTM::page_main_controller'	// callback function
+);
+
 // Add Custom Fields links to each post type
 if (self::get_setting('show_custom_fields_menu')) {
 	foreach ($active_post_types as $post_type) {

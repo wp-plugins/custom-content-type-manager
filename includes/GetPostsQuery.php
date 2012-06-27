@@ -1178,7 +1178,7 @@ class GetPostsQuery {
 			$hash['hidden_fields'] = "WHERE {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
 		}
 		
-		$this->SQL1 = self::parse($this->SQL1, $hash);
+		$this->SQL1 = CCTM::parse($this->SQL1, $hash);
 		//die($this->SQL1);
 		// Strip whitespace
 		$this->SQL1  = preg_replace('/\s\s+/', ' ', $this->SQL1 );
@@ -1252,7 +1252,7 @@ class GetPostsQuery {
 		}
 		
 		
-		$this->SQL2 = self::parse($query, $hash);
+		$this->SQL2 = CCTM::parse($query, $hash);
 		//die($this->SQL2);
 		return $this->SQL2;		
 
@@ -1311,7 +1311,7 @@ class GetPostsQuery {
 			$hash['hidden_fields'] = "AND {$wpdb->postmeta}.meta_key NOT LIKE '\_%'";
 		}
 		
-		$this->SQL3 = self::parse($query, $hash);
+		$this->SQL3 = CCTM::parse($query, $hash);
 	
 		return $this->SQL3;
 	}
@@ -2261,33 +2261,6 @@ class GetPostsQuery {
 		return sprintf('<h2>%s</h2><div class="summarize-posts-warnings">%s</div>'
 			, __('Warnings', CCTM_TXTDOMAIN)
 			, $output);
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * SYNOPSIS: a simple parsing function for basic templating.
-	 * INPUT:
-	 * $tpl (str): a string containing [+placeholders+]
-	 * $hash (array): an associative array('key' => 'value');
-	 * OUTPUT
-	 * string; placeholders corresponding to the keys of the hash will be replaced
-	 * with the values and the string will be returned.
-	 *
-	 * @param string  $tpl
-	 * @param array   $hash associative array of placeholders => values
-	 * @return string
-	 */
-	public static function parse($tpl, $hash) {
-		foreach ($hash as $key => $value) {
-			if ( !is_array($value) ) {
-				$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-			}
-		}
-
-		// Remove any unparsed [+placeholders+]
-		$tpl = preg_replace('/\[\+(.*?)\+\]/', '', $tpl);
-
-		return $tpl;
 	}
 
 	//------------------------------------------------------------------------------

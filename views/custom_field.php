@@ -41,6 +41,7 @@ jQuery(document).ready( function() {
 			</td>
 		</tr>
 	</table>
+	<br/>
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
 	<?php print $data['fields']; ?>

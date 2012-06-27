@@ -2,8 +2,7 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Obscures a string (e.g. an to_link address) to make it more difficult for it to 
- * be harvested by bots.
+ * Take a numerical post id and converts it to a full anchor tag.
  */
 
 class CCTM_to_link extends CCTM_OutputFilter {
@@ -25,7 +24,12 @@ class CCTM_to_link extends CCTM_OutputFilter {
 				$post = get_post($input);
 				$link_text = $post->post_title;
 				if (!empty($options)) {
-					$link_text = $options;
+					if (is_array($options) && isset($options[0])) {
+						$link_text = $options[0];
+					}
+					else {
+						$link_text = $options;
+					}				
 				}
 				$output .= sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
 			}
