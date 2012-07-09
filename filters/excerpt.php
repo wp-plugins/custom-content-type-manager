@@ -10,40 +10,58 @@
 class CCTM_excerpt extends CCTM_OutputFilter {
 
 	/**
-	 * Apply the filter.
-	 *
-	 * @param 	mixed 	input
-	 * @param	mixed	optional arguments: default '<!--more-->'
-	 * @return mixed
+	 * @param	string	$str long string 
+	 * @param	mixed	$separator either integer or splitting string
 	 */
-	public function filter($input, $options='<!--more-->') {
-		
-		if (empty($input)) { 
-			return '';
-		}
-		
-		$output = do_shortcode($input);
+	private function _get_excerpt($str, $separator) {
+		$output = do_shortcode(trim($str));
 		// Strip space
 		$output = preg_replace('/\s\s+/', ' ', $output);
-		
+		$output = preg_replace('/\n/', ' ', $output);
 		// Count the number of words
-		if (is_integer($options)) {
+		if (is_integer($separator)) {
 			// Strip HTML *before* we count the words.
 			$output = strip_tags($output);
-			$words_array = explode(' ', $output);
-			$max_word_cnt = $options;
-			$output = implode(' ', array_slice($words_array, 0, $max_word_cnt - 1)) . '&#0133;';
+			$words_array = explode(' ', $output);			
+			$max_word_cnt = $separator;
+			$output = implode(' ', array_slice($words_array, 0, $max_word_cnt)) . '&#0133;';
 		}
 		// Split on a separator
 		else {
-			$parts = explode($options, $output);
+			$parts = explode($separator, $output);
 			$output = $parts[0];
 			// Strip HTML *after* we split on the separator
-			$output = strip_tags($output);
+			$output = trim(strip_tags($output)). '&#0133;';
 		}
 		
+		return $output;	
+	}
+
+	/**
+	 * Apply the filter.
+	 *
+	 * @param 	mixed 	input
+	 * @param	string	optional arguments: if it's an integer, it represents a word count. If It's a string, it's the string to slice on (default '<!--more-->')
+	 * @return mixed matches the input
+	 */
+	public function filter($input, $options='<!--more-->') {
+		if (!is_scalar($options)) {
+			$options = '<!--more-->';
+		}
+		$input = $this->to_array($input);
 		
-		return $output;
+		if ($this->is_array_input) {
+			foreach($input as &$item) {
+				if (empty($item)) {
+					continue;
+				}
+				$item = $this->_get_excerpt($item, $options);
+			}
+			return $input;
+		}
+		else {
+			return $this->_get_excerpt($input[0], $options);
+		}
 	}
 
 

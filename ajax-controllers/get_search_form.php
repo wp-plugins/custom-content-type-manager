@@ -54,6 +54,7 @@ $possible_configs[] = '/config/search_parameters/'.$fieldname.'.php'; 	// e.g. m
 $possible_configs[] = '/config/search_parameters/_'.$type.'.php'; 		// e.g. _image.php
 $possible_configs[] = '/config/search_parameters/_default.php';
 
+
 if (!CCTM::load_file($possible_configs)) {
 	print '<p>'.__('Search parameter configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
 }

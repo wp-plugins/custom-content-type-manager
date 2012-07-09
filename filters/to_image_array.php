@@ -16,7 +16,16 @@ class CCTM_to_image_array extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		return wp_get_attachment_image_src( $input, $options, true);
+		$input = $this->to_array($input);
+		if ($this->is_array_input) {
+			foreach($input as &$item) {
+				$item = wp_get_attachment_image_src( $item, $options, true);
+			}
+			return $input;
+		}
+		else {
+			return wp_get_attachment_image_src( $input[0], $options, true);
+		}
 	}
 
 

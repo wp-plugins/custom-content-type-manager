@@ -12,14 +12,26 @@ class CCTM_email extends CCTM_OutputFilter {
 	 * Apply the filter.
 	 *
 	 * @param 	mixed 	input
-	 * @param	mixed	optional arguments
-	 * @return mixed
+	 * @param	null	no options
+	 * @return mixed matches input
 	 */
 	public function filter($input, $options=null) {
-		
-		$output = '';
-		for ($i = 0; $i < strlen($input); $i++) { 
-			$output .= '&#'.ord($input[$i]).';'; 
+		$input = $this->to_array($input);
+		if ($this->is_array_input) {
+			foreach ($input as &$item) {
+				$new_item = '';
+				for ($i = 0; $i < strlen($item); $i++) { 
+					$new_item .= '&#'.ord($item[$i]).';'; 
+				}
+				$item = $new_item;
+			}
+			return $input;
+		}
+		else {
+			$output = '';
+			for ($i = 0; $i < strlen($input[0]); $i++) { 
+				$output .= '&#'.ord($input[0][$i]).';'; // why is this an array? ord is weird.
+			}
 		}
 		return $output;
 	}

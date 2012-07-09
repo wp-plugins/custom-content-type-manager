@@ -15,12 +15,15 @@ class CCTM_to_link_href extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options='') {
-		// we do this b/c default behavior is to return THIS post's guid if the $value is empty
-		if ($input) {
-			return get_permalink($input);
+		$input = $this->to_array($input);
+		if ($this->is_array_input) {
+			foreach($input as &$item) {
+				$item = get_permalink($item);
+			}
+			return $input;
 		}
 		else {
-			return $options;
+			return get_permalink($input[0]);
 		}
 	}
 

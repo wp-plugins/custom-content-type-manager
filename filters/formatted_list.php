@@ -36,29 +36,16 @@ class CCTM_formatted_list extends CCTM_OutputFilter {
 	//! Public functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Apply the filter.
+	 * Format an array of values.
 	 *
 	 * @param mixed   $input,  e.g. a json_encoded array like '["cat","dog","bird"]' OR a real PHP array, e.g. array('cat','dog','bird')
 	 * @param mixed   $options (optional)formatting parameters
-	 * @return mixed
+	 * @return string
 	 */
 	public function filter($input, $options=null) {
 
-		$array = array();
-		// if the input is a PHP array, then no conversion is necessary.
-		if (is_array($input)) {
-			$array = $input;
-		}
-		// if the input is a scalar, then we assume it's JSON encoded and we must decode it.
-		else {
-			$input = json_decode(html_entity_decode($input), true );
-			if (is_array($input)) {
-				$array = $input;
-			}
-			else {
-				$array = array($input);
-			}
-		}
+		$array = $this->to_array($input);
+
 		// Return an empty string if the input is empty:
 		// http://wordpress.org/support/topic/plugin-custom-content-type-manager-displaying-custom-fields-in-conditional-tags?replies=4#post-2537738
 		if (empty($array)) {
@@ -77,7 +64,7 @@ class CCTM_formatted_list extends CCTM_OutputFilter {
 			}
 			else {
 				// ??? user supplied an associative array for options???
-				return 'Options array in incorrect format!';
+				return __('Options array in incorrect format!',CCTM_TXTDOMAIN);
 			}
 
 			// wrap the output
@@ -92,8 +79,7 @@ class CCTM_formatted_list extends CCTM_OutputFilter {
 			// $array[$i] = htmlspecialchars($item); // we apply this
 			//}
 			if ($this->_is_assoc($array)) {
-				$array = array_values($array);
-				
+				$array = array_values($array);	
 			}
 			return implode($options, $array);
 		}

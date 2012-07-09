@@ -29,8 +29,8 @@ for the official documentation.
  * @param	mixed	can be used to specify additional arguments
  * @return	mixed	The contents of the custom field, processed through output filters
  */
-function get_custom_field($raw_fieldname, $options=null)
-{
+function get_custom_field($raw_fieldname, $options=null) {
+
 	global $post;
 	
 	// Shortcodes can override which post they're retrieving data for
@@ -46,8 +46,8 @@ function get_custom_field($raw_fieldname, $options=null)
 	// Request cache: this helps speed up cases where there are identical instances of get_custom_field()
 	// Get the cache key
 	$cache_key = serialize($options_array) . $post_id;
-	if (isset(CCTM::$cache['request'][$cache_key])) {
-		return CCTM::$cache['request'][$cache_key]; // done!  Output comes from cache!
+	if (isset(CCTM::$cache[$cache_key])) {
+		return CCTM::$cache[$cache_key]; // done!  Output comes from cache!
 	}
 
 	// Extract any output filters.
@@ -94,7 +94,7 @@ function get_custom_field($raw_fieldname, $options=null)
 		$i++;
 	}
 	// Store in the request cache
-	CCTM::$cache['request'][$cache_key] = $value;
+	CCTM::$cache[$cache_key] = $value;
 	
 	return $value;	
 }

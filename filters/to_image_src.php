@@ -2,7 +2,7 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Converts input (usually a JSON encoded string) into an array
+ * Given a post_id (or an array of them), return the src for the image.
  */
 
 class CCTM_to_image_src extends CCTM_OutputFilter {
@@ -15,13 +15,27 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options='') {
-		// we do this b/c default behavior is to return THIS post's guid if the $value is empty
-		if ($input) {
-			$post = get_post($input);
-			return $post->guid;
+		if (is_array($options)) {
+			$options = $options[0];
+		}
+		$input = $this->to_array($input);
+		if ($this->is_array_input) {
+			foreach($input as &$item) {
+				list($item, $h, $w) = wp_get_attachment_image_src($item, null, true);
+				if (empty($item)) {
+					$item = $options; // default image
+				}
+			}
+			return $input;
 		}
 		else {
-			return $options;
+			list($src, $h, $w) = wp_get_attachment_image_src($input[0], null, true);
+			if (empty($src)) {
+				return $options;
+			}
+			else {
+				return $src;
+			}		
 		}
 	}
 

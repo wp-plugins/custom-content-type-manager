@@ -13,17 +13,40 @@ class CCTM_do_shortcode extends CCTM_OutputFilter {
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	string 	input
+	 * @param 	mixed 	input
 	 * @param	boolean	options: true, bypass wpautop(). Default: false
-	 * @return string
+	 * @return mixed -- will match input type of input
 	 */
 	public function filter($input, $options=null) {
-		if ($options) {
-			do_shortcode($input);
+		$input = $this->to_array($input);
+		if ($this->is_array_input) {
+			foreach ($input as &$item) {		
+				if ($options) {
+					ob_start();
+					do_shortcode($input);
+					$input = ob_get_clean();
+				}
+				else {
+					ob_start();
+					do_shortcode(wpautop($input));
+					$input = ob_get_clean();
+				}
+			}
 		}
 		else {
-			return do_shortcode(wpautop($input));
+			if ($options) {
+				ob_start();
+				do_shortcode($input[0]);
+				$input = ob_get_clean();
+			}
+			else {
+				ob_start();
+				do_shortcode(wpautop($input[0]));
+				$input = ob_get_clean();
+			}
 		}
+		
+		return $input;
 	}
 
 

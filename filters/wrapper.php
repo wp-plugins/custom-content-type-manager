@@ -2,7 +2,7 @@
 /**
  * @package CCTM_wrapper
  * 
- * Wraps an input string only if it isn't empty.
+ * Wraps an input string when it isn't empty.
  */
 
 class CCTM_wrapper extends CCTM_OutputFilter {
@@ -17,7 +17,6 @@ class CCTM_wrapper extends CCTM_OutputFilter {
 	public function filter($input, $options=null) {
 
 		$inputs = $this->to_array($input);
-
 		$output = '';
 		
 		foreach ($inputs as $input) {

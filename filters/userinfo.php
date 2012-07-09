@@ -39,7 +39,6 @@ class CCTM_userinfo extends CCTM_OutputFilter {
 			$tpl = $options;
 		}
 
-	
 		$inputs = $this->to_array($input);
 		$output = '';
 		foreach ($inputs as $input) {

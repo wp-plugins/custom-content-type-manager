@@ -8,20 +8,29 @@
 class CCTM_get_post extends CCTM_OutputFilter {
 
 	/**
-	 * Apply the filter.
+	 * Convert a post id to an array represent the post and all its data.
 	 *
-	 * @param 	integer 	input
-	 * @param	mixed	optional arguments
+	 * @param 	integer post_id
+	 * @param	string	optional field name to return
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+
 		if (is_array($input)) {
 			return $input; // nothing to do here.
 		}
 
 		$input = (int) $input;
 		
-		return get_post_complete($input);
+		
+		if ($options && is_scalar($options)) {
+			$post = get_post_complete($input);
+			return CCTM::parse($options,$post);
+		}
+		else {
+			return get_post_complete($input);	
+		}
+		
 	}
 
 

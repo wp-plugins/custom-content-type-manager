@@ -76,6 +76,12 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.6.1 =
+
+* Improved parser to handle output filters in placeholders.
+* Lots of general cleanup to consolidate similar functions.
+
 	
 = 0.9.6 =
 
@@ -369,6 +375,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.6.1 =
+
+* Improved parser for greater flexibility in your formatting strings.  Improved caching for better performance.
 
 = 0.9.6 =
 

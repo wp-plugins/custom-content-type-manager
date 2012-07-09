@@ -10,11 +10,19 @@ class CCTM_gallery extends CCTM_OutputFilter {
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	mixed 	input: an integer, an array of integers, or a JSON string representing an array of such.
+	 * @param 	mixed 	input: an integer, an array of integers, or a JSON string representing an array of integers.
 	 * @param	string	optional formatting tpl
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+		$required_functions = array('getimagesize','imagecreatefromjpeg'
+		,'imagecreatefromgif','imagecreatefrompng');
+		foreach ($required_functions as $f) {
+			if (!function_exists($f) ) {
+				return sprintf(__('Missing required function %s'), '<code>'.$f.'</code>');
+			}
+		}
+		
 		require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 		require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 		

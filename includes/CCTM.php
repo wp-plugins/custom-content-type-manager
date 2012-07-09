@@ -97,8 +97,7 @@ class CCTM {
 	// for post_types and custom fields
 	public static $data = array();
 
-	// Cached data.
-	// CCTM::$cache['request'] = data cached for a single request, e.g. custom field values.
+	// Cached data: for a single request, e.g. custom field values.
 	public static $cache = array();
 
 	// integer iterator used to uniquely identify groups of field definitions for
@@ -333,8 +332,8 @@ class CCTM {
 	 * before the register_post_type() function is called.  It allows us to abstract 
 	 * what WP gets from the stored definition a bit.
 	 *
-	 * @param mixed   the CCTM definition for a post type
-	 * @param unknown $def
+	 * @param array   the CCTM definition for a post type
+	 * @param array $def
 	 * @return mixed  the WordPress authorized definition format.
 	 */
 	private static function _prepare_post_type_def($def) {
@@ -455,7 +454,7 @@ class CCTM {
 	 * @return array $links
 	 */
 	public static function add_plugin_settings_link($links, $file) {
-		if ( $file == basename(self::get_basepath()) . '/index.php' ) {
+		if ( $file == basename(dirname(dirname(__FILE__))) . '/index.php' ) {
 			$settings_link = sprintf('<a href="%s">%s</a>'
 				, admin_url( 'admin.php?page=cctm' )
 				, __('Settings')
@@ -884,17 +883,6 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
-	 *  Defines the diretory for this plugin.
-	 *
-	 * @return string
-	 */
-	public static function get_basepath() {
-		return dirname(dirname(__FILE__));
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
 	 * Gets the plugin version from this class.
 	 *
 	 * @return string
@@ -1149,7 +1137,7 @@ class CCTM {
 			}
 			// Built-in WP types: we go for the default icon.
 			else {
-				list($src, $w, $h) = wp_get_attachment_image_src( $id, 'tiny_thumb', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
+				list($src, $w, $h) = wp_get_attachment_image_src( $id, 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 				$thumbnail_url = $src;
 			}
 		}
@@ -1813,10 +1801,26 @@ class CCTM {
 				// does this value exist?
 				if (isset($hash[$components[0]]) && isset($components[1])) {
 					// $hash[$components[0]] = The original value
-					// $components[1] = the name of the filter
-					// array_slice($components, 2) = any options
-					$value = CCTM::filter($hash[$components[0]],$components[1],array_slice($components, 2));
-					$tpl = str_replace('[+'.$complex_ph.'+]', $value, $tpl);
+					// $components[1] = the name of the filter and its options (if any)
+					$filter_and_opts = explode('=',$components[1]);
+					// $filter_and_opts[0] = the filter name
+					// $filter_and_opts[1] = comma-sep options (if any)
+					$options = null;
+					if (isset($filter_and_opts[1])) {
+						// if you used alternate glyphs for nested tags, here's where 
+						// you'd convert them... 
+						$filter_and_opts[1] = str_replace('{{', '[+', $filter_and_opts[1]);
+						$filter_and_opts[1] = str_replace('}}', '+]', $filter_and_opts[1]);
+						$options = explode(',',$filter_and_opts[1]);
+						// avoid the array if not needed.
+						if ($options[0] == $filter_and_opts[1]) {
+							$options = $filter_and_opts[1];
+						}
+					}
+					$value = CCTM::filter($hash[$components[0]],$filter_and_opts[0], $options);
+					if (is_scalar($value)) {
+						$tpl = str_replace('[+'.$complex_ph.'+]', $value, $tpl);
+					}
 				}
 			}
 		}

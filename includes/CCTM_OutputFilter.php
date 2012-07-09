@@ -12,16 +12,10 @@ abstract class CCTM_OutputFilter {
 	public $show_in_menus = true;
 	
 	/**
-	 * What kind of data can this filter accept? string|array|mixed
+	 * Tracks what whether the input sent to the to_array function was an array or not.
 	 */
-	public $input_type;
-	
-	/**
-	 * What kind of data does this filter output? string|array|mixed 
-	 */
-	public $output_type;
-	
-	
+	public $is_array_input = null;
+	 	
 	/**
 	 * Apply the filter.
 	 *
@@ -67,13 +61,19 @@ abstract class CCTM_OutputFilter {
 	 */
 	public function to_array($input) {
 		
-		if (empty($input)) {
+		if ($input=='[""]') {
+			$this->is_array_input = true;
+			return array();
+		}
+		elseif ($input=='') {
+			$this->is_array_input = false;
 			return array();
 		}
 		
 		$the_array = array();
 		
 		if (is_array($input)) {
+			$this->is_array_input = true;
 			return $input; // No JSON converting necessary: PHP array supplied.
 		}
 		else {
@@ -82,7 +82,8 @@ abstract class CCTM_OutputFilter {
 			
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=121
 			if ( !is_array($output) ) {
-				if (empty($output) && !empty($input)) {
+				$this->is_array_input = false;
+				if (empty($output) && !empty($input)) {					
 					return array($input);
 				}
 				else {
@@ -90,6 +91,7 @@ abstract class CCTM_OutputFilter {
 				}			
 			}
 			else {
+				$this->is_array_input = true;
 				return $output;
 			}
 		}

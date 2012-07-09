@@ -15,26 +15,40 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		
-		$inputs = $this->to_array($input);
 		$output = '';
-		
-		foreach ($inputs as $input) {
-			if ($input) {
-				$post = get_post($input);
-				$link_text = $post->post_title;
-				if (!empty($options)) {
-					if (is_array($options) && isset($options[0])) {
-						$link_text = $options[0];
+		if (is_array($options)) {
+			$options = $options[0];
+		}		
+		$input = $this->to_array($input);
+		if ($this->is_array_input) {			
+			foreach ($input as &$item) {
+				if ($item) {
+					$post = get_post($item);
+					$link_text = $post->post_title;
+					if (!empty($options)) {
+						if (is_array($options) && isset($options[0])) {
+							$link_text = $options[0];
+						}
+						else {
+							$link_text = $options;
+						}				
 					}
-					else {
-						$link_text = $options;
-					}				
+					$item = sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
 				}
-				$output .= sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
 			}
+			return $input;
 		}
-		return $output;
+		else {
+			$post = get_post($input[0]);
+			if ($options) {
+				$link_text = $options;
+			}
+			else {
+				$link_text = $post->post_title;
+			}		
+			return sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
+		}
+
 	}
 
 

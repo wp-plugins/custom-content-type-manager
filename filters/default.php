@@ -2,23 +2,39 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Adds a default value if the input value is empty.
+ * Returns a default value if the input value is empty.
  */
 
 class CCTM_default extends CCTM_OutputFilter {
 
 	/**
-	 * Apply the filter.
+	 * Replace any empty values with the $option.
 	 *
 	 * @param 	mixed 	input
-	 * @param	mixed	optional arguments to return if the input is empty
-	 * @return mixed
+	 * @param	string	optional value to return if the input is empty
+	 * @return mixed returns array if input was array, returns a string if input was string
 	 */
 	public function filter($input, $options=null) {
+		$input = $this->to_array($input);
+		if (!is_scalar($options)) {
+			$options = '';
+		}
 		if (empty($input)) {
-			return $options;
+			if ($this->is_array_input) {
+				return array($options);
+			}
+			else {
+				return $options;
+			}
 		}
 		else {
+			if ($this->is_array_input) {
+				foreach($input as &$item) {
+					if (empty($item)) {
+						$item = $options;
+					}
+				}
+			}
 			return $input;
 		}
 	}
