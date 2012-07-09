@@ -1792,17 +1792,29 @@ class CCTM {
 					$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
 				}
 			}
+			// ADVANCED PLACEHOLDERS, e.g. [+my_field:output_filter==opt1||opt2:output_filter2+]
 			// Check for in-line output filters, e.g. some_id:to_image_tag or post_id:get_post:guid
 			$pattern = preg_quote('[+').'(.*)'.preg_quote('+]');
 			$placeholders = array();
 			preg_match_all('/'.$pattern.'/U', $tpl,$placeholders);
 			foreach($placeholders[1] as $complex_ph) {
+				//die(print_r($placeholders[1],true));
 				$components = explode(':', $complex_ph);
-				// does this value exist?
-				if (isset($hash[$components[0]]) && isset($components[1])) {
-					// $hash[$components[0]] = The original value
-					// $components[1] = the name of the filter and its options (if any)
-					$filter_and_opts = explode('=',$components[1]);
+				// First placeholder would be what the simple placeholder would use
+				// and the first value comes from the original $hash
+				$first = array_shift($components);
+				$value = '';
+				if (isset($hash[$first])) {
+					$value = $hash[$first]; 
+				}
+				elseif($preserve_unused_placeholders) {
+					continue;
+				}
+				
+				// "Components" are the filter==opt chunks
+				foreach($components as $comp) {
+					// does this value exist?
+					$filter_and_opts = explode('==',$comp);
 					// $filter_and_opts[0] = the filter name
 					// $filter_and_opts[1] = comma-sep options (if any)
 					$options = null;
@@ -1811,17 +1823,23 @@ class CCTM {
 						// you'd convert them... 
 						$filter_and_opts[1] = str_replace('{{', '[+', $filter_and_opts[1]);
 						$filter_and_opts[1] = str_replace('}}', '+]', $filter_and_opts[1]);
-						$options = explode(',',$filter_and_opts[1]);
+						$options = explode('||',$filter_and_opts[1]);
 						// avoid the array if not needed.
 						if ($options[0] == $filter_and_opts[1]) {
 							$options = $filter_and_opts[1];
 						}
 					}
-					$value = CCTM::filter($hash[$components[0]],$filter_and_opts[0], $options);
-					if (is_scalar($value)) {
-						$tpl = str_replace('[+'.$complex_ph.'+]', $value, $tpl);
+
+					$new_value = CCTM::filter($value,$filter_and_opts[0], $options);
+
+					// if we don't get a scalar, we skip that value.
+					if (is_scalar($new_value)) {
+						$value = $new_value;
 					}
+
 				}
+				
+				$tpl = str_replace('[+'.$complex_ph.'+]', $value, $tpl);
 			}
 		}
 		else {

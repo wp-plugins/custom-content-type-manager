@@ -72,6 +72,7 @@ class CCTMUnitTests extends UnitTestCase {
 	/**
 	 * Test RSS feed
 	 */
+
 	function testRSS() {
 		$xml = file_get_contents('http://cctm:8888/feed/');
 		
@@ -183,17 +184,16 @@ class CCTMUnitTests extends UnitTestCase {
 		$this->assertTrue($emails == 'Unknown');
 	}
 	// WTF? This isn't reading the correct field.
-/*
-	function testFilter5() {
-		global $post;
-		$post->ID = 93; 
-		$p = get_post_complete(93);
-		//die($p['bio']);
-		$bio = CCTM::filter($p['bio'], 'do_shortcode');
-		//die($bio);
-		$this->assertTrue($bio == 'http://google.com/');
-	}
-*/
+//	function testFilter5() {
+//		global $post;
+//		$post->ID = 93; 
+//		$p = get_post_complete(93);
+//		//die($p['bio']);
+//		$bio = CCTM::filter($p['bio'], 'do_shortcode');
+//		//die($bio);
+//		$this->assertTrue($bio == 'http://google.com/');
+//	}
+
 	// email
 	function testFilter7() {
 		$actual = CCTM::filter('test@test.com','email');
@@ -468,7 +468,7 @@ class CCTMUnitTests extends UnitTestCase {
 		$this->assertTrue($output == get_permalink(1));
 	}
 	function testParser5() {
-		$tpl = '[+post_id:to_link=Click me here+]';
+		$tpl = '[+post_id:to_link==Click me here+]';
 		$hash = array('post_id' => 1);
 		$actual = CCTM::parse($tpl,$hash);
 		$post_id = 1;
@@ -484,26 +484,46 @@ class CCTMUnitTests extends UnitTestCase {
 	}
 	// You can't nest tags :( so we use different glyphs
 	function testParser7() {
-		$tpl = '[+post_id:get_post={{post_title}}+]';
+		$tpl = '[+post_id:get_post=={{post_title}}+]';
 		$hash = array('post_id'=>80);
 		$output = CCTM::parse($tpl,$hash);
 		$this->assertTrue($output == 'Harry Potter');
 	}
+
+	// This usage requires that a string is returned, so
+	// the output filter here should be ignored.
 	function testParser8() {
 		$tpl = '[+post_id:get_post+]';
 		$hash = array('post_id'=>80);
 		$output = CCTM::parse($tpl,$hash);
-//		print_r($output); exit;
-		$this->assertTrue($output['post_title'] == 'Harry Potter');
+		$this->assertTrue($output == '80');
 	}
+
 	function testParser9() {
-		$tpl = '[+post_id:get_post={{post_title}}:email+]';
+		$tpl = '[+post_id:get_post=={{post_title}}:email+]';
 		$hash = array('post_id'=>80);
 		$output = CCTM::parse($tpl,$hash);
-		print_r($output); exit;
-		$this->assertTrue($output['post_title'] == 'Harry Potter');
+		$this->assertTrue($output == '&#72;&#97;&#114;&#114;&#121;&#32;&#80;&#111;&#116;&#116;&#101;&#114;');
 	}	
+	function testParser10() {
+		$tpl = '[+post_id:get_post==post_title+]';
+		$hash = array('post_id'=>80);
+		$output = CCTM::parse($tpl,$hash);
+		$this->assertTrue($output == 'Harry Potter');
+	}
 	
+	function testParser11() {
+		$tpl = '[+post_id:get_post==post_title:wrapper==<strong>||</strong>+]';
+		$hash = array('post_id'=>80);
+		$output = CCTM::parse($tpl,$hash);
+		$this->assertTrue($output == '<strong>Harry Potter</strong>');
+	}
+	function testParser12() {
+		$tpl = '[+post_id:get_post==post_title:wrapper==<strong>{{content}}</strong>+]';
+		$hash = array('post_id'=>80);
+		$output = CCTM::parse($tpl,$hash);
+		$this->assertTrue($output == '<strong>Harry Potter</strong>');
+	}
 	
 	
 	// Custom Field with custom settings -- does the link appear?

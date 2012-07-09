@@ -11,7 +11,7 @@ class CCTM_get_post extends CCTM_OutputFilter {
 	 * Convert a post id to an array represent the post and all its data.
 	 *
 	 * @param 	integer post_id
-	 * @param	string	optional field name to return
+	 * @param	string	optional field name to return OR a formatting string with [+placeholders+]
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
@@ -25,6 +25,9 @@ class CCTM_get_post extends CCTM_OutputFilter {
 		
 		if ($options && is_scalar($options)) {
 			$post = get_post_complete($input);
+			if (isset($post[$options])) {
+				return $post[$options]; 
+			}
 			return CCTM::parse($options,$post);
 		}
 		else {
