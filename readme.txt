@@ -3,7 +3,7 @@ Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
-Tested up to: 3.3.4
+Tested up to: 3.4.1
 Stable tag: 0.9.6
 Version: 0.9.5.6-pl
 
@@ -81,7 +81,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 * Improved parser to handle output filters in placeholders.
 * Lots of general cleanup to consolidate similar functions.
-
+* Fixed bug in format string for summarize-posts shortcode.
 	
 = 0.9.6 =
 

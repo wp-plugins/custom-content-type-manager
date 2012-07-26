@@ -40,10 +40,10 @@ foreach ($active_plugins as $plugin) {
 }
 ?>
 ------------------------ <?php print "\n"; 
-$theme = get_current_theme();
-$theme_data = get_themes($theme);
+$theme_data = wp_get_theme();
+//die(print_r($theme_data,true));
 ?>
-CURRENT THEME: <?php printf('%s v.%s %s', $theme_data[$theme]['Name'], $theme_data[$theme]['Version'], $theme_data[$theme]['Author URI']); ?>
+CURRENT THEME: <?php printf('%s v.%s %s', $theme_data->Name, $theme_data->Version, $theme_data->get('ThemeURI') ); ?>
 </textarea>
 
 <p><?php _e('When reporting bugs, remember the following key points:', CCTM_TXTDOMAIN); ?></p>

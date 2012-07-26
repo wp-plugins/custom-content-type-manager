@@ -159,6 +159,11 @@ abstract class CCTM_FormElement {
 		$this->descriptions['description'] .= __('The following html tags are allowed:')
 			. '<code>'.htmlspecialchars(CCTM::$allowed_html_tags).'</code>';
 		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
+		
+		$this->descriptions['evaluate_create_value'] = __('Check this box to evaluate the PHP code in the "New Values" box when creating new posts.');
+		
+		$this->descriptions['evaluate_update_value'] = __('Check this box to evaluate the PHP code in the "Updated Values" box when updating posts.');
+		
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] .= sprintf('<br /><span style="color:red;">%s</span>'
@@ -564,9 +569,10 @@ abstract class CCTM_FormElement {
 	//------------------------------------------------------------------------------
 	/**
 	 * This function should return the URL where users can read more information about
-	 * the type of field that they want to add to their post_type. The string may
-	 * be localized using __() if necessary (e.g. for language-specific pages)
-	 * 3rd party field devs can use this to point to their awesome docs!
+	 * this type of field (include a brief explanation and examples of how or why you'd
+	 * want to use it. The URL may be localized using __() if necessary (e.g. for 
+	 * language-specific pages). 3rd party field devs can use this to URL point to their 
+	 * awesome docs!
 	 *
 	 * @return string  e.g. http://www.yoursite.com/some/page.html
 	 */
@@ -574,8 +580,12 @@ abstract class CCTM_FormElement {
 
 
 	/**
-	 * If the field def was changed from dropdown to multi-select, the value would be
-	 * MYVALUE instead of ["MULTI"]... so the selection would fail.
+	 * This function handles converting the value stored in the database to a PHP data
+	 * type. Special logic is required to handle the JSON encoding of "repeatable" fields
+	 * and the possibility that the definition of the field changed.
+	 *
+	 * NOTE: If the field def was changed from dropdown to multi-select, the value 
+	 * would be MYVALUE instead of ["MYVALUE"]... so the selection would fail.
 	 *
 	 * If to_array is the conversion, then single values get converted to arrays.
 	 * If to_string is the conversion, then JSON encoded arrays return only the 1st
@@ -583,6 +593,7 @@ abstract class CCTM_FormElement {
 	 *
 	 * @param	string	$str
 	 * @param	string	$conversion to_string|to_array
+	 * @return mixed (a string or an array, depending on the $conversion)
 	 */		
 	public function get_value($str, $conversion='to_array') {
 		if ($conversion == 'to_array') {			
@@ -599,10 +610,10 @@ abstract class CCTM_FormElement {
 				return $out;
 			}
 		}
-		// to_string.  We do some special acrobatics here to handle the case where someone had a repeatable 
-		// field and they changed it to a normal singular field.  Repeatable fields would be JSON encoded,
+		// to_string.  We do some special acrobatics here to handle the case where a repeatable 
+		// field was changed a normal singular field.  Repeatable fields would be JSON encoded,
 		// so we test for that and we try to extract the 1st value.
-		// Note that json_decode treats alphabetical strings differently than numeric strings.
+		// Note that json_decode treats alphabetical strings differently than numeric strings!!!
 		else {
 			if ($str=='[""]') {
 				return '';
@@ -624,8 +635,8 @@ abstract class CCTM_FormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Formats errors.  This function is useful only for devs as they develop their
-	 * own types of custom fields.
+	 * Formats errors in the field definition, e.g. invalid characters in field name, 
+	 * or reserved field name.
 	 *
 	 * @return string HTML describing any errors tracked in the class $errors variable
 	 */
@@ -687,7 +698,7 @@ abstract class CCTM_FormElement {
 	/**
 	 * Implement this function if your custom field has global settings that apply
 	 * to *all* instances of the field (e.g. an API key). If this function returns
-	 * anything except for false, then a menu item will be created for the custom
+	 * anything other than false, then a menu item will be created for the custom
 	 * field type. The function (if implemented), should return an HTML form that
 	 * allows users to modify the settings. The function must also handle the form
 	 * submission.
@@ -701,14 +712,13 @@ abstract class CCTM_FormElement {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * A little clearing house for getting wrapped translations for various components
+	 * Wraps a given translation (from $this->descriptions) in a styled span.
 	 *
 	 * @param string  $item to identify which description you want.
 	 * @return string HTML localized description
 	 */
 	public function get_translation($item) {
-		$tpl = '<span class="cctm_description">%s</span>';
-		return sprintf($tpl, $this->descriptions[$item]);
+		return sprintf('<span class="cctm_description">%s</span>', $this->descriptions[$item]);
 	}
 
 
@@ -717,12 +727,12 @@ abstract class CCTM_FormElement {
 	 * This function allows for custom handling of submitted post/page data just before
 	 * it is saved to the database; it can be thought of loosely as the "on save" event.
 	 * Data validation and filtering should happen here, although it's difficult to
-	 * enforce any validation errors due to lack of an appropriate event.
+	 * enforce any validation errors due to lack of an appropriate event (uh...WP?)
 	 *
 	 * Output should be whatever string value you want to store in the wp_postmeta table
-	 * for the post in question. Default behavior is to simply trim the values.
+	 * for the post and field in question. Default behavior is to simply trim the values.
 	 *
-	 * Note that the field name in the $_POST array is prefixed by CCTM_FormElement::post_name_prefix,
+	 * Note that the field name in the $_POST array is prefixed with CCTM_FormElement::post_name_prefix,
 	 * e.g. the value for you 'my_field' custom field is stored in $_POST['cctm_my_field']
 	 * (where CCTM_FormElement::post_name_prefix = 'cctm_'). This is done to avoid name
 	 * collisions in the $_POST array.
@@ -744,7 +754,7 @@ abstract class CCTM_FormElement {
 				}
 				// This is what preserves the foreign characters while they traverse the json and WP gauntlet
 				// (yes, seriously we have to doubleslash it when we create a new post in versions
-				// of WP prior to 3.3
+				// of WP prior to 3.3!!!)
 				if (isset($posted_data['_cctm_is_create']) && version_compare($wp_version,'3.3','<')) {
 					return addslashes(addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])));
 				}

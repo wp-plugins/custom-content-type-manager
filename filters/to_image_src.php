@@ -2,7 +2,7 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Given a post_id (or an array of them), return the src for the image.
+ * Given a post_id (or an array of them), return the src for the image(s).
  */
 
 class CCTM_to_image_src extends CCTM_OutputFilter {
@@ -10,14 +10,15 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	mixed 	input
+	 * @param 	mixed 	input (an image post ID), or an array of post IDs
 	 * @param	mixed	default image src if no image is available
-	 * @return mixed
+	 * @return mixed either the src of one image, or an array of src's
 	 */
 	public function filter($input, $options='') {
 		if (is_array($options)) {
 			$options = $options[0];
 		}
+
 		$input = $this->to_array($input);
 		if ($this->is_array_input) {
 			foreach($input as &$item) {
@@ -28,7 +29,7 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 			}
 			return $input;
 		}
-		else {
+		elseif(isset($input[0])) {
 			list($src, $h, $w) = wp_get_attachment_image_src($input[0], null, true);
 			if (empty($src)) {
 				return $options;
@@ -36,6 +37,9 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 			else {
 				return $src;
 			}		
+		}
+		else {
+			return $options;
 		}
 	}
 

@@ -39,7 +39,7 @@ class CCTM_date extends CCTM_FormElement
 		// Standard Datepicker		
 		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
 		// Datetime Picker
-		wp_enqueue_script( 'jquery-datetimepicker', CCTM_URL . '/js/datetime.js', 'jquery');
+		//wp_enqueue_script( 'jquery-datetimepicker', CCTM_URL . '/js/datetime.js', 'jquery');
 		// Timepicker: TODO: fix
 		//wp_enqueue_script( 'jquery-timepicker', CCTM_URL . '/js/timepicker.js', 'jquery-ui-datepicker');
 		// My styles

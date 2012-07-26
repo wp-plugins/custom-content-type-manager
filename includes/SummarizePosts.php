@@ -12,7 +12,7 @@
 
 class SummarizePosts {
 	const name    = 'Summarize Posts';
-	const version   = '0.7';
+	const version   = '0.8';
 	// See http://php.net/manual/en/function.version-compare.php
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const version_meta  = 'dev'; // dev, rc (release candidate), pl (public release)
@@ -31,7 +31,7 @@ class SummarizePosts {
 
 	const txtdomain  = 'summarize-posts';
 
-	const result_tpl = '<li><a href="[+permalink+]">[+post_title+]</li>';
+	const result_tpl = '<li><a href="[+permalink+]">[+post_title+]</a></li>';
 
 	// One placeholder can be designated
 	public static $help_placeholder = '[+help+]';

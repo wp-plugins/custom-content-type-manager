@@ -1,7 +1,4 @@
 <?php
-if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
-
 /*------------------------------------------------------------------------------
 This controller retrieves a search form used for setting Search Parameters 
 (e.g. for the default value of a relation, image, or media field).
@@ -14,6 +11,9 @@ It also accepts the search_parameters (serialized data describing existing value
 @param	$_POST['fieldtype'] (optional)
 @param	$_POST['search_parameters'] (optional)
 ------------------------------------------------------------------------------*/
+if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
+if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+
 $fieldname = CCTM::get_value($_POST, 'fieldname');
 $fieldtype = CCTM::get_value($_POST, 'fieldtype');
 $type = ''; // set once we know if we've got a fieldname or a fieldtype
@@ -64,11 +64,11 @@ $form_tpl = '
 <style>
 [+css+]
 </style>
-<p>This form will determine which posts will be selectable when users create or edit a post that uses this field. <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SearchParameters"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a></p>
+<p>'. __('This form will determine which posts will be selectable when users create or edit a post that uses this field.',  CCTM_TXTDOMAIN).' <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SearchParameters"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a></p>
 <form id="search_parameters_form" class="[+form_name+]">
 	[+content+]
-	<span class="button" onclick="javascript:search_parameters_save(\'search_parameters_form\');">Save</span>
-	<span class="button" onclick="javascript:tb_remove();">Cancel</span>
+	<span class="button" onclick="javascript:search_parameters_save(\'search_parameters_form\');">'. __('Save', CCTM_TXTDOMAIN).'</span>
+	<span class="button" onclick="javascript:tb_remove();">'.__('Cancel', CCTM_TXTDOMAIN).'</span>
 </form>
 ';
 

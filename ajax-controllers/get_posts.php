@@ -1,7 +1,7 @@
 <?php
 /*------------------------------------------------------------------------------
-This controller displays a selection of posts for the user to select, i.e. 
-the "Post Selector"
+This controller displays a selection of posts for the user to select when they are
+creating or editing a post/page, i.e. the "Post Selector"
 
 The thickbox appears (for example) when you create or edit a post that uses a relation,
 image, or media field.
@@ -147,7 +147,8 @@ $search_form_tpl = CCTM::load_tpl(
 $Form->set_tpl($search_form_tpl);
 $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
-$search_by = array('search_term','yearmonth','post_type'); 
+// $search_by = array('search_term','yearmonth','post_type'); 
+$search_by = true; // all options available if the tpl passes them
 $d['search_form'] = $Form->generate($search_by, $args);
 
 

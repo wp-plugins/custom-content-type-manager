@@ -30,6 +30,7 @@ class CCTM_ImportExport {
 	 * Takes a definition file and activates it by copying it into the current 
 	 * CCTM::$data structure.
 	 *
+	 * @param	string	$filename name of definition file, not including 'wp-content/uploads/cctm/defs/'
 	 * @return boolean (true on success, false on fail)
 	 */
 	public static function activate_def($filename) {

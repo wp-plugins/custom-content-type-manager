@@ -11,25 +11,21 @@ if ( ! defined('WP_CONTENT_DIR')) exit('No direct script access allowed');
 Run tests only upon activation
 http://codex.wordpress.org/Function_Reference/register_activation_hook
 */
-// Always Required Files
+
 require_once('includes/CCTM.php');
 require_once('includes/constants.php');
 require_once('includes/SummarizePosts.php');
 require_once('includes/GetPostsQuery.php');
 require_once('includes/SummarizePosts_Widget.php');
 require_once('includes/CCTM_Post_Widget.php');
+require_once('includes/StandardizedCustomFields.php');
+require_once('includes/CCTM_FormElement.php');
+require_once('includes/CCTM_Ajax.php');
+require_once('includes/functions.php');
 
-// Admin-only files
-if( is_admin()) {
-	require_once('includes/StandardizedCustomFields.php');
-	require_once('includes/CCTM_FormElement.php');
-	require_once('includes/CCTM_Ajax.php');
-	CCTM::$Ajax = new CCTM_Ajax();
-}
-// Front-end Only files
-else {
-	include_once('includes/functions.php');
-}
+CCTM::$Ajax = new CCTM_Ajax();
+
+
 
 // Get admin ready, print any CCTMtests::$errors in the admin dashboard
 add_action( 'admin_notices', 'CCTM::print_notices');

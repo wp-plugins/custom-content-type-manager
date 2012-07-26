@@ -32,7 +32,7 @@ if (!CCTM_PostTypeDef::is_existing_post_type($post_type) ) {
 	return;
 }
 
-$current_theme_name = get_current_theme();
+$current_theme_name = wp_get_theme();
 $current_theme_path = get_stylesheet_directory();
 
 $hash = array();
