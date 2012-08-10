@@ -1,7 +1,15 @@
 <?php
 /*------------------------------------------------------------------------------
 This controller grabs one or many post by the $_POST['post_id'], formats them
-and returns them to the browser as the "preview".
+and returns them to the browser as the "preview". 
+OR
+If the "upload" button is clicked, a "guid" parameter is posted.  The format 
+for this can be http://mysite.com/wp-content/uploads/2012/08/my-image.jpg OR
+http://mysite.com/?attachment_id=412.  In the case of the latter, the value
+may not match the actual guid for that post, so we need to extract the post ID
+in order to be able to find it.
+
+See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=404
 
 NOTE: the default tpls used here are the _relation*.tpl's:
 	_relation.tpl for single posts
@@ -37,7 +45,7 @@ if (empty($def)) {
 
 // Will be either the single or the multi, depending.
 $tpl = '';
-
+// print '<pre>' . print_r($_POST, true) . '</pre>'; exit;
 // Might be an array
 $post_ids = CCTM::get_value($_POST,'post_id');
 $guid = CCTM::get_value($_POST,'guid');
@@ -90,9 +98,15 @@ if (empty($tpl)) {
 $Q = new GetPostsQuery(); 
 $Q->defaults = array(); // blank it out... everything is fair game.
 
-// Handle WP 3.3 
+// Handle WP 3.3 "upload" button
 if (!empty($guid)) {
-	$args['guid'] = $guid;
+	preg_match('/attachment_id=(\d*)$/', $guid, $matches);
+	if (isset($matches[1])) {
+		$args['ID'] = $matches[1];
+	}
+	else {
+		$args['guid'] = $guid;
+	}
 }
 // Normal behavior
 else {

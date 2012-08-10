@@ -1094,7 +1094,11 @@ class GetPostsForm {
 		//$ph = $this->placeholders;
 		$ph = array();
 
-		$ph['value'] = $this->get_value('taxonomy_slug');
+		$current_value = $this->get_value('taxonomy_slug');
+		if (is_array($current_value)) {
+			$current_value = implode(',',$current_value);
+		}
+		$ph['value'] = $current_value;
 		$ph['name'] = 'taxonomy_slug';
 		$ph['id']  = 'taxonomy_slug';
 		$ph['label'] = __('Taxonomy Slug', CCTM_TXTDOMAIN);
@@ -1248,7 +1252,7 @@ class GetPostsForm {
 			$function_name = '_'.$p;
 			if (method_exists($this, $function_name)) {
 				$this->placeholders[$p] = $this->$function_name();
-				// Keep the main 'content' bit populated: the content is the summ total of all generated elements.
+				// Keep the main 'content' bit populated: the content is the sum total of all generated elements.
 				$this->placeholders['content'] .= $this->placeholders[$p];
 			}
 			else {
