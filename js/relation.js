@@ -42,10 +42,14 @@ inserts into our custom field instead of to the destinations hard-coded by WP.
 In this function, I restore the the original WP function.
 ------------------------------------------------------------------------------*/
 function cctm_upload(fieldname, upload_type) {
+
+	cctm_fieldname = fieldname; // pass this to global scope
+	append_or_replace = upload_type; // pass this to global scope
+
 	// Override the send_to_editor() function from wp-admin/js/media-upload.js
 	window.send_to_editor = function(html) {
 	
-		alert(html); // see what on earth WP is sending back to the post...
+		// alert(html); // see what on earth WP is sending back to the post...
 		var attachment_guid; 
 		
 		var matches = html.match(/href=['|"](.*?)['|"]/);
@@ -126,8 +130,6 @@ function cctm_upload(fieldname, upload_type) {
 		// end of function restoration
 	}
 
-	cctm_fieldname = fieldname; // pass this to global scope
-	append_or_replace = upload_type; // pass this to global scope
 	
 	tb_show('', 'media-upload.php?post_id=0&amp;type=file&amp;TB_iframe=true');
 	return false;
