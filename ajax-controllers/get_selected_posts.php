@@ -45,7 +45,7 @@ if (empty($def)) {
 
 // Will be either the single or the multi, depending.
 $tpl = '';
-// print '<pre>' . print_r($_POST, true) . '</pre>'; exit;
+
 // Might be an array
 $post_ids = CCTM::get_value($_POST,'post_id');
 $guid = CCTM::get_value($_POST,'guid');

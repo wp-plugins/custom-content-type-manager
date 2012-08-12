@@ -99,22 +99,28 @@ function get_custom_field($raw_fieldname, $options=null) {
 	return $value;	
 }
 
+
 //------------------------------------------------------------------------------
 /**
 * Gets info about a custom field's definition (i.e. the meta info about the
-* field). Returns error messages if no data found.
+* field). Returns error messages if no data found.  If you supply a 2nd 
 *
 * Sample usage: <?php print get_custom_field_meta('my_dropdown','label'); ?>
 *
 * @param	string	$fieldname	The name of the custom field
-* @param	string	$item		The name of the definition item that you want
+* @param	string	$item		(optional) The name of the definition item that you want
 * @return	mixed	Usually a string, but some items are arrays (e.g. options)
 */
-function get_custom_field_meta($fieldname, $item) {
+function get_custom_field_meta($fieldname, $item=null) {
 	$data = get_option( CCTM::db_key, array() );
 	
-	if ( $data['custom_field_defs'][$fieldname] ) {
-		return $data['custom_field_defs'][$fieldname];
+	if (isset($data['custom_field_defs'][$fieldname])) {
+		if ($item && isset($data['custom_field_defs'][$fieldname][$item])) {
+			return $data['custom_field_defs'][$fieldname][$item];
+		}
+		else {
+			return $data['custom_field_defs'][$fieldname]
+		}
 	}
 	else {
 		return sprintf( __('Invalid field name: %s', CCTM_TXTDOMAIN), $fieldname );
