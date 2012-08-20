@@ -119,7 +119,7 @@ function get_custom_field_meta($fieldname, $item=null) {
 			return $data['custom_field_defs'][$fieldname][$item];
 		}
 		else {
-			return $data['custom_field_defs'][$fieldname]
+			return $data['custom_field_defs'][$fieldname];
 		}
 	}
 	else {
