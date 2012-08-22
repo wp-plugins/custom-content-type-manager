@@ -57,8 +57,17 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field',$fieldtype) {
-		return '<img src="<?php print_custom_field(\''.$fieldname.':to_image_src\'); ?>" />';
+	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
+		if ($is_repeatable) {
+			return '<?php $images = get_custom_field(\''.$fieldname.':to_image_src\'); 
+foreach ($images as $img) {
+	printf(\'<img src="%s"/>\', $img);
+}
+?>';
+		}
+		else {
+			return '<img src="<?php print_custom_field(\''.$fieldname.':to_image_src\'); ?>" />';
+		}	
 	}
 
 

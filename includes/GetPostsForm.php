@@ -59,7 +59,7 @@ class GetPostsForm {
 		';
 
 	public $checkbox_tpl = '
-		<input type="checkbox" class="[+input_class+]" name="[+name_prefix+][+name+]" id="[+id_prefix+][+id+]" value="[+value+]" [+is_checked+]/> <label for="[+id_prefix+][+id+]" class="[+label_class+]" id="[+id+]_label">[+label+]</label>';
+		<input type="checkbox" class="[+input_class+]" name="[+name_prefix+][+name+]" id="[+id_prefix+][+id+]" value="[+value+]" [+is_checked+]/> <label for="[+id_prefix+][+id+]" class="[+label_class+]" id="[+id+]_label">&nbsp;[+label+]</label>';
 
 	// Used for radio input
 	public $radio_tpl = '

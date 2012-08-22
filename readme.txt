@@ -15,7 +15,7 @@ http://www.youtube.com/watch?v=TKh4Z_Y8iJE
 
 The Custom Content Type Manager requires WordPress 3.3.  It allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality: Break out of your Blog!
 
-With version 0.9.5, you can select multiple images, posts, or media items to be stored in a single field.  This plugin also lets you export and import those content definitions, making it easy to ensure a similar structure between multiple sites.
+You can select multiple images, posts, or media items to be stored in a single field making it easy for you to store a gallery of images or long lists of values.  This plugin also lets you export and import your content definitions, making it easy to ensure a similar structure between multiple sites.
 
 Check the site for a [full list of features](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Features).
 

@@ -40,7 +40,7 @@ class CCTM_to_image_tag extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field',$fieldtype) {
+	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
 		return '<?php print_custom_field(\''.$fieldname.':to_image_tag\'); ?>';
 	}
 

@@ -56,7 +56,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __('The <em>to_link</em> filter takes a post ID and converts it into a full anchor tag. Be default, the post title will be used as the clickable text, but you can supply text to override this text.', CCTM_TXTDOMAIN);
+		return __('The <em>to_link</em> filter takes a post ID and converts it into a full anchor tag. Be default, the post title will be used as the clickable text, but you can supply your own text.', CCTM_TXTDOMAIN);
 	}
 
 
@@ -65,7 +65,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field',$fieldtype) {
+	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
 		return "<?php print_custom_field('$fieldname:to_link', 'Click here'); ?>";
 	}
 

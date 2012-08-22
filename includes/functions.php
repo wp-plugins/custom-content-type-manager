@@ -59,7 +59,7 @@ function get_custom_field($raw_fieldname, $options=null) {
 	// 2. To find any default value (if the field is not defined)
 	if ( !isset(CCTM::$data['custom_field_defs'][$fieldname]) ) {
 		// return get_post_meta($post->ID, $fieldname, true); // ???
-		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), $fieldname ); // ! TODO: just return the fieldname?
+		return sprintf( __('The %s field is not defined as a custom field.', CCTM_TXTDOMAIN), "<code>$fieldname</code>" );
 	}
 	
 	
@@ -236,7 +236,7 @@ function get_incoming_links($post_types_filter=array(), $post_id=null) {
 		AND {$wpdb->postmeta}.meta_key IN ($relation_fields_str)
 		AND {$wpdb->posts}.post_type IN ($post_types_str)"
 	, $post_id);
-//		die($sql);
+
 	$single_results = $wpdb->get_results( $sql, ARRAY_A );
 			
 
@@ -246,7 +246,7 @@ function get_incoming_links($post_types_filter=array(), $post_id=null) {
 		WHERE {$wpdb->postmeta}.meta_value LIKE %s
 		AND {$wpdb->postmeta}.meta_key IN ($relation_fields_str)
 		AND {$wpdb->posts}.post_type IN ($post_types_str)"
-	, '%"'.$post_id.'"%');
+	, '%"'.$post_id.'"%', $post_id);
 
 	$multi_results = $wpdb->get_results( $sql, ARRAY_A );		
 

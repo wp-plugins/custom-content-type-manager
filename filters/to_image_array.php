@@ -42,12 +42,24 @@ class CCTM_to_image_array extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field',$fieldtype) {
-		return '<?php 
+	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
+		if ($is_repeatable) {
+			return '<?php 
+$images = get_custom_field(\''.$fieldname.':to_image_array\');
+foreach ($images as $img) {
+	printf(\'<img src="%s" height="%s" width="%s" />\', $img[0], $img[1], $img[2]);
+}
+?>
+
+<img src="<?php print $src; ?>" height="<?php print $h; ?>" width="<?php print $w ?>" />';
+		}
+		else {	
+			return '<?php 
 list($src, $w, $h) = get_custom_field(\''.$fieldname.':to_image_array\');
 ?>
 
 <img src="<?php print $src; ?>" height="<?php print $h; ?>" width="<?php print $w ?>" />';
+		}
 	}
 
 

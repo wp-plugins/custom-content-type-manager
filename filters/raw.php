@@ -39,8 +39,18 @@ class CCTM_raw extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field',$fieldtype) {
-		return "<?php print_custom_field('$fieldname:raw'); ?>";
+	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
+		if ($is_repeatable) {
+			return '<?php $raw_str = get_custom_field(\''.$fieldname.':raw\'); 
+	$array = json_decode($raw_str, true);
+	foreach ($array as $item) {
+		print $item;
+	}
+?>';
+		}
+		else {
+			return "<?php print_custom_field('$fieldname:raw'); ?>";
+		}
 	}
 
 

@@ -10,30 +10,51 @@ class CCTM_get_post extends CCTM_OutputFilter {
 	/**
 	 * Convert a post id to an array represent the post and all its data.
 	 *
-	 * @param 	integer post_id
+	 * @param 	mixed integer post_id or an array of post_id's
 	 * @param	string	optional field name to return OR a formatting string with [+placeholders+]
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
 
-		if (is_array($input)) {
-			return $input; // nothing to do here.
-		}
-
-		$input = (int) $input;
-		
-		
+		$input = $this->to_array($input);
 		if ($options && is_scalar($options)) {
-			$post = get_post_complete($input);
-			if (isset($post[$options])) {
-				return $post[$options]; 
-			}
-			return CCTM::parse($options,$post);
+			$output = '';
 		}
 		else {
-			return get_post_complete($input);	
+			$output = array();
 		}
 		
+		if ($this->is_array_input) {
+			foreach ($input as &$item) {
+				$item = (int) $item;
+				$post = get_post_complete($item);
+				if ($options && is_scalar($options)) {
+					if (isset($post[$options])) {
+						$output .= $post[$options]; 
+					}
+					else {
+						$output .= CCTM::parse($options,$post);
+					}
+				}
+				else {
+					$output[] = $post;
+				}
+			}
+			return $output;
+		}
+		else {
+			$input = (int) $input[0];
+			if ($options && is_scalar($options)) {
+				$post = get_post_complete($input);
+				if (isset($post[$options])) {
+					return $post[$options]; 
+				}
+				return CCTM::parse($options,$post);
+			}
+			else {
+				return get_post_complete($input);						
+			}
+		}
 	}
 
 
@@ -50,9 +71,9 @@ class CCTM_get_post extends CCTM_OutputFilter {
 	 *
 	 * @return string 	a code sample 
 	 */
-	public function get_example($fieldname='my_field',$fieldtype) {
+	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
 		return '<?php 
-$my_post = get_custom_field("'.$fieldname.'");
+$my_post = get_custom_field("'.$fieldname.':get_post");
 print $my_post["post_title"]; 
 print $my_post["my_custom_field"];
 // ... etc ...

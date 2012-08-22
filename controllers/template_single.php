@@ -6,7 +6,7 @@
  * me throwing a bone to template editors and creators.
  *
  * I'm using a tpl and my parse() function because I have to print out sample PHP
- * code and it's too much of a pain in the ass to include PHP without it executing.
+ * code... otherwise it's too much of a pain to include PHP without it executing.
  *
  * @param string  $post_type
  * @package
@@ -140,9 +140,13 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 			// Show an example of the Output Filter
 			if ($filter_included && $filter != 'raw') {				
 				$OutputFilter = new $filter_class();
+				$is_repeatable = false;
+				if (isset(self::$data['custom_field_defs'][$cf]['is_repeatable'])) {
+					$is_repeatable = self::$data['custom_field_defs'][$cf]['is_repeatable'];
+				}
 				$custom_fields_str .= sprintf("\t\t<strong>%s:</strong> %s<br />\n"
 					, self::$data['custom_field_defs'][$cf]['label']
-					, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'], self::$data['custom_field_defs'][$cf]['type'])
+					, $OutputFilter->get_example(self::$data['custom_field_defs'][$cf]['name'], self::$data['custom_field_defs'][$cf]['type'], $is_repeatable)
 				);
 			}
 			// Generic custom field usage

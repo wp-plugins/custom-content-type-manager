@@ -257,8 +257,10 @@ class CCTMUnitTests extends UnitTestCase {
 	function testFilter20() {
 		$post = CCTM::filter(1,'get_post');
 		$this->assertTrue($post['post_title'] =='Post1');
-	}
-	function testFilter21() {
+		
+		$str = CCTM::filter(array(1,2),'get_post', '[+post_title+]');
+		$this->assertTrue($str =='Post1Page A');
+		
 		$post_title = CCTM::filter(1,'get_post','[+post_title+]');
 		$this->assertTrue($post_title =='Post1');
 	}
@@ -527,6 +529,73 @@ class CCTMUnitTests extends UnitTestCase {
 	
 	
 	// Custom Field with custom settings -- does the link appear?
+	
+	//------------------------------------------------------------------------------
+	//! Template Functions
+	//------------------------------------------------------------------------------
+	function test_get_custom_field() {
+		CCTM::$post_id = 75;
+		$this->assertTrue(get_custom_field('rating') == 'R');
+		$this->assertTrue(get_custom_field('rating:raw') == 'R');
+		CCTM::$post_id = 77;
+		$this->assertTrue(get_custom_field('gallery:gallery') == '<div class="cctm_gallery" id="cctm_gallery_1"><img height="2592" width="1936" src="http://cctm:8888/wp-content/uploads/2012/06/2012-VACATION-059.jpg" title="2012 VACATION 059" alt="" class="cctm_image" id="cctm_image_1"/></div><div class="cctm_gallery" id="cctm_gallery_2"><img height="313" width="637" src="http://cctm:8888/wp-content/uploads/2012/08/I-just-had-sex.jpg" title="I just had sex" alt="" class="cctm_image" id="cctm_image_2"/></div>');
+		
+	}
+	
+	function test_get_custom_field_meta() {
+		$meta = get_custom_field_meta('poster_image');
+		$this->assertTrue($meta['description'] == 'Main image for this film.');
+		$meta = get_custom_field_meta('does_not_exist');
+		$this->assertTrue($meta == 'Invalid field name: does_not_exist');
+	}
+	
+	function test_get_custom_image() {
+		CCTM::$post_id = 77;
+		$this->assertTrue( get_custom_image('poster_image') == wp_get_attachment_image(123, 'full'));
+	}
+	
+	function test_get_incoming_links() {
+		$posts = get_incoming_links(array('movie'), 33);
+		$this->assertTrue($posts[0] == 77);
+	}
+	
+	function test_get_post_complete() {
+		$post = get_post_complete(123);
+		$this->assertTrue($post['post_name'] == 'img_0448');
+	}
+	
+	function test_get_posts_sharing_custom_field_value() {
+		$posts = get_posts_sharing_custom_field_value('rating','R');
+		$this->assertTrue(is_array($posts));
+		$this->assertTrue($posts[0]['ID'] == 75);
+		$this->assertTrue($posts[1]['ID'] == 78);
+	}
+	
+	function test_get_relation() {
+		CCTM::$post_id = 77;
+		$rel = get_relation('poster_image');
+		$this->assertTrue($rel['ID'] == 123);
+	}
+	
+	function test_get_unique_values_this_custom_field() {
+		$values = get_unique_values_this_custom_field('rating');
+		$this->assertTrue(is_array($values));
+		$this->assertTrue(in_array('R',$values));
+		$this->assertTrue(in_array('PG-13',$values));
+	}
+	
+	function test_print_custom_field() {
+	
+	}
+	
+	function test_print_custom_field_meta() {
+	
+	}
+	
+	function test_print_incoming_links() {
+	
+	}
+	
 }
  
 /*EOF*/
