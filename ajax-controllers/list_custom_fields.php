@@ -15,7 +15,7 @@ if (empty($post_type)) {
 }
 
 if (!isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
-	printf('<div class="error"><table><tr><td><img src="%s/images/warning-icon.png" height="44" width="50"/></td><td><p>%s</p></td></tr></table></div>', CCTM_URL, __('The custom fields for this post-type are not standardized. You can manually type in the shortcode to print the custom field value from another post using the following format:  <code>[custom_field name="name_of_field" filter="optional_output_filter" post_id="123"]</code>', CCTM_TXTDOMAIN));
+	printf('<div class="error"><table><tr><td><img src="%s/images/warning-icon.png" height="44" width="50"/></td><td><p>%s <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/custom_field_shortcode"><img src="'.CCTM_URL.'/images/question-mark.gif" width="16" height="16" /></a></p></td></tr></table></div>', CCTM_URL, __('The custom fields for this post-type are not standardized. You can manually type in the shortcode to print the custom field value from another post using the following format:  <code>[custom_field name="name_of_field" filter="optional_output_filter" post_id="123"]</code>', CCTM_TXTDOMAIN));
 	return;
 }
 

@@ -152,19 +152,177 @@ class SummarizePosts {
 		return $complete_post;
 	}
 
-
 	//------------------------------------------------------------------------------
 	/**
-	 * This is our __construct() effectively.
-	 * Handle a couple misspellings here
+	 * http://codex.wordpress.org/Template_Tags/get_posts
+	 * sample usage
+	 * shortcode params:
+	 * 'numberposts'     => 5,
+	 * 'offset'          => 0,
+	 * 'category'        => ,
+	 * 'orderby'         => any valid column from the wp_posts table (minus the "post_")
+	 * ID
+	 * author
+	 * date
+	 * date_gmt
+	 * content
+	 * title
+	 * excerpt
+	 * status
+	 * comment_status
+	 * ping_status
+	 * password
+	 * name
+	 * to_ping
+	 * pinged
+	 * modified
+	 * modified_gmt
+	 * content_filtered
+	 * parent
+	 * guid
+	 * menu_order
+	 * type
+	 * mime_type
+	 * comment_count
+	 * rand -- randomly sort results. This is not compatible with the paginate options! If set,
+	 * the 'paginate' option will be ignored!
+	 * 'order'           => 'DESC',
+	 * 'include'         => ,
+	 * 'exclude'         => ,
+	 * 'meta_key'        => ,
+	 * 'meta_value'      => ,
+	 * 'post_type'       => 'post',
+	 * 'post_mime_type'  => ,
+	 * 'post_parent'     => ,
+	 * 'post_status'     => 'publish'
+	 * * CUSTOM **
+	 * get_meta
+	 * before
+	 * after
+	 * paginate true|false
+	 * placeholders:
+	 * [+help+]
+	 * [shortcode x="1" y="2"]<ul>Formatting template goes here</ul>[/shortcode]
+	 * The $content comes from what's between the tags.
+	 * A standard post has the following attributes:
+	 * [ID] => 6
+	 * [post_author] => 2
+	 * [post_date] => 2010-11-13 20:13:28
+	 * [post_date_gmt] => 2010-11-13 20:13:28
+	 * [post_content] => http://pretasurf.com/blog/wp-content/uploads/2010/11/cropped-LIFE_04_DSC_0024.bw_.jpg
+	 * [post_title] => cropped-LIFE_04_DSC_0024.bw_.jpg
+	 * [post_excerpt] =>
+	 * [post_status] => inherit
+	 * [comment_status] => closed
+	 * [ping_status] => open
+	 * [post_password] =>
+	 * [post_name] => cropped-life_04_dsc_0024-bw_-jpg
+	 * [to_ping] =>
+	 * [pinged] =>
+	 * [post_modified] => 2010-11-13 20:13:28
+	 * [post_modified_gmt] => 2010-11-13 20:13:28
+	 * [post_content_filtered] =>
+	 * [post_parent] => 0
+	 * [guid] => http://pretasurf.com/blog/wp-content/uploads/2010/11/cropped-LIFE_04_DSC_0024.bw_.jpg
+	 * [menu_order] => 0
+	 * [post_type] => attachment
+	 * [post_mime_type] => image/jpeg
+	 * [comment_count] => 0
+	 * [filter] => raw
+	 * But notice that some of these are not very friendly.  E.g. post_author, the user expects the author's name.  So we do some duplicating, tweaking to make this easier on the user.
+	 * Placeholders:
+	 * Generally, these correspond to the names of the database columns in the wp_posts table, but some
+	 * convenience placeholders were added.
+	 * drwxr-xr-x   8 everett2  staff   272 Feb  5 20:16 .
+	 * [+ID+]
+	 * [+post_author+]
+	 * [+post_date+]
+	 * [+post_date_gmt+]
+	 * [+post_content+]
+	 * [+post_title+]
+	 * [+post_excerpt+]
+	 * [+post_status+]
+	 * [+comment_status+]
+	 * [+ping_status+]
+	 * [+post_password+]
+	 * [+post_name+]
+	 * [+to_ping+]
+	 * [+pinged+]
+	 * [+post_modified+]
+	 * [+post_modified_gmt+]
+	 * [+post_content_filtered+]
+	 * [+post_parent+]
+	 * [+guid+]
+	 * [+menu_order+]
+	 * [+post_type+]
+	 * [+post_mime_type+]
+	 * [+comment_count+]
+	 * [+filter+]
+	 * Convenience:
+	 * [+permalink+]
+	 * [+the_content+]
+	 * [+the_author+]
+	 * [+title+]
+	 * [+date+]
+	 * [+excerpt+]
+	 * [+mime_type+]
+	 * [+modified+]
+	 * [+parent+]
+	 * [+modified_gmt+]
+	 * ;
 	 *
-	 * @return void
+	 * @param array $raw_args    (optional)
+	 * @param string $content_tpl (optional)
+	 * @return array
 	 */
-	public static function initialize() {
-		add_shortcode('summarize-posts', 'SummarizePosts::get_posts');
-		add_shortcode('summarize_posts', 'SummarizePosts::get_posts');
-	}
+	public static function get_posts($raw_args=array(), $content_tpl = null) {
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=389
+		$content_tpl = preg_replace('#^</p>#', '', $content_tpl);
+		$content_tpl = preg_replace('#<p>$#', '', $content_tpl);
 
+		if (empty($raw_args) || !is_array($raw_args)) {
+			$raw_args = array();
+		}
+
+		$formatting_args = shortcode_atts( self::$formatting_defaults, $raw_args );
+		$formatting_args['tpl_str'] = self::_get_tpl($content_tpl, $formatting_args);
+
+		$output = '';
+		//print_r($formatting_args); exit;
+
+		$help_flag = false;
+		if (isset($raw_args['help']) ) {
+			$help_flag = true;
+			unset($raw_args['help']);
+		}
+
+		$Q = new GetPostsQuery();
+		$args = array_merge($Q->defaults, $raw_args);
+
+		$results = $Q->get_posts($args);
+
+		// Print help message.  Should include the SQL statement, errors
+		if ($help_flag) {
+			return $Q->debug(); // this prints the results
+		}
+		else {
+			if (empty($results)) {
+				return '';
+			}
+			
+			$output = $formatting_args['before'];
+			foreach ( $results as $r ) {
+				$output .= CCTM::parse($formatting_args['tpl_str'], $r);
+			}
+			$output .= $formatting_args['after'];
+
+			if ( $Q->paginate ) {
+				$output .= '<div class="summarize-posts-pagination-links">'.$Q->get_pagination_links().'</div>';
+			}
+		}
+
+		return $output;
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -349,179 +507,6 @@ class SummarizePosts {
 		else {
 			return "Invalid Submission.";
 		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * http://codex.wordpress.org/Template_Tags/get_posts
-	 * sample usage
-	 * shortcode params:
-	 * 'numberposts'     => 5,
-	 * 'offset'          => 0,
-	 * 'category'        => ,
-	 * 'orderby'         => any valid column from the wp_posts table (minus the "post_")
-	 * ID
-	 * author
-	 * date
-	 * date_gmt
-	 * content
-	 * title
-	 * excerpt
-	 * status
-	 * comment_status
-	 * ping_status
-	 * password
-	 * name
-	 * to_ping
-	 * pinged
-	 * modified
-	 * modified_gmt
-	 * content_filtered
-	 * parent
-	 * guid
-	 * menu_order
-	 * type
-	 * mime_type
-	 * comment_count
-	 * rand -- randomly sort results. This is not compatible with the paginate options! If set,
-	 * the 'paginate' option will be ignored!
-	 * 'order'           => 'DESC',
-	 * 'include'         => ,
-	 * 'exclude'         => ,
-	 * 'meta_key'        => ,
-	 * 'meta_value'      => ,
-	 * 'post_type'       => 'post',
-	 * 'post_mime_type'  => ,
-	 * 'post_parent'     => ,
-	 * 'post_status'     => 'publish'
-	 * * CUSTOM **
-	 * get_meta
-	 * before
-	 * after
-	 * paginate true|false
-	 * placeholders:
-	 * [+help+]
-	 * [shortcode x="1" y="2"]<ul>Formatting template goes here</ul>[/shortcode]
-	 * The $content comes from what's between the tags.
-	 * A standard post has the following attributes:
-	 * [ID] => 6
-	 * [post_author] => 2
-	 * [post_date] => 2010-11-13 20:13:28
-	 * [post_date_gmt] => 2010-11-13 20:13:28
-	 * [post_content] => http://pretasurf.com/blog/wp-content/uploads/2010/11/cropped-LIFE_04_DSC_0024.bw_.jpg
-	 * [post_title] => cropped-LIFE_04_DSC_0024.bw_.jpg
-	 * [post_excerpt] =>
-	 * [post_status] => inherit
-	 * [comment_status] => closed
-	 * [ping_status] => open
-	 * [post_password] =>
-	 * [post_name] => cropped-life_04_dsc_0024-bw_-jpg
-	 * [to_ping] =>
-	 * [pinged] =>
-	 * [post_modified] => 2010-11-13 20:13:28
-	 * [post_modified_gmt] => 2010-11-13 20:13:28
-	 * [post_content_filtered] =>
-	 * [post_parent] => 0
-	 * [guid] => http://pretasurf.com/blog/wp-content/uploads/2010/11/cropped-LIFE_04_DSC_0024.bw_.jpg
-	 * [menu_order] => 0
-	 * [post_type] => attachment
-	 * [post_mime_type] => image/jpeg
-	 * [comment_count] => 0
-	 * [filter] => raw
-	 * But notice that some of these are not very friendly.  E.g. post_author, the user expects the author's name.  So we do some duplicating, tweaking to make this easier on the user.
-	 * Placeholders:
-	 * Generally, these correspond to the names of the database columns in the wp_posts table, but some
-	 * convenience placeholders were added.
-	 * drwxr-xr-x   8 everett2  staff   272 Feb  5 20:16 .
-	 * [+ID+]
-	 * [+post_author+]
-	 * [+post_date+]
-	 * [+post_date_gmt+]
-	 * [+post_content+]
-	 * [+post_title+]
-	 * [+post_excerpt+]
-	 * [+post_status+]
-	 * [+comment_status+]
-	 * [+ping_status+]
-	 * [+post_password+]
-	 * [+post_name+]
-	 * [+to_ping+]
-	 * [+pinged+]
-	 * [+post_modified+]
-	 * [+post_modified_gmt+]
-	 * [+post_content_filtered+]
-	 * [+post_parent+]
-	 * [+guid+]
-	 * [+menu_order+]
-	 * [+post_type+]
-	 * [+post_mime_type+]
-	 * [+comment_count+]
-	 * [+filter+]
-	 * Convenience:
-	 * [+permalink+]
-	 * [+the_content+]
-	 * [+the_author+]
-	 * [+title+]
-	 * [+date+]
-	 * [+excerpt+]
-	 * [+mime_type+]
-	 * [+modified+]
-	 * [+parent+]
-	 * [+modified_gmt+]
-	 * ;
-	 *
-	 * @param array $raw_args    (optional)
-	 * @param string $content_tpl (optional)
-	 * @return array
-	 */
-	public static function get_posts($raw_args=array(), $content_tpl = null) {
-		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=389
-		$content_tpl = preg_replace('#^</p>#', '', $content_tpl);
-		$content_tpl = preg_replace('#<p>$#', '', $content_tpl);
-
-		if (empty($raw_args) || !is_array($raw_args)) {
-			$raw_args = array();
-		}
-
-		$formatting_args = shortcode_atts( self::$formatting_defaults, $raw_args );
-		$formatting_args['tpl_str'] = self::_get_tpl($content_tpl, $formatting_args);
-
-		$output = '';
-		//print_r($formatting_args); exit;
-
-		$help_flag = false;
-		if (isset($raw_args['help']) ) {
-			$help_flag = true;
-			unset($raw_args['help']);
-		}
-
-		$Q = new GetPostsQuery();
-		$args = array_merge($Q->defaults, $raw_args);
-
-		$results = $Q->get_posts($args);
-
-		// Print help message.  Should include the SQL statement, errors
-		if ($help_flag) {
-			return $Q->debug(); // this prints the results
-		}
-		else {
-			if (empty($results)) {
-				return '';
-			}
-			
-			$output = $formatting_args['before'];
-			foreach ( $results as $r ) {
-				$output .= CCTM::parse($formatting_args['tpl_str'], $r);
-			}
-			$output .= $formatting_args['after'];
-
-			if ( $Q->paginate ) {
-				$output .= '<div class="summarize-posts-pagination-links">'.$Q->get_pagination_links().'</div>';
-			}
-		}
-
-		return $output;
 	}
 
 	//------------------------------------------------------------------------------

@@ -1,17 +1,17 @@
 === Custom Content Type Manager ===
 Contributors: fireproofsocks
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=355ULXBFXYL8N
+Donate link: http://www.indiegogo.com/cctm
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.4.1
-Stable tag: 0.9.6
-Version: 0.9.5.6-pl
+Stable tag: 0.9.6.1
+Version: 0.9.5.6.1
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
 == Description ==
 
-http://www.youtube.com/watch?v=TKh4Z_Y8iJE
+http://www.youtube.com/watch?v=rbRHrdKwo5A
 
 The Custom Content Type Manager requires WordPress 3.3.  It allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality: Break out of your Blog!
 
@@ -81,6 +81,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 * Improved parser to handle output filters in placeholders.
 * Lots of general cleanup to consolidate similar functions.
+* Improved examples for sample templates.
 * Fixed bug in format string for summarize-posts shortcode.
 	
 = 0.9.6 =

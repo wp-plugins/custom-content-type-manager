@@ -45,11 +45,7 @@ class CCTM_Post_Widget extends WP_Widget {
 		if (!isset($instance['title'])) {
 			$instance['title'] = ''; 	// default value
 		}
-		if (!isset($instance['post_id'])) {
-			$instance['post_id'] = ''; 	// default value
-		}
-		// Similar stuff here as in get_widget_post_tpl.php
-		else {
+		if (isset($instance['post_id']) && !empty($instance['post_id'])) {
 			$Q = new GetPostsQuery();
 			$post = $Q->get_post($instance['post_id']);
 			$tpl = CCTM::load_tpl('widgets/post_item.tpl');
@@ -65,6 +61,9 @@ class CCTM_Post_Widget extends WP_Widget {
 			$post['target_id'] = $this->get_field_id('target_id');
 
 			$formatted_post = CCTM::parse($tpl, $post);
+		}
+		else {
+			$instance['post_id'] = '';
 		}
 		if (!isset($instance['formatting_string'])) {
 			$instance['formatting_string'] = '[+post_content+]'; 	// default value
@@ -95,7 +94,7 @@ class CCTM_Post_Widget extends WP_Widget {
 			<input type="hidden" id="'.$this->get_field_id('post_id').'" name="'.$this->get_field_name('post_id').'" value="'.$instance['post_id'].'" />
 			<select name="'.$this->get_field_name('post_type').'" id="'.$this->get_field_id('post_type').'">
 				'.$post_type_options.'
-			</select><br/>
+			</select><br/><br/>
 			<span class="button" onclick="javascript:select_post(\''.$this->get_field_id('post_id').'\',\''.$this->get_field_id('target_id').'\',\''.$this->get_field_id('post_type').'\');">'. __('Choose Post', CCTM_TXTDOMAIN).'</span>
 
 			<br/><br/>
@@ -106,7 +105,7 @@ class CCTM_Post_Widget extends WP_Widget {
 			<div id="thickbox_'.$this->get_field_id('target_id').'"></div>
 			<br/><br/>
 			
-			<input type="checkbox" name="'.$this->get_field_name('override_title').'" value="1" '.$is_checked.'/> <label class="">'.__('Override Post Title',CCTM_TXTDOMAIN).'</label>
+			<input type="checkbox" name="'.$this->get_field_name('override_title').'" id="'.$this->get_field_id('override_title').'" value="1" '.$is_checked.'/> <label class="" for="'.$this->get_field_id('override_title').'">'.__('Override Post Title',CCTM_TXTDOMAIN).'</label><br/><br/>
 			<label class="cctm_label" for="'.$this->get_field_id('title').'">'.__('Title', CCTM_TXTDOMAIN).'</label>
 			<input type="text" name="'.$this->get_field_name('title').'" id="'.$this->get_field_id('title').'" value="'.$instance['title'].'" />
 			
@@ -137,8 +136,7 @@ class CCTM_Post_Widget extends WP_Widget {
 		$post['post_content'] = do_shortcode(wpautop($post['post_content']));
 		
 		$output = $args['before_widget'];
-		
-		
+				
 		if (isset($instance['override_title']) && $instance['override_title'] == 1) {
 			$title = $instance['title'];
 		}

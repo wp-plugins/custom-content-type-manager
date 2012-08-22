@@ -480,8 +480,8 @@ class GetPostsForm {
 	private function _exclude() {
 		//$ph = $this->placeholders;
 		$ph = array();
-
-		$ph['value'] = $this->get_value('exclude');
+		$exclude = (array) $this->get_value('exclude');
+		$ph['value'] = implode(',',$exclude);
 		$ph['name'] = 'exclude';
 		$ph['id']  = 'exclude';
 		$ph['label'] = __('Exclude', CCTM_TXTDOMAIN);
@@ -501,7 +501,8 @@ class GetPostsForm {
 		//$ph = $this->placeholders;
 		$ph = array();
 
-		$ph['value'] = $this->get_value('include');
+		$include = (array) $this->get_value('include');
+		$ph['value'] = implode(',',$include);
 		$ph['name'] = 'include';
 		$ph['id']  = 'include';
 		$ph['label'] = __('Include', CCTM_TXTDOMAIN);

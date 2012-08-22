@@ -120,7 +120,7 @@ class CCTM_hidden extends CCTM_FormElement
 			<div class="inside">
 			<div class="'.self::wrapper_css_class .'" id="evaluate_default_value_wrapper">
 				 <label for="evaluate_default_value" class="cctm_label cctm_checkbox_label" id="evaluate_default_value_label">'
-			. __('Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code>).', CCTM_TXTDOMAIN) .
+			. __('EXPERIMENTAL USE ONLY. Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code>).', CCTM_TXTDOMAIN) .
 			'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_default_value" class="cctm_checkbox" id="evaluate_default_value" value="1" '. $is_checked.'/> '
