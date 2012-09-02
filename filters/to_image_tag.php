@@ -2,7 +2,8 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Converts input (usually a JSON encoded string) into an array
+ * Converts input (usually a JSON encoded string) into an array of image attributes
+ * via the wp_get_attachment_image() function.
  */
 
 class CCTM_to_image_tag extends CCTM_OutputFilter {

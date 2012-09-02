@@ -156,10 +156,17 @@ class SP_Post {
 	public function delete($post_id) {
 		global $wpdb;
 		
+		$post_id = (int) $post_id;
+		
 		// Delete the custom fields
 		$query = $wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE post_id = %s"
 			, $post_id);
 		$wpdb->query($query);		
+
+		// Delete taxonomy refs
+		$query = $wpdb->prepare("DELETE FROM {$wpdb->term_relationships} WHERE object_id = %s",$post_id);
+		$wpdb->query($query);
+
 		
 		// Delete any revisions
 		$query = $wpdb->prepare("DELETE a FROM {$wpdb->posts} a INNER JOIN {$wpdb->posts} b ON a.post_parent=b.ID WHERE a.post_type='revision' AND b.ID=%s"
@@ -175,18 +182,35 @@ class SP_Post {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * Ties into GetPostsQuery, but offers a bit more flexibility.
+	 * Convenience function that ties into GetPostsQuery to retrieve a single post. 
+	 * You can provide a simple post_id to retrieve a single post, or you can provide
+	 * complex search criteria a la GetPostsQuery::get_posts(), but this function 
+	 * will only return a single result.
 	 *
-	 * @param	mixed	$args	integer ID, or valid search params for GetPostsQuery
+	 * @param	mixed	$args	any valid search params for GetPostsQuery, or integer post id (for retrieving 1 post)
+	 * @return	mixed -- a single associative array if an integer was supplied, or false on no results.
 	 */
 	public function get($args) {
 		$Q = new GetPostsQuery();
-		$posts = $Q->get_posts($args);
-		if (!empty($posts)) {
-			return $posts[0];
+		if (is_array($args)) {
+			$args['limit'] = 1; // for database efficiency
+			$posts = $Q->get_posts($args);
+			if (!empty($posts)) {
+				return $posts[0];
+			}
+			else {
+				return false;
+			}
 		}
 		else {
-			return false;
+			$post_id = (int) $args;
+			$post = $Q->get_posts($post_id);
+			if (!empty($post)) {
+				return $post;
+			}
+			else {
+				return false;
+			}
 		}
 	}
 

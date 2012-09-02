@@ -2142,8 +2142,8 @@ class GetPostsQuery {
 
 		if ( $this->paginate ) {
 			$this->found_rows = $this->_count_posts();			
-			include_once 'CCTM_Pagination.conf.php';
-			include_once 'CCTM_Pagination.php';
+			require_once 'CCTM_Pagination.conf.php';
+			require_once 'CCTM_Pagination.php';
 			$this->P = new CCTM_Pagination();
 			$this->P->set_base_url( self::get_current_page_url() );
 			$this->P->set_offset($this->offset); //

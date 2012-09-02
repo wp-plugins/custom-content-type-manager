@@ -19,7 +19,7 @@ if (!array_key_exists($field_name, self::$data['custom_field_defs'])) {
 // Page variables
 $data = array();
 $data['page_title'] = sprintf(__('Edit Custom Field: %s', CCTM_TXTDOMAIN), $field_name );
-$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SupportedCustomFields';
+$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomFieldDefinitions';
 $data['msg'] = '';
 $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=list_custom_fields" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['submit'] = __('Save', CCTM_TXTDOMAIN);
