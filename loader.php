@@ -101,7 +101,10 @@ if ( empty(CCTM::$errors) )
 				// Handle the data in each cell
 				add_action('manage_posts_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
 				add_action('manage_pages_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
-
+			
+				// Forces custom post types to sort correctly
+				add_filter('posts_orderby', 'CCTM::order_posts');
+				add_filter('posts_join', 'CCTM::posts_join');
 			}		
 		}
 	}
@@ -110,9 +113,6 @@ if ( empty(CCTM::$errors) )
 //	add_filter('getarchives_where', 'CCTM::get_archives_where_filter' , 10 , 2);
 	add_filter('request', 'CCTM::request_filter');
 	
-	// Forces custom post types to sort correctly
-	add_filter('posts_orderby', 'CCTM::order_posts');
-	add_filter('posts_join', 'CCTM::posts_join');
 	
 	// Modifies the "Right Now" widget
 	add_action('right_now_content_table_end' , 'CCTM::right_now_widget');

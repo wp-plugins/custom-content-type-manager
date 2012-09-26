@@ -80,6 +80,7 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.6.2 =
 
 * Improvements to SP_Post
+* Issue 415 resolved: sorting on custom field
 * Small improvments
 
 = 0.9.6.1 =
