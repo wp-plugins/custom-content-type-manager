@@ -204,7 +204,7 @@ class SP_Post {
 		}
 		else {
 			$post_id = (int) $args;
-			$post = $Q->get_posts($post_id);
+			$post = $Q->get_post($post_id);
 			if (!empty($post)) {
 				return $post;
 			}
@@ -305,7 +305,7 @@ class SP_Post {
 		if (isset($args['ID']) && $args['ID'] != 0) {
 			$post = get_post($args['ID'], ARRAY_A);
 			if (!empty($post)) {
-				return $this->update($args);
+				return $this->update($args,$args['ID']);
 			}
 		}
 		
@@ -316,13 +316,24 @@ class SP_Post {
 	//------------------------------------------------------------------------------
 	/**
 	 * @param	array	$args in column => value pairs
+	 * @param	integer	$post_id the post you want to update
 	 * @param	boolean	$overwrite (optional). If true, this will nuke any custom fields not included in $args.
+	 * @return 	mixed	integer $post_id on success, boolean false on fail
 	 */
-	public function update($args, $overwrite=false) {
+	public function update($args, $raw_post_id, $overwrite=false) {
 		
-		$post_id = '';
+		$post_id = (int) $raw_post_id;
 		global $wpdb;
 		
+		if (!$post_id) {
+			$this->errors[] = __('Update requires post ID.', CCTM_TXTDOMAIN);
+			return false;
+		}
+		if ($post_id != $raw_post_id) {
+			$this->errors[] = __('Invalid value for post ID. Cannot update post.', CCTM_TXTDOMAIN);
+			return false;	
+		}	
+	
 		$args = $this->_sanitize($args);
 
 		// Get the primary columns
@@ -335,14 +346,6 @@ class SP_Post {
 			else {
 				$postmeta_args[$k] = $v;	
 			}
-		}
-		
-		if (isset($args['ID']) && !empty($args['ID'])) {
-			$post_id = $args['ID'];
-		}
-		else {
-			$this->errors[] = 'Update requires the post ID';
-			return false;
 		}
 		
 		// Main fields

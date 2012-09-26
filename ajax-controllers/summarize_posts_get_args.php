@@ -2,7 +2,8 @@
 /*------------------------------------------------------------------------------
 This controller is meant to take some serialized Summarize Posts parameters
 (e.g. ones that define a search for an image, relation, or media field) and 
-convert them to human-readable arguments.
+convert them to human-readable arguments so a user will see what filters
+are defined for a relation field.
 
 @param string	$_POST['search_parameters']
 ------------------------------------------------------------------------------*/

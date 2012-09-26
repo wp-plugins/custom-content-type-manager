@@ -26,6 +26,7 @@ require_once(dirname(__FILE__) . '/../../../../wp-config.php');
 //require_once(CCTM_PATH .'/validators/CCTM_FormElement.php');
 
 //require_once(CCTM_PATH .'/includes/CCTM_FormElement.php');
+require_once(CCTM_PATH .'/includes/SP_Post.php');
 
 class CCTMUnitTests extends UnitTestCase {
 	
@@ -596,6 +597,21 @@ class CCTMUnitTests extends UnitTestCase {
 	
 	}
 	
+	//------------------------------------------------------------------------------
+	//! SP_Post
+	//------------------------------------------------------------------------------
+	function test_sppost1() {
+		$SP = new SP_Post();	
+		$post = $SP->get(21);
+		$this->assertTrue($post['post_title'] == 'Page C-1');
+		
+		$post['post_title'] = 'Page C-1-test';
+		$SP->update($post,21);
+		$post = $SP->get(21);
+		$this->assertTrue($post['post_title'] == 'Page C-1-test');
+		$post['post_title'] = 'Page C-1';
+		$SP->update($post,21);
+	}
 }
  
 /*EOF*/

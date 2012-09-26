@@ -2241,12 +2241,25 @@ class CCTM {
 				unset($post_types['nav_menu_item']);
 //				unset($post_types['page']); // TO-DO: configure this?
 				foreach ($post_types as $pt) {
+/*
 					// we only exclude it if it was specifically excluded.
 					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) {
 						unset($post_types[$pt]);
 					}
 					elseif('page' == $pt) {
 						unset($post_types[$pt]);
+					}
+*/
+					// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=412
+					if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
+						// Leave pages in.
+					}
+					elseif($pt == 'post') {
+						// Do nothing.  Posts are always included in the RSS feed.
+					}
+					// Exclude it if it was specifically excluded.
+					elseif (!isset($pt['include_in_rss']) || !$pt['include_in_rss']) {
+						unset($post_types[$key]);
 					}
 				}
 				// The format of the array of $post_types is array('post' => 'post', 'page' => 'page')

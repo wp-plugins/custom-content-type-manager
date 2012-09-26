@@ -140,6 +140,7 @@ class GetPostsForm {
 		'form_number'    => '', // iterated on each instance of generate, even across objects
 		'action'      => '',
 		'method'      => 'post',
+		'cctm_url'	=> '', // set during __construct()
 	);
 
 	// Contains css stuff, populated at instantiation
@@ -220,7 +221,8 @@ class GetPostsForm {
 		$this->placeholders['wrapper_class']   = 'input_wrapper';
 		$this->placeholders['description_class']  = 'input_description';
 		$this->placeholders['input_class']    = 'input_field';
-
+		$this->placeholders['cctm_url']    = CCTM_URL;
+		
 		$this->valid_props = array_keys($this->Q->defaults);
 
 		if (empty($search_by)) {
@@ -1039,6 +1041,7 @@ class GetPostsForm {
 		$current_value = $this->get_value('taxonomy');
 		$ph['options'] = '';
 		// put a blank option before all the rest
+		$ph2['value'] = '';
 		$ph2['name'] = 'taxonomy';
 		$ph2['label'] = __('Select taxonomy', CCTM_TXTDOMAIN);
 		$ph['options'] .= CCTM::parse($this->option_tpl, $ph2, true);
