@@ -2137,7 +2137,7 @@ class CCTM {
 
 		}
 		// Handle posts that use categories.
-		elseif (isset($query['category_name'])) {
+		elseif (isset($query['category_name']) || isset($query['cat'])) {
 			$args = array( 'public' => true, '_builtin' => false );
 			$public_post_types = get_post_types( $args );
 
