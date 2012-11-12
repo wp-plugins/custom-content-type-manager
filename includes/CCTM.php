@@ -679,7 +679,10 @@ class CCTM {
 		
 		// This isn't always called on the public-side... it gets called in the manager too.
 		if ('query' == $context) {
-			global $wp_query;	
+			global $wp_query;
+			if (!is_object($wp_query)) {
+				return $title;
+			}
 			$post_type = CCTM::get_value($wp_query->query_vars, 'post_type');
 			// To avoid problems when this filter is called unexpectedly... e.g. category pages has an array of post_types
 			if (empty($post_type) || is_array($post_type)) {

@@ -66,7 +66,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 				$def = self::$data['post_type_defs'][$pt];
 			}
 			
-			if (in_array($field_name, $def['custom_fields'])) {
+			if (is_array($def['custom_fields']) && in_array($field_name, $def['custom_fields'])) {
 				$revised_custom_fields = array();
 				foreach ($def['custom_fields'] as $cf) {
 					if ( $cf != $field_name ) {

@@ -59,10 +59,8 @@ class SummarizePosts {
 	private static function _get_tpl($content, $args) {
 
 		$content = trim($content);
-		if ( empty($content) ) {
-			$content = self::result_tpl; // default
-		}
-		elseif ( !empty($args['tpl']) ) {
+		
+		if ( !empty($args['tpl']) && preg_match('/\.tpl$', $content)) {
 			// strip possible leading slash
 			$args['tpl'] = preg_replace('/^\//', '', $args['tpl']);
 			$file = ABSPATH .$args['tpl'];
@@ -272,20 +270,25 @@ class SummarizePosts {
 	 * ;
 	 *
 	 * @param array $raw_args    (optional)
-	 * @param string $content_tpl (optional)
+	 * @param string $content_str (optional)
 	 * @return array
 	 */
-	public static function get_posts($raw_args=array(), $content_tpl = null) {
+	public static function get_posts($raw_args=array(), $content_str = null) {
 		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=389
-		$content_tpl = preg_replace('#^</p>#', '', $content_tpl);
-		$content_tpl = preg_replace('#<p>$#', '', $content_tpl);
+		$content_str = preg_replace('#^</p>#', '', $content_str);
+		$content_str = preg_replace('#<p>$#', '', $content_str);
+		
+		$content_str = trim($content_str);
+		if ( empty($content_str) ) {
+			$content_str = self::result_tpl; // default
+		}
 
 		if (empty($raw_args) || !is_array($raw_args)) {
 			$raw_args = array();
 		}
 
 		$formatting_args = shortcode_atts( self::$formatting_defaults, $raw_args );
-		$formatting_args['tpl_str'] = self::_get_tpl($content_tpl, $formatting_args);
+		$formatting_args['tpl_str'] = self::_get_tpl($content_str, $formatting_args);
 
 		$output = '';
 		//print_r($formatting_args); exit;
