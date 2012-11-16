@@ -662,12 +662,14 @@ class CCTM {
 	/**
 	 * This filters the post_name (intercepting the WP sanitize_title event).
 	 * This is important for hierarchical post-types because WP incorrectly identifies
-	 * the post_name when a hiearchical post-type URL is encountere, e.g. 
+	 * the post_name when a hiearchical post-type URL is encountered, e.g. 
 	 * 	http://wpcctm.com/movie/lord-of-the-rings/fellowship-of-the-ring/
 	 *
 	 * WP searches the database via post_name, and it thinks the post_name is:
 	 * "lord-of-the-ringsfellowship-of-the-ring".  So we have to grab the last segment
-	 * of the URL.
+	 * of the URL because only the last segment is stored in the database as the title.
+	 *
+	 * 
 	 *
 	 * @param	string	$title the post_name, e.g. "lord-of-the-rings/fellowship-of-the-ring"
 	 * @param	string	$raw_title
@@ -683,12 +685,18 @@ class CCTM {
 			if (!is_object($wp_query)) {
 				return $title;
 			}
+
 			$post_type = CCTM::get_value($wp_query->query_vars, 'post_type');
+			// Don't mess with foreign post-types.
+			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=425
+			if (!isset(CCTM::$data['post_type_defs'][$post_type]['cctm_hierarchical_custom'])) {
+				return $title;
+			}
+
 			// To avoid problems when this filter is called unexpectedly... e.g. category pages has an array of post_types
 			if (empty($post_type) || is_array($post_type)) {
 				return $title; // 
 			}
-
 			//checking cctm_hierarchical_custom is not necessary because BOTH boxes must be checked.
 			// Get the last URL segment.  E.g. given house/room/chair, this would return 'chair'
 			if (isset(CCTM::$data['post_type_defs'][$post_type]) && CCTM::$data['post_type_defs'][$post_type]['hierarchical'] ) {
