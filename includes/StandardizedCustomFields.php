@@ -111,7 +111,8 @@ class StandardizedCustomFields
 					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 				}
 				// Do any other validation checks here: TODO
-				elseif (!empty($value_copy) && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
+				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
+				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
 					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
 					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
 						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
