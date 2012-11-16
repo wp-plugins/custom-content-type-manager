@@ -22,27 +22,19 @@ class CCTM_do_shortcode extends CCTM_OutputFilter {
 		if ($this->is_array_input) {
 			foreach ($input as &$item) {		
 				if ($options) {
-					ob_start();
-					do_shortcode($input);
-					$input = ob_get_clean();
+					$input = do_shortcode($input);
 				}
 				else {
-					ob_start();
-					do_shortcode(wpautop($input));
-					$input = ob_get_clean();
+					$input = do_shortcode(wpautop($input));
 				}
 			}
 		}
 		else {
 			if ($options) {
-				ob_start();
-				do_shortcode($input[0]);
-				$input = ob_get_clean();
+				$input = do_shortcode($input[0]);
 			}
 			else {
-				ob_start();
-				do_shortcode(wpautop($input[0]));
-				$input = ob_get_clean();
+				$input = do_shortcode(wpautop($input[0]));
 			}
 		}
 		

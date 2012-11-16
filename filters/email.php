@@ -25,7 +25,9 @@ class CCTM_email extends CCTM_OutputFilter {
 				}
 				$item = $new_item;
 			}
-			return $input;
+			// a raw array is more flexible than a canned filter...
+			// return CCTM::filter($input, 'formatted_list', $options);
+			return $input; 
 		}
 		else {
 			$output = '';
