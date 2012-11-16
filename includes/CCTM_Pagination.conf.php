@@ -37,27 +37,27 @@ class CCTM_Pagination_Configuration {
 
 	// (int) 1 or greater.  This only kicks in if the $limit_key is not
 	// specified explicitly.
-	var $default_results_per_page = 10;	
+	public $default_results_per_page = 10;	
 	
 	// (int) 3 or greater
 	// TODO: it should be considered valid to have only "prev" and "next" links.
-	var $number_of_pagination_links_displayed = 10; 
+	public $number_of_pagination_links_displayed = 10; 
 	
 	// (int) 1 or greater. How many pages do <<prev or next>> jump?  Usually this is 1.
-	var $next_prev_jump_size = 1;  
+	public $next_prev_jump_size = 1;  
 	
 	// (string) name of URL parameter used to denote an integer offset, e.g. &offset=10
-	var $offset_key = 'offset';
+	public $offset_key = 'offset';
 	
 
 	// (string) e.g. 'target="_self"' ; this is useful for enabling pagination within a frame.
-	var $default_extra = '';
+	public $default_extra = '';
 	
 	// The pagination links modify the base URL for a given page; if the page requiring 
 	// pagination is a CGI-style URL (e.g. www.domain.com/page.php?page_id=123 ), then
 	// you should set the base url accordingly so that the pagination parameters will be
 	// appended correctly (e.g. www.domain.com/page.php?page_id=123&offset=10 )
-	var $default_base_url = '?';
+	public $default_base_url = '?';
 	
 	/*-----------------------------------------------------------------------------
 	Available Placeholders: 
@@ -83,9 +83,9 @@ class CCTM_Pagination_Configuration {
 	-----------------------------------------------------------------------------*/
 	
 	/* Which group to use: this specifies a node in the $tpls array */
-	var $active_group = 'media';
+	public $active_group = 'media';
 	
-	var $tpls = array(
+	public $tpls = array(
 		'default' => array (
 			'firstTpl'		=> '<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>&laquo; First</a> &nbsp;',
 			'lastTpl' 		=> '&nbsp;<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>Last &raquo;</a>',
@@ -174,7 +174,7 @@ class CCTM_Pagination_Configuration {
 
 	);
 
-	var $default = array('firstTpl' => 'nothing');  // What is this?
+	public $default = array('firstTpl' => 'nothing');  // What is this?
 	
 	// TODO:
 	// Scroll-lock on/off.  
@@ -184,8 +184,8 @@ class CCTM_Pagination_Configuration {
 	/*------------------------------------------------------------------------------
 	$_GET parameters
 	------------------------------------------------------------------------------*/	
-	var $limit_key = 'l';
-	var $order_key = 'ord';
-	var $dir_key = 'dir';
+	public $limit_key = 'l';
+	public $order_key = 'ord';
+	public $dir_key = 'dir';
 }
 /* EOF */

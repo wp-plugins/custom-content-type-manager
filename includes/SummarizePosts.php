@@ -50,7 +50,8 @@ class SummarizePosts {
 	//! Private functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Get the template (tpl) to format each search result.
+	 * Get the formatting string (tpl) to format each search result in a short-code
+	 * The $args can supply a 'tpl' key that defines a .tpl file.
 	 *
 	 * @param string  $content
 	 * @param array   $args    associative array
@@ -58,28 +59,26 @@ class SummarizePosts {
 	 */
 	private static function _get_tpl($content, $args) {
 
-		$content = trim($content);
-		
-		if ( !empty($args['tpl']) && preg_match('/\.tpl$', $content)) {
+		if ( isset($args['tpl']) && !empty($args['tpl']) && preg_match('/\.tpl$/i', $args['tpl'])) {
 			// strip possible leading slash
 			$args['tpl'] = preg_replace('/^\//', '', $args['tpl']);
 			$file = ABSPATH .$args['tpl'];
 
 			if ( file_exists($file) ) {
-				$content = file_get_contents($file);
+				return file_get_contents($file);
 			}
 			else {
-				// TODO: throw an error
+				return sprintf(__('.tpl file does not exist %s', CCTM_TXTDOMAIN), $args['tpl']);
 			}
 		}
 		// Read from between [summarize-posts]in between[/summarize-posts]
 		else {
+			$content = trim($content);
 			$content = html_entity_decode($content);
 			// fix the quotes back to normal
 			$content = str_replace(array('&#8221;', '&#8220;'), '"', $content );
-			$content = str_replace(array('&#8216;', '&#8217;'), "'", $content );
+			return str_replace(array('&#8216;', '&#8217;'), "'", $content );
 		}
-		return $content;
 	}
 
 	//------------------------------------------------------------------------------
@@ -289,15 +288,20 @@ class SummarizePosts {
 
 		$formatting_args = shortcode_atts( self::$formatting_defaults, $raw_args );
 		$formatting_args['tpl_str'] = self::_get_tpl($content_str, $formatting_args);
-
+		
+		// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=427
+		if (isset($raw_args['tpl']) ) {
+            unset($raw_args['tpl']);
+        }
+        
 		$output = '';
-		//print_r($formatting_args); exit;
 
 		$help_flag = false;
 		if (isset($raw_args['help']) ) {
 			$help_flag = true;
 			unset($raw_args['help']);
 		}
+
 
 		$Q = new GetPostsQuery();
 		$args = array_merge($Q->defaults, $raw_args);
