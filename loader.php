@@ -110,7 +110,6 @@ if ( empty(CCTM::$errors) )
 	}
 	
 	// Enable archives for custom post types
-//	add_filter('getarchives_where', 'CCTM::get_archives_where_filter' , 10 , 2);
 	add_filter('request', 'CCTM::request_filter');
 	
 	

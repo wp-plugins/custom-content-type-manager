@@ -8,12 +8,12 @@ There are 2 ways to identify page numbers during pagination. The most obvious on
 is that we number each page: 1,2,3.  This corresponds to pagination links
 like mypage.php?page=3 for example.
 
-		include('Pagination.php');
+		require('Pagination.php');
 		$p = new Pagination();
 		$offset = $p->page_to_offset($_GET['page'], $_GET['rpp']);
 		$p->set_offset($offset); //
 		$p->set_results_per_page($_GET['rpp']);  // You can optionally expose this to the user.
-		$p->set_extra('target="_self"'); // optional
+		$p->extra = 'target="_self"'; // optional
 		print $p->paginate(100); // 100 is the count of records
 
 The other way to identify page numbers is via an offset of the records. This is
@@ -30,49 +30,50 @@ See the CCTM_Pagination.conf.php file for more details and customization options
 
 Private functions reference internal publics; public functions do not.
 
+AUTHOR: everett@fireproofsocks (2010, revised 2012)
+
+PACKAGE: Custom Content Type Manager 
+
 */
 
 class CCTM_Pagination {
-	public $Config;
+
+	// Formatting template chunks, set via set_tpl() or set_tpls()
+	private $firstTpl = '<a href="[+base_url+]&offset=[+offset+]" [+extra+]>&laquo; First</a> &nbsp;';
+	private $lastTpl = '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>Last &raquo;</a>';
+	private $prevTpl = '<a href="[+base_url+]&offset=[+offset+]" [+extra+]>&lsaquo; Prev.</a>&nbsp;';
+	private $nextTpl = '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>Next &rsaquo;</a>';
+	private $currentPageTpl = '&nbsp;<span>[+page_number+]</span>&nbsp;';
+	private $pageTpl = '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>[+page_number+]</a>&nbsp;';
+	private $outerTpl = '<div id="pagination">[+content+]<br/>
+				Page [+current_page+] of [+page_count+]<br/>
+				Displaying records [+first_record+] thru [+last_record+] of [+record_count+]
+			</div>';
+	
+	// Stores any error messages (useful for devs)
+	public $errors = array();
+	
+	
+	// Controls how many pagination links are shown
+	private $link_cnt = 10; 
+
+	// Controls how many pages are flipped forward/backwards when the prev/next links are clicked
+	private $jump_size = 1;
+	
+	// If not defined, this is the default number of links per page
+	private $default_results_per_page = 25;
+	
 	// Contains all placeholders passed to the outerTpl
 	public $properties = array();
 
-	// Formatting template chunks, normally set via set_tpls()
-	public $firstTpl;
-	public $lastTpl;
-	public $prevTpl;
-	public $nextTpl;
-	public $currentPageTpl;
-	public $pageTpl;
-	public $outerTpl;
-
-	//------------------------------------------------------------------------------
 	/**
-	 * When does this get called????
-	 *
-	 * @param unknown $tpl_set
-	 * @param unknown $args    (optional)
-	 * @return unknown
-	 */
-	function __call($tpl_set, $args='') {
-		$this->set_tpls($tpl_set);
-		return $this->paginate($args[0]);
-	}
-
-	/**
-	 *
+	 * We need to bootstrap some of the properties at time of instantiation
 	 */
 	function __construct() {
-
-		$this->Config = new CCTM_Pagination_Configuration();
-
-		$this->set_tpls();
-
-		$this->set_base_url();
-		$this->set_extra();
-		$this->set_offset();
-		$this->set_results_per_page();
-
+		// set defaults
+		$this->set_base_url('?');
+		$this->set_offset(0);
+		$this->set_results_per_page($this->default_results_per_page);
 	}
 
 	/**
@@ -88,24 +89,26 @@ class CCTM_Pagination {
 	}
 	
 	/**
-	 * Dynamic getter. Note that there is a PHP bug that prohibits $this->$x['y']; access.
+	 * Dynamic setter to set any placeholder property (used in formatting the tpls).
 	 *
 	 * @param string $name
 	 * @param mixed $val -- ought to always be a string.
 	 */
 	public function __set($name, $val) {
-		$this->properties[$name] = $val;
+		if (is_scalar($name)) {
+			$this->properties[$name] = $val;
+		}
 	}
 
 
 	/**
-	 *
+	 * Parses the first template (firstTpl)
 	 *
 	 * @return string
 	 */
 	private function _parse_firstTpl() {
 		if ($this->offset > 0) {
-			return $this->parse($this->firstTpl, array('offset'=> '0', 'page_number'=> '1' ));
+			return $this->_parse($this->firstTpl, array('offset'=> 0, 'page_number'=> 1 ));
 		} else {
 			return '';
 		}
@@ -113,7 +116,7 @@ class CCTM_Pagination {
 
 
 	/**
-	 *
+	 * Parse the last template (lastTpl)
 	 *
 	 * @return string
 	 */
@@ -121,15 +124,17 @@ class CCTM_Pagination {
 		$page_number = $this->page_count;
 		$offset = $this->page_to_offset($page_number, $this->results_per_page);
 		if ($this->current_page < $this->page_count) {
-			return $this->parse($this->lastTpl, array('offset'=> $offset, 'page_number'=> $page_number));
+			return $this->_parse($this->lastTpl, array(
+				'offset'=> $offset, 
+				'page_number'=> $page_number
+				)
+			);
 		} else {
 			return '';
 		}
 	}
 
 	/**
-	 *
-	 *
 	 * @return string
 	 */
 	private function _parse_pagination_links() {
@@ -138,17 +143,9 @@ class CCTM_Pagination {
 			$offset = $this->page_to_offset( $page, $this->results_per_page);
 
 			if ( $page == $this->current_page ) {
-				$output .= $this->parse
-				(
-					$this->currentPageTpl
-					, array('offset'=> $offset, 'page_number'=> $page)
-				);
+				$output .= $this->_parse( $this->currentPageTpl, array('offset'=> $offset, 'page_number'=> $page));
 			} else {
-				$output .= $this->parse
-				(
-					$this->pageTpl
-					, array('offset'=> $offset, 'page_number'=> $page)
-				);
+				$output .= $this->_parse($this->pageTpl, array('offset'=> $offset, 'page_number'=> $page));
 			}
 		}
 		return $output;
@@ -156,35 +153,37 @@ class CCTM_Pagination {
 
 
 	/**
-	 *
+	 * Parse the tpl used for the "Next >" link.
 	 *
 	 * @return string
 	 */
 	private function _parse_nextTpl() {
-		$page_number = $this->get_next_page( $this->current_page, $this->page_count );
+		$page_number = $this->_get_next_page( $this->current_page, $this->page_count );
 		$offset = $this->page_to_offset( $page_number, $this->results_per_page );
 		if ( $this->current_page < $this->page_count ) {
-			return $this->parse($this->nextTpl, array('offset'=> $offset, 'page_number'=> $page_number));
+			return $this->_parse($this->nextTpl, array('offset'=> $offset, 'page_number'=> $page_number));
 		} else {
 			return '';
 		}
 	}
 
 	/**
-	 *
+	 * Parse the tpl used for the "< Prev" link.
 	 *
 	 * @return string
 	 */
 	private function _parse_prevTpl() {
-		$page_number = $this->get_prev_page( $this->current_page, $this->page_count );
+		$page_number = $this->_get_prev_page( $this->current_page, $this->page_count );
 		$offset = $this->page_to_offset( $page_number, $this->results_per_page );
 		if ($this->offset > 0) {
-			return $this->parse( $this->prevTpl, array('offset'=> $offset, 'page_number'=> $page_number) );
+			return $this->_parse( $this->prevTpl, array('offset'=> $offset, 'page_number'=> $page_number) );
 		}
 	}
 
 	/**
-	 *
+	 * A calcuation to get the highest visble page when displaying a cluster of 
+	 * links, e.g. 4 5 6 7 8  -- this function is what calculates that "8" is the 
+	 * highest visible page.
 	 *
 	 * @param integer $current_pg
 	 * @param integer $total_pgs_shown
@@ -208,10 +207,6 @@ class CCTM_Pagination {
 		return $output;
 	}
 
-
-	//------------------------------------------------------------------------------
-	//! PUBLIC FUNCTIONS
-	//------------------------------------------------------------------------------
 	/**
 	 * Calculates the lowest of the visible pages, keeping the current page floating
 	 * in the center.
@@ -221,7 +216,7 @@ class CCTM_Pagination {
 	 * @param integer $total_pgs
 	 * @return integer
 	 */
-	public function get_lowest_visible_page($current_pg, $pgs_visible, $total_pgs) {
+	private function _get_lowest_visible_page($current_pg, $pgs_visible, $total_pgs) {
 		//if ($pgs_visible is even, subtract the 1)
 		$half = floor($pgs_visible / 2);
 		$output = 1;
@@ -242,67 +237,35 @@ class CCTM_Pagination {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * The page targeted by the Next link. 
 	 *
-	 *
-	 * @param unknown $current_pg
-	 * @param unknown $total_pgs
-	 * @return unknown
+	 * @param integer $current_pg
+	 * @param integer $total_pgs
+	 * @return integer
 	 */
-	public function get_next_page($current_pg, $total_pgs) {
-		$next_page = $current_pg + $this->Config->next_prev_jump_size;
+	private function _get_next_page($current_pg, $total_pgs) {
+		$next_page = $current_pg + $this->jump_size;
 		if ($next_page > $total_pgs) {
 			return $total_pgs;
 		} else {
 			return $next_page;
 		}
 	}
-
+	
 	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * The page targeted by the Prev link.
 	 *
 	 * @param integer $current_pg
 	 * @param integer $total_pgs
 	 * @return integer
 	 */
-	public function get_prev_page($current_pg, $total_pgs) {
-		$prev_page = $current_pg - $this->Config->next_prev_jump_size;
+	private function _get_prev_page($current_pg, $total_pgs) {
+		$prev_page = $current_pg - $this->jump_size;
 		if ($prev_page < 1) {
 			return 1;
 		} else {
 			return $prev_page;
-		}
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * convert an offset number to a page number
-	 *
-	 * @param integer $offset
-	 * @param integer $results_per_page
-	 * @return integer
-	 */
-	public function offset_to_page($offset, $results_per_page) {
-		if (is_numeric($results_per_page) && $results_per_page > 0) {
-			return (floor($offset / $results_per_page)) + 1;
-		} else {
-			return 1;
-		}
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Convert page number to an offset
-	 *
-	 * @param unknown $page
-	 * @param unknown $results_per_page
-	 * @return unknown
-	 */
-	public function page_to_offset($page, $results_per_page) {
-		if (is_numeric($page) && $page > 1) {
-			return ($page - 1) * $results_per_page;
-		} else {
-			return 0;
 		}
 	}
 
@@ -314,12 +277,60 @@ class CCTM_Pagination {
 	 * @param array $record
 	 * @return string
 	 */
-	public function parse($tpl, $record) {
+	private function _parse($tpl, $record) {
 
 		foreach ($record as $key => $value) {
 			$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
 		}
 		return $tpl;
+	}
+		
+	//------------------------------------------------------------------------------
+	//! PUBLIC FUNCTIONS
+	//------------------------------------------------------------------------------
+	/**
+	 * convert an offset number to a page number
+	 *
+	 * @param integer $offset
+	 * @param integer $results_per_page (optional) defaults to the set $this->results_per_page
+	 * @return integer
+	 */
+	public function offset_to_page($offset, $results_per_page=null) {
+		$offset = (int) $offset;
+		if ($results_per_page) {
+			$results_per_page = (int) $results_per_page;
+		}
+		else {
+			$results_per_page = $this->results_per_page;
+		}
+		if (is_numeric($results_per_page) && $results_per_page > 0) {
+			return (floor($offset / $results_per_page)) + 1;
+		} else {
+			return 1;
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Convert page number to an offset
+	 *
+	 * @param integer $page
+	 * @param integer $results_per_page
+	 * @return integer
+	 */
+	public function page_to_offset($page, $results_per_page=null) {
+		$page = (int) $page;
+		if ($results_per_page) {
+			$results_per_page = (int) $results_per_page;
+		}
+		else {
+			$results_per_page = $this->results_per_page;
+		}
+		if (is_numeric($page) && $page > 1) {
+			return ($page - 1) * $results_per_page;
+		} else {
+			return 0;
+		}
 	}
 
 	//------------------------------------------------------------------------------
@@ -328,17 +339,17 @@ class CCTM_Pagination {
 	 * INPUT: (int) the # of records you're paginating.
 	 * OUTPUT: formatted links
 	 *
-	 * @param integer $record_count (optional)
+	 * @param integer $record_count
 	 * @return string	html used for pagination (formatted links)
 	 */
-	public function paginate($record_count='') {
+	public function paginate($record_count) {
 
 		$record_count = (int) $record_count;
 
 		// No point in doing pagination if there aren't enough records
 		if ( empty($record_count)) {
 			return '';
-		};
+		}
 
 		// Pagination is not necessary if you are on the first page and the record count
 		// is less than the results per page.
@@ -350,22 +361,17 @@ class CCTM_Pagination {
 
 		$this->current_page = $this->offset_to_page( $this->offset, $this->results_per_page );
 
-		$this->lowest_visible_page
-			= $this->get_lowest_visible_page
-		(
+		$this->lowest_visible_page = $this->_get_lowest_visible_page(
 			$this->current_page
-			, $this->Config->number_of_pagination_links_displayed
+			, $this->link_cnt
 			, $this->page_count
 		);
 
-		$this->highest_visible_page
-			= $this->_get_highest_visible_page
-		(
+		$this->highest_visible_page = $this->_get_highest_visible_page (
 			$this->current_page
-			, $this->Config->number_of_pagination_links_displayed
+			, $this->link_cnt
 			, $this->page_count
-		)
-		;
+		);
 
 		$this->first_record = $this->offset + 1;
 
@@ -377,8 +383,6 @@ class CCTM_Pagination {
 		}
 
 		// We need keys from config
-		$this->properties['results_per_page_key'] = $this->Config->limit_key;
-		$this->properties['offset_key'] = $this->Config->offset_key;
 		$this->properties['record_count'] = $record_count;
 
 		$this->properties['content'] = $this->_parse_firstTpl();
@@ -386,108 +390,145 @@ class CCTM_Pagination {
 		$this->properties['content'] .= $this->_parse_pagination_links();
 		$this->properties['content'] .= $this->_parse_nextTpl();
 		$this->properties['content'] .= $this->_parse_lastTpl();
-		$first_pass = $this->parse($this->outerTpl, $this->properties);
+		$first_pass = $this->_parse($this->outerTpl, $this->properties);
 		
-		return $this->parse($first_pass, $this->properties);
+		return $this->_parse($first_pass, $this->properties);
 	}
 
 	//------------------------------------------------------------------------------
 	/**
 	 * This is the base url used when creating all the links to all the pages.
-	 * !!! Please use a clean URL!!! Don't pass this js or other xss crap.
+	 * WARNING: use a clean URL!!! Filter out any Javascript or anything that might
+	 * lead to an XSS attack before you set this value -- this function does not do
+	 * any of its own filtering.
 	 * The base_url is intented to be manually set, not open to user input.
 	 *
-	 * @param string $base_url (optional)
+	 * @param string $base_url
 	 */
-	public function set_base_url($base_url='') {
-		if ( $base_url == '') {
-			$base_url = '?';
-		}
-		elseif ( !preg_match('/\?/', $base_url) ) {
+	public function set_base_url($base_url) {
+		if ( !preg_match('/\?/', $base_url) ) {
 			$base_url = $base_url . '?';
 		}
 
 		$this->properties['base_url'] = $base_url;
 	}
 
-
 	//------------------------------------------------------------------------------
 	/**
-	 * The extra bit is included in the generated anchor tags, e.g.
-	 * <a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>
-	 * This is useful for pagination that has to occur on framed pages, e.g.
-	 * 		set_extra('target="_self"');
+	 * Controls how many pages are flipped forwards/backwards when the prev/next
+	 * links are clicked. With a value of 1, this operates like a book -- flip
+	 * forward or back one page at a time.
+	 * Giant leaps are possible e.g. if you display 10 links at a time and you flip 
+	 * 10 pages forward, e.g. from displaying pages 11 - 20 to 21 - 30, etc.
 	 *
-	 * Or this is the place to put in JavaScript goodies.
-	 * This is not intended to be set by users (only by you, the developer)
-	 *
-	 * @param string $extra (optional)
+	 * @param integer $pgs 1 or greater
+	 * @return void
 	 */
-	public function set_extra($extra='') {
-		$this->properties['extra'] = $extra;
+	public function set_jump_size($pgs) {
+		$pgs = (int) $pgs;
+		if ($pgs > 0) {
+			$this->jump_size = $pgs;	
+		}
+		else {
+			$this->errors[] = 'set_jump_size() requires an integer greater than 0';
+		}	
 	}
-
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Set the number of pagination links to display, e.g. 3 might generate a set 
+	 * of links like this:
+	 *
+	 *		<< First < Prev 4 5 6 Next > Last >>
+	 *
+	 * Whereas setting a value of 6 might generate a set of links like this:
+	 *
+	 *		<< First < Prev 4 5 6 7 8 9 Next > Last >>
+	 *
+	 * @param integer $cnt the total number of links to show
+	 * @return void
+	 */
+	public function set_link_cnt($cnt) {
+		$cnt = (int) $cnt;
+		if ($cnt > 0) {
+			$this->link_cnt = $cnt;
+		}
+		else {
+			$this->errors[] = 'set_link_cnt() requires an integer greater than 0';
+		}
+	}
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Goes thru integer filter; this one IS expected to get its input from users
 	 * or from the $_GET array, so using (int) type-casting is a heavy-handed filter.
 	 *
-	 * @param unknown $offset (optional)
+	 * @param integer $offset
 	 */
-	public function set_offset($offset='') {
-		if ( $offset=='') {
-			$this->properties['offset'] = 0;
-		}
-		elseif ( is_numeric($offset) && $offset >= 0 ) {
-			$this->properties['offset'] = (int) $offset;
+	public function set_offset($offset) {
+		$offset = (int) $offset;
+		if ($offset >= 0 ) {
+			$this->properties['offset'] = $offset;
 		}
 		else {
 			$this->properties['offset'] = 0;
 		}
 	}
+
 
 	//------------------------------------------------------------------------------
 	/**
 	 * Set the number of results to show per page.
 	 *
-	 * @param integer $results_per_page (optional)
+	 * @param integer $results_per_page 
 	 */
-	public function set_results_per_page($results_per_page='') {
-		if ( $results_per_page=='') {
-			$this->properties['results_per_page'] = $this->Config->default_results_per_page;
-		}
-		elseif ( is_numeric($results_per_page) && $results_per_page >= 1 ) {
-			$this->properties['results_per_page'] = (int) $results_per_page;
+	public function set_results_per_page($results_per_page) {
+		$results_per_page = (int) $results_per_page;
+		if ($results_per_page > 0 ) {
+			$this->properties['results_per_page'] = $results_per_page;
 		}
 		else {
-			$this->properties['results_per_page'] = $this->Config->default_results_per_page;
+			$this->errors[] = "set_results_per_page() requires an integer greater than zero.";
 		}
 	}
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
-	 *
-	 * @param string $active_group (optional) specifies a group of tpls in the Config class.
+	 * Set a single formatting tpl.
+	 * @param string $tpl one of the named tpls
+	 * @param string $content
 	 */
-	public function set_tpls($active_group='') {
-		if (is_array($active_group)) {
-			foreach($active_group as $k => $v) {
-				$this->$k = $v;
+	public function set_tpl($tpl, $content) {
+		if (!is_scalar($content)) {
+			$this->errors[] = "Content for $tpl tpl must be a string.";
+		}
+		if (in_array($tpl, array('firstTpl','lastTpl','prevTpl','nextTpl','currentPageTpl',
+			'pageTpl','outerTpl'))) {
+			$this->$tpl = $content;
+		}
+		else {
+			$this->errors[] = "Unknown tpl " . strip_tags($tpl);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Set all the tpls in one go by supplying an array.  You must supply 
+	 * a *complete* set of tpls to this function! A missing key is equivalent to 
+	 * supplying an empty string.
+	 *
+	 * @param array $tpls, associative array with keys 
+	 */
+	public function set_tpls($tpls) {
+		if (is_array($tpls)) {
+			$tpls = array_merge(array('firstTpl'=>'','lastTpl'=>'','prevTpl'=>'',
+			'nextTpl'=>'','currentPageTpl'=>'','pageTpl'=>'','outerTpl'=>''), $tpls);
+			foreach($tpls as $tpl => $v) {
+				$this->set_tpl($tpl,$v);
 			}
 		}
 		else {			
-			if ($active_group=='') {
-				$active_group = $this->Config->active_group;
-			}
-	
-			$this->firstTpl   = $this->Config->tpls[$active_group]['firstTpl'];
-			$this->lastTpl    = $this->Config->tpls[$active_group]['lastTpl'];
-			$this->prevTpl    = $this->Config->tpls[$active_group]['prevTpl'];
-			$this->nextTpl    = $this->Config->tpls[$active_group]['nextTpl'];
-			$this->currentPageTpl  = $this->Config->tpls[$active_group]['currentPageTpl'];
-			$this->pageTpl    = $this->Config->tpls[$active_group]['pageTpl'];
-			$this->outerTpl   = $this->Config->tpls[$active_group]['outerTpl'];
+			$this->errors[] = "set_tpls() requires array input.";
 		}
 	}
 }

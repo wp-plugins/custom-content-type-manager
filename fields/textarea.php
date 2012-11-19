@@ -96,7 +96,7 @@ class CCTM_textarea extends CCTM_FormElement
 			$values = $this->get_value($current_value,'to_array');
 
 			foreach ($values as $v) {
-				$this->value = htmlspecialchars( html_entity_decode($v) );
+				$this->value = htmlspecialchars( html_entity_decode($v), ENT_QUOTES);
 				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
 				$this->i   = $this->i + 1;
 			}
@@ -116,7 +116,7 @@ class CCTM_textarea extends CCTM_FormElement
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
-			$this->value = $this->get_value($current_value,'to_string');
+			$this->value = htmlspecialchars($this->get_value($current_value,'to_string'), ENT_QUOTES);
 			$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		}
 

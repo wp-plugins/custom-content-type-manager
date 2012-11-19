@@ -80,8 +80,9 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.6.2 =
 
 * Improvements to SP_Post
+* Reworking of the CCTM_Pagination library and documentation.
 * Issue 415 resolved: sorting on custom field
-* Small improvments
+* Small improvements
 
 = 0.9.6.1 =
 
@@ -382,6 +383,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.6.2 = 
+
+* Various patches and minor improvements.
 
 = 0.9.6.1 =
 

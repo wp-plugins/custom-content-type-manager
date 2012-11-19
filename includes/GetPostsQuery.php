@@ -2141,17 +2141,16 @@ class GetPostsQuery {
 		}
 
 		if ( $this->paginate ) {
-			$this->found_rows = $this->_count_posts();			
-			require_once 'CCTM_Pagination.conf.php';
+			$this->found_rows = $this->_count_posts();
 			require_once 'CCTM_Pagination.php';
 			$this->P = new CCTM_Pagination();
 			$this->P->set_base_url( self::get_current_page_url() );
-			$this->P->set_offset($this->offset); //
-			$this->P->set_results_per_page($this->limit);  // You can optionally expose this to the user.
+			$this->P->set_offset($this->offset); 
+			$this->P->set_results_per_page($this->limit);
 			if (!empty($this->tpls)) {
 				$this->P->set_tpls($this->tpls);
 			}
-			$this->pagination_links = $this->P->paginate($this->found_rows); // 100 is the count of records
+			$this->pagination_links = $this->P->paginate($this->found_rows);
 		}
 		
 		$postdata = $wpdb->get_results( $this->_get_sql2($post_ids), ARRAY_A );

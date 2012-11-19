@@ -210,7 +210,7 @@ class CCTM_relation extends CCTM_FormElement
 				$hash['post_id']    	= (int) $v;
 				$hash['thumbnail_url']	= CCTM::get_thumbnail($hash['post_id']);
 
-				// Look up all the data on that foriegn key
+				// Look up all the data on that foreign key
 				// We gotta watch out: what if the related post has custom fields like "description" or 
 				// anything that would conflict with the definition?
 				$post = $Q->get_post($hash['post_id']);
