@@ -24,6 +24,9 @@ class CCTM_to_link extends CCTM_OutputFilter {
 			foreach ($input as &$item) {
 				if ($item) {
 					$post = get_post($item);
+					if (!is_object($post)) {
+						$item = __('Referenced post not found.', CCTM_TXTDOMAIN);
+					}
 					$link_text = $post->post_title;
 					if (!empty($options)) {
 						if (is_array($options) && isset($options[0])) {
@@ -40,6 +43,9 @@ class CCTM_to_link extends CCTM_OutputFilter {
 		}
 		else {
 			$post = get_post($input[0]);
+			if (!is_object($post)) {
+				return _e('Referenced post not found.', CCTM_TXTDOMAIN);
+			}
 			if ($options) {
 				$link_text = $options;
 			}
