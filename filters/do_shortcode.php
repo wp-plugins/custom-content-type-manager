@@ -18,7 +18,9 @@ class CCTM_do_shortcode extends CCTM_OutputFilter {
 	 * @return mixed -- will match input type of input
 	 */
 	public function filter($input, $options=null) {
+		
 		$input = $this->to_array($input);
+
 		if ($this->is_array_input) {
 			foreach ($input as &$item) {		
 				if ($options) {

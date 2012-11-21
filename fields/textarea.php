@@ -116,6 +116,7 @@ class CCTM_textarea extends CCTM_FormElement
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
+			
 			$this->value = htmlspecialchars($this->get_value($current_value,'to_string'), ENT_QUOTES);
 			$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		}

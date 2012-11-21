@@ -2015,7 +2015,8 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Gets the # of rows found given the criteria
+	 * Gets the # of rows found given the criteria.  Must be run after get_posts 
+	 * has been run.
 	 * @return integer
 	 */
 	public function get_found_rows() {
@@ -2321,8 +2322,9 @@ class GetPostsQuery {
 	
 	//------------------------------------------------------------------------------
 	/**
+	 * Passthru to pagination library:
 	 * Set tpls to be used for formatting of pagination links
-	 * @param	array
+	 * @param	array $tpls associative array
 	 */
 	public function set_tpls($tpls) {
 		$valid_tpls = array('firstTpl','lastTpl','prevTpl','nextTpl','currentPageTpl','pageTpl','outerTpl');

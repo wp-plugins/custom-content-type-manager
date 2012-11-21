@@ -15,12 +15,19 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+		
 		$output = '';
 		if (is_array($options)) {
 			$options = $options[0];
 		}		
 		$input = $this->to_array($input);
+		
+		if (empty($input)) {
+			return '';
+		}
+		
 		if ($this->is_array_input) {			
+		die('arra...');
 			foreach ($input as &$item) {
 				if ($item) {
 					$post = get_post($item);

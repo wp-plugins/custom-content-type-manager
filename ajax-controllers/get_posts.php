@@ -1,10 +1,11 @@
 <?php
 /*------------------------------------------------------------------------------
-This controller displays a selection of posts for the user to select when they are
-creating or editing a post/page, i.e. the "Post Selector"
+This controller displays a selection of posts in a lightbox/thickbox for the 
+user to select when they arecreating or editing a post/page, 
+i.e. the "Post Selector"
 
-The thickbox appears (for example) when you create or edit a post that uses a relation,
-image, or media field.
+The thickbox appears (for example) when you create or edit a post that uses a 
+relation, image, or media field.
 ------------------------------------------------------------------------------*/
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('edit_posts')) die('You do not have permission to do that.');
@@ -133,6 +134,20 @@ $args['offset'] = 0; // assume 0, unless we got a page number
 if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 	$args['offset'] = ($d['page_number'] - 1) * CCTM::$post_selector['limit'];
 }
+
+// Set pagination tpls
+$tpls = array (
+	'firstTpl'		=> '<span class="linklike" onclick="javascript:change_page(1);">&laquo; First</span> &nbsp;',
+	'lastTpl' 		=> '&nbsp;<span class="linklike" onclick="javascript:change_page([+page_number+]);" >Last &raquo;</span>',
+	'prevTpl' 		=> '<span class="linklike" onclick="javascript:change_page([+page_number+]);">&lsaquo; Prev.</span>&nbsp;',
+	'nextTpl' 		=> '&nbsp;<span class="linklike" onclick="javascript:change_page([+page_number+]);">Next &rsaquo;</span>',
+	'currentPageTpl'=> '&nbsp;<span class="post_selector_pagination_active_page">[+page_number+]</span>&nbsp;',
+	'pageTpl' 		=> '&nbsp;<span class="linklike" title="[+page_number+]" onclick="javascript:change_page([+page_number+]);">[+page_number+]</span>&nbsp;',
+	'outerTpl' 		=> '<div id="pagination">[+content+]<br/>
+		Page [+current_page+] of [+page_count+]<br/>
+	</div>',
+);
+$Q->set_tpls($tpls);
 
 // Get the results
 $results = $Q->get_posts($args);

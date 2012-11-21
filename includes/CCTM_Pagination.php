@@ -71,6 +71,7 @@ class CCTM_Pagination {
 	 */
 	function __construct() {
 		// set defaults
+		$this->extra = '';
 		$this->set_base_url('?');
 		$this->set_offset(0);
 		$this->set_results_per_page($this->default_results_per_page);

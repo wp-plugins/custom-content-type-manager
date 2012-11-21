@@ -264,67 +264,51 @@ function get_incoming_links($post_types_filter=array(), $post_id=null) {
 
 //------------------------------------------------------------------------------
 /**
-Retrieves a complete post object, including all meta fields.
-Note: get_post_custom() will treat each custom field as an array, because in WP
-you can tie multiple rows of data to the same fieldname (which can cause some
-architectural headaches).
-
-At the end of this, I want a post object that can work like this:
-
-print $post['post_title'];
-print $post['my_custom_field']; // not $post['my_custom_fields'][0];
-
-and if the custom field *is* a list of items, then attach it as such.
-@param	integer	$id is valid ID of a post (regardless of post_type).
-@return	array	associative array of post with all attributes, including custom fields.
-*/
+ * Retrieves a complete post object, including all meta fields. It avoids the 
+ * standard WP functions get_post() and get_post_custom() because they encountered
+ * some weird issues with conflicting global variables (?):
+ * http://codex.wordpress.org/Function_Reference/get_post
+ * http://codex.wordpress.org/Function_Reference/get_post_custom
+ *
+ * Returned is a post array that contains a key for each field and custom field, e.g.
+ * 
+ * print $post['post_title'];
+ * print $post['my_custom_field']; // not $post['my_custom_fields'][0];
+ * 
+ * and if the custom field *is* a list of items, then attach it as such.
+ * 
+ * @param	integer	$id is valid ID of a post (regardless of post_type).
+ * @return	array	associative array of post with all attributes, including custom fields.
+ */
 function get_post_complete($id) {
-	$complete_post = get_post($id, ARRAY_A);
-
-	if ( empty($complete_post) ) {
-		return array();
-	}
-	$custom_fields = get_post_custom($id);
-	if (empty($custom_fields)) {
-		return $complete_post;
-	}
-	foreach ( $custom_fields as $fieldname => $value ) {
-		if ( count($value) == 1 ) {
-			$complete_post[$fieldname] = $value[0];
-		}
-		else {
-			$complete_post[$fieldname] = $value;		
-		}
-	}
-	
-	return $complete_post;	
+	$Q = new GetPostsQuery();
+	return $Q->get_post($id);
 }
 
 //------------------------------------------------------------------------------
 /**
-Returns an array of post "complete" objects (including all custom fields)
-where the custom fieldname = $fieldname and the value of that field is $value.
-This is used to find a bunch of related posts in the same way you would with 
-a taxonomy, but this uses custom field values instead of taxonomical labels.
-
-INPUT: 
-	$fieldname (str) name of the custom field
-	$value (str) the value that you are searching for.
-
-OUTPUT:
-	array of post objects (complete post objects, with all attributes).
-
-USAGE:
-	One example:
-	$posts = get_posts_sharing_custom_field_value('genre', 'comedy');
-	
-	foreach ($posts as $p)
-	{
-		print $p->post_title;
-	}
-
-This is a hefty, db-intensive function... (bummer).
-*/
+ * Returns an array of post "complete" objects (including all custom fields)
+ * where the custom fieldname = $fieldname and the value of that field is $value.
+ * This is used to find a bunch of related posts in the same way you would with 
+ * a taxonomy, but this uses custom field values instead of taxonomical labels.
+ * 
+ * INPUT: 
+ * 	$fieldname (str) name of the custom field
+ * 	$value (str) the value that you are searching for.
+ * 
+ * OUTPUT:
+ * 	array of post objects (complete post objects, with all attributes).
+ * 
+ * USAGE:
+ * 	One example:
+ * 	$posts = get_posts_sharing_custom_field_value('genre', 'comedy');
+ * 	
+ * 	foreach ($posts as $p) {
+ * 		print $p->post_title;
+ * 	}
+ * 
+ * This is a hefty, db-intensive function... (bummer).
+ */
 function get_posts_sharing_custom_field_value($fieldname, $value) {
 	global $wpdb;
 	$query = "SELECT DISTINCT {$wpdb->posts}.ID 
@@ -345,44 +329,43 @@ function get_posts_sharing_custom_field_value($fieldname, $value) {
 
 //------------------------------------------------------------------------------
 /**
-A relation field stores a post ID, and that ID identifies another post.  So given 
-a fieldname, this returns the complete post object for that was referenced by
-the custom field.  You can see it's a wrapper function which relies on 
-get_post_complete() and get_custom_field().
-INPUT: 
-	$fieldname (str) name of a custom field
-OUTPUT:
-	post object
-*/
+ * A relation field stores a post ID, and that ID identifies another post.  So given 
+ * a fieldname, this returns the complete post object for that was referenced by
+ * the custom field.  You can see it's a wrapper function which relies on 
+ * get_post_complete() and get_custom_field().
+ * INPUT: 
+ * 	$fieldname (str) name of a custom field
+ * OUTPUT:
+ * 	post object
+ */
 function get_relation($fieldname) {
 	return get_post_complete( get_custom_field($fieldname.':raw') );
 }
 
 //------------------------------------------------------------------------------
 /**
-Given a specific custom field name ($fieldname), return an array of all unique
-values contained in this field by *any* published posts which use a custom field 
-of that name, regardless of post_type, and regardless of whether or not the custom 
-field is defined as a "standardized" custom field. 
-
-This filters out empty values ('' or null). 
-
-INPUT:
-@param	string	$fieldname	name of a custom field
-@param	string	$order	specify the order of the results returned, either 'ASC' (default) or 'DESC'
-
-@return	array 	unique values.
-
-USAGE:
-Imagine a custom post_type that profiles you and your friends. There is a custom 
-field that defines your favorite cartoon named 'favorite_cartoon':
-
-	$array = get_unique_values_this_custom_field('favorite_cartoon');
-	
-	print_r($array);
-		Array ( 'Family Guy', 'South Park', 'The Simpsons' );
-
-*/
+ * Given a specific custom field name ($fieldname), return an array of all unique
+ * values contained in this field by *any* published posts which use a custom field 
+ * of that name, regardless of post_type, and regardless of whether or not the custom 
+ * field is defined as a "standardized" custom field. 
+ * 
+ * This filters out empty values ('' or null). 
+ *
+ * USAGE:
+ * Imagine a custom post_type that profiles you and your friends. There is a custom 
+ * field that defines your favorite cartoon named 'favorite_cartoon':
+ * 
+ * 	$array = get_unique_values_this_custom_field('favorite_cartoon');
+ * 	
+ * 	print_r($array);
+ * 		Array ( 'Family Guy', 'South Park', 'The Simpsons' );
+ * 
+ * INPUT:
+ * @param	string	$fieldname	name of a custom field
+ * @param	string	$order	specify the order of the results returned, either 'ASC' (default) or 'DESC'
+ * @return	array 	unique values.
+ * 
+ */
 function get_unique_values_this_custom_field($fieldname, $order='ASC') {
 	global $wpdb;
 
@@ -414,27 +397,27 @@ function get_unique_values_this_custom_field($fieldname, $order='ASC') {
 
 //------------------------------------------------------------------------------
 /**
-SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
-where you need to print out the value of a specific custom field.
-
-This prints the 1st instance of the meta_key identified by $fieldname 
-associated with the current post. See get_post_meta() for more details.
-
-INPUT: 
-	$fieldname (str) the name of the custom field as defined inside the 
-		Manage Custom Fields area for a particular content type.
-OUTPUT:
-	The contents of that custom field for the current post.
-*/
+ * SYNOPSIS: Used inside theme files, e.g. single.php or single-my_post_type.php
+ * where you need to print out the value of a specific custom field.
+ * 
+ * This prints the 1st instance of the meta_key identified by $fieldname 
+ * associated with the current post. See get_post_meta() for more details.
+ * 
+ * INPUT: 
+ * 	$fieldname (str) the name of the custom field as defined inside the 
+ * 		Manage Custom Fields area for a particular content type.
+ * OUTPUT:
+ * 	The contents of that custom field for the current post.
+ */
 function print_custom_field($fieldname, $extra=null) {
 	print get_custom_field($fieldname, $extra);
 }
 
 //------------------------------------------------------------------------------
 /**
-* Convenience function to print the result of get_custom_field_meta().  See
-* get_custom_field_meta.
-*/
+ * Convenience function to print the result of get_custom_field_meta().  See
+ * get_custom_field_meta.
+ */
 function print_custom_field_meta($fieldname, $item, $post_type=null) {
 	print call_user_func_array('get_custom_field_meta', func_get_args());
 }
@@ -444,6 +427,7 @@ function print_custom_field_meta($fieldname, $item, $post_type=null) {
 /**
  * Print posts that link to this post via a relation field.
  * @param	string	$tpl
+ * @return void -- this actually prints data.
  */
 function print_incoming_links($tpl=null) {
 	if (empty($tpl)) {

@@ -22,7 +22,7 @@ function my_media_upload_tabs($tabs) {
 add_filter('media_upload_tabs', 'my_media_upload_tabs');
 
 
-$contents = file_get_contents('http://cctm:8888/sub/wp-admin/media-upload.php?type=image&amp;TB_iframe=true');
+$contents = file_get_contents('/sub/wp-admin/media-upload.php?type=image&amp;TB_iframe=true');
 print $contents;
 ?>
 <p>Upload thee an image!</p>

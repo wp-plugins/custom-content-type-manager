@@ -27,6 +27,8 @@ require_once(dirname(__FILE__) . '/../../../../wp-config.php');
 
 //require_once(CCTM_PATH .'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH .'/includes/SP_Post.php');
+require_once(CCTM_PATH .'/includes/CCTM_Pagination.php');
+require_once('functions.php');
 
 class CCTMUnitTests extends UnitTestCase {
 	
@@ -184,16 +186,19 @@ class CCTMUnitTests extends UnitTestCase {
 		$emails = get_custom_field('age:default', 'Unknown');
 		$this->assertTrue($emails == 'Unknown');
 	}
-	// WTF? This isn't reading the correct field.
-//	function testFilter5() {
-//		global $post;
-//		$post->ID = 93; 
-//		$p = get_post_complete(93);
-//		//die($p['bio']);
-//		$bio = CCTM::filter($p['bio'], 'do_shortcode');
-//		//die($bio);
-//		$this->assertTrue($bio == 'http://google.com/');
-//	}
+	// For some reason, when I call "do_shortcode" here, it *prints* the result
+	// MADNESS!!!!
+/*
+	function testFilter5() {
+		CCTM::$post_id = 93;
+		ob_start();
+		get_custom_field('bio:do_shortcode');
+		$homepage = get_custom_field('homepage:raw');
+		$bio = ob_get_contents();
+		
+		$this->assertTrue($homepage == $bio);
+	}
+*/
 
 	// email
 	function testFilter7() {
@@ -271,9 +276,9 @@ class CCTMUnitTests extends UnitTestCase {
 		// default filter for this field is to_image_src
 		CCTM::$post_id = 77;
 		$img = get_custom_field('poster_image');
-		$this->assertTrue($img =='http://cctm:8888/wp-content/uploads/2012/06/IMG_0448.jpg');
+		$this->assertTrue($img =='http://cctm:8888/wp-content/uploads/2012/06/2012-VACATION-059.jpg');
 		$img = get_custom_field('poster_image:raw');
-		$this->assertTrue($img =='123');
+		$this->assertTrue($img =='120');
 	}
 	
 	// to_array
@@ -552,7 +557,7 @@ class CCTMUnitTests extends UnitTestCase {
 	
 	function test_get_custom_image() {
 		CCTM::$post_id = 77;
-		$this->assertTrue( get_custom_image('poster_image') == wp_get_attachment_image(123, 'full'));
+		$this->assertTrue( get_custom_image('poster_image') == wp_get_attachment_image(120, 'full'));
 	}
 	
 	function test_get_incoming_links() {
@@ -575,7 +580,7 @@ class CCTMUnitTests extends UnitTestCase {
 	function test_get_relation() {
 		CCTM::$post_id = 77;
 		$rel = get_relation('poster_image');
-		$this->assertTrue($rel['ID'] == 123);
+		$this->assertTrue($rel['ID'] == 120);
 	}
 	
 	function test_get_unique_values_this_custom_field() {
@@ -612,6 +617,57 @@ class CCTMUnitTests extends UnitTestCase {
 		$post['post_title'] = 'Page C-1';
 		$SP->update($post,21);
 	}
+	
+	
+	//------------------------------------------------------------------------------
+	//! Pagination
+	//------------------------------------------------------------------------------
+	function test_pagination1() {
+		$P = new CCTM_Pagination();
+		$actual = $P->paginate(100);
+		$expected = '<div id="pagination">&nbsp;<span>1</span>&nbsp;&nbsp;<a href="?&offset=25" >2</a>&nbsp;&nbsp;<a href="?&offset=50" >3</a>&nbsp;&nbsp;<a href="?&offset=75" >4</a>&nbsp;&nbsp;<a href="?&offset=25" >Next &rsaquo;</a>&nbsp;<a href="?&offset=75" >Last &raquo;</a><br/>
+				Page 1 of 4<br/>
+				Displaying records 1 thru 25 of 100
+			</div>';
+			
+		$this->assertTrue(in_html($actual,$expected));
+	}
+	
+	function test_pagination2() {
+		$P = new CCTM_Pagination();
+		$P->set_base_url('http://mysite.com/page');
+		$actual = $P->paginate(100);
+		$expected = '<div id="pagination">&nbsp;<span>1</span>&nbsp;&nbsp;<a href="http://mysite.com/page?&offset=25" >2</a>&nbsp;&nbsp;<a href="http://mysite.com/page?&offset=50" >3</a>&nbsp;&nbsp;<a href="http://mysite.com/page?&offset=75" >4</a>&nbsp;&nbsp;<a href="http://mysite.com/page?&offset=25" >Next &rsaquo;</a>&nbsp;<a href="http://mysite.com/page?&offset=75" >Last &raquo;</a><br/>
+				Page 1 of 4<br/>
+				Displaying records 1 thru 25 of 100
+			</div>';
+		$this->assertTrue(in_html($actual,$expected));
+	}
+
+	function test_pagination3() {
+		$P = new CCTM_Pagination();
+		$P->set_link_cnt(3);
+		$actual = $P->paginate(100);
+		$expected = '<div id="pagination">&nbsp;<span>1</span>&nbsp;&nbsp;<a href="?&offset=25" >2</a>&nbsp;&nbsp;<a href="?&offset=50" >3</a>&nbsp;&nbsp;<a href="?&offset=25" >Next &rsaquo;</a>&nbsp;<a href="?&offset=75" >Last &raquo;</a><br/>
+				Page 1 of 4<br/>
+				Displaying records 1 thru 25 of 100
+			</div>';
+		$this->assertTrue(in_html($actual,$expected));
+	}
+
+	function test_pagination4() {
+		$P = new CCTM_Pagination();
+		$P->set_link_cnt(3);
+		$actual = $P->paginate(100);
+		$expected = '<div id="pagination">&nbsp;<span>1</span>&nbsp;&nbsp;<a href="?&offset=25" >2</a>&nbsp;&nbsp;<a href="?&offset=50" >3</a>&nbsp;&nbsp;<a href="?&offset=25" >Next &rsaquo;</a>&nbsp;<a href="?&offset=75" >Last &raquo;</a><br/>
+				Page 1 of 4<br/>
+				Displaying records 1 thru 25 of 100
+			</div>';
+		$this->assertTrue(in_html($actual,$expected));
+	}
+
+	
+	
 }
  
 /*EOF*/
