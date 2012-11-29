@@ -15,7 +15,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		
+
 		$output = '';
 		if (is_array($options)) {
 			$options = $options[0];
@@ -26,15 +26,15 @@ class CCTM_to_link extends CCTM_OutputFilter {
 			return '';
 		}
 		
-		if ($this->is_array_input) {			
-		die('arra...');
+		if ($this->is_array_input) {
 			foreach ($input as &$item) {
 				if ($item) {
-					$post = get_post($item);
+					//$post = get_post($item);
+					$post = get_post_complete($item);
 					if (!is_object($post)) {
 						$item = __('Referenced post not found.', CCTM_TXTDOMAIN);
 					}
-					$link_text = $post->post_title;
+					$link_text = $post['post_title'];
 					if (!empty($options)) {
 						if (is_array($options) && isset($options[0])) {
 							$link_text = $options[0];
@@ -43,13 +43,14 @@ class CCTM_to_link extends CCTM_OutputFilter {
 							$link_text = $options;
 						}				
 					}
-					$item = sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
+					$item = sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post['ID']), $post['post_title'], $link_text);
 				}
 			}
 			return $input;
 		}
 		else {
-			$post = get_post($input[0]);
+			//$post = get_post($input[0]);
+			$post = get_post_complete($item[0]);
 			if (!is_object($post)) {
 				return _e('Referenced post not found.', CCTM_TXTDOMAIN);
 			}
@@ -57,9 +58,9 @@ class CCTM_to_link extends CCTM_OutputFilter {
 				$link_text = $options;
 			}
 			else {
-				$link_text = $post->post_title;
+				$link_text = $post['post_title'];
 			}		
-			return sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post->ID), $post->post_title, $link_text);
+			return sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post['ID']), $post['post_title'], $link_text);
 		}
 
 	}

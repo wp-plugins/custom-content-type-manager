@@ -25,7 +25,7 @@ class CCTM_get_post extends CCTM_OutputFilter {
 		}
 		
 		if ($this->is_array_input) {
-			foreach ($input as &$item) {
+			foreach ($input as $k => $item) {
 				$item = (int) $item;
 				$post = get_post_complete($item);
 				if ($options && is_scalar($options)) {

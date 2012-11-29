@@ -4,8 +4,8 @@ Donate link: http://www.indiegogo.com/cctm
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.4.2
-Stable tag: 0.9.6.1
-Version: 0.9.5.6.2-dev
+Stable tag: 0.9.6.2
+Version: 0.9.5.6.2-pl
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -36,7 +36,6 @@ This plugin uses the standard installation procedure: install the plugin's folde
 
 Here is a typical use-case verbosely for the record:
 
-1. If you are upgrading from version 0.8.7 or before, you must *completely* uninstall and remove the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
 1. Install this plugin using the traditional WordPress plugin installation, or upload this plugin's folder to the `/wp-content/plugins/` directory (ensure that the directory is named *custom-content-type-manager*).
 1. Activate the plugin through the 'Plugins' menu in the WordPress manager.
 1. Upon activation you can adjust the plugin settings by clicking the newly created "Custom Content Types" menu item, or click this plugin's "Settings" link on the Plugins page.
@@ -51,6 +50,8 @@ Here is a typical use-case verbosely for the record:
 1. Now try adding a new instance of your content type ("Movies" in this example). Click the link in the left-hand admin menu to add a movie.
 1. Your new "Movie" post will have the custom fields you defined.
 1. If you have added any media custom fields, be sure to upload some images using the WordPress "Media" menu in the left-hand menu.
+
+Please note: if you are upgrading from version 0.8.7 or before, you must *completely* uninstall and remove the previous version! This will not delete any of your content, but you should take some notes about the exact names of your content types before doing this.  Sorry, I know it's a pain, but I had to correct for limitations in the data structure.  See [this Wiki page](http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DeletePostType) for more information.
 
 
 == Frequently Asked Questions ==
@@ -81,8 +82,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 * Improvements to SP_Post
 * Reworking of the CCTM_Pagination library and documentation.
-* Issue 415 resolved: sorting on custom field
-* Small improvements
+* Various bugs fixed.
 
 = 0.9.6.1 =
 

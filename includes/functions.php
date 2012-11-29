@@ -283,6 +283,10 @@ function get_incoming_links($post_types_filter=array(), $post_id=null) {
 function get_post_complete($id) {
 	$Q = new GetPostsQuery();
 	return $Q->get_post($id);
+//	global $wpdb;
+//	$post = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->posts WHERE ID = %d LIMIT 1", $id), ARRAY_A);
+//	return $post;
+	
 }
 
 //------------------------------------------------------------------------------

@@ -2099,7 +2099,7 @@ class GetPostsQuery {
 	public function get_posts($args=array(), $ignore_defaults=false) {
 	
 		global $wpdb;
-		
+
 		if ($ignore_defaults) {
 			$this->set_defaults(array(), true);
 		}
@@ -2176,7 +2176,6 @@ class GetPostsQuery {
 //			$r['post_content']		= do_shortcode(wpautop(__($r['post_content'])));
 			$r['post_content']		= __($r['post_content']);
 			$r['post_excerpt']		= __($r['post_excerpt']);
-			
 			
 		}
 

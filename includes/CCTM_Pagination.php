@@ -8,8 +8,8 @@ There are 2 ways to identify page numbers during pagination. The most obvious on
 is that we number each page: 1,2,3.  This corresponds to pagination links
 like mypage.php?page=3 for example.
 
-		require('Pagination.php');
-		$p = new Pagination();
+		require_once('CCTM_Pagination.php');
+		$p = new CCTM_Pagination();
 		$offset = $p->page_to_offset($_GET['page'], $_GET['rpp']);
 		$p->set_offset($offset); //
 		$p->set_results_per_page($_GET['rpp']);  // You can optionally expose this to the user.
@@ -24,9 +24,6 @@ The page would contain an entirely different set of records, whereas with the of
 method, e.g. ?offset=30, the page would at least start with the same records no matter
 if the # of records per page changed.
 
-
-
-See the CCTM_Pagination.conf.php file for more details and customization options.
 
 Private functions reference internal publics; public functions do not.
 
@@ -67,7 +64,7 @@ class CCTM_Pagination {
 	public $properties = array();
 
 	/**
-	 * We need to bootstrap some of the properties at time of instantiation
+	 * Bootstrap some properties
 	 */
 	function __construct() {
 		// set defaults
