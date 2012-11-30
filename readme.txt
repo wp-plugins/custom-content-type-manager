@@ -4,8 +4,8 @@ Donate link: http://www.indiegogo.com/cctm
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.4.2
-Stable tag: 0.9.6.2
-Version: 0.9.5.6.2-pl
+Stable tag: 0.9.6.3
+Version: 0.9.5.6.3-pl
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -383,6 +383,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.6.3 = 
+
+* Small fix for first time install.
 
 = 0.9.6.2 = 
 

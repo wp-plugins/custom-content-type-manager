@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.6.2';
+	const version = '0.9.6.3';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -689,10 +689,13 @@ class CCTM {
 			$post_type = CCTM::get_value($wp_query->query_vars, 'post_type');
 			// Don't mess with foreign post-types.
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=425
-			if (!isset(CCTM::$data['post_type_defs'][$post_type]['cctm_hierarchical_custom'])) {
+			if (!is_scalar($post_type)
+				|| !is_array(CCTM::$data) 
+				|| !isset(CCTM::$data['post_type_defs'])
+				|| !isset(CCTM::$data['post_type_defs'][$post_type]) 
+				|| !isset(CCTM::$data['post_type_defs'][$post_type]['cctm_hierarchical_custom'])) {
 				return $title;
 			}
-
 			// To avoid problems when this filter is called unexpectedly... e.g. category pages has an array of post_types
 			if (empty($post_type) || is_array($post_type)) {
 				return $title; // 
