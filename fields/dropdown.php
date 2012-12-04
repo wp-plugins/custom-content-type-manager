@@ -277,7 +277,7 @@ class CCTM_dropdown extends CCTM_FormElement
 				<div class="handlediv" title="Click to toggle"><br /></div>
 				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
 				<div class="inside">
-					<table><tr><td width="600">';
+					<table><tr><td width="600" style="vertical-align:top">';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
@@ -320,7 +320,7 @@ class CCTM_dropdown extends CCTM_FormElement
 				 <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
 				</td>
 				</thead>
-				<tbody id="dropdown_options2"';
+				<tbody id="dropdown_options2">';
 
 		$out .= CCTM::parse($tpl, $hash);
 

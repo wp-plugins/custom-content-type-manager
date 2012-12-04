@@ -78,6 +78,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.6.5 = 
+
+* Increased dropdown functionality, including ability to issue MySQL queries, "bulk" importing, and sortable options.
+
 = 0.9.6.4 = 
 
 * Incrementing version because changes were not picked up by the WordPress repo (?)
@@ -387,6 +391,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.6.5 =
+
+* Increased functionality for dropdown fields including MySQL queries and sortable options.
 
 = 0.9.6.4 =
 

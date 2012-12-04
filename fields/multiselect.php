@@ -205,10 +205,14 @@ class CCTM_multiselect extends CCTM_FormElement
 	public function get_edit_field_definition($def) {
 	
 		$is_checked = '';
+		$is_sql_checked = '';
 		$readonly_str = ' readonly="readonly"';
 		if (isset($def['use_key_values']) && $def['use_key_values']) {
 			$is_checked = 'checked="checked"';
 			$readonly_str = '';
+		}
+		if (isset($def['is_sql']) && $def['is_sql']) {
+			$is_sql_checked = 'checked="checked"';
 		}
 			
 		// Standard
@@ -219,7 +223,8 @@ class CCTM_multiselect extends CCTM_FormElement
 			<div class="postbox">
 				<div class="handlediv" title="Click to toggle"><br /></div>
 				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
-				<div class="inside">';
+				<div class="inside">
+					<table><tr><td width="600" style="vertical-align:top">';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
@@ -246,20 +251,29 @@ class CCTM_multiselect extends CCTM_FormElement
 		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);		
 		
 		$tpl = '
+			<script type="text/javascript">
+				jQuery(function() {
+					jQuery( "#dropdown_options2" ).sortable();
+					// jQuery( "#dropdown_options2" ).disableSelection();
+				});			
+			</script>
 			<table id="dropdown_options">
 				<thead>
+				<td scope="col" id="sorter" class=""  style="">&nbsp;</td>	
 				<td width="200"><label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+options+]</label></td>
 				<td width="200"><label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+values+]</label></td>
 				<td>
 				 <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
 				</td>
-				</thead>';
+				</thead>
+				<tbody id="dropdown_options2">';
 				
 		$out .= CCTM::parse($tpl, $hash);
 		
 		// this html should match up with the js html in manager.js
 		$option_html = '
 			<tr id="%s">
+				<td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
 				<td><input type="text" name="options[]" id="option_%s" value="%s"/></td>
 				<td><input type="text" name="values[]" id="value_%s" value="%s" class="possibly_gray"'.$readonly_str.'/></td>
 				<td><span class="button" onclick="javascript:remove_html(\'%s\');">%s</span>
@@ -297,7 +311,9 @@ class CCTM_multiselect extends CCTM_FormElement
 			}
 		}
 			
-		$out .= '</table>'; // close id="dropdown_options" 
+		$out .= '
+			</tbody>
+		</table>'; // close id="dropdown_options" 
 		
 		// Display: multi-select or as multiple checkboxes
 		$checkboxes_is_selected = '';
@@ -318,8 +334,32 @@ class CCTM_multiselect extends CCTM_FormElement
 				 </select>
 				<span class="cctm_description">'.__('Multiple options can be selected either as a series of checkboxes or as a multi-select field.', CCTM_TXTDOMAIN).'</span>
 			 	</div>';		
+
+		// Secondary Input options
+		$out .= '</td><td style="vertical-align:top">
+			<label class="cctm_label cctm_textarea_label" id="advanced_label">'
+			. __('Alternate Input', CCTM_TXTDOMAIN) .
+			'</label>
+			<span>'.__('Use this input if you want to options in bulk. 
+				Separate options and values using double-pipes "||" with the visible option on the left, the corresponding value
+				to be stored on the right (if present).  You may also enter a valid MySQL query. This field overrides 
+				other inputs!', CCTM_TXTDOMAIN).'</span><br/>
+			<textarea name="alternate_input" id="alternate_input" cols="50" rows="10">'.
+			CCTM::get_value($def,'alternate_input')
+			.'</textarea>';
+
+		// Execute as MySQL?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_sql_wrapper">
+
+				 <input type="checkbox" name="is_sql" class="cctm_checkbox" id="is_sql" value="1"'. $is_sql_checked.'/> 				 <label for="is_sql" class="cctm_label cctm_checkbox_label" id="is_sql_label">'
+				 .__('Execute as a MySQL query?', CCTM_TXTDOMAIN).'</label> <span>'.__('Select up to 2 columns: the 1st column will be the visible label and the 2nd column (if present) will represent the value stored in the database.
+				 	Use [+table_prefix+] instead of hard-coding your WordPress database table prefix.',CCTM_TXTDOMAIN).'</span>
+			 	</div>';
+
 			 	
-		$out .= '</div><!-- /inside -->
+		$out .= '
+					</td></tr></table>		
+				</div><!-- /inside -->
 			</div><!-- /postbox -->';						
 
 		// Validations / Required
