@@ -20,7 +20,7 @@ function append_dropdown_option( target_id, delete_label, set_as_default_label, 
         readonly_str=' readonly="readonly"';
     } 
 	/*this string must match up with the string used in the dropdown and multiselect classes*/
-	my_html = '<tr id="cctm_dropdown_option'+i+'"><td><input type="text" name="options[]" id="option_'+i+'" value=""/></td><td><input type="text" name="values[]" id="value_'+i+'" value="" class="possibly_gray"'+readonly_str+'/></td><td><span class="button" onclick="javascript:remove_html(\'cctm_dropdown_option'+i+'\');">'+delete_label+'</span> <span class="button" onclick="javascript:set_as_default(\''+i+'\');">'+set_as_default_label+'</span><td></tr>';
+	my_html = '<tr id="cctm_dropdown_option'+i+'"><td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td><td><input type="text" name="options[]" id="option_'+i+'" value=""/></td><td><input type="text" name="values[]" id="value_'+i+'" value="" class="possibly_gray"'+readonly_str+'/></td><td><span class="button" onclick="javascript:remove_html(\'cctm_dropdown_option'+i+'\');">'+delete_label+'</span> <span class="button" onclick="javascript:set_as_default(\''+i+'\');">'+set_as_default_label+'</span><td></tr>';
 	jQuery('#'+target_id).append(my_html);
 	i++;
 }

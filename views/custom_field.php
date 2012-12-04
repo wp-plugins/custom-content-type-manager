@@ -1,27 +1,8 @@
-<?php
-/*
-How to save status?
-http://stackoverflow.com/questions/5578405/wordpress-cannot-save-metaboxes-position-in-plugin
-Probably gotta do an on-click event, get the ids of the various boxes, then store their classes
-in a hidden field.
-*/
-?>
 <script type="text/javascript">
-jQuery(document).ready( function() {
-   // jQuery('.postbox h3').prepend('<a class="togbox">+</a> ');
-    jQuery('.postbox h3').click( function() {
-        jQuery(jQuery(this).parent().get(0)).toggleClass('closed');
-    });
-    jQuery('.handlediv').click( function() {
-        jQuery(jQuery(this).parent().get(0)).toggleClass('closed');
-    });
-});
-
-function set_continue_editing() {
-	jQuery('#continue_editing').val(1);
-	return true;
-}
-
+	function set_continue_editing() {
+		jQuery('#continue_editing').val(1);
+		return true;
+	}
 </script>
 
 <div class="metabox-holder">

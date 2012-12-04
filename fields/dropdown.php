@@ -305,20 +305,29 @@ class CCTM_dropdown extends CCTM_FormElement
 		$hash['set_as_default'] = __('Set as Default', CCTM_TXTDOMAIN);
 
 		$tpl = '
+			<script type="text/javascript">
+				jQuery(function() {
+					jQuery( "#dropdown_options2" ).sortable();
+					// jQuery( "#dropdown_options2" ).disableSelection();
+				});			
+			</script>
 			<table id="dropdown_options">
 				<thead>
+				<td scope="col" id="sorter" class=""  style="">&nbsp;</td>	
 				<td width="200"><label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+options+]</label></td>
 				<td width="200"><label for="options" class="cctm_label cctm_select_label" id="cctm_label_options">[+values+]</label></td>
 				<td>
 				 <span class="button" onclick="javascript:append_dropdown_option(\'dropdown_options\',\'[+delete+]\',\'[+set_as_default+]\',\'[+option_cnt+]\');">[+add_option+]</span>
 				</td>
-				</thead>';
+				</thead>
+				<tbody id="dropdown_options2"';
 
 		$out .= CCTM::parse($tpl, $hash);
 
 		// this html should match up with the js html in dropdown.js
 		$option_html = '
 			<tr id="%s">
+				<td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
 				<td><input type="text" name="options[]" id="option_%s" value="%s"/></td>
 				<td><input type="text" name="values[]" id="value_%s" value="%s" class="possibly_gray"'.$readonly_str.'/></td>
 				<td><span class="button" onclick="javascript:remove_html(\'%s\');">%s</span>
@@ -356,7 +365,9 @@ class CCTM_dropdown extends CCTM_FormElement
 			}
 		}
 
-		$out .= '</table>'; // close id="dropdown_options"
+		$out .= '
+			</tbody>
+		</table>'; // close id="dropdown_options"
 
 		// Display as Radio Button or as Dropdown?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="display_type_wrapper">
