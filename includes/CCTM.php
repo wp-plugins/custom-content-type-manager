@@ -142,6 +142,9 @@ class CCTM {
 		'rewrite_slug' => '',
 		'query_var' => '',
 		'capability_type' => 'post',
+		'capabilities' => '',
+		'register_meta_box_cb' => '',
+		'map_meta_cap' => 0,
 		'show_in_nav_menus' => 1,
 		'publicly_queryable' => 1,
 		'include_in_search' => 1, // this makes more sense to users than the exclude_from_search,
@@ -328,9 +331,9 @@ class CCTM {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * Prepare a post type definition for registration.  This gets run immediately 
-	 * before the register_post_type() function is called.  It allows us to abstract 
-	 * what WP gets from the stored definition a bit.
+	 * Prepare a post type definition for registration: this translates the data structure
+	 * as it is stored into how it needs to appear in order to be passed to the 
+	 * register_post_type() function.
 	 *
 	 * @param array   the CCTM definition for a post type
 	 * @param array $def
@@ -376,7 +379,19 @@ class CCTM {
 		) {
 			$def['public'] = true;
 		}
-
+		if (!isset($def['capabilities'])) {
+			$def['capabilities'] = array();
+		}
+		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=409
+		if (empty($def['capabilities'])) {
+			unset($def['capabilities']);
+		}
+		elseif(is_scalar($def['capabilities'])) {
+			$capabilities = array();
+			parse_str($def['capabilities'], $z);
+			$def['capabilities'] = $capabilities;
+		}
+		
 		unset($def['custom_orderby']);
 
 		return $def;
@@ -690,9 +705,6 @@ class CCTM {
 			// Don't mess with foreign post-types.
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=425
 			if (!is_scalar($post_type)
-				|| !is_array(CCTM::$data) 
-				|| !isset(CCTM::$data['post_type_defs'])
-				|| !isset(CCTM::$data['post_type_defs'][$post_type]) 
 				|| !isset(CCTM::$data['post_type_defs'][$post_type]['cctm_hierarchical_custom'])) {
 				return $title;
 			}
@@ -2036,12 +2048,12 @@ class CCTM {
 	 * ) );
 	 */
 	public static function register_custom_post_types() {
-
+//return;
 		$post_type_defs = self::get_post_type_defs();
 
 		foreach ($post_type_defs as $post_type => $def) {
 			$def = self::_prepare_post_type_def($def);
-
+			
 			if ( isset($def['is_active'])
 				&& !empty($def['is_active'])
 				&& !in_array($post_type, self::$built_in_post_types)

@@ -1,6 +1,8 @@
 <?php
 /**
- * Library used by the create_post_type.php and edit_post_type.php controllers
+ * Library used by the create_post_type.php and edit_post_type.php controllers. 
+ * I've offloaded functions from the main CCTM class to here because they're only
+ * used in these certain situations.
  */
 class CCTM_PostTypeDef {
 
@@ -381,7 +383,6 @@ class CCTM_PostTypeDef {
 		// WP always adds slashes: see http://kovshenin.com/archives/wordpress-and-magic-quotes/
 		$raw = CCTM::stripslashes_deep(($raw));
 
-
 		
 		// Handle unchecked checkboxes
 		if ( empty($raw['cctm_hierarchical_custom'])) {
@@ -453,6 +454,7 @@ class CCTM_PostTypeDef {
 		$sanitized['include_in_search']    = (bool) CCTM::get_value($raw, 'include_in_search');
 		$sanitized['publicly_queryable']    = (bool) CCTM::get_value($raw, 'publicly_queryable');
 		$sanitized['include_in_rss']    = (bool) CCTM::get_value($raw, 'include_in_rss');
+		$sanitized['map_meta_cap']    = (bool) CCTM::get_value($raw, 'map_meta_cap');
 
 		if ( empty($sanitized['has_archive']) ) {
 			$sanitized['has_archive'] = false;
@@ -533,7 +535,7 @@ class CCTM_PostTypeDef {
 		default:
 			$sanitized['rewrite'] = false;
 		}
-
+		
 		return $sanitized;
 	}
 
