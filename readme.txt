@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.3.0
 Tested up to: 3.4.2
 Stable tag: 0.9.6.4
-Version: 0.9.6.4-pl
+Version: 0.9.6.4
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 

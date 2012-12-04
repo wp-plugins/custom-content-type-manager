@@ -147,6 +147,56 @@ class CCTM_dropdown extends CCTM_FormElement
 			$this->all_options .= CCTM::parse($optiontpl, $hash);
 		}
 		
+		// Handle SQL queries
+		if ($this->is_sql) {
+			if (empty($this->alternate_input)) {
+				return __('Alternate input must not be empty if SQL box is checked.', CCTM_TXTDOMAIN);
+			}
+			else {
+				global $wpdb;
+				global $table_prefix;
+				$wpdb->hide_errors();
+				$query = CCTM::parse($this->alternate_input, array('table_prefix'=>$table_prefix));
+				//return $query;
+				$results = $wpdb->get_results($query, ARRAY_N);
+				if ($wpdb->last_error) {
+					return $wpdb->last_error;
+				}
+				$options = array();
+				$values = array();
+				foreach ($results as $r_i => $r) {
+					$options[$r_i] = $r[0];
+					if (isset($r[1])) {
+						$values[$r_i] = $r[1];
+					}
+					else {
+						$values[$r_i] = $r[0];
+					}
+				}
+				$this->set_prop('options', $options);
+				$this->set_prop('values', $values);
+			}
+		}
+		// Bulk input
+		elseif (!$this->is_sql && !empty($this->alternate_input)) {
+			$options = array();
+			$values = array();
+			$mixed = explode("\n",$this->alternate_input);
+			foreach($mixed as $m_i => $m) {
+				$line = explode('||',$m);
+				$options[$m_i] = trim($line[0]);
+				if (isset($line[1])) {
+					$values[$m_i] = trim($line[1]);
+				}
+				else {
+					$values[$m_i] = trim($line[0]);
+				}
+			}
+			$this->set_prop('options', $options);
+			$this->set_prop('values', $values);			
+		}
+
+		
 		$opt_cnt = count($this->options);
 
 
@@ -212,18 +262,22 @@ class CCTM_dropdown extends CCTM_FormElement
 		$out = $this->format_standard_fields($def);
 
 		$is_checked = '';
+		$is_sql_checked = '';
 		$readonly_str = ' readonly="readonly"';
 		if (isset($def['use_key_values']) && $def['use_key_values']) {
 			$is_checked = 'checked="checked"';
 			$readonly_str = '';
 		}
-
+		if (isset($def['is_sql']) && $def['is_sql']) {
+			$is_sql_checked = 'checked="checked"';
+		}
 		// Options
 		$out .= '
 			<div class="postbox">
 				<div class="handlediv" title="Click to toggle"><br /></div>
 				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
-				<div class="inside">';
+				<div class="inside">
+					<table><tr><td width="600">';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
 		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
@@ -232,6 +286,7 @@ class CCTM_dropdown extends CCTM_FormElement
 			'</label>
 				 <br />
 				 <input type="checkbox" name="use_key_values" class="cctm_checkbox" id="use_key_values" value="1" onclick="javascript:toggle_readonly();" '. $is_checked.'/> <span>'.$this->descriptions['use_key_values'].'</span>
+
 			 	</div>';
 
 		// OPTIONS
@@ -319,7 +374,31 @@ class CCTM_dropdown extends CCTM_FormElement
 			'</label><br />
 			 	</div>';
 			 	
-		$out .= '</div><!-- /inside -->
+		// Secondary Input options
+		$out .= '</td><td style="vertical-align:top">
+			<label class="cctm_label cctm_textarea_label" id="advanced_label">'
+			. __('Alternate Input', CCTM_TXTDOMAIN) .
+			'</label>
+			<span>'.__('Use this input if you want to options in bulk. 
+				Separate options and values using double-pipes "||" with the visible option on the left, the corresponding value
+				to be stored on the right (if present).  You may also enter a valid MySQL query. This field overrides 
+				other inputs!', CCTM_TXTDOMAIN).'</span><br/>
+			<textarea name="alternate_input" id="alternate_input" cols="50" rows="10">'.
+			CCTM::get_value($def,'alternate_input')
+			.'</textarea>';
+
+		// Execute as MySQL?
+		$out .= '<div class="'.self::wrapper_css_class .'" id="is_sql_wrapper">
+
+				 <input type="checkbox" name="is_sql" class="cctm_checkbox" id="is_sql" value="1"'. $is_sql_checked.'/> 				 <label for="is_sql" class="cctm_label cctm_checkbox_label" id="is_sql_label">'
+				 .__('Execute as a MySQL query?', CCTM_TXTDOMAIN).'</label> <span>'.__('Select up to 2 columns: the 1st column will be the visible label and the 2nd column (if present) will represent the value stored in the database.
+				 	Use [+table_prefix+] instead of hard-coding your WordPress database table prefix.',CCTM_TXTDOMAIN).'</span>
+			 	</div>';
+			
+			
+		$out .= '
+					</td></tr></table>		
+				</div><!-- /inside -->
 			</div><!-- /postbox -->';
 
 		// Validations / Required

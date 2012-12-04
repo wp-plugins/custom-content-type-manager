@@ -857,6 +857,19 @@ abstract class CCTM_FormElement {
 	/**
 	 * Shepherded access to the $this->props array.
 	 */
+	public function set_prop($key, $value) {
+		if (is_scalar($key)) {
+			$this->$key = $value;
+		}
+		else {
+			$this->errors['improper_input_set_props'] = __('Improper input to the set_prop() function.', CCTM_TXTDOMAIN);
+		}
+	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Shepherded access to the $this->props array.
+	 */
 	public function set_props($array) {
 		if (!is_array($array)) {
 			$this->errors['improper_input_set_props'] = __('Improper input to the set_props() function.', CCTM_TXTDOMAIN);

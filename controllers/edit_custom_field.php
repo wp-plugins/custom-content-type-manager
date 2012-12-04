@@ -130,6 +130,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		}
 		self::$data['custom_field_defs'][ $field_data['name'] ] = $field_data;
 		update_option( self::db_key, self::$data );
+		$continue_editing = CCTM::get_value($_POST, 'continue_editing');
 		unset($_POST);
 		
 		
@@ -137,8 +138,12 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 			, sprintf(__('The %s custom field has been edited.', CCTM_TXTDOMAIN)
 			, '<em>'.$field_name.'</em>'));		
 		self::set_flash($data['msg']);
-		include(CCTM_PATH.'/controllers/list_custom_fields.php');
-		return;
+		
+		if (!$continue_editing) {
+			include(CCTM_PATH.'/controllers/list_custom_fields.php');
+			return;
+		}
+		$FieldObj->set_props($field_data);
 	}
 }
 

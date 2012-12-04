@@ -1852,9 +1852,6 @@ class CCTM {
 					}
 
 				}
-//				if (is_array($value)) {
-//					die('ARRAY: '. print_r($value,true));
-//				}
 				$tpl = str_replace('[+'.$complex_ph.'+]', $value, $tpl);
 			}
 		}
