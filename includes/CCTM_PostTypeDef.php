@@ -455,6 +455,7 @@ class CCTM_PostTypeDef {
 		$sanitized['publicly_queryable']    = (bool) CCTM::get_value($raw, 'publicly_queryable');
 		$sanitized['include_in_rss']    = (bool) CCTM::get_value($raw, 'include_in_rss');
 		$sanitized['map_meta_cap']    = (bool) CCTM::get_value($raw, 'map_meta_cap');
+		$sanitized['show_in_admin_bar']    = (bool) CCTM::get_value($raw, 'show_in_admin_bar');
 
 		if ( empty($sanitized['has_archive']) ) {
 			$sanitized['has_archive'] = false;

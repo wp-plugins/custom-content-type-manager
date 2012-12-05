@@ -512,6 +512,15 @@ just want to make sure that the form is presented uncorrupted.
 			</div>
 			<span class="cctm_description"><?php _e('Whether to show the post type in the admin menu. Change this to <em>Custom</em> to specify a top level page like <code>tools.php</code> or <code>edit.php?post_type=page</code>', CCTM_TXTDOMAIN); ?></span>
 		</div>
+
+		<!--! show_in_admin_bar -->			
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_show_in_admin_bar">		
+			<input type="checkbox" name="show_in_admin_bar" class="cctm_checkbox" id="show_in_admin_bar" value="1" <?php 
+				print CCTM::is_checked($data['def']['show_in_admin_bar']); 
+			?>/> 
+			<label for="cctm_enable_right_now" class="cctm_label cctm_checkbox_label" id="cctm_label_cctm_enable_right_now"><?php _e('Show in Admin Bar', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Whether to make this post type available in the WordPress admin bar.', CCTM_TXTDOMAIN); ?></span>
+		</div>
 				
 		<!--!Menu Position-->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_menu_position">

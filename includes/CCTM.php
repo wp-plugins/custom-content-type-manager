@@ -140,6 +140,7 @@ class CCTM {
 		'rewrite_with_front' => 1,
 		'permalink_action' => 'Off',
 		'rewrite_slug' => '',
+		'show_in_admin_bar' => 1,
 		'query_var' => '',
 		'capability_type' => 'post',
 		'capabilities' => '',
