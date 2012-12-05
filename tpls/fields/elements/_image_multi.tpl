@@ -11,7 +11,7 @@
 			<td>
 				<p>[+post_title+] <span class="cctm_id_label">([+post_id+])</span>
 				<span class="cctm_close_rollover" onclick="javascript:remove_html('cctm_post_[+name+][+post_id+]');"></span><br/>
-				[+post_date+]</p>
+				<a href="media.php?attachment_id=[+post_id+]&action=edit" target="_new">[+edit+]</a></p>
 			</td>
 		</tr>
 	</table>

@@ -146,6 +146,8 @@ abstract class CCTM_FormElement {
 		$this->props['name_prefix'] = self::post_name_prefix;
 		$this->props['add_to_post'] = __('Add to Post', CCTM_TXTDOMAIN);
 		$this->props['add_to_post_and_close'] = __('Add to Post and Close', CCTM_TXTDOMAIN);
+		$this->props['preview'] = __('Preview', CCTM_TXTDOMAIN);
+		$this->props['edit'] = __('Edit', CCTM_TXTDOMAIN);
 		
 		$this->props = array_merge($this->props, $this->immutable);
 
