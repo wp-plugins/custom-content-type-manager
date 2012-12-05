@@ -81,6 +81,7 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.6.5 = 
 
 * Increased dropdown functionality, including ability to issue MySQL queries, "bulk" importing, and sortable options.
+* Improved compatibility.
 
 = 0.9.6.4 = 
 
