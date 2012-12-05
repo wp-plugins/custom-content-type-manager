@@ -7,7 +7,7 @@
 	</td>
 	<td class="column-description desc">
 		<div class="plugin-description"><p><?php print $data['description']; ?></p></div>
-		<div class="[+class+] second plugin-version-author-uri">
+		<div class="second plugin-version-author-uri">
 			<?php print $data['edit_manage_view_links']; ?>
 		</div>
 	</td>

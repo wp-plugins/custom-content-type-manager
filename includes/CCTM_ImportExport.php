@@ -565,8 +565,13 @@ class CCTM_ImportExport {
 	 */
 	public static function make_img_path_rel($src) {
 		// If left-most character is '/', then chop it and the subdir off
-		if ('/' == substr($src, 0 ,1)) {			
-			return str_replace('/'.self::get_subdir(), '', $src);
+		if ('/' == substr($src, 0 ,1)) {
+			if(self::get_subdir()) {
+				return str_replace('/'.self::get_subdir(), '', $src);
+			}
+			else {
+				return substr($src, 1); // chop off leading slash
+			}
 		}
 		return str_replace(site_url(), '', $src);
 	}

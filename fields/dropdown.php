@@ -259,7 +259,7 @@ class CCTM_dropdown extends CCTM_FormElement
 	public function get_edit_field_definition($def) {
 
 		// Standard
-		$out = $this->format_standard_fields($def);
+		$out = $this->format_standard_fields($def,false);
 
 		$is_checked = '';
 		$is_sql_checked = '';
@@ -435,8 +435,8 @@ class CCTM_dropdown extends CCTM_FormElement
 	 */
 	public function save_definition_filter($posted_data) {
 		$posted_data = parent::save_definition_filter($posted_data);
-		if ( empty($posted_data['options']) ) {
-			$this->errors['options'][] = __('At least one option is required.', CCTM_TXTDOMAIN);
+		if (empty($posted_data['alternate_input']) && empty($posted_data['options'])) {
+			$this->errors['options'][] = __('At least one option or alternate input is required.', CCTM_TXTDOMAIN);
 		}
 		return $posted_data; // filtered data
 	}

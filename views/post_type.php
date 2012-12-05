@@ -662,7 +662,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_capability_type">			
 			<label for="capability_type" class="cctm_label cctm_text_label" id="cctm_label_capability_type"><?php _e('Capability Type', CCTM_TXTDOMAIN); ?></label>
 			<input type="text" name="capability_type" class="cctm_text" id="capability_type" value="<?php print htmlspecialchars($data['def']['capability_type']); ?>"/>
-			<span class="cctm_description"><?php _e('The string to use to build the read, edit, and delete capabilities. May be passed a comma-separated string (e.g. "child,children") to allow for alternative plurals. Default: "post".', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('The string to use to build the read, edit, and delete capabilities. May be passed a comma-separated string to allow for alternative plurals (e.g. "child,children"). Default: "post".', CCTM_TXTDOMAIN); ?></span>
 		</div>
 
 		<!--!map_meta_cap -->
