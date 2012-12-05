@@ -662,9 +662,16 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_capability_type">			
 			<label for="capability_type" class="cctm_label cctm_text_label" id="cctm_label_capability_type"><?php _e('Capability Type', CCTM_TXTDOMAIN); ?></label>
 			<input type="text" name="capability_type" class="cctm_text" id="capability_type" value="<?php print htmlspecialchars($data['def']['capability_type']); ?>"/>
-			<span class="cctm_description"><?php _e('The post type to use for checking read, edit, and delete capabilities. Default: "post"', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('The string to use to build the read, edit, and delete capabilities. May be passed a comma-separated string (e.g. "child,children") to allow for alternative plurals. Default: "post".', CCTM_TXTDOMAIN); ?></span>
 		</div>
-		
+
+		<!--!map_meta_cap -->
+		<div class="cctm_element_wrapper" id="custom_field_wrapper_map_meta_cap">
+			<input type="checkbox" name="map_meta_cap" class="cctm_checkbox" id="map_meta_cap" value="1" <?php print CCTM::is_checked($data['def']['map_meta_cap']); ?> /> 
+			<label for="map_meta_cap" class="cctm_label cctm_checkbox_label" id="cctm_label_map_meta_cap"><?php _e('Map Meta Cap', CCTM_TXTDOMAIN); ?></label>
+			<span class="cctm_description"><?php _e('Whether to use the internal default meta capability handling. If checked, you must supply a valid mapping in the "Capabilities" field.', CCTM_TXTDOMAIN); ?></span>
+		</div>
+				
 		<!-- Capabilities (string)-->
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_capabilities">			
 			<label for="capabilities" class="cctm_label cctm_text_label" id="cctm_label_capabilities"><?php _e('Capabilities', CCTM_TXTDOMAIN); ?></label>
@@ -678,13 +685,6 @@ just want to make sure that the form is presented uncorrupted.
 			<label for="register_meta_box_cb" class="cctm_label cctm_text_label" id="cctm_label_register_meta_box_cb"><?php _e('Meta Box Callback', CCTM_TXTDOMAIN); ?></label>
 			<input type="text" name="register_meta_box_cb" class="cctm_text" id="register_meta_box_cb" value="<?php print htmlspecialchars(CCTM::get_value($data['def'],'register_meta_box_cb')); ?>"/>
 			<span class="cctm_description"><?php _e('Provide an optional callback function that will be called when setting up the meta boxes for the edit form.', CCTM_TXTDOMAIN); ?></span>
-		</div>
-
-		<!--!map_meta_cap -->
-		<div class="cctm_element_wrapper" id="custom_field_wrapper_map_meta_cap">
-			<input type="checkbox" name="map_meta_cap" class="cctm_checkbox" id="map_meta_cap" value="1" <?php print CCTM::is_checked($data['def']['map_meta_cap']); ?> /> 
-			<label for="map_meta_cap" class="cctm_label cctm_checkbox_label" id="cctm_label_map_meta_cap"><?php _e('Map Meta Cap', CCTM_TXTDOMAIN); ?></label>
-			<span class="cctm_description"><?php _e('Whether to use the internal default meta capability handling.', CCTM_TXTDOMAIN); ?></span>
 		</div>
 		
 		<!--!Can Export -->

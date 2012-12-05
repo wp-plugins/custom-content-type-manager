@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.6.6';
+	const version = '0.9.6.7';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -380,9 +380,7 @@ class CCTM {
 		) {
 			$def['public'] = true;
 		}
-		if (!isset($def['capabilities'])) {
-			$def['capabilities'] = array();
-		}
+		
 		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=409
 		if (empty($def['capabilities'])) {
 			unset($def['capabilities']);
@@ -392,7 +390,21 @@ class CCTM {
 			parse_str($def['capabilities'], $z);
 			$def['capabilities'] = $capabilities;
 		}
-		
+		// Ignore the capabilities mapping unless we have the map_meta_cap checked.
+		// The map_meta_cap MUST be unset or a literal null.
+		if (!CCTM::get_value($def,'map_meta_cap')) {
+			unset($def['capabilities']);
+			unset($def['map_meta_cap']);
+		}
+
+		// Allow for singular,plural capability_type's
+		if (isset($def['capability_type'])) {				
+			$tmp_capability_type = explode(',',$def['capability_type']);			
+			if (count($tmp_capability_type) > 1) {
+				array_walk($tmp_capability_type,'trim');
+				$def['capability_type'] = $tmp_capability_type;
+			}
+		}		
 		unset($def['custom_orderby']);
 
 		return $def;
@@ -1701,14 +1713,10 @@ class CCTM {
 		if (empty($post_type)) {
 			return $orderBy;
 		}
-		//die(print_r(self::$data['post_type_defs'][$post_type], true));
+		
 		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) 
-			&& !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])
-			//&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled']) 
-			//&& CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns_enabled'] == 1
-			//&& isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
-			//&& !empty(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) 
-			) {
+			&& !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])) {
+			// die(print_r(self::$data['post_type_defs'][$post_type], true));
 			global $wpdb;
 			$order = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_order', 'ASC');
 			$column = self::$data['post_type_defs'][$post_type]['custom_orderby'];
@@ -1717,10 +1725,10 @@ class CCTM {
 			}
 			// Sort on custom column (would require that custom columns are enabled)
 			else {
-				$orderBy = "{$wpdb->postmeta}.$column $order";
-				$orderBy = "{$wpdb->postmeta}.meta_key $order";			
+				$orderBy = "{$wpdb->postmeta}.meta_value $order";			
 			}
 		}
+
 		return $orderBy;
 	}
 
