@@ -337,7 +337,7 @@ just want to make sure that the form is presented uncorrupted.
 		<div class="cctm_element_wrapper" id="custom_field_wrapper_supports_title">			
 			<input type="checkbox" name="supports[]" class="cctm_checkbox" id="supports_title" value="title" <?php print CCTM::is_checked($data['def']['supports'], 'title'); ?> /> 
 			<label for="supports_title" class="cctm_label cctm_checkbox_label" id="cctm_label_supports_title_label"><?php _e('Title', CCTM_TXTDOMAIN); ?></label>
-			<span class="cctm_description"><?php _e('Post Title', CCTM_TXTDOMAIN); ?></span>
+			<span class="cctm_description"><?php _e('Post Title.', CCTM_TXTDOMAIN); ?> <span style="color:red;"><?php _e('Unchecking this is not recommended.', CCTM_TXTDOMAIN); ?></span></span>
 		</div>
 			
 		
@@ -409,7 +409,7 @@ just want to make sure that the form is presented uncorrupted.
 					onclick="javascript:toggle_div('cctm_hierarchical_custom', 'custom_field_wrapper_custom_hierarchy', '1');"/> 
 				<label for="cctm_hierarchical_custom" class="cctm_label cctm_checkbox_label" id="cctm_label_hierarchical"><?php _e('Use Custom Hierarchy', CCTM_TXTDOMAIN); ?></label>
 				<span class="cctm_description"><?php _e('Allows custom hierarchies to be specified.', CCTM_TXTDOMAIN); ?>
-				<span style="color:red;"><?php _e('Hierarchical must be checked.', CCTM_TXTDOMAIN); ?></span></span>
+				(<?php _e('Hierarchical must be checked.', CCTM_TXTDOMAIN); ?>)</span>
 
 				
 			<!-- Working : Custom hierarchy-->

@@ -37,6 +37,15 @@ add_submenu_page(
 
 add_submenu_page(
 	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	__('CCTM Metaboxes', CCTM_TXTDOMAIN),  // page title
+	__('Metaboxes', CCTM_TXTDOMAIN),	// menu title
+	$capability,							// capability
+	'cctm_metaboxes',						// menu_slug
+	'CCTM::page_main_controller'			// callback function
+);
+
+add_submenu_page(
+	'cctm',         // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Global Settings', CCTM_TXTDOMAIN),  // page title
 	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
 	$capability,							// capability

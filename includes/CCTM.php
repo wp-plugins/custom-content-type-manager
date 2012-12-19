@@ -442,7 +442,7 @@ class CCTM {
 			// Also, we have to fix the bugs with WP's thickbox.js, so here we include a patched file.
 			wp_register_script('cctm_thickbox', CCTM_URL . '/js/thickbox.js', array('thickbox') );
 			wp_enqueue_script('cctm_thickbox');
-			wp_enqueue_style('thickbox' );
+			wp_enqueue_style('thickbox');
 
 			wp_enqueue_style('jquery-ui-tabs', CCTM_URL . '/css/smoothness/jquery-ui-1.8.11.custom.css');
 			wp_enqueue_script('jquery-ui-tabs');
@@ -1765,6 +1765,9 @@ class CCTM {
 			case 'cctm_fields': // custom-fields
 				$action = 'list_custom_fields';
 				break;
+			case 'cctm_metaboxes': // custom-metaboxes
+				$action = 'list_metaboxes';
+				break;
 			case 'cctm_settings': // settings
 				$action = 'settings';
 				break;
@@ -1823,7 +1826,7 @@ class CCTM {
 	
 			// Simple Placeholders
 			foreach ($hash as $key => $value) {
-				if ( !is_array($value) ) {
+				if (is_scalar($value)) {
 					$tpl = str_replace('[+'.$key.'+]', $value, $tpl);
 				}
 			}

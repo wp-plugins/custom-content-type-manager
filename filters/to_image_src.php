@@ -22,6 +22,11 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 		$input = $this->to_array($input);
 		if ($this->is_array_input) {
 			foreach($input as &$item) {
+				if (!is_numeric($item)) {
+					$item = sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN), 'to_image_src');
+					continue;
+				}
+
 				list($item, $h, $w) = wp_get_attachment_image_src($item, null, true);
 				if (empty($item)) {
 					$item = $options; // default image
@@ -30,6 +35,10 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 			return $input;
 		}
 		elseif(isset($input[0])) {
+			if (!is_numeric($input[0])) {
+				return sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN), 'to_image_src');
+			}
+
 			list($src, $h, $w) = wp_get_attachment_image_src($input[0], null, true);
 			if (empty($src)) {
 				return $options;

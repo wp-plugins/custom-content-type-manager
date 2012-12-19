@@ -21,11 +21,18 @@ class CCTM_to_link_href extends CCTM_OutputFilter {
 		$input = $this->to_array($input);
 		if ($this->is_array_input) {
 			foreach($input as &$item) {
+				if (!is_numeric($item)) {
+					$item = sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN), 'to_link_href');
+					continue;
+				}
 				$item = get_permalink($item);
 			}
 			return $input;
 		}
 		else {
+			if (!is_numeric($input[0])) {
+				return sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN),'to_link_href');
+			}
 			return get_permalink($input[0]);
 		}
 	}

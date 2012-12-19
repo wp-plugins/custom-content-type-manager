@@ -30,9 +30,14 @@ class CCTM_to_link extends CCTM_OutputFilter {
 			foreach ($input as &$item) {
 				if ($item) {
 					//$post = get_post($item);
+					if (!is_numeric($item)) {
+						$item = sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN), 'to_link');
+						continue;
+					}
 					$post = get_post_complete($item);
 					if (!is_object($post)) {
 						$item = __('Referenced post not found.', CCTM_TXTDOMAIN);
+						continue;
 					}
 					$link_text = $post['post_title'];
 					if (!empty($options)) {
@@ -49,6 +54,9 @@ class CCTM_to_link extends CCTM_OutputFilter {
 			return $input;
 		}
 		else {
+			if (!is_numeric($input[0])) {
+				return sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN),'to_link');
+			}		
 			$post = get_post_complete($input[0]);
 			if (!is_array($post)) {
 				return _e('Referenced post not found.', CCTM_TXTDOMAIN);

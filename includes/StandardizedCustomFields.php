@@ -151,7 +151,7 @@ class StandardizedCustomFields
 			}
 			$output .= '</ul></div>';
 			
-			// You have to print the style because WP is overriding styles after the cctm manager.css is included.
+			// You have to print the style because WP overrides styles after the cctm manager.css is included.
 			// This isn't helpful during the admin head event because you'd have to also check validation at the time when
 			// the fields are printed in print_custom_fields(), which fires later on.
 			
@@ -171,7 +171,7 @@ class StandardizedCustomFields
 		if ($error_flag) {
 			global $wpdb;
 			$post_id = (int) CCTM::get_value($_POST, 'ID');
-			$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $post_id ) );
+			$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id));
 		}
 	}
 
@@ -185,7 +185,7 @@ class StandardizedCustomFields
 	public static function create_meta_box() {
 		$content_types_array = CCTM::get_active_post_types();
 		foreach ( $content_types_array as $content_type ) {
-			add_meta_box( 'cctm_default'
+			add_meta_box('cctm_default'
 				, __('Custom Fields', CCTM_TXTDOMAIN )
 				, 'StandardizedCustomFields::print_custom_fields'
 				, $content_type

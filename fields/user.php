@@ -4,21 +4,19 @@
  *
  * Allows users to select a user
  *
- wp_usermeta:
- 
- wp_user_level
- 0				subscriber
- 1				contributor
- 2				author
- 7				editor
- 10				admin
- 
+ * wp_usermeta:
+ * wp_user_level
+ * 0    subscriber
+ * 1    contributor
+ * 2    author
+ * 7    editor
+ * 10    admin
+ *
  * @package CCTM_FormElement
  */
 
 
-class CCTM_user extends CCTM_FormElement
-{
+class CCTM_user extends CCTM_FormElement {
 
 	public $props = array(
 		'label' => '',
@@ -106,8 +104,8 @@ class CCTM_user extends CCTM_FormElement
 		}
 		// For regular dropdowns
 		else {
-			$current_value = $this->get_value($current_value,'to_string');
-			
+			$current_value = $this->get_value($current_value, 'to_string');
+
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user.tpl'
@@ -136,7 +134,7 @@ class CCTM_user extends CCTM_FormElement
 			$hash['option'] = '';
 			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
 		}
-		
+
 		$this->options = get_users(); // WP: http://codex.wordpress.org/Function_Reference/get_users
 		$opt_cnt = count($this->options);
 
@@ -147,16 +145,16 @@ class CCTM_user extends CCTM_FormElement
 			$hash = $this->get_props();
 
 			// We hardcode this one because we always need to store the user ID as the value for normalization
-			$hash['value'] = $o->ID;
+			$hash['value'] = $o->data->ID;
 
-			foreach ($o as $k => $v) {
+			foreach ($o->data as $k => $v) {
 				if (!isset($hash[$k])) {
 					$hash[$k] = $v;
-				}			
+				}
 			}
 
 			$hash['is_checked'] = '';
-			
+
 			if ($this->is_repeatable) {
 				if ( in_array(trim($hash['value']), $current_value )) {
 					$hash['is_selected'] = 'selected="selected"';
@@ -198,8 +196,8 @@ class CCTM_user extends CCTM_FormElement
 		$out = $this->format_standard_fields($def);
 
 		// Validations / Required
-		$out .= $this->format_validators($def,false);
-		
+		$out .= $this->format_validators($def, false);
+
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);
 

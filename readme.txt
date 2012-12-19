@@ -3,7 +3,7 @@ Contributors: fireproofsocks
 Donate link: http://www.indiegogo.com/cctm
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
-Tested up to: 3.4.2
+Tested up to: 3.5
 Stable tag: 0.9.6.7
 Version: 0.9.6.7
 

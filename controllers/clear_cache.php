@@ -54,7 +54,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 $data['content'] = '
 	<div>
-		<p>'.__('This clear out any cached directory scans.', CCTM_TXTDOMAIN).'</p>
+		<p>'.__('This clears out any cached directory scans and any cached formatting templates (.tpls).', CCTM_TXTDOMAIN).'</p>
 		<p>'.
 		 sprintf( __('Clearing the cache will delete all files and directories from the CCTM cache directory: %s.', CCTM_TXTDOMAIN), "<code>$cache_dir</code>")
 		.'</p>

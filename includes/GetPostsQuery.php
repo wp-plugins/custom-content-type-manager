@@ -1179,7 +1179,7 @@ class GetPostsQuery {
 		}
 		
 		$this->SQL1 = CCTM::parse($this->SQL1, $hash);
-		//die($this->SQL1);
+
 		// Strip whitespace
 		$this->SQL1  = preg_replace('/\s\s+/', ' ', $this->SQL1 );
 
@@ -2064,8 +2064,7 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Retrieves a single post by its post ID. The output format here is dictated by
-	 * the set_output_type() function (ARRAY_A or OBJECT).  This function is a
+	 * Retrieves a single post by its post ID. This function is a
 	 * convenience function accessor to the get_posts() function.
 	 *
 	 * @param integer $id post ID of the post to be fetched
