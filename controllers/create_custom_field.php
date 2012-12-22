@@ -139,7 +139,7 @@ $data['url'] = $FieldObj->get_url();
 $data['name'] = $FieldObj->get_name();
 $data['description'] = htmlspecialchars($FieldObj->get_description());
 
-$data['associations'] = ''; // TODO
+$data['associations'] = '';
 
 
 //------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ foreach ($displayable_types as $post_type) {
 		$def = self::$data['post_type_defs'][$post_type];
 	}
 
-	$icon = '';
+	$icon = '<img src="'. CCTM_URL . '/images/icons/post.png' . '" width="15" height="15"/>';
 	$target_url = sprintf(
 		'<a href="?page=cctm&a=list_pt_associations&pt=%s" title="%s">%s</a>'
 		, $post_type

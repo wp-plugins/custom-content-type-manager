@@ -294,8 +294,8 @@ class CCTM {
 				__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
 				, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
 
-			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
-				$myFile = "/tmp/cctm.txt";
+			if (defined('CCTM_DEBUG')) {			
+				$myFile = CCTM_DEBUG;
 				$fh = fopen($myFile, 'a') or die("can't open file");
 				fwrite($fh, 'Failed to create directory '.$cache_dir.$subdir."\n");
 				fclose($fh);
@@ -1880,8 +1880,8 @@ class CCTM {
 			}
 		}
 		else {
-			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
-				$myFile = "/tmp/cctm.txt";
+			if (defined('CCTM_DEBUG')) {			
+				$myFile = CCTM_DEBUG;
 				$fh = fopen($myFile, 'a') or die("can't open file");
 				fwrite($fh, print_r(debug_backtrace(), true));
 				fclose($fh);
@@ -2128,8 +2128,8 @@ class CCTM {
 			unset($post_types['revision']);
 			unset($post_types['nav_menu_item']);
 			
-			if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
-				$myFile = "/tmp/cctm.txt";
+			if (defined('CCTM_DEBUG')) {			
+				$myFile = CCTM_DEBUG;
 				$fh = fopen($myFile, 'a') or die("can't open file");
 				fwrite($fh, 'Request post-types:'. print_r($post_types, true));
 				fclose($fh);
@@ -2313,8 +2313,8 @@ class CCTM {
 			}
 		}
 		
-		if (defined('CCTM_DEBUG') && CCTM_DEBUG == true) {			
-			$myFile = "/tmp/cctm.txt";
+		if (defined('CCTM_DEBUG')) {			
+			$myFile = CCTM_DEBUG;
 			$fh = fopen($myFile, 'a') or die("can't open file");
 			fwrite($fh, print_r($query->get('post_type'), true));
 			fclose($fh);
