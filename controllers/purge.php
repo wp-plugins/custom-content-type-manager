@@ -53,9 +53,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 	if (!$data['inactive_cnt']) {
 		// Nothing to do
-		$msg = '<div class="updated"><p>'
-			.__('Your database is clean: there are no inactive post-types that need to be purged.', CCTM_TXTDOMAIN)
-			. '</p></div>';
+		$msg = CCTM::format_msg(__('Your database is clean: there are no inactive post-types that need to be purged.', CCTM_TXTDOMAIN));
 		self::set_flash($msg);
 		include( CCTM_PATH . '/controllers/tools.php');	
 		return;

@@ -5,11 +5,16 @@
 	}
 </script>
 
+<style>
+	<?php print $data['style']; ?>
+</style>
+
 <div class="metabox-holder">
 
 <form id="custom_post_type_manager_basic_form" method="post" action="">
 
 	<input type="hidden" name="continue_editing" id="continue_editing" value="0" />
+	<input type="hidden" name="old_id" id="old_id" value="<?php print $data['id']; ?>" />
 	
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
@@ -20,12 +25,23 @@
 		<h3 class="hndle"><span><?php _e('Metabox Definition', CCTM_TXTDOMAIN); ?></span></h3>
 		<div class="inside">		
 		
-			<!-- title -->
+			<!-- !id -->
+			<div class="cctm_element_wrapper" id="custom_field_wrapper_id">			
+				<label for="id_label" class="cctm_label cctm_text_label" id="id">
+					<?php _e('ID', CCTM_TXTDOMAIN); ?> *
+				</label>
+				<input type="text" name="id" class="cctm_text <?php print $data['id.error_class']; ?>" id="id" value="<?php print htmlspecialchars($data['id']); ?>"/>
+				<?php print $data['id.error']; ?>
+				<span class="cctm_description"><?php _e('Unique CSS ID for the metabox. No special characters allowed.', CCTM_TXTDOMAIN); ?></span>
+			</div>
+		
+			<!-- !title -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_title">			
 				<label for="title_label" class="cctm_label cctm_text_label" id="cctm_label_title">
-					<?php _e('Title', CCTM_TXTDOMAIN); ?>
+					<?php _e('Title', CCTM_TXTDOMAIN); ?> *
 				</label>
-				<input type="text" name="title" class="cctm_text" id="title" value="<?php //print htmlspecialchars($data['title']); ?>"/>
+				<input type="text" name="title" class="cctm_text <?php print $data['title.error_class']; ?>" id="title" value="<?php print htmlspecialchars($data['title']); ?>"/>
+				<?php print $data['title.error']; ?>
 				<span class="cctm_description"><?php _e('Title of the Metabox', CCTM_TXTDOMAIN); ?></span>
 			</div>
 		
@@ -58,17 +74,18 @@
 				<label for="callback_label" class="cctm_label cctm_text_label" id="cctm_label_callback">
 					<?php _e('Callback Function', CCTM_TXTDOMAIN); ?>
 				</label>
-				<input type="text" name="callback" class="cctm_text" id="callback" value="<?php //print htmlspecialchars($data['callback']); ?>"/>
+				<input type="text" name="callback" class="cctm_text <?php print $data['callback.error_class']; ?>" id="callback" value="<?php print htmlspecialchars($data['callback']); ?>"/>
+				<?php print $data['callback.error']; ?>
 				<span class="cctm_description"><?php _e('Use this only if you want to override the standard CCTM behavior.', CCTM_TXTDOMAIN); ?></span>
 			</div>				
 
 			<!--!callback_args -->
 			<div class="cctm_element_wrapper" id="custom_field_wrapper_callback_args">			
 				<label for="callback_args_label" class="cctm_label cctm_text_label" id="cctm_label_callback_args">
-					<?php _e('Callback Function', CCTM_TXTDOMAIN); ?>
+					<?php _e('Callback Arguments', CCTM_TXTDOMAIN); ?>
 				</label>
-				<input type="text" name="callback_args" class="cctm_text" id="callback_args" value="<?php //print htmlspecialchars($data['callback']); ?>"/>
-				<span class="cctm_description"><?php _e('Arguments to pass into your callback function. These are used only if you supply your callback function.', CCTM_TXTDOMAIN); ?></span>
+				<input type="text" name="callback_args" class="cctm_text" id="callback_args" value="<?php print htmlspecialchars($data['callback_args']); ?>"/>
+				<span class="cctm_description"><?php _e('Comma-separaated arguments to pass into your callback function. These are used only if you supply a callback function.', CCTM_TXTDOMAIN); ?></span>
 			</div>
 
 
@@ -77,8 +94,10 @@
 	
 	<div class="postbox">
 		<div class="handlediv" title="Click to toggle"><br /></div>
-		<h3 class="hndle"><span><?php _e('Post Types', CCTM_TXTDOMAIN); ?></span></h3>
-		<div class="inside">	
+		<h3 class="hndle"><span><?php _e('Manual Overrides', CCTM_TXTDOMAIN); ?></span></h3>
+		<div class="inside">
+			<p class="custom_field_info">
+			<?php _e('Check a box to force the metabox to be drawn even if no custom fields are in it.', CCTM_TXTDOMAIN); ?></p>
 			<?php print $data['associations']; ?>
 		</div><!-- /inside -->
 	</div><!-- /postbox -->

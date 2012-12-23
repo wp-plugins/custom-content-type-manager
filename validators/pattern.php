@@ -18,7 +18,7 @@ class CCTM_pattern extends CCTM_Validator {
 	 * @return string	a description of what the validation rule is and does.
 	 */
 	public function get_description() {
-		return __('Define a pattern of numbers or letters that your input must match', CCTM_TXTDOMAIN);		
+		return __('Input must match a pattern of letters or numbers, useful for phone numbers, SKUs, etc. If simple patterns are used, the input must be the same length as the pattern. For more flexible control, use the preg_match option.', CCTM_TXTDOMAIN);		
 	}
 
 
@@ -47,8 +47,9 @@ class CCTM_pattern extends CCTM_Validator {
 			<input type="text" name="'.$this->get_field_name('pattern').'" id="'.$this->get_field_id('pattern').'" value="'.htmlspecialchars($this->pattern).'"><br/>
 			<span class="cctm_description">'. __('For simple patterns, use the following symbols:', CCTM_TXTDOMAIN) .'<br/>' 
 			. __('# : Any digit, 0-9', CCTM_TXTDOMAIN) . '<br/>'
-			. __('* : Any alphabetical character', CCTM_TXTDOMAIN) . '<br/>'
+			. __('* : Any letter A-Z', CCTM_TXTDOMAIN) . '<br/>'
 			. __('? : Any character', CCTM_TXTDOMAIN) . '<br/>'
+			. __('All other characters must match verbatim.', CCTM_TXTDOMAIN) . '<br/>'
 			.'</span><br/>
 			<input type="checkbox" name="'.$this->get_field_name('use_preg_match').'" id="'.$this->get_field_id('use_preg_match').'" value="1" class="cctm_checkbox" '.$this->is_checked('use_preg_match').' '.$use_preg_match_is_checked.'> 
 			<label class="cctm_checkbox_label" for="'.$this->get_field_id('use_preg_match').'">'.__('Use preg_match', CCTM_TXTDOMAIN).'</label><br/>
@@ -69,14 +70,16 @@ class CCTM_pattern extends CCTM_Validator {
 	 * @return string
 	 */
 	public function validate($input) {
-
+		$raw_input = $input;
+		//$input = iconv('UTF-8','ISO-8859-1', $input); // doesn't work
 		if ($this->use_preg_match) {
-			$old_error = error_reporting(0); // Turn off error reporting
-			$result = preg_match($this->pattern, $input);
+			$result = @preg_match($this->pattern, $input);
+			// Failed with error
 			if ($result === false) {
 				$error = error_get_last();	
-				$this->error_msg = sprintf(__('Invalid preg_match pattern defined for the %s field.', CCTM_TXTDOMAIN), $this->get_subject()) . ' ' . $error['message'];
+				$this->error_msg = sprintf(__('Invalid preg_match() pattern defined for the %s field.', CCTM_TXTDOMAIN), $this->get_subject()) . ' ' . $error['message'];
 			}
+			// Did not match.
 			elseif ($result == false) {
 				if (empty($this->message)) {
 					$this->error_msg = sprintf(__('The %s field must match', CCTM_TXTDOMAIN), $this->get_subject());	
@@ -85,7 +88,6 @@ class CCTM_pattern extends CCTM_Validator {
 					$this->error_msg = sprintf(__($this->message), $this->get_subject());
 				}
 			}
-			error_reporting($old_error); // Set error reporting to old level
 		}
 		else {
 			$len1 = strlen($input);
@@ -132,7 +134,7 @@ class CCTM_pattern extends CCTM_Validator {
 			}
 		}
 		
-		return $input;
+		return $raw_input;
 	}
 	
 }

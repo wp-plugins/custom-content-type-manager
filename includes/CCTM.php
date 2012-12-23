@@ -571,6 +571,10 @@ class CCTM {
 					update_option( self::db_key, self::$data );
 				}
 			}
+			// Clear the cache
+			unset(CCTM::$data['cache']);
+			unset(CCTM::$data['warnings']);
+			update_option(self::db_key, self::$data);
 		}
 
 		// If this is empty, then it is a first install, so we timestamp it
@@ -646,7 +650,7 @@ class CCTM {
 	 * @param	string $dirPath
 	 */
 	public static function delete_dir($dirPath) {
-	    if (! is_dir($dirPath)) {
+	    if (!is_dir($dirPath)) {
 	    	return false;
 	    }
 	    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
@@ -656,7 +660,8 @@ class CCTM {
 	    foreach ($files as $file) {
 	        if (is_dir($file)) {
 	            self::delete_dir($file);
-	        } else {
+	        } 
+	        else {
 	            unlink($file);
 	        }
 	    }
@@ -740,11 +745,22 @@ class CCTM {
 	/**
 	 * Adds formatting to a string to make an "error" message.
 	 *
-	 * @param string $msg localized error message
+	 * @param mixed $msg localized error message, or an array of messages
+	 * @param string $title optional
 	 * @return string
 	 */
-	public static function format_error_msg($msg) {
-		return sprintf('<div class="error"><p>%s</p></div>', $msg);
+	public static function format_error_msg($msg,$title='') {
+		if ($title) {
+			$title = '<h3>'.$title.'</h3>';
+		}
+		if (is_array($msg)) {
+			$tmp = '';
+			foreach($msg as $m) {
+				$tmp .= '<li>'.$m.'</li>';
+			}
+			$msg = '<ul style="margin-left:30px">'.$tmp.'</ul>';
+		}
+		return sprintf('<div class="error">%s<p>%s</p></div>', $title, $msg);
 	}
 
 

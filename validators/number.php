@@ -19,7 +19,7 @@ class CCTM_number extends CCTM_Validator {
 	 * @return string	a description of what the validation rule is and does.
 	 */
 	public function get_description() {
-		return __('Ensure that the input is a number of the type you have configured.', CCTM_TXTDOMAIN);		
+		return __('Input must be a number, i.e. something that you could use in arithmetic.', CCTM_TXTDOMAIN);		
 	}
 
 

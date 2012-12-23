@@ -4,6 +4,7 @@ if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 Create a Metabox
 ------------------------------------------------------------------------------*/
+require_once(CCTM_PATH .'/includes/CCTM_Metabox.php');
 
 // Page variables
 $data = array();
@@ -19,22 +20,57 @@ $data['nonce_name']  = 'custom_content_type_mgr_create_metaboxes_nonce';
 
 $field_data = array(); // Data object we will save
 
+// Init Error bits
+$data['id.error'] = '';
+$data['title.error'] = '';
+$data['callback.error'] = '';
+$data['id.error_class'] = '';
+$data['title.error_class'] = '';
+$data['callback.error_class'] = '';
+// Init data points
+$data['id'] = '';
+$data['title'] = '';
+$data['context'] = 'advanced';
+$data['priority'] = 'default';
+$data['callback'] = '';
+$data['callback_args'] = '';
+
+
+$data['style'] = file_get_contents(CCTM_PATH.'/css/validation.css');
 
 // Save if submitted...
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
-	print 'Saving...'; exit;
+	$def = CCTM_Metabox::sanitize($_POST);
+	unset($def['old_id']);
+	if (CCTM_Metabox::is_valid_def($_POST)) {
+		CCTM::$data['metabox_defs'][ $def['id'] ] = $def;
+		CCTM::set_flash(CCTM::format_msg(__('Metabox created.',CCTM_TXTDOMAIN)));
+	
+		$continue_editing = CCTM::get_value($_POST, 'continue_editing');
+		unset($_POST);
+		if ($continue_editing) {
+			CCTM::redirect('?page=cctm_metaboxes&a=edit_metabox&id='.$def['id']);
+		}
+		else {
+			CCTM::redirect('?page=cctm_metaboxes');
+		}
+		return;
+	}
+	else {
+		$data['msg'] = CCTM::format_error_msg(CCTM_Metabox::$errors, __('Please correct the following problems.',CCTM_TXTDOMAIN));
+		foreach (CCTM_Metabox::$errors as $field => $error) {
+			$data[$field.'.error'] = sprintf('<span class="cctm_validation_error">%s</span>',$error);
+			$data[$field.'.error_class'] = 'cctm_validation_error';
+		}
+	}
+
+	// Repopulate
+	foreach($def as $k => $v) {
+		$data[$k] = $v;
+	}
 }
 
 $data['rows'] = '';
-$data['icon'] = sprintf('<img src="%s" class="cctm-field-icon" id="cctm-field-icon-%s"/>'
-	, '', '');
-
-
-$data['title'] = '';
-$data['context'] = '';
-$data['priority'] = '';
-$data['callback'] = '';
-$data['callback_args'] = '';
 
 
 $data['associations'] = '';

@@ -263,7 +263,7 @@ class StandardizedCustomFields
 
 	//------------------------------------------------------------------------------
 	/**
-	 * We use this to print out the large icon
+	 * We use this to print out the large icon at the top of the page when editing a post/page
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=188
 	 */
 	public static function print_admin_header() {

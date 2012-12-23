@@ -15,9 +15,18 @@ $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm
 $data['content'] = '';
 $data['rows'] = '';
 
-$data['msg'] .= sprintf('<div class="updated"><p>%s</p></div>'
-		, __('There are no custom metaboxes defined. Click the button below to add a custom metabox.', CCTM_TXTDOMAIN));
 
+
+$rows = CCTM::get_value(CCTM::$data, 'metabox_defs', array());
+
+foreach ($rows as $r) {
+	$data['rows'] .= CCTM::load_view('tr_metabox.php', $r); 
+}
+
+if (empty($rows)) {
+	$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>'
+		, __('There are no custom metaboxes defined. Click the button below to add a custom metabox.', CCTM_TXTDOMAIN));
+}
 
 $data['content'] .= CCTM::load_view('list_metaboxes.php', $data);
 print CCTM::load_view('templates/default.php', $data);

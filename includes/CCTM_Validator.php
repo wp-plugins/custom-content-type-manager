@@ -104,6 +104,25 @@ abstract class CCTM_Validator {
 	//------------------------------------------------------------------------------
 
 	/**
+	 * Draws the metabox containing the validators description and any options.
+	 * @return string html
+	 */
+	public function draw_options() {
+
+		return sprintf('<div class="postbox">
+			<h3 class="hndle"><span>%s</span></h3>
+				<div class="inside">
+					<p>%s</p>
+					%s
+				</div>
+			</div>'
+			, __('Validation Configuration', CCTM_TXTDOMAIN)
+			, $this->get_description()
+			, $this->get_options_html()
+		);
+	}
+	
+	/**
 	 * 
 	 */
 	public function get_error_msg() {

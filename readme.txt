@@ -78,6 +78,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.0.6.8 = 
+
+* Added a pattern validator which supports simple patterns and full regular expressions via preg_match().
+
 = 0.9.6.7 = 
 
 * Fixed errors with more complex permissions: capabilities, capability_types
