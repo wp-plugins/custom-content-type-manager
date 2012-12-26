@@ -16,8 +16,7 @@ $is_foreign = (int) CCTM::get_value($_GET, 'f');
 $data     = array();
 $data['page_title'] = sprintf( __('Custom Fields for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
 $data['help']   = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/FieldAssociations';
-$data['menu']   = ''; //sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm&a=list_custom_field_types&pt=%s" class="button">%s</a>', $post_type, __('Create Custom Field for this Post Type', CCTM_TXTDOMAIN) )
-//	. ' '.sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm&a=template_single&pt=%s" class="button">%s</a>', $post_type, __('View Sample Template', CCTM_TXTDOMAIN) ) ;
+$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm&a=create_metabox" class="button">%s</a>', __('Create Metabox', CCTM_TXTDOMAIN) );
 $data['msg']  = CCTM::get_flash();
 
 
@@ -147,7 +146,8 @@ foreach ($remaining_custom_fields as $cf) {
 	$data['content'] .= CCTM::load_view('tr_pt_custom_field.php', $d);
 }
 
-$data['content'] = CCTM::load_view('sortable-list.php', $data);
+//$data['content'] = CCTM::load_view('sortable-list.php', $data);
+$data['content'] = CCTM::load_view('metaboxes.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 
 

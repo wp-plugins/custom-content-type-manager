@@ -13,7 +13,7 @@ $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/
 $data['msg'] = '';
 
 //$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=create_metabox" class="button">%s</a>', __('Create Metabox', CCTM_TXTDOMAIN) );
-$data['menu'] = sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm_metaboxes&a=list_metaboxes" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
+$data['menu'] = sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['action_name']  = 'custom_content_type_mgr_create_metaboxes';
 $data['nonce_name']  = 'custom_content_type_mgr_create_metaboxes_nonce';
 // $data['change_field_type'] = '<br/>';
@@ -49,10 +49,10 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		$continue_editing = CCTM::get_value($_POST, 'continue_editing');
 		unset($_POST);
 		if ($continue_editing) {
-			CCTM::redirect('?page=cctm_metaboxes&a=edit_metabox&id='.$def['id']);
+			CCTM::redirect('?page=cctm&a=edit_metabox&id='.$def['id']);
 		}
 		else {
-			CCTM::redirect('?page=cctm_metaboxes');
+			CCTM::redirect('?page=cctm&a=list_pt_associations&pt=movie');
 		}
 		return;
 	}

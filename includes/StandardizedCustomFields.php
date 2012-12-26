@@ -3,9 +3,8 @@
 This plugin standardizes the custom fields for specified content types, e.g.
 post, page, and any other custom post-type you register via a plugin.
 ------------------------------------------------------------------------------*/
-class StandardizedCustomFields 
-{
-	
+class StandardizedCustomFields {
+	//------------------------------------------------------------------------------
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
@@ -30,8 +29,7 @@ class StandardizedCustomFields
 	 *
 	 * @return boolean
 	 */
-	private static function _is_existing_post()
-	{
+	private static function _is_existing_post() {
 		if ( substr($_SERVER['SCRIPT_NAME'],strrpos($_SERVER['SCRIPT_NAME'],'/')+1) == 'post.php' ) {
 			return true;
 		}
@@ -175,6 +173,7 @@ class StandardizedCustomFields
 		}
 	}
 
+	//------------------------------------------------------------------------------
 	//! Public Functions	
 	//------------------------------------------------------------------------------
 	/**
@@ -312,18 +311,17 @@ class StandardizedCustomFields
 
 	}
 
-	/*------------------------------------------------------------------------------
-	Display the new Custom Fields meta box inside the WP manager.
-	INPUT:
-	@param object $post passed to this callback function by WP. 
-	@param object $callback_args will always have a copy of this object passed (I'm not sure why),
-		but in $callback_args['args'] will be the 7th parameter from the add_meta_box() function.
-		We are using this argument to pass the content_type.
-	
-	@return null	this function should print form fields.
-	------------------------------------------------------------------------------*/
-	public static function print_custom_fields($post, $callback_args='') 
-	{		
+	/**
+	 * Display the new Custom Fields meta box inside the WP manager.
+	 * INPUT:
+	 * @param object $post passed to this callback function by WP. 
+	 * @param object $callback_args will always have a copy of this object passed (I'm not sure why),
+	 *	but in $callback_args['args'] will be the 7th parameter from the add_meta_box() function.
+	 *	We are using this argument to pass the content_type.
+	 *
+	 * @return null	this function should print form fields.
+	 */
+	public static function print_custom_fields($post, $callback_args='') {		
 		$post_type = $callback_args['args']; // the 7th arg from add_meta_box()
 		$custom_fields = self::_get_custom_fields($post_type);
 		$output = '';
@@ -381,18 +379,17 @@ class StandardizedCustomFields
  
 	}
 
-
-	/*------------------------------------------------------------------------------
-	Remove the default Custom Fields meta box. Only affects the content types that
-	have been activated.
-	INPUTS: sent from WordPress
-	------------------------------------------------------------------------------*/
-	public static function remove_default_custom_fields( $type, $context, $post ) 
-	{
-		$content_types_array = CCTM::get_active_post_types();
-		foreach ( array( 'normal', 'advanced', 'side' ) as $context ) {
-			foreach ( $content_types_array as $content_type ) {
-				remove_meta_box( 'postcustom', $content_type, $context );
+	//------------------------------------------------------------------------------
+	/**
+	 * Remove the default Custom Fields meta box. Only affects the content types that
+	 * have been activated.
+	 * INPUTS: sent from WordPress
+	 */
+	public static function remove_default_custom_fields($type,$context,$post) {
+		$post_types_array = CCTM::get_active_post_types();
+		foreach (array('normal','advanced','side') as $context) {
+			foreach ($post_types_array as $post_type ) {
+				remove_meta_box('postcustom',$post_type,$context);
 			}
 		}
 	}
@@ -411,8 +408,7 @@ class StandardizedCustomFields
 	 * @param	integer	$post_id id of the post these custom fields are associated with
 	 * @param	object	$post  the post object
 	 */
-	public static function save_custom_fields( $post_id, $post ) 
-	{
+	public static function save_custom_fields($post_id, $post) {
 
 		// Bail if you're not in the admin editing a post
 		if (!self::_is_existing_post() && !self::_is_new_post() ) {
@@ -441,7 +437,7 @@ class StandardizedCustomFields
 			return;
 		}
 
-		if ( !empty($_POST) ) {			
+		if (!empty($_POST)) {			
 			$custom_fields = self::_get_custom_fields($post->post_type);
 			$validation_errors = array();
 			foreach ( $custom_fields as $field_name ) {
