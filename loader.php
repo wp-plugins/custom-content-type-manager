@@ -72,7 +72,7 @@ if (empty(CCTM::$errors)) {
 
 		// Standardize Fields
 		add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );
-		add_action('admin_menu', 'StandardizedCustomFields::create_meta_box' );
+		add_action('add_meta_boxes', 'StandardizedCustomFields::create_meta_box' );
 		add_action('save_post', 'StandardizedCustomFields::save_custom_fields', 1, 2 ); //! TODO: register this action conditionally
 
 		// Customize the page-attribute box for custom page hierarchies

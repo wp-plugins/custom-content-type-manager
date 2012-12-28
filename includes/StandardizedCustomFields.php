@@ -8,19 +8,30 @@ class StandardizedCustomFields {
 	//! Private Functions
 	//------------------------------------------------------------------------------
 	/**
-	 * Get custom fields for this content type.
+	 * Get custom fields for this content type, optionally filtered by metabox.
+	 *
 	 * @param string $post_type the name of the post_type, e.g. post, page.
-	OUTPUT: array of associative arrays where each associative array describes 
-		a custom field to be used for the $content_type specified.
-	FUTURE: read these arrays from the database.
-	*/
-	private static function _get_custom_fields($post_type) {
+	 * param string $metabox_id the name of the metabox
+	 * @return array of custom field names (ids)
+	 */
+	private static function _get_custom_fields($post_type, $metabox_id=null) {
+
+		$custom_fields = array();
 		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
-			return CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
+			$custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
 		}
-		else {
-			return array();
+		if ($metabox_id) {
+			$filtered_fields = array();
+			foreach ($custom_fields as $field) {
+				if (isset(CCTM::$data['post_type_defs'][$post_type]['map_field_metabox'][$field])
+					&& CCTM::$data['post_type_defs'][$post_type]['map_field_metabox'][$field] == $metabox_id
+				) {
+					$filtered_fields[] = $field;
+				}
+			}
+			return $filtered_fields;
 		}
+		return $custom_fields;
 	}
 
 	//------------------------------------------------------------------------------
@@ -177,21 +188,48 @@ class StandardizedCustomFields {
 	//! Public Functions	
 	//------------------------------------------------------------------------------
 	/**
-	* Create the new Custom Fields meta box
-	* TODO: allow customization of the name, instead of just 'Custom Fields', and also
-	* of the wrapper div.
+	* Create the metabox(es) for each post-type. We run a gauntlet here to see if 
+	* even need to add the metabox: normally it's only added if custom fields have
+	* been assigned to it, but users can force a metabox to be drawn.
 	*/
 	public static function create_meta_box() {
 		$content_types_array = CCTM::get_active_post_types();
-		foreach ( $content_types_array as $content_type ) {
-			add_meta_box('cctm_default'
-				, __('Custom Fields', CCTM_TXTDOMAIN )
-				, 'StandardizedCustomFields::print_custom_fields'
-				, $content_type
-				, 'normal'
-				, 'high'
-				, $content_type 
-			);
+		foreach ( $content_types_array as $post_type ) {
+			$mb_ids = array('cctm_default');
+
+			if (isset(CCTM::$data['metabox_defs']) && is_array(CCTM::$data['metabox_defs'])) {
+				$mb_ids = array_keys(CCTM::$data['metabox_defs']);
+			}
+			
+			foreach ($mb_ids as $m_id) {
+				$fields = self::_get_custom_fields($post_type, $m_id);
+				$m = CCTM::$metabox_def; // default
+				if (isset(CCTM::$data['metabox_defs'][$m_id])) {
+					$m = CCTM::$data['metabox_defs'][$m_id];
+				}
+				$callback = 'StandardizedCustomFields::print_custom_fields';
+				$callback_args = $m_id;
+				if (isset($m['callback']) && !empty($m['callback'])) {
+					$callback = $m['callback'];
+					if (isset($m['callback_args']) && !empty($m['callback_args'])) {
+						$callback_args = $m['callback_args'];
+					}
+				}
+				// skip drawing this metabox unless the user has specifically asked for it to be drawn
+				//print_r($m); 
+				if (empty($fields) && !in_array($post_type, CCTM::get_value($m,'post_types',array()))) {
+					continue;
+				}
+				add_meta_box(
+					$m['id']
+					, $m['title']
+					, $callback
+					, $post_type
+					, $m['context']
+					, $m['priority']
+					, $callback_args
+				);
+			}
 		}
 	}
 
@@ -312,24 +350,21 @@ class StandardizedCustomFields {
 	}
 
 	/**
-	 * Display the new Custom Fields meta box inside the WP manager.
-	 * INPUT:
+	 * Print Custom Fields inside the given metabox inside the WP manager.
+	 *
 	 * @param object $post passed to this callback function by WP. 
-	 * @param object $callback_args will always have a copy of this object passed (I'm not sure why),
-	 *	but in $callback_args['args'] will be the 7th parameter from the add_meta_box() function.
-	 *	We are using this argument to pass the content_type.
+	 * @param object $callback_args;  $callback_args['args'] contains the 
+	 * 	7th parameter from the add_meta_box() function, the metabox id.
 	 *
 	 * @return null	this function should print form fields.
 	 */
 	public static function print_custom_fields($post, $callback_args='') {		
-		$post_type = $callback_args['args']; // the 7th arg from add_meta_box()
-		$custom_fields = self::_get_custom_fields($post_type);
-		$output = '';
 
-		// If no custom content fields are defined, or if this is a built-in post type that hasn't been activated...
-		if ( empty($custom_fields) ) {
-			return;
-		}
+		$metabox_id = $callback_args['args']; // the 7th arg from add_meta_box()
+		$post_type = $post->post_type;
+		$custom_fields = self::_get_custom_fields($post_type,$metabox_id);
+		// Output hash for parsing
+		$output = array('content'=>'');
 		
 		foreach ( $custom_fields as $cf ) {
 			if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
@@ -366,17 +401,18 @@ class StandardizedCustomFields {
 				$FieldObj->set_props($def);
 				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
 			}
-						
-			$output .= $output_this_field;
+			$output[$cf] = $output_this_field;	
+			$output['content'] .= $output_this_field;
 		}
 		
-		// Print the nonce: this offers security and it will help us know when we 
-		// should do custom saving logic in the save_custom_fields function
-		$output .= '<input type="hidden" name="_cctm_nonce" value="'.wp_create_nonce('cctm_create_update_post').'" />';
+		// TODO: Print the nonce only once (currently it will print once for each metabox)
+		$output['nonce'] = '<input type="hidden" name="_cctm_nonce" value="'.wp_create_nonce('cctm_create_update_post').'" />';
+		$output['content'] .= $output['nonce'];
 
  		// Print the form
- 		print '<div class="form-wrap">'.$output.'</div>';
- 
+ 		$metaboxtpl = CCTM::load_tpl(array('metaboxes/'.$metabox_id.'.tpl', 'metaboxes/_default.tpl'));
+
+ 		print CCTM::parse($metaboxtpl, $output); 
 	}
 
 	//------------------------------------------------------------------------------
@@ -387,10 +423,8 @@ class StandardizedCustomFields {
 	 */
 	public static function remove_default_custom_fields($type,$context,$post) {
 		$post_types_array = CCTM::get_active_post_types();
-		foreach (array('normal','advanced','side') as $context) {
-			foreach ($post_types_array as $post_type ) {
-				remove_meta_box('postcustom',$post_type,$context);
-			}
+		foreach ($post_types_array as $post_type ) {
+			remove_meta_box('postcustom',$post_type,'normal');
 		}
 	}
 	

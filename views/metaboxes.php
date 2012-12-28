@@ -15,18 +15,6 @@ is not used (i.e. it should not appear on this post-type).
 
 $metabox = $_POST['mapping'][$field];
 
-Secondly, we must consider the order of the fields.  Since all fields appear in the same form,
-we rely on a another hidden field. This doesn't require any special javascript.  It's accomplished
-via simple page layout.
-
-	<input name="order[]" value="fieldname"/>
-	
-$order = $_POST['order']
-foreach ($order as $i => $field) {
-
-}
-
-We can omit any unused fields, then store the array in the post-type def's custom_fields array.
 */
 ?>
 <style>
@@ -100,7 +88,7 @@ We can omit any unused fields, then store the array in the post-type def's custo
 		<?php // RIGHT COLUMN ?>
 		<td style="vertical-align:top; width:270px;">
 		
-			<?php print $data['sidebar_boxes']; ?>
+			<?php print $data['side_boxes']; ?>
 		
 		</td>
 	</tr>

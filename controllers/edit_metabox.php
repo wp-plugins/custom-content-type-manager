@@ -5,7 +5,7 @@ if (!current_user_can('administrator')) exit('Admins only.');
 Create a Metabox
 ------------------------------------------------------------------------------*/
 require_once(CCTM_PATH .'/includes/CCTM_Metabox.php');
-
+//print_r(CCTM::$data['metabox_defs']); exit;
 // Page variables
 $data = array();
 
@@ -23,7 +23,7 @@ $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/
 $data['msg'] = '';
 
 //$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=create_metabox" class="button">%s</a>', __('Create Metabox', CCTM_TXTDOMAIN) );
-$data['menu'] = sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm_metaboxes&a=list_metaboxes" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
+$data['menu'] = sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm" title="%s" class="button">%s</a>', __('Cancel'), __('Cancel'));
 $data['action_name']  = 'custom_content_type_mgr_create_metaboxes';
 $data['nonce_name']  = 'custom_content_type_mgr_create_metaboxes_nonce';
 // $data['change_field_type'] = '<br/>';

@@ -92,7 +92,7 @@ $data['content'] = '';
 $data['unused'] = '';
 $data['advanced_boxes'] = '';
 $data['normal_boxes'] = '';
-$data['sidebar_boxes'] = '';
+$data['side_boxes'] = '';
 
 // Load up this structure
 $metaboxes = array();
@@ -113,12 +113,8 @@ foreach ($active_custom_fields as $cf) {
 	}
 
 	// Default metabox def
-	$m_def = array(
-		'id' => 'cctm_default',
-		'title' => __('Custom Fields', CCTM_TXTDOMAIN),
-		'context' => 'normal',
-		'priority' => 'default',
-	);
+	$m_def = CCTM::$metabox_def;
+	
 	if (isset(self::$data['metabox_defs'][$metabox])) {
 		$m_def = self::$data['metabox_defs'][$metabox];
 	}
@@ -142,6 +138,14 @@ foreach ($active_custom_fields as $cf) {
 
 	$metaboxes[$context][$metabox][] = CCTM::load_view('li_field.php', $d);
 
+}
+// Get the metaboxes with no custom-fields in them
+if (isset(self::$data['metabox_defs']) && is_array(self::$data['metabox_defs'])) {
+	foreach (self::$data['metabox_defs'] as $mb_id => $mb_def) {
+		if (!isset($metaboxes[ $mb_def['context'] ][$mb_id])) {
+			$metaboxes[ $mb_def['context'] ][$mb_id] = array();	
+		}
+	}
 }
 
 // Get things sorted into their spots

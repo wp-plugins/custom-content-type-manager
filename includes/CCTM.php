@@ -163,7 +163,7 @@ class CCTM {
 	);
 
 	/**
-	 * List default settings here. (see controllers/settings.php)
+	 * List default global settings here. (see controllers/settings.php)
 	 */
 	public static $default_settings = array(
 		'delete_posts' => 0
@@ -181,6 +181,14 @@ class CCTM {
 		, 'flush_permalink_rules' => 1
 		, 'pages_in_rss_feed'	=> 0
 		, 'enable_right_now'	=> 1
+	);
+
+	// Default metabox definition
+	public static $metabox_def = array(
+		'id' => 'cctm_default',
+		'title' => 'Custom Fields',
+		'context' => 'normal',
+		'priority' => 'default',
 	);
 
 	// Where are the icons for custom images stored?
