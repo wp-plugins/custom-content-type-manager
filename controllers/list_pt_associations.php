@@ -10,6 +10,7 @@
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
 require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
+require_once(CCTM_PATH.'/includes/CCTM_Metabox.php');
 
 $is_foreign = (int) CCTM::get_value($_GET, 'f');
 
@@ -34,14 +35,25 @@ $data['nonce_name'] = 'cctm_custom_save_sort_order_nonce';
 // Save custom fields. The sort order is determined by simple physical location on the page.
 if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 
+//	print 'Saving!'; exit;
 	self::$data['post_type_defs'][$post_type]['custom_fields'] = array();
-	if (!empty($_POST['custom_fields']) && is_array($_POST['custom_fields'])) {
-		self::$data['post_type_defs'][$post_type]['custom_fields'] = $_POST['custom_fields'];
+	
+	if (!empty($_POST['mapping']) && is_array($_POST['mapping'])) {
+		$custom_fields = array();
+		$map_field_metabox = array();
+		foreach ($_POST['mapping'] as $field => $mbox) {
+			if ($mbox) {
+				$custom_fields[] = $field;
+				$map_field_metabox[$field] = $mbox;
+			}
+		}
+		self::$data['post_type_defs'][$post_type]['custom_fields'] = $custom_fields;
+		self::$data['post_type_defs'][$post_type]['map_field_metabox'] = $map_field_metabox;
 	}
 	if ($is_foreign){
 		self::$data['post_type_defs'][$post_type]['is_foreign'] = 1;
 	}
-
+	
 	update_option( self::db_key, self::$data );
 	$x = sprintf( __('Custom fields for %s have been updated.', CCTM_TXTDOMAIN), "<em>$post_type</em>" );
 	$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>', $x);
@@ -77,8 +89,15 @@ elseif (!$active_custom_fields_cnt ) {
 }
 
 $data['content'] = '';
+$data['unused'] = '';
+$data['advanced_boxes'] = '';
+$data['normal_boxes'] = '';
+$data['sidebar_boxes'] = '';
 
-// First, display the custom fields active for this post_type
+// Load up this structure
+$metaboxes = array();
+
+// Gather and order the custom fields active for this post_type
 foreach ($active_custom_fields as $cf) {
 	if ( !isset(self::$data['custom_field_defs'][$cf])) {
 		continue;
@@ -88,21 +107,32 @@ foreach ($active_custom_fields as $cf) {
 	if (!$FieldObj = CCTM::load_object($d['type'], 'fields')) {
 		continue;
 	}
+	$metabox = 'default';
+	if (isset(self::$data['map_field_metabox'][$cf])) {
+		$metabox = self::$data['map_field_metabox'][$cf];
+	}
+
+	// Default metabox def
+	$m_def = array(
+		'id' => 'cctm_default',
+		'title' => __('Custom Fields', CCTM_TXTDOMAIN),
+		'context' => 'normal',
+		'priority' => 'default',
+	);
+	if (isset(self::$data['metabox_defs'][$metabox])) {
+		$m_def = self::$data['metabox_defs'][$metabox];
+	}
+	$context = $m_def['context'];
 	
 	$d['icon'] = $FieldObj->get_icon();
-
-	// $icon_src = self::get_custom_icons_src_dir() . $d['type'].'.png';
-
 	if ( !CCTM::is_valid_img($d['icon']) ) {
 		$d['icon'] = self::get_custom_icons_src_dir() . 'default.png';
 	}
+	$d['class'] = 'ui-state-highlight';
+	$d['metabox'] = $metabox;
 
-	$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $d['icon']);
-
-	$d['class'] = '';
-	$d['is_checked'] = ' checked="checked"';
 	$d['edit_field_link'] = sprintf(
-		'<a href="%s/wp-admin/admin.php?page=cctm_fields&a=edit_custom_field&field=%s&_wpnonce=%s" title="%s">%s</a>'
+		'<a href="%s/wp-admin/admin.php?page=cctm_fields&a=edit_custom_field&field=%s&_wpnonce=%s" title="%s" class="linklike">%s</a>'
 		, get_site_url()
 		, $d['name']
 		, wp_create_nonce('cctm_edit_field')
@@ -110,12 +140,30 @@ foreach ($active_custom_fields as $cf) {
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
 
-	$data['content'] .= CCTM::load_view('tr_pt_custom_field.php', $d);
-}
-// Separator
-$data['content'] .= '<tr class="no-sort"><td colspan="4" style="background-color:#ededed;"><hr /></td></tr>';
+	$metaboxes[$context][$metabox][] = CCTM::load_view('li_field.php', $d);
 
-// Following, list the remaining custom fields
+}
+
+// Get things sorted into their spots
+if (isset($metaboxes['normal'])) {
+	foreach($metaboxes['normal'] as $m => $items) {
+		$data['normal_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
+	}
+}
+if (isset($metaboxes['advanced'])) {
+	foreach($metaboxes['advanced'] as $m => $items) {
+		$data['advanced_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
+	}
+}
+if (isset($metaboxes['side'])) {
+	foreach($metaboxes['side'] as $m => $items) {
+		$data['side_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
+	}
+}
+
+
+
+// List the unused custom fields
 $remaining_custom_fields = array_diff($all_custom_fields, $active_custom_fields);
 foreach ($remaining_custom_fields as $cf) {
 	$d = self::$data['custom_field_defs'][$cf];
@@ -130,12 +178,11 @@ foreach ($remaining_custom_fields as $cf) {
 		$d['icon'] = self::get_custom_icons_src_dir() . 'default.png';
 	}
 
-	$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $d['icon']);
-	$d['class'] = ''; // ' no-sort';
-	$d['is_checked'] = '';
+	$d['class'] = 'ui-state-default';
+	$d['metabox'] = '';
 
 	$d['edit_field_link'] = sprintf(
-		'<a href="%s/wp-admin/admin.php?page=cctm_fields&a=edit_custom_field&field=%s&_wpnonce=%s" title="%s">%s</a>'
+		'<a href="%s/wp-admin/admin.php?page=cctm_fields&a=edit_custom_field&field=%s&_wpnonce=%s" title="%s" class="linklike">%s</a>'
 		, get_site_url()
 		, $d['name']
 		, wp_create_nonce('cctm_edit_field')
@@ -143,10 +190,9 @@ foreach ($remaining_custom_fields as $cf) {
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
 
-	$data['content'] .= CCTM::load_view('tr_pt_custom_field.php', $d);
+	$data['unused'] .= CCTM::load_view('li_field.php', $d);
 }
 
-//$data['content'] = CCTM::load_view('sortable-list.php', $data);
 $data['content'] = CCTM::load_view('metaboxes.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 
