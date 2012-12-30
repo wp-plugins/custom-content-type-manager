@@ -20,6 +20,7 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 		}
 
 		$input = $this->to_array($input);
+
 		if ($this->is_array_input) {
 			foreach($input as &$item) {
 				if (!is_numeric($item)) {
@@ -32,6 +33,7 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 					$item = $options; // default image
 				}
 			}
+			
 			return $input;
 		}
 		elseif(isset($input[0])) {

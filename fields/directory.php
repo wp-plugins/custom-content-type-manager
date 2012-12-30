@@ -1,8 +1,8 @@
 <?php
 /**
- * CCTM_dropdown
+ * CCTM_directory
  *
- * Implements an HTML select element with options (single select).
+ * Lists the contents of a directory (an optionally all sub-dirs) for selection in a dropdown.
  *
  * @package CCTM_FormElement
  */
@@ -17,7 +17,7 @@ class CCTM_directory extends CCTM_FormElement
 		'default_value' => '',
 		'required' => '',
 		'source_dir' => '',
-		'glob' => '',
+		'pattern' => '',
 		'traverse_dirs' => 0,
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 
@@ -45,7 +45,7 @@ class CCTM_directory extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('List files matching a pattern contained in a given folder. Output is relative to the defined source directory.', CCTM_TXTDOMAIN);
+		return __('Lists the contents of a directory (an optionally all sub-dirs) for selection in a dropdown. Output is relative to the defined source directory.', CCTM_TXTDOMAIN);
 	}
 
 
@@ -77,19 +77,18 @@ class CCTM_directory extends CCTM_FormElement
 			$current_value = $this->get_value($current_value, 'to_array');
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
-					, 'fields/options/_user_multi.tpl'
-					, 'fields/options/_user.tpl'
+					, 'fields/options/_option.tpl'
 				)
 			);
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_user_multi.tpl'
+					, 'fields/elements/_multiselect.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_user_multi.tpl'
+					, 'fields/wrappers/_multiselect.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
@@ -100,18 +99,17 @@ class CCTM_directory extends CCTM_FormElement
 
 			$optiontpl = CCTM::load_tpl(
 				array('fields/options/'.$this->name.'.tpl'
-					, 'fields/options/_user.tpl'
+					, 'fields/options/_option.tpl'
 				)
 			);
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_user.tpl'
+					, 'fields/elements/_dropdown.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_user.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
@@ -127,15 +125,26 @@ class CCTM_directory extends CCTM_FormElement
 			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
 		}
 
+		// Substitutions
+		$this->source_dir = str_replace('[+ABSPATH+]', ABSPATH, $this->source_dir);
+		$this->source_dir = preg_replace('#/$#','',$this->source_dir); // strip trailing slash
+		
+		// Generate the regex pattern
+		$exts = explode(',',$this->pattern);
+		$exts = array_map('trim', $exts);
+		$exts = array_map('preg_quote', $exts);
+		$pattern = implode('|',$exts);
+		
+		
 		// Get the files
-		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)) as $filename) {
-		// echo "$filename\n";
-			if (preg_match('/\.php$/i',$filename)) {
-				$this->options[] = $filename;
+		$options = array();
+		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->source_dir)) as $filename) {
+			if (preg_match('/('.$pattern.')$/i',$filename)) {
+				// Make the stored file relative to the source_dir
+				$options[] = preg_replace('#^'.$this->source_dir.'/#','',$filename);
 			}   
 		}
-
-//		$this->options = array(); // TODO <---*****
+		$this->options = $options;
 		$opt_cnt = count($this->options);
 
 		$i = 1;
@@ -143,16 +152,8 @@ class CCTM_directory extends CCTM_FormElement
 		foreach ( $this->options as $o ) {
 			//die(print_r($o, true));
 			$hash = $this->get_props();
-
-			// We hardcode this one because we always need to store the user ID as the value for normalization
-			$hash['value'] = $o->data->ID;
-
-			foreach ($o->data as $k => $v) {
-				if (!isset($hash[$k])) {
-					$hash[$k] = $v;
-				}
-			}
-
+			$hash['option'] = $o;
+			$hash['value'] = $o;
 			$hash['is_checked'] = '';
 
 			if ($this->is_repeatable) {
@@ -218,17 +219,17 @@ class CCTM_directory extends CCTM_FormElement
 				 <label for="source_dir" class="cctm_label cctm_text_label" id="source_dir_label">'
 			. __('Source Directory', CCTM_TXTDOMAIN) .
 			'</label>
-				 <input type="text" name="source_dir" class="cctm_text_short" id="source_dir" value="'.htmlspecialchars($def['source_dir']) .'"/><span class="cctm_description">'.
-				 __('The source directory should be a full path to the directory without the trailing slash, e.g. <code>/home/my_user/dir</code>',CCTM_TXTDOMAIN).'</span>
+				 <input type="text" name="source_dir" class="cctm_text_short" size="50" id="source_dir" value="'.htmlspecialchars($def['source_dir']) .'"/><span class="cctm_description">'.
+				 __('Full path to a directory without the trailing slash, e.g. <code>/home/my_user/dir</code>. Use <code>[+ABSPATH+]</code> as a placeholder for your WordPress root directory.',CCTM_TXTDOMAIN).'</span>
 			 	</div>';
 
-		// Glob
-		$out .= '<div class="'.self::wrapper_css_class .'" id="glob_wrapper">
-				 <label for="glob" class="cctm_label cctm_text_label" id="glob_label">'
-			. __('Pattern', CCTM_TXTDOMAIN) .
+		// pattern
+		$out .= '<div class="'.self::wrapper_css_class .'" id="pattern_wrapper">
+				 <label for="pattern" class="cctm_label cctm_text_label" id="pattern_label">'
+			. __('Extensions', CCTM_TXTDOMAIN) .
 			'</label>
-				 <input type="text" name="glob" class="cctm_text_short" id="glob" value="'.htmlspecialchars($def['glob']) .'"/> <span class="cctm_description">'
-			. __('Enter the pattern used for matching. Use comas to separate possible matches, e.g. <code>.jpg,.jpeg</code>',CCTM_TXTDOMAIN) .'</span>
+				 <input type="text" name="pattern" class="cctm_text_short" id="pattern" value="'.htmlspecialchars($def['pattern']) .'"/> <span class="cctm_description">'
+			. __('File extensions you want returned. Use comas to separate possible matches, e.g. <code>.jpg,.jpeg</code>.  The case does not matter.',CCTM_TXTDOMAIN) .'</span>
 			 	</div>';
 		// Traverse Directories?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="traverse_dirs_wrapper">
@@ -249,45 +250,6 @@ class CCTM_directory extends CCTM_FormElement
 		$out .= $this->format_available_output_filters($def);
 
 		return $out;
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Validate and sanitize any submitted data. Used when editing the definition for
-	 * this type of element. Default behavior here is to require only a unique name and
-	 * label. Override this if customized validation is required.
-	 *
-	 *     into the field values.
-	 *
-	 * @param array   $posted_data = $_POST data
-	 * @return array filtered field_data that can be saved OR can be safely repopulated
-	 */
-	public function save_definition_filter($posted_data) {
-		$posted_data = parent::save_definition_filter($posted_data);
-		if (empty($posted_data['alternate_input']) && empty($posted_data['options'])) {
-			$this->errors['options'][] = __('At least one option or alternate input is required.', CCTM_TXTDOMAIN);
-		}
-		return $posted_data; // filtered data
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Traverse a directory.  We need this in its own function so we can self-reference.
-	 * 
-	 * @param string starting directory (omit trailing slash)
-	 * @param string glob
-	 * @param boolean $traverse -- should we enter into sub-directories
-	 */
-	public function traverse_dir($dir,$glob='*',$traverse=false) {
-		foreach(glob($dir.'/'.$glob,GLOB_BRACE) as $f)  {
-			if (is_file($f)) {
-				$this->options[] = $f;
-			}
-			elseif ($traverse) {
-				$this->traverse_dir($f,$glob,$traverse);
-			}
-		}
 	}
 }
 

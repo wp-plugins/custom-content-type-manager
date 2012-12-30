@@ -46,9 +46,11 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	if (CCTM_Metabox::is_valid_def($_POST, true)) {
 		$data['msg'] = CCTM::format_msg(__('Metabox updated.',CCTM_TXTDOMAIN));
 		unset(CCTM::$data['metabox_defs'][ $def['old_id'] ]); // out with the old
+/*
 		if ($def['id'] != $def['old_id']) {
 			die('changing id...');
 		}
+*/
 		unset($def['old_id']);
 		CCTM::$data['metabox_defs'][ $def['id'] ] = $def; // in with the new
 		CCTM::set_flash($data['msg']);
