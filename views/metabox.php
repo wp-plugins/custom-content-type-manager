@@ -18,8 +18,6 @@
 	
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
-	<?php //print $data['fields']; ?>
-	
 	<div class="postbox">
 		<div class="handlediv" title="Click to toggle"><br /></div>
 		<h3 class="hndle"><span><?php _e('Metabox Definition', CCTM_TXTDOMAIN); ?></span></h3>

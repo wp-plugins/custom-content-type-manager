@@ -45,12 +45,21 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	$def = CCTM_Metabox::sanitize($_POST);
 	if (CCTM_Metabox::is_valid_def($_POST, true)) {
 		$data['msg'] = CCTM::format_msg(__('Metabox updated.',CCTM_TXTDOMAIN));
-		unset(CCTM::$data['metabox_defs'][ $def['old_id'] ]); // out with the old
-/*
+		// Find any refs to the old id and update them
 		if ($def['id'] != $def['old_id']) {
-			die('changing id...');
+			if (isset(CCTM::$data['post_type_defs']) && is_array(CCTM::$data['post_type_defs'])) {
+				foreach (CCTM::$data['post_type_defs'] as $pt => $ptd) {
+					if (isset($ptd['map_field_metabox']) && is_array($ptd['map_field_metabox'])) {
+						foreach ($ptd['map_field_metabox'] as $cf => $mb) {
+							if ($mb == $def['old_id']) {
+								CCTM::$data['post_type_defs'][$pt]['map_field_metabox'][$cf] = $def['id'];
+							}
+						}
+					}
+				}
+			}
 		}
-*/
+		unset(CCTM::$data['metabox_defs'][ $def['old_id'] ]); // out with the old
 		unset($def['old_id']);
 		CCTM::$data['metabox_defs'][ $def['id'] ] = $def; // in with the new
 		CCTM::set_flash($data['msg']);

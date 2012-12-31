@@ -39,11 +39,14 @@ $metabox = $_POST['mapping'][$field];
 			var containing_metabox = ui.item.parent().attr("metabox");
 			var mapping = ui.item.find('input');
 			mapping.val(containing_metabox);
-			console.log(ui.item.parent().attr("metabox")); 
-			
+			//console.log(containing_metabox);
 		} );
-
     });
+    
+	function set_continue_editing() {
+		jQuery('#continue_editing').val(1);
+		return true;
+	}    
 </script>
 
 <span class="cctm_description"><?php _e('Drag fields into the metabox and the order where you want them to appear.', CCTM_TXTDOMAIN); ?></span>
@@ -52,6 +55,7 @@ $metabox = $_POST['mapping'][$field];
 
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 
+	<input type="hidden" name="continue_editing" id="continue_editing" value="0" />
 
 
 <?php /* Ye olde table layout: 3 columns */ ?>
@@ -97,6 +101,7 @@ $metabox = $_POST['mapping'][$field];
 
 	<br />
 	<input type="submit" class="button-primary" id="submit" value="<?php _e('Save', CCTM_TXTDOMAIN); ?>" />
+	<input type="submit" class="button" onclick="javascript:set_continue_editing();" value="<?php _e('Save and Continue Editing', CCTM_TXTDOMAIN ); ?>" />	
 	<?php printf('<a href="?page=cctm&a=list_post_types" class="button">%s</a>', __('Cancel', CCTM_TXTDOMAIN) );?>
 
 </form>

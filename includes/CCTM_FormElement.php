@@ -162,10 +162,6 @@ abstract class CCTM_FormElement {
 			. '<code>'.htmlspecialchars(CCTM::$allowed_html_tags).'</code>';
 		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		
-		$this->descriptions['evaluate_create_value'] = __('Check this box to evaluate the PHP code in the "New Values" box when creating new posts.');
-		
-		$this->descriptions['evaluate_update_value'] = __('Check this box to evaluate the PHP code in the "Updated Values" box when updating posts.');
-		
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] = __('The name identifies the meta_key in the wp_postmeta database table. The name should contain only letters, numbers, and underscores. You will use this name in your template functions to identify this custom field.', CCTM_TXTDOMAIN);
 		$this->descriptions['name'] .= sprintf('<br /><span style="color:red;">%s</span>'

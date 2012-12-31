@@ -34,32 +34,39 @@ $data['nonce_name'] = 'cctm_custom_save_sort_order_nonce';
 
 // Save custom fields. The sort order is determined by simple physical location on the page.
 if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
-
+//	print_r($_POST); exit;
 //	print 'Saving!'; exit;
 	self::$data['post_type_defs'][$post_type]['custom_fields'] = array();
 	
 	if (!empty($_POST['mapping']) && is_array($_POST['mapping'])) {
-		$custom_fields = array();
-		$map_field_metabox = array();
+		self::$data['post_type_defs'][$post_type]['custom_fields'] = array();
+		self::$data['post_type_defs'][$post_type]['map_field_metabox'] = array();
 		foreach ($_POST['mapping'] as $field => $mbox) {
-			if ($mbox) {
-				$custom_fields[] = $field;
-				$map_field_metabox[$field] = $mbox;
+			if (!empty($mbox)) {
+				self::$data['post_type_defs'][$post_type]['custom_fields'][] = $field;
+				self::$data['post_type_defs'][$post_type]['map_field_metabox'][$field] = $mbox;
 			}
 		}
-		self::$data['post_type_defs'][$post_type]['custom_fields'] = $custom_fields;
-		self::$data['post_type_defs'][$post_type]['map_field_metabox'] = $map_field_metabox;
 	}
 	if ($is_foreign){
 		self::$data['post_type_defs'][$post_type]['is_foreign'] = 1;
 	}
-	
+	//print_r(self::$data['post_type_defs'][$post_type]['map_field_metabox']); exit;
+	// print '<pre>'.print_r(self::$data,true).'</pre>'; exit;
 	update_option( self::db_key, self::$data );
-	$x = sprintf( __('Custom fields for %s have been updated.', CCTM_TXTDOMAIN), "<em>$post_type</em>" );
-	$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>', $x);
+	
+	$continue_editing = CCTM::get_value($_POST, 'continue_editing');
+	unset($_POST);
+	
+
+	$msg = sprintf( __('Custom fields for %s have been updated.', CCTM_TXTDOMAIN), "<em>$post_type</em>" );
+	$data['msg'] = sprintf('<div class="updated"><p>%s</p></div>', $msg);
 	self::set_flash($data['msg']);
-	include CCTM_PATH . '/controllers/list_post_types.php';
-	return;
+
+	if (!$continue_editing) {
+		include CCTM_PATH . '/controllers/list_post_types.php';
+		return;
+	}
 }
 
 // Active custom fields are those that are associated with THIS post_type
@@ -107,11 +114,11 @@ foreach ($active_custom_fields as $cf) {
 	if (!$FieldObj = CCTM::load_object($d['type'], 'fields')) {
 		continue;
 	}
-	$metabox = 'default';
-	if (isset(self::$data['map_field_metabox'][$cf])) {
-		$metabox = self::$data['map_field_metabox'][$cf];
+	$metabox = 'cctm_default';
+	if (isset(self::$data['post_type_defs'][$post_type]['map_field_metabox'][$cf])) {
+		$metabox = self::$data['post_type_defs'][$post_type]['map_field_metabox'][$cf];
 	}
-
+//print_r(self::$data['metabox_defs']); exit;
 	// Default metabox def
 	$m_def = CCTM::$metabox_def;
 	
@@ -139,6 +146,8 @@ foreach ($active_custom_fields as $cf) {
 	$metaboxes[$context][$metabox][] = CCTM::load_view('li_field.php', $d);
 
 }
+//print_r(self::$data['metabox_defs']); exit;
+//print_r(self::$data['post_type_defs'][$post_type]['map_field_metabox']);
 // Get the metaboxes with no custom-fields in them
 if (isset(self::$data['metabox_defs']) && is_array(self::$data['metabox_defs'])) {
 	foreach (self::$data['metabox_defs'] as $mb_id => $mb_def) {

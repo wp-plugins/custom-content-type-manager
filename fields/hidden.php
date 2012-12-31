@@ -10,8 +10,7 @@
  */
 
 
-class CCTM_hidden extends CCTM_FormElement
-{
+class CCTM_hidden extends CCTM_FormElement {
 
 	public $props = array(
 		'label' => '',
@@ -23,7 +22,10 @@ class CCTM_hidden extends CCTM_FormElement
 		'is_repeatable' => '',
 		'output_filter' => '',
 		'required' => '',
-		'evaluate_default_value' => 0,
+		'evaluate_create_value' => 0,
+		'evaluate_update_value' => 0,
+		'create_value_code' => '',
+		'update_value_code' => '',
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
@@ -65,6 +67,40 @@ class CCTM_hidden extends CCTM_FormElement
 		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Hidden';
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * This is somewhat tricky if the values the user wants to store are HTML/JS.
+	 * See http://www.php.net/manual/en/function.htmlspecialchars.php#99185
+	 *
+	 * @param mixed   $current_value current value for this field.
+	 * @return string
+	 */
+	public function get_create_field_instance() {
+
+		// Populate the values (i.e. properties) of this field
+		$this->id      = $this->name;
+
+		$fieldtpl = '';
+		$wrappertpl = '';
+
+		if ($this->evaluate_create_value) {
+			$this->value = eval($this->create_value_code);
+		}
+		else {
+			$this->value  = $this->default_value;
+		}
+
+		$fieldtpl = CCTM::load_tpl(
+			array('fields/elements/'.$this->name.'.tpl'
+				, 'fields/elements/_hidden.tpl'
+				, 'fields/elements/_default.tpl'
+			)
+		);
+
+		return CCTM::parse($fieldtpl, $this->get_props()) 
+			. '<input type="hidden" name="_cctm_is_create" value="1" />';
+	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -82,11 +118,17 @@ class CCTM_hidden extends CCTM_FormElement
 		$fieldtpl = '';
 		$wrappertpl = '';
 
-		$this->value  = htmlspecialchars( html_entity_decode($this->get_value($current_value,'to_string') ));
+		if ($this->evaluate_update_value) {
+			$this->value = eval($this->update_value_code);
+		}
+		else {
+			$this->value  = htmlspecialchars( html_entity_decode($this->get_value($current_value,'to_string') ));
+		}
+		
 
 		$fieldtpl = CCTM::load_tpl(
 			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_'.$this->type.'.tpl'
+				, 'fields/elements/_text.tpl'
 				, 'fields/elements/_default.tpl'
 			)
 		);
@@ -103,11 +145,14 @@ class CCTM_hidden extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
-		$is_checked = '';
-		if (isset($def['evaluate_default_value']) && $def['evaluate_default_value'] == 1) {
-			$is_checked = 'checked="checked"';
+		$is_ecv_checked = '';
+		$is_euv_checked = '';
+		if (isset($def['evaluate_create_value']) && $def['evaluate_create_value'] == 1) {
+			$is_ecv_checked = 'checked="checked"';
 		}
-
+		if (isset($def['evaluate_update_value']) && $def['evaluate_update_value'] == 1) {
+			$is_euv_checked = 'checked="checked"';
+		}
 	
 		// Standard
 		$out = $this->format_standard_fields($def, false);
@@ -123,19 +168,19 @@ class CCTM_hidden extends CCTM_FormElement
 			. __('EXPERIMENTAL USE ONLY. Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code>).', CCTM_TXTDOMAIN) .
 			'</label>
 				 <br />
-				 <input type="checkbox" name="evaluate_default_value" class="cctm_checkbox" id="evaluate_default_value" value="1" '. $is_checked.'/> '
-			.$this->descriptions['evaluate_create_value'].'<br/>
+				 <input type="checkbox" name="evaluate_create_value" class="cctm_checkbox" id="evaluate_create_value" value="1" '. $is_ecv_checked.'/> '
+			.__('Check this box to evaluate the PHP code in the "New Values" box when creating new posts.', CCTM_TXTDOMAIN).'<br/>
 			
-				<input type="checkbox" name="evaluate_default_value" class="cctm_checkbox" id="evaluate_default_value" value="1" '. $is_checked.'/> '
-			.$this->descriptions['evaluate_update_value'].'
+				<input type="checkbox" name="evaluate_update_value" class="cctm_checkbox" id="evaluate_update_value" value="1" '. $is_euv_checked.'/> '
+			.__('Check this box to evaluate the PHP code in the "Updated Values" box when updating posts.', CCTM_TXTDOMAIN).'
 			 </div>
 			 
 			 <div class="'.self::wrapper_css_class .'" id="evaluate_create_value_wrapper">
-			 		<label for="evaluate_create_value" class="cctm_label cctm_textarea_label" id="evaluate_create_value_label">New Values</label>
+			 		<label for="create_value_code" class="cctm_label cctm_textarea_label" id="create_value_code_label">'.__('New Values',CCTM_TXTDOMAIN).'</label>
 
-			 		<textarea id="evaluate_create_value" rows="5" cols="60"></textarea>
-			 		<label for="evaluate_update_value" class="cctm_label cctm_textarea_label" id="evaluate_update_value_label">Updated Values</label>
-			 		<textarea id="evaluate_update_value" rows="5" cols="60"></textarea>
+			 		<textarea id="evaluate_create_value" name="create_value_code" rows="5" cols="60">'.$def['create_value_code'].'</textarea>
+			 		<label for="evaluate_update_value" class="cctm_label cctm_textarea_label" id="evaluate_update_value_label">'.__('Updated Values', CCTM_TXTDOMAIN).'</label>
+			 		<textarea id="evaluate_update_value" name="update_value_code" rows="5" cols="60">'.$def['update_value_code'].'</textarea>
 			 	
 			 </div>
 			 	
