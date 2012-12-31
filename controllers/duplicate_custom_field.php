@@ -212,9 +212,6 @@ foreach ($displayable_types as $post_type) {
 $data['associations'] .= '</table>';
 
 
-
-
-
 $data['content'] = CCTM::load_view('custom_field.php', $data);
 print CCTM::load_view('templates/default.php', $data);
 /*EOF*/

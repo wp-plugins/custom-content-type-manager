@@ -1324,6 +1324,9 @@ class CCTM {
 			$fieldtype = self::get_value(self::$data['custom_field_defs'][$fieldname], 'type');
 			$field_types[] = $fieldtype;
 		}
+		elseif ($page == 'admin.php' && $action =='duplicate_custom_field') {
+			$field_types[] = CCTM::get_value($_GET,'type');
+		}
 
 		// We only get here if we survived the gauntlet above
 		foreach ($field_types as $shortname) {
