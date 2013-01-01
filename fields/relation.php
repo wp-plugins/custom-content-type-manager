@@ -335,10 +335,19 @@ class CCTM_relation extends CCTM_FormElement
 			 	</div>';
 
 		// Set Search Parameters
-		$search_parameters_str = CCTM::get_value($def, 'search_parameters');
+		//print_r($def); exit;
+		$seach_parameters_str = '';
+		if (isset($def['search_parameters'])) {
+			$search_parameters_str = $def['search_parameters'];
+		}
+		//print $search_parameters_str; exit;
+		// $search_parameters_str = CCTM::get_value($def, 'search_parameters');
 		parse_str($search_parameters_str, $args);
+		//print_r($args); exit;
 		$Q = new GetPostsQuery($args);
 		$search_parameters_visible = $Q->get_args();
+		
+
 		
 		$out .= '
 			<div class="cctm_element_wrapper" id="search_parameters_wrapper">
@@ -352,7 +361,7 @@ class CCTM_relation extends CCTM_FormElement
 				<span id="search_parameters_visible">'.
 				$search_parameters_visible
 				.'</span>
-				<input type="hidden" id="search_parameters" name="search_parameters" value="'.CCTM::get_value($def, 'search_parameters').'" />
+				<input type="hidden" id="search_parameters" name="search_parameters" value="'.$search_parameters_str.'" />
 				<br/>
 			</div>';
 			

@@ -216,6 +216,7 @@ yet have a fieldname.
 ------------------------------------------------------------------------------*/
 function search_form_display(fieldname,fieldtype) {
 	var search_parameters = jQuery('#search_parameters').val();
+	console.log(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
 	        "fieldname" : fieldname,

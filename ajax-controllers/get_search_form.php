@@ -36,7 +36,7 @@ $search_parameters_str = '';
 if (isset($_POST['search_parameters'])) {
 	$search_parameters_str = $_POST['search_parameters'];
 }
-// print '<pre>'.$search_parameters_str. '</pre>'; return;
+//print '<pre>'.$search_parameters_str. '</pre>'; return;
 $existing_values = array();
 parse_str($search_parameters_str, $existing_values);
 
