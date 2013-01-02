@@ -247,7 +247,7 @@ class StandardizedCustomFields {
 	 *
 	 * See http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page	 
 	 */
-	public static function customized_hierarchical_post_types( $html ) {
+	public static function customized_hierarchical_post_types($html) {
 		global $wpdb, $post;
 		
 		// Otherwise there be errors on the Settings --> Reading page
@@ -256,7 +256,6 @@ class StandardizedCustomFields {
 		}
 
 		$post_type = $post->post_type;
-		
 		
 		// customize if selected
 		if (isset(CCTM::$data['post_type_defs'][$post_type]['hierarchical'])

@@ -27,7 +27,6 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['delete_posts'] 			= (int) CCTM::get_value($_POST, 'delete_posts', 0);	
 	self::$data['settings']['delete_custom_fields'] 	= (int) CCTM::get_value($_POST, 'delete_custom_fields', 0);
 	self::$data['settings']['add_custom_fields'] 		= (int) CCTM::get_value($_POST, 'add_custom_fields', 0);
-	self::$data['settings']['update_custom_fields'] 	= (int) CCTM::get_value($_POST, 'update_custom_fields', 0);
 	self::$data['settings']['show_custom_fields_menu']	= (int) CCTM::get_value($_POST, 'show_custom_fields_menu', 0);
 	self::$data['settings']['show_settings_menu'] 		= (int) CCTM::get_value($_POST, 'show_settings_menu', 0);
 	self::$data['settings']['show_foreign_post_types'] 	= (int) CCTM::get_value($_POST, 'show_foreign_post_types', 0);
@@ -38,7 +37,12 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['flush_permalink_rules'] 	= (int) CCTM::get_value($_POST, 'flush_permalink_rules', 0);
 	self::$data['settings']['pages_in_rss_feed'] 		= (int) CCTM::get_value($_POST, 'pages_in_rss_feed', 0);	
 	self::$data['settings']['enable_right_now'] 		= (int) CCTM::get_value($_POST, 'enable_right_now', 0);	
-	
+ 	
+ 	self::$data['settings']['hide_posts'] 				= (int) CCTM::get_value($_POST, 'hide_posts', 0);	
+ 	self::$data['settings']['hide_pages'] 				= (int) CCTM::get_value($_POST, 'hide_pages', 0);	
+ 	self::$data['settings']['hide_links'] 				= (int) CCTM::get_value($_POST, 'hide_links', 0);	
+ 	self::$data['settings']['hide_comments'] 			= (int) CCTM::get_value($_POST, 'hide_comments', 0);	
+ 	
 	update_option( self::db_key, self::$data );
 
 	$data['msg'] = '<div class="updated"><p>'
@@ -57,7 +61,6 @@ $checkboxes = array(
 	'delete_posts' 
 	, 'delete_custom_fields'
 	, 'add_custom_fields'
-	, 'update_custom_fields'
  	, 'show_custom_fields_menu'
  	, 'show_settings_menu'
  	, 'show_foreign_post_types'
@@ -69,6 +72,10 @@ $checkboxes = array(
  	, 'flush_permalink_rules'
  	, 'pages_in_rss_feed'
  	, 'enable_right_now'
+ 	, 'hide_posts'
+ 	, 'hide_pages'
+ 	, 'hide_links'
+ 	, 'hide_comments'
 );
 
 // this only works for checkboxes...

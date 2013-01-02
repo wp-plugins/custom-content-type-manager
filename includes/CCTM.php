@@ -169,7 +169,6 @@ class CCTM {
 		'delete_posts' => 0
 		, 'delete_custom_fields' => 0
 		, 'add_custom_fields' => 0
-		, 'update_custom_fields' => 0
 		, 'show_custom_fields_menu' => 1
 		, 'show_settings_menu' => 1
 		, 'show_foreign_post_types' => 1
@@ -181,6 +180,10 @@ class CCTM {
 		, 'flush_permalink_rules' => 1
 		, 'pages_in_rss_feed'	=> 0
 		, 'enable_right_now'	=> 1
+		, 'hide_posts'	=> 0
+		, 'hide_pages'	=> 0
+		, 'hide_links'	=> 0
+		, 'hide_comments' => 0
 	);
 
 	// Default metabox definition
