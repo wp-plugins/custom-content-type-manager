@@ -167,7 +167,7 @@ abstract class CCTM_FormElement {
 		$this->descriptions['name'] .= sprintf('<br /><span style="color:red;">%s</span>'
 			, __('WARNING: if you change the field name, you will have to update any functions that reference this field by name, e.g. <code>get_custom_field()</code>, <code>print_custom_field()</code>,  or any search criteria.', CCTM_TXTDOMAIN));
 			
-		$this->descriptions['is_repeatable'] = __('If selected, the user will be able to enter multiple instances of this field, e.g. multiple images. Storing multiple values infers storing an array of values, so you will have to use the "to_array" output filter, even if you only use one instance of the field.', CCTM_TXTDOMAIN);
+		$this->descriptions['is_repeatable'] = __('If selected, the user will be able to enter multiple instances of this field, e.g. multiple images. Your templates will need to handle formatting an array of values, e.g. via the "to_array" or other output filters, even if you only use one instance of the field.', CCTM_TXTDOMAIN);
 		$this->descriptions['required'] = __('If checked, users must add a value to this field before the page can be published.', CCTM_TXTDOMAIN);
 		$this->descriptions['checked_value'] = __('What value should be stored in the database when this checkbox is checked?', CCTM_TXTDOMAIN);
 		$this->descriptions['unchecked_value'] =  __('What value should be stored in the database when this checkbox is unchecked?', CCTM_TXTDOMAIN);

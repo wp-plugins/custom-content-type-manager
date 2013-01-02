@@ -195,20 +195,20 @@ class StandardizedCustomFields {
 	public static function create_meta_box() {
 		$content_types_array = CCTM::get_active_post_types();
 		foreach ( $content_types_array as $post_type ) {
-			$mb_ids = array('cctm_default');
-
+			$mb_ids = array();
 			if (isset(CCTM::$data['metabox_defs']) && is_array(CCTM::$data['metabox_defs'])) {
 				$mb_ids = array_keys(CCTM::$data['metabox_defs']);
 			}
-			
+			$all_fields = self::_get_custom_fields($post_type);
 			foreach ($mb_ids as $m_id) {
 				$fields = self::_get_custom_fields($post_type, $m_id);
+				$all_fields = array_diff($all_fields,$fields);
 				$m = CCTM::$metabox_def; // default
 				if (isset(CCTM::$data['metabox_defs'][$m_id])) {
 					$m = CCTM::$data['metabox_defs'][$m_id];
 				}
 				$callback = 'StandardizedCustomFields::print_custom_fields';
-				$callback_args = $m_id;
+				$callback_args = array('metabox_id'=>$m_id,'fields'=>$fields);
 				if (isset($m['callback']) && !empty($m['callback'])) {
 					$callback = $m['callback'];
 					if (isset($m['callback_args']) && !empty($m['callback_args'])) {
@@ -216,19 +216,17 @@ class StandardizedCustomFields {
 					}
 				}
 				// skip drawing this metabox unless the user has specifically asked for it to be drawn
-				//print_r($m); 
 				if (empty($fields) && !in_array($post_type, CCTM::get_value($m,'post_types',array()))) {
 					continue;
 				}
-				add_meta_box(
-					$m['id']
-					, $m['title']
-					, $callback
-					, $post_type
-					, $m['context']
-					, $m['priority']
-					, $callback_args
-				);
+				add_meta_box($m['id'],$m['title'],$callback,$post_type,$m['context'],$m['priority'],$callback_args);
+			}
+			// get orphaned custom fields: fields without an explicit metabox
+			if (!empty($all_fields)) {
+				$m = CCTM::$metabox_def; // default
+				$callback = 'StandardizedCustomFields::print_custom_fields';
+				$callback_args = array('metabox_id'=>'cctm_default','fields'=>$all_fields);
+				add_meta_box($m['id'],$m['title'],$callback,$post_type,$m['context'],$m['priority'],$callback_args);
 			}
 		}
 	}
@@ -354,15 +352,17 @@ class StandardizedCustomFields {
 	 *
 	 * @param object $post passed to this callback function by WP. 
 	 * @param object $callback_args;  $callback_args['args'] contains the 
-	 * 	7th parameter from the add_meta_box() function, the metabox id.
+	 * 	7th parameter from the add_meta_box() function, an array with 
+	 *	the metabox_id and fields.
 	 *
 	 * @return null	this function should print form fields.
 	 */
 	public static function print_custom_fields($post, $callback_args='') {		
 
-		$metabox_id = $callback_args['args']; // the 7th arg from add_meta_box()
+		$metabox_id = CCTM::get_value($callback_args['args'],'metabox_id');
+		$custom_fields = CCTM::get_value($callback_args['args'],'fields',array());		
 		$post_type = $post->post_type;
-		$custom_fields = self::_get_custom_fields($post_type,$metabox_id);
+
 		// Output hash for parsing
 		$output = array('content'=>'');
 		

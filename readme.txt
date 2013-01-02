@@ -80,7 +80,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 = 0.0.6.8 = 
 
+* Support for custom metaboxes: you can now put your fields anywhere on the admin pages.
 * Added a pattern validator which supports simple patterns and full regular expressions via preg_match().
+* Added a Directory field type so you can easily list the contents of a directory.
+* Various bug fixes.
 
 = 0.9.6.7 = 
 
@@ -400,6 +403,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.6.8 = 
+
+* New functionality: metabox support, a new Directory custom field type, and a new Pattern validator. Various bug fixes as well.
 
 = 0.9.6.7 = 
 
