@@ -49,7 +49,7 @@ $metabox = $_POST['mapping'][$field];
 	}    
 </script>
 
-<span class="cctm_description"><?php _e('Drag fields into the metabox and the order where you want them to appear.', CCTM_TXTDOMAIN); ?></span>
+<span class="cctm_description"><?php _e('Drag unused fields from the left into the metabox where you want them to appear. You can also arrange them into the order you want.', CCTM_TXTDOMAIN); ?></span>
 
 <form id="cctm_associations" method="post">
 

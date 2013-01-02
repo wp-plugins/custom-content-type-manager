@@ -91,7 +91,7 @@ if (!$all_custom_fields_cnt) {
 }
 elseif (!$active_custom_fields_cnt ) {
 	$data['msg'] .= sprintf('<div class="updated"><p>%s</p></div>'
-		, sprintf( __('The %s post type does not have any custom fields yet. Check the fields below to add custom fields.', CCTM_TXTDOMAIN)
+		, sprintf( __('The %s post type does not have any custom fields yet.', CCTM_TXTDOMAIN)
 			, "<em>$post_type</em>" ));
 }
 
