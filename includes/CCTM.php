@@ -192,6 +192,9 @@ class CCTM {
 		'title' => 'Custom Fields',
 		'context' => 'normal',
 		'priority' => 'default',
+		'post_types' => array(),
+		'callback' => '',
+		'callback_args' => '',
 	);
 
 	// Where are the icons for custom images stored?

@@ -15,7 +15,14 @@ if (!$id) {
 }
 $data = CCTM::get_value(CCTM::$data['metabox_defs'], $id);
 if (empty($data)) {
-	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
+	// We automagically create the default metabox def
+	if ($id == 'cctm_default') {
+		$data = CCTM::$metabox_def;
+		CCTM::$data['metabox_defs']['cctm_default'] = CCTM::$metabox_def;
+	}
+	else {
+		die( __('Invalid request.', CCTM_TXTDOMAIN ) );
+	}
 }
 
 $data['page_title'] = __('Create Metabox', CCTM_TXTDOMAIN);

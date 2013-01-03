@@ -105,7 +105,7 @@
 	
 	<input type="submit" class="button" onclick="javascript:set_continue_editing();" value="<?php _e('Save and Continue Editing', CCTM_TXTDOMAIN ); ?>" />
 
-	<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm_fields&a=list_metaboxes" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
+	<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
 </form>
 
 </div><!-- /metabox-holder -->
