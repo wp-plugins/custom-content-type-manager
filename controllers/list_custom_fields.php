@@ -72,6 +72,24 @@ foreach ($defs as $field_name => $d) {
 		, __('Delete', CCTM_TXTDOMAIN)
 	);
 
+	// Show associated post-types
+	$d['post_types'] = array();
+	if (isset(CCTM::$data['post_type_defs']) && is_array(CCTM::$data['post_type_defs'])) {
+		foreach (CCTM::$data['post_type_defs'] as $pt => $pdef) {
+			if (isset($pdef['custom_fields']) && is_array($pdef['custom_fields']) 
+				&& in_array($field_name, $pdef['custom_fields'])) {
+				$d['post_types'][] = $pt;
+			}
+		}
+	}
+	if (empty($d['post_types'])) {
+		$d['post_types'] = '<em>'.__('Unassigned', CCTM_TXTDOMAIN).'</em>';
+	}
+	else {
+		$d['post_types'] = implode(', ', $d['post_types'] );
+	}
+	
+
 	$data['fields'] .= CCTM::load_view('tr_custom_field.php',$d);
 }
 

@@ -3,6 +3,7 @@
 	<td class="plugin-title">
 		<strong><?php print $data['label']; ?></strong> (<?php print $data['name']; ?>)
 	</td>
+	<td><?php print $data['post_types']; ?></td>
 	<td class="column-description desc">
 		<div class="plugin-description"><p><?php print $data['description']; ?></p></div>
 		<div class="active second plugin-version-author-uri">
