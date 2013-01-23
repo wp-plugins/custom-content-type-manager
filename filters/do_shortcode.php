@@ -32,11 +32,16 @@ class CCTM_do_shortcode extends CCTM_OutputFilter {
 			}
 		}
 		else {
-			if ($options) {
-				$input = do_shortcode($input[0]);
+			if (isset($input[0])) {
+				if ($options) {
+					$input = do_shortcode($input[0]);
+				}
+				else {
+					$input = do_shortcode(wpautop($input[0]));
+				}
 			}
 			else {
-				$input = do_shortcode(wpautop($input[0]));
+				return '';
 			}
 		}
 		

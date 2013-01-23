@@ -739,6 +739,7 @@ class GetPostsQuery {
 						break;
 					case '=':
 					case 'in':
+					case 'equals':
 					default:
 						$this->operators[$arg] = '=';
 				}

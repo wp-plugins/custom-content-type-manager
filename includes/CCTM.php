@@ -2204,22 +2204,24 @@ class CCTM {
 	
 
 		}
-		// Handle posts that use categories.
+		// Ensure category pages show all available post-types
 		elseif ((isset($query['category_name']) && !empty($query['category_name'])) 
 			|| (isset($query['cat']) && !empty($query['cat']))) {
-			$args = array( 'public' => true, '_builtin' => false );
-			$public_post_types = get_post_types( $args );
-
-			// Only posts get categories, not pages, so our first post-type is "post"...  has_archive is not enabled.
-			$search_me_post_types = array('post');
+			if (!isset($query['page'])) { // <-- on a true category page, this won't be set
+				$args = array( 'public' => true, '_builtin' => false );
+				$public_post_types = get_post_types( $args );
 	
-			foreach (self::$data['post_type_defs'] as $post_type => $def) {
-				if ( isset($def['taxonomies']) && is_array($def['taxonomies']) && in_array('category', $def['taxonomies'])) {
-					$search_me_post_types[] = $post_type;
+				// Only posts get categories, not pages, so our first post-type is "post"...  has_archive is not enabled.
+				$search_me_post_types = array('post');
+		
+				foreach (self::$data['post_type_defs'] as $post_type => $def) {
+					if ( isset($def['taxonomies']) && is_array($def['taxonomies']) && in_array('category', $def['taxonomies'])) {
+						$search_me_post_types[] = $post_type;
+					}
 				}
+		
+				$query['post_type'] = $search_me_post_types;
 			}
-	
-			$query['post_type'] = $search_me_post_types;		
 		}
 		// Handle tag pages
 		elseif (isset($query['tag'])) {
