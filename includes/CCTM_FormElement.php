@@ -822,7 +822,6 @@ abstract class CCTM_FormElement {
 							$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');						
 						}					
 					}
-					$posted_data['name'] = '';
 				}
 			}
 			// it's an EDIT operation and we're renaming the field
