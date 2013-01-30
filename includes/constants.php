@@ -10,7 +10,7 @@ CCTM_URL: does not contain a trailing slash, e.g.:
 	http://yoursite.com/wp-content/plugins/custom-content-type-manager
 ------------------------------------------------------------------------------*/
 define('CCTM_PATH', dirname( dirname( __FILE__ ) ) );
-define('CCTM_URL', plugins_url() .'/'. basename( CCTM_PATH ) );
+define('CCTM_URL', plugins_url() .'/'. rawurlencode(basename(CCTM_PATH)) );
 define('CCTM_TXTDOMAIN', 'custom-content-type-mgr');
 
 // For 3rd Party components
