@@ -779,6 +779,16 @@ just want to make sure that the form is presented uncorrupted.
 				<label for="taxonomy_tags" class="cctm_label cctm_checkbox_label" id="cctm_label_taxonomies[]"><?php _e('Enable Tags', CCTM_TXTDOMAIN); ?></label>
 				<span class="cctm_description"><?php _e('Simple word associations.', CCTM_TXTDOMAIN); ?></span>
 			</div>
+			
+			<?php 
+			// Handle all other taxonomies
+			$taxonomies = get_taxonomies( array(), 'objects');
+			foreach ($taxonomies as $t): ?>
+				<div class="cctm_element_wrapper" id="custom_field_wrapper_taxonomy_<?php print $t->name; ?>">			
+					<input type="checkbox" name="taxonomies[]" class="cctm_checkbox" id="taxonomy_<?php print $t->name; ?>" value="<?php print $t->name; ?>" <?php print CCTM::is_checked($data['def']['taxonomies'], $t->name); ?> /> 
+					<label for="taxonomy_<?php print $t->name; ?>" class="cctm_label cctm_checkbox_label" id="cctm_label_taxonomies[]"><?php print $t->labels->name; ?></label>
+				</div>
+			<?php endforeach; ?>
 	</div>
 
 
