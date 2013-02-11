@@ -530,7 +530,7 @@ class CCTM_PostTypeDef {
 			break;
 		case 'Custom':
 			$sanitized['rewrite']['slug'] = $raw['rewrite_slug'];
-			$sanitized['rewrite']['with_front'] = (bool) $raw['rewrite_with_front'];
+			$sanitized['rewrite']['with_front'] = isset($raw['rewrite_with_front']) ? (bool) $raw['rewrite_with_front'] : false;
 			break;
 		case 'Off':
 		default:
