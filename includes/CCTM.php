@@ -2153,7 +2153,14 @@ class CCTM {
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=360
-
+		// 	http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=458
+		if ( substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1) == 'edit.php' 
+			&& self::get_value($_GET, 'post_type')) {
+//			$post_type = CCTM::get_value($_GET, 'post_type');		
+//		if (self::get_value($_GET, 'post_type')) {
+			return $query;
+		}
+		
 		// Control what shows up in the RSS feed
 		if (isset($query['feed'])) {
 			$args = array( 'public' => true); // array('exclude_from_search'=>false); // ugh. WP has bad support here.
@@ -2180,7 +2187,6 @@ class CCTM {
 					unset($post_types[$pt]);
 				}
 			}
-			
 			$query['post_type'] = $post_types;
 
 		}
@@ -2219,7 +2225,7 @@ class CCTM {
 						$search_me_post_types[] = $post_type;
 					}
 				}
-		
+						
 				$query['post_type'] = $search_me_post_types;
 			}
 		}
@@ -2241,7 +2247,7 @@ class CCTM {
 			$query['post_type'] = $search_me_post_types;		
 		}
 
-		
+	
 		return $query;
 	}
 
