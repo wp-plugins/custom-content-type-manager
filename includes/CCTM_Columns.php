@@ -10,7 +10,7 @@
  *	http://codex.wordpress.org/Plugin_API/Action_Reference/manage_posts_custom_column
  *	http://codex.wordpress.org/Plugin_API/Filter_Reference/manage_edit-post_type_columns
  *
- * manage_edit-${post_type}_columns 
+ * In WP 3.1, manage_edit-${post_type}_columns has been supplanted by manage_${post_type}_posts_columns.
  */
 class CCTM_Columns {
 
@@ -30,40 +30,45 @@ class CCTM_Columns {
 	
 	/**
 	 * This is the magic function, named after the post-type in question.
-	 *
+	 * Return value is an associative array where the element key is the name of the column, 
+	 * and the value is the header text for that column.
 	 * @param	string	$post_type
 	 * @param	array	$default_columns associative array (set by WP);
-	 * @return	array	associative array of column ids and translated names.
+	 * @return	array	associative array of column ids and translated names for header names.
 	 */
 	public function __call($post_type, $default_columns) {
-
-		$custom_columns = array('cb' => '<input type="checkbox" />',); // the output
-		$built_in_columns = array(
-			//'cb' => '<input type="checkbox" />',
-			'title' => __('Title'), // post_title
-			'author' => __('Author'), // lookup on wp_users
-			'comments' => __('Comments'),
-			'date' => __('Date')
-		);
+		$custom_columns = array('cb' => '<input type="checkbox" />');
 		$raw_columns = array();
 		if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])) {
 			$raw_columns = CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'];
 		}
-		
+
 		// The $raw_columns contains a simple array, e.g. array('field1','wonky');
 		// we need to create an associative array.
 		// Look up what kind of column this is.
 		foreach ($raw_columns as $c) {
-			if (isset($built_in_columns[$c])) {
-				$custom_columns[$c] = $built_in_columns[$c]; // already translated
+
+			if (isset($default_columns[0][$c])) {
+				$custom_columns[$c] = $default_columns[0][$c]; // already translated
 			}
 			// Custom Field
 			elseif (isset(CCTM::$data['custom_field_defs'][$c])) {
 				$custom_columns[$c] = __(CCTM::$data['custom_field_defs'][$c]['label']);
 			}
-			// Taxonomy
-			elseif (false) {
-			
+			// Taxonomies: moronically, WP sends this function plurals instead of taxonomy slugs.
+			// so we have to manually remap this. *facepalm*
+			elseif ($c == 'category') {
+				$custom_columns['categories'] = $default_columns[0]['categories'];
+			}
+			elseif ($c == 'post_tag') {
+				$custom_columns['tags'] = $default_columns[0]['tags'];
+			}
+			// custom taxonomies
+			else {
+				$tax = get_taxonomy($c);
+				if ($tax) {
+					$custom_columns[$c] = $tax->labels->name;
+				}
 			}
 		}
 		if (!isset($custom_columns['title'])) {

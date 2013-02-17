@@ -783,7 +783,6 @@ just want to make sure that the form is presented uncorrupted.
 			<?php 
 			// Handle all other taxonomies
 			$taxonomies = get_taxonomies( array(), 'objects');
-			//print_r($taxonomies); 
 			foreach ($taxonomies as $tax => $t): 
 				if (in_array($tax, array('category','post_tag','nav_menu','link_category','post_format'))) {
 					continue; // skip

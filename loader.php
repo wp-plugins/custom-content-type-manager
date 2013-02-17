@@ -98,8 +98,10 @@ if (empty(CCTM::$errors)) {
 				require_once 'includes/functions.php';
 				CCTM::$Columns = new CCTM_Columns();
 				CCTM::$Columns->post_type = $post_type;
+
 				// Draw the column headers
-				add_filter("manage_edit-{$post_type}_columns" , array(CCTM::$Columns, $post_type));
+				add_filter("manage_{$post_type}_posts_columns" , array(CCTM::$Columns, $post_type));
+
 				// Handle the data in each cell
 				add_action('manage_posts_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
 				add_action('manage_pages_custom_column', array(CCTM::$Columns, 'populate_custom_column_data'));
