@@ -251,6 +251,24 @@ class CCTM_directory extends CCTM_FormElement
 
 		return $out;
 	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Shows the selected directory and extensions
+	 */
+    public function get_options_desc() {
+        $out = '';
+        if (!empty($this->props['source_dir'])) {
+            $out .= __('Source Directory', CCTM_TXTDOMAIN) . ': '. $this->props['source_dir'] .'<br/>';
+            $out .= __('Extensions', CCTM_TXTDOMAIN) . ': '. $this->props['pattern'] .'<br/>';
+            $is_checked = '';
+    		if (isset($def['traverse_dirs']) && $def['traverse_dirs']==1) {
+    			$is_checked = 'checked="checked"';
+    		}
+            $out .= __('Traverse Directories?', CCTM_TXTDOMAIN) . sprintf(' <input type="checkbox" disabled="disabled" %s/>',$is_checked);
+        }
+        return $out;
+    }	
 }
 
 

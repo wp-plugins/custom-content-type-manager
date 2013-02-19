@@ -223,7 +223,22 @@ abstract class CCTM_FormElement {
 			$this->props[$k] = $v;
 		}
 	}
-
+	//------------------------------------------------------------------------------
+	//! Protected
+    //------------------------------------------------------------------------------
+    /**
+     * Get a visible listing of what the search parameters are for a relation field
+     * @param string $search_parameters_str URL encoded
+     * @return string
+     */
+    protected function _get_search_parameters_visible($search_parameters_str) {
+        require_once CCTM_PATH.'/includes/GetPostsQuery.php';
+		$Q = new GetPostsQuery();
+		parse_str($search_parameters_str, $args);
+		$Q = new GetPostsQuery($args);
+		return $Q->get_args();
+    }
+    
 	//------------------------------------------------------------------------------
 	//! Abstract and Public Functions... Implement Me!
 	//------------------------------------------------------------------------------
@@ -681,6 +696,23 @@ abstract class CCTM_FormElement {
 		}
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * Show a brief bit about the options defined for this field.  This is useful 
+     * when reviewing a list of custom fields.  It returns a short string describing
+     * the options set for this field.  Depending on the type of field, this may
+     * contain different info.
+     * @return string
+     */
+    public function get_options_desc() {
+        if (!empty($this->props['default_value'])) {
+            return $this->props['default_value'] .'<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        else {
+            return '';
+        }
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * Accessor to $this->props

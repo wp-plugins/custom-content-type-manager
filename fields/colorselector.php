@@ -230,6 +230,19 @@ class CCTM_colorselector extends CCTM_FormElement
 			 	
 		return $out;
 	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Show a color swatch of the sample color
+	 */
+    public function get_options_desc() {
+        if (!empty($this->props['default_value'])) {
+            return sprintf('<div style="background-color:%s; height:20px; width:20px;"></div>',$this->props['default_value']) .'<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        else {
+            return '';
+        }
+    }	
 }
 
 

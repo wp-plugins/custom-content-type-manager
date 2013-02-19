@@ -371,7 +371,14 @@ class CCTM_media extends CCTM_FormElement
 
 		return $out;
 	}
-
+	
+    //------------------------------------------------------------------------------
+    /**
+     * Options here are any search criteria
+     */
+    public function get_options_desc() {
+        return $this->_get_search_parameters_visible($this->props['search_parameters']);
+    }
 
 }
 

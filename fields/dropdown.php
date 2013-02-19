@@ -421,7 +421,23 @@ class CCTM_dropdown extends CCTM_FormElement
 		return $out;
 	}
 
-
+    //------------------------------------------------------------------------------
+    /**
+     * The option desc. here is simply a list of the options OR the SQL query alt.
+     */
+    public function get_options_desc() {
+        if (!empty($this->props['options'])) {
+            $options = implode(', ',$this->props['options']);
+        }
+        else {
+            $options = $this->props['alternate_input'];        
+        }
+        if (strlen($options) > 50) {
+            $options = substr($options, 0, 50). '&hellip;';
+        }
+        return $options;
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * Validate and sanitize any submitted data. Used when editing the definition for

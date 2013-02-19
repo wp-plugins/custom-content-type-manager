@@ -4,6 +4,7 @@
 		<strong><?php print $data['label']; ?></strong> (<?php print $data['name']; ?>)
 	</td>
 	<td><?php print $data['post_types']; ?></td>
+	<td><?php print $data['options_desc']; ?></td>
 	<td class="column-description desc">
 		<div class="plugin-description"><p><?php print $data['description']; ?></p></div>
 		<div class="active second plugin-version-author-uri">

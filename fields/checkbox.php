@@ -183,7 +183,25 @@ class CCTM_checkbox extends CCTM_FormElement
 		return $out;
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * The option desc. here lists checked/unchecked values
+     */
+    public function get_options_desc() {
+        $checked = '';
+        $unchecked = '';
+        if ($this->props['checked_by_default']) {
+            $checked = '<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        else {
+            $unchecked = '<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+		$out = __('Checked', CCTM_TXTDOMAIN) . ': '.$this->props['checked_value'].' '.$checked.'<br/>';
+		$out .= __('Unchecked', CCTM_TXTDOMAIN) . ': '.$this->props['unchecked_value'].' '.$unchecked.'<br/>';
 
+        return $out;
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * Handle the "checked by default" option

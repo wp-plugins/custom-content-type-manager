@@ -26,6 +26,9 @@ class CCTM_relation extends CCTM_FormElement
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
+
+	//------------------------------------------------------------------------------
+	//! Public Functions
 	//------------------------------------------------------------------------------
 	/**
 	 * Thickbox support
@@ -335,20 +338,13 @@ class CCTM_relation extends CCTM_FormElement
 			 	</div>';
 
 		// Set Search Parameters
-		//print_r($def); exit;
 		$seach_parameters_str = '';
 		if (isset($def['search_parameters'])) {
 			$search_parameters_str = $def['search_parameters'];
 		}
-		//print $search_parameters_str; exit;
-		// $search_parameters_str = CCTM::get_value($def, 'search_parameters');
-		parse_str($search_parameters_str, $args);
-		//print_r($args); exit;
-		$Q = new GetPostsQuery($args);
-		$search_parameters_visible = $Q->get_args();
+		$search_parameters_visible = $this->_get_search_parameters_visible($seach_parameters_str);
 		
 
-		
 		$out .= '
 			<div class="cctm_element_wrapper" id="search_parameters_wrapper">
 				<label for="name" class="cctm_label cctm_text_label" id="search_parameters_label">'
@@ -377,6 +373,13 @@ class CCTM_relation extends CCTM_FormElement
 		return $out;
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * Options here are any search criteria
+     */
+    public function get_options_desc() {
+        return $this->_get_search_parameters_visible($this->props['search_parameters']);
+    }
 
 }
 
