@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.5.1
-Stable tag: 0.9.6.7
-Version: 0.9.6.7
+Stable tag: 0.9.7
+Version: 0.9.7
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -78,7 +78,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
-= 0.0.6.8 = 
+= 0.9.7 = 
 
 * Support for custom metaboxes: you can now put your fields anywhere on the admin pages.
 * Added a pattern validator which supports simple patterns and full regular expressions via preg_match().
@@ -404,7 +404,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 == Upgrade Notice ==
 
-= 0.9.6.8 = 
+= 0.9.7 = 
 
 * New functionality: metabox support, a new Directory custom field type, and a new Pattern validator. Various bug fixes as well.
 

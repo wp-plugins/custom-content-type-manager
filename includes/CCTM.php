@@ -20,7 +20,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.7';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -2153,11 +2153,10 @@ class CCTM {
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=360
+
 		// 	http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=458
 		if ( substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1) == 'edit.php' 
 			&& self::get_value($_GET, 'post_type')) {
-//			$post_type = CCTM::get_value($_GET, 'post_type');		
-//		if (self::get_value($_GET, 'post_type')) {
 			return $query;
 		}
 		

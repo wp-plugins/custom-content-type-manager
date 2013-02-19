@@ -885,7 +885,7 @@ class GetPostsForm {
 
 		$i = 0;
 		$ph['checkboxes'] = '';
-		$post_statuses = array('draft', 'inherit', 'publish', 'auto-draft');
+		$post_statuses = array('draft', 'inherit', 'publish', 'auto-draft','private');
 
 		foreach ($post_statuses as $ps) {
 			$ph2 = $this->placeholders;

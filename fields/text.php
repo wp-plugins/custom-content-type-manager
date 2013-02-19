@@ -65,6 +65,7 @@ class CCTM_text extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
+	 * Edit a single instance of the field (e.g. on a post or page's "edit" page).
 	 * This is somewhat tricky if the values the user wants to store are HTML/JS.
 	 * See http://www.php.net/manual/en/function.htmlspecialchars.php#99185
 	 *
@@ -130,10 +131,10 @@ class CCTM_text extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
-	 *
+	 * This generates the HTML used when editing the field's definition.
 	 *
 	 * @param mixed   $def field definition; see the $props array
-	 * @return unknown
+	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
 		// Standard
