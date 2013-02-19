@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.7';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.7.1';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -395,9 +395,29 @@ class CCTM {
 			$def['public'] = true;
 		}
 		
+		// Provide default mapping if none are supplied verbosely.
 		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=409
-		if (empty($def['capabilities'])) {
-			unset($def['capabilities']);
+		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=460
+		if (empty($def['capabilities']) && isset($def['capability_type']) && !empty($def['capability_type'])) {
+			$capability_type = $def['capability_type'];
+			$def['capabilities'] = array(
+			    'edit_post'              => "edit_{$capability_type}",
+			    'read_post'              => "read_{$capability_type}",
+			    'delete_post'            => "delete_{$capability_type}",
+			    'edit_posts'             => "edit_{$capability_type}s",
+			    'edit_others_posts'      => "edit_others_{$capability_type}s",
+			    'publish_posts'          => "publish_{$capability_type}s",
+			    'read_private_posts'     => "read_private_{$capability_type}s",
+			    'delete_posts'           => "delete_{$capability_type}s",
+			    'delete_private_posts'   => "delete_private_{$capability_type}s",
+			    'delete_published_posts' => "delete_published_{$capability_type}s",
+			    'delete_others_posts'    => "delete_others_{$capability_type}s",
+			    'edit_private_posts'     => "edit_private_{$capability_type}s",
+			    'edit_published_posts'   => "edit_published_{$capability_type}s",
+			);
+		}
+		elseif (empty($def['capabilities'])) {
+			unset($def['capabilities']);		
 		}
 		elseif(is_scalar($def['capabilities'])) {
 			$capabilities = array();
