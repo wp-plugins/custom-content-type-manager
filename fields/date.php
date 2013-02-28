@@ -335,6 +335,21 @@ class CCTM_date extends CCTM_FormElement
 		return $out;
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * Show the default date (if avail.) and the date format
+     * @return string
+     */
+    public function get_options_desc() {
+        $out = '';
+        if (!empty($this->props['date_format'])) {
+            $out .= __('Date Format',CCTM_TXTDOMAIN) . ': '.$this->props['date_format'] .'<br/>';
+        }
+        if (!empty($this->props['default_value'])) {
+            $out .= $this->props['default_value'] .'<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        return $out;
+    }
 
 }
 

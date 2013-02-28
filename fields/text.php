@@ -149,6 +149,27 @@ class CCTM_text extends CCTM_FormElement
 		return $out;
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * Show a bit about validation rules if we can
+     * @return string
+     */
+    public function get_options_desc() {        
+        $out = '';
+        if (!empty($this->props['validator'])) {
+            $Vobj = CCTM::load_object($this->props['validator'], 'validators');
+				if ($Vobj) {
+                    $out .= $Vobj->get_name() .'<br/>';
+				}
+        }
+        if ($this->props['required']) {
+            $out .= sprintf('<span style="color:red;">%s</span><br/>',__('Required', CCTM_TXTDOMAIN));
+        }
+        if (!empty($this->props['default_value'])) {
+            $out .= ' '.$this->props['default_value'] .'<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        return $out;
+    }
 
 }
 
