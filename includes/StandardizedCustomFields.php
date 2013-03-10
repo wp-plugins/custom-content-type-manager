@@ -188,9 +188,10 @@ class StandardizedCustomFields {
 	//! Public Functions	
 	//------------------------------------------------------------------------------
 	/**
-	* Create the metabox(es) for each post-type. We run a gauntlet here to see if 
+	* Create the metabox(es) for each post-type. We run a gauntlet here to see if we
 	* even need to add the metabox: normally it's only added if custom fields have
-	* been assigned to it, but users can force a metabox to be drawn.
+	* been assigned to it, but users can force a metabox to be drawn even if no
+	* fields have been assigned to it.
 	*/
 	public static function create_meta_box() {
 		$content_types_array = CCTM::get_active_post_types();
@@ -240,10 +241,11 @@ class StandardizedCustomFields {
 	 * hierarchical parents.
 	 *
 	 * @param	string	incoming html element for selecting a parent page, e.g.
-	 *						<select name="parent_id" id="parent_id">
-	 *					        <option value="">(no parent)</option>
-	 *					        <option class="level-0" value="706">Post1</option>
-	 *						</select>	
+	 *
+	 *     <select name="parent_id" id="parent_id">
+	 *	       <option value="">(no parent)</option>
+	 *		   <option class="level-0" value="706">Post1</option>
+	 *	    </select>	
 	 *
 	 * See http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page	 
 	 */

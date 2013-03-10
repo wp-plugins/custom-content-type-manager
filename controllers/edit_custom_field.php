@@ -44,7 +44,7 @@ if(!$FieldObj = CCTM::load_object($field_type, 'fields')) {
 $field_data['original_name'] = $field_name;
 $FieldObj->set_props($field_data);  
 
-$data['change_field_type'] = '<p><strong>'. __('Field Type', CCTM_TXTDOMAIN). ':</strong>' . $FieldObj->get_name(). ' &nbsp; <a href="?page=cctm_fields&a=change_field_type&field='. $field_name. '&_wpnonce='. wp_create_nonce('cctm_change_field_type'). '" class="button">'. __('Change Field Type', CCTM_TXTDOMAIN) .'</a></p>';
+$data['change_field_type'] = '<br/><a href="?page=cctm_fields&a=change_field_type&field='. $field_name. '&_wpnonce='. wp_create_nonce('cctm_change_field_type'). '" class="button">'. __('Change Field Type', CCTM_TXTDOMAIN) .'</a></p>';
 
 
 

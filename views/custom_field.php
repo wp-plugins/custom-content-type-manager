@@ -29,6 +29,7 @@
 			</td>
 		</tr>
 	</table>
+	<?php print $data['change_field_type']; ?>
 	<br/>
 	<?php wp_nonce_field($data['action_name'], $data['nonce_name']); ?>
 	
@@ -43,7 +44,9 @@
 			<?php print $data['associations']; ?>
 		</div><!-- /inside -->
 	</div><!-- /postbox -->
-		
+	
+    
+    
 	<br />
 	<input type="submit" class="button-primary" value="<?php _e('Save', CCTM_TXTDOMAIN ); ?>" />
 	
