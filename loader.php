@@ -41,6 +41,7 @@ if (empty(CCTM::$errors)) {
 	add_shortcode('summarize-posts', 'SummarizePosts::get_posts');
 	add_shortcode('summarize_posts', 'SummarizePosts::get_posts');
 	add_shortcode('custom_field', 'CCTM::custom_field');
+	add_shortcode('cctm_post_form', 'CCTM::cctm_post_form');
 
 	// Summarize Posts Tiny MCE button
 	if (CCTM::get_setting('summarizeposts_tinymce')) {

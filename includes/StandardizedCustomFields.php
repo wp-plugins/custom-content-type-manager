@@ -67,18 +67,13 @@ class StandardizedCustomFields {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Validate custom fields.  Print message in admin head if there are errors.
-	 * TODO: should this even bother doing checks if there are no custom fields?
-	 * or would it be possible to do validations on built-in fields?
+	 * Validate custom fields on a post that's already been saved.
+	 *
+	 * @param string $post_type
+	 * @param array $full_post array of all submitted values
+	 * @return boolean : true if valid, false if there were errors
 	 */
-	private static function _validate_fields($post_type) {
-
-		global $post;
-		
-		$error_flag = false; // goes to true if there are errors, forces post to draft status
-		
-		$Q = new GetPostsQuery();
-		$full_post = $Q->get_post($post->ID);
+	public static function validate_fields($post_type,$full_post) {
 
 		$custom_fields = self::_get_custom_fields($post_type);
 		$validation_errors = array();
@@ -98,9 +93,7 @@ class StandardizedCustomFields {
 				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
 				$value_copy = '';
 				if ($FieldObj->is_repeatable) {
-					//$value_copy = json_decode(stripslashes($value), true);
 					$value_copy = $FieldObj->get_value($value, 'to_array');
-
 					if (is_array($value_copy)) {
 						foreach ($value_copy as $k => $v) {
 							if (empty($v)) {
@@ -115,8 +108,7 @@ class StandardizedCustomFields {
 
 				
 				// Is this field required?  OR did validation fail?
-				if ($FieldObj->required && empty($value_copy) ) { // && strlen($value_copy) == 0) {
-					$error_flag = true;					
+				if ($FieldObj->required && empty($value_copy) ) {
 					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 				}
 				// Do any other validation checks here: TODO
@@ -136,52 +128,23 @@ class StandardizedCustomFields {
 					else {
 						$value_copy = $Validator->validate($value_copy);
 					}					
-					if (!empty($Validator->error_msg)) { 
-						$error_flag = true;
+					if (!empty($Validator->error_msg)) {
 						CCTM::$post_validation_errors[$FieldObj->name] = $Validator->get_error_msg();
 					}
 				}
 				
 			}
 			else {
-				// error!  Can't include the field class.  WTF did you do?
+				// error!  Can't include the field class.  WTF did you do to get here?
 			}
 		}
 		
-		// Print any validation errors.
-		if(!empty(CCTM::$post_validation_errors)) {
-			$output = '<div class="error"><img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px; vertical-align:middle;"/><p style=""><strong>'
-				. __('This post has validation errors.  The post will remain in draft status until they are corrected.', CCTM_TXTDOMAIN) 
-				. '</strong></p>
-				<ul style="clear:both;">';
-			
-			foreach (CCTM::$post_validation_errors as $fieldname => $e) {
-				$output .= '<li>'.$e.'</li>';
-			}
-			$output .= '</ul></div>';
-			
-			// You have to print the style because WP overrides styles after the cctm manager.css is included.
-			// This isn't helpful during the admin head event because you'd have to also check validation at the time when
-			// the fields are printed in print_custom_fields(), which fires later on.
-			
-			// We can use this variable to pass data to a point later in the page request. 
-			// global $cctm_validation;
-			// CCTM::$errors 
-			// CCTM::$errors['my_field'] = 'This is the validation error with that field';
-			
-			$output .= '<style>';
-			$output .= file_get_contents(CCTM_PATH.'/css/validation.css');
-			$output .= '</style>';
-
-			print $output;
+		if (empty(CCTM::$post_validation_errors)) {
+			return true;
 		}
-		
-		// Override!! set post to draft status if there were validation errors.
-		if ($error_flag) {
-			global $wpdb;
-			$post_id = (int) CCTM::get_value($_POST, 'ID');
-			$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id));
-		}
+		else {
+			return false;
+		}		
 	}
 
 	//------------------------------------------------------------------------------
@@ -343,9 +306,45 @@ class StandardizedCustomFields {
 		// Validate the custom fields: only need to do this AFTER a post-new.php has been created.
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		if ( in_array($file, array('post.php'))) {
-			self::_validate_fields($post_type);
+			global $post;
+		
+			$Q = new GetPostsQuery();
+			$full_post = $Q->get_post($post->ID);
+			
+			if(!self::validate_fields($post_type, $full_post)) {
+		
+				// Print any validation errors.
+					$output = '<div class="error"><img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px; vertical-align:middle;"/><p style=""><strong>'
+						. __('This post has validation errors.  The post will remain in draft status until they are corrected.', CCTM_TXTDOMAIN) 
+						. '</strong></p>
+						<ul style="clear:both;">';
+					
+					foreach (CCTM::$post_validation_errors as $fieldname => $e) {
+						$output .= '<li>'.$e.'</li>';
+					}
+					$output .= '</ul></div>';
+					
+					// You have to print the style because WP overrides styles after the cctm manager.css is included.
+					// This isn't helpful during the admin head event because you'd have to also check validation at the time when
+					// the fields are printed in print_custom_fields(), which fires later on.
+					
+					// We can use this variable to pass data to a point later in the page request. 
+					// global $cctm_validation;
+					// CCTM::$errors 
+					// CCTM::$errors['my_field'] = 'This is the validation error with that field';
+					
+					$output .= '<style>';
+					$output .= file_get_contents(CCTM_PATH.'/css/validation.css');
+					$output .= '</style>';
+		
+					print $output;
+				
+				// Override!! set post to draft status if there were validation errors.
+				global $wpdb;
+				$post_id = (int) CCTM::get_value($_POST, 'ID');
+				$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id));
+			}
 		}
-
 	}
 
 	/**

@@ -76,7 +76,6 @@ class CCTM_text extends CCTM_FormElement
 
 		// Populate the values (i.e. properties) of this field
 		$this->id      = $this->name;
-
 		$fieldtpl = '';
 		$wrappertpl = '';
 
@@ -96,7 +95,6 @@ class CCTM_text extends CCTM_FormElement
 
 			$this->i = 0;
 			$values = $this->get_value($current_value,'to_array');
-			//die(print_r($values,true));
 			$content = '';
 			foreach ($values as $v) {
 				$this->value = htmlspecialchars( html_entity_decode($v) );

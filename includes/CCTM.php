@@ -448,6 +448,7 @@ class CCTM {
 
 
 	//! Public Functions
+	
 	//------------------------------------------------------------------------------
 	/**
 	 * Load CSS and JS for admin folks in the manager.  Note that we have to verbosely
@@ -527,6 +528,242 @@ class CCTM {
 		return $links;
 	}
 
+	/**
+	 * Prints a form to the end user so that the users on the front-end can create 
+	 * posts (beware security!).
+	 *
+	 * [cctm_post_form post_type="property" thank_you_url="" on_save="default-action-here"]
+	 *
+	 * @param	array	$raw_args: parameters from the shortcode: name, filter
+	 * @param	string	$options (optional)
+	 * @return string (printed)	 
+	 */
+	public static function cctm_post_form($raw_args=array(), $options = null) {
+		wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
+		wp_enqueue_style('CCTM_css');
+		
+		wp_register_style('CCTM_validation_css', CCTM_URL.'/css/validation.css');
+		wp_enqueue_style('CCTM_validation_css');
+		
+		$post_type = CCTM::get_value($raw_args, 'post_type');
+		$output = array(
+			'content' => '',
+			'errors' => '',
+		);
+		$defaults = array(
+			'post_type' => '',
+			'post_status' => 'draft', // for security!
+			'_callback' => 'CCTM::post_form_handler',
+			'_action' => get_permalink(), // of current page
+			'_tpl' => '_default',
+			'_id_prefix' => 'cctm_',
+			'_name_prefix' => 'cctm_',
+		);
+
+		$args = array_merge($defaults, $raw_args );
+		// Hard error
+		if (empty($post_type)) {
+			return __('cctm_post_form shortcode requires the "post_type" parameter.', CCTM_TXTDOMAIN);
+		}
+		// Disallow certain problematic post-types
+		elseif (in_array($post_type, array('attachment','revision','nav_menu_item'))) {
+			return sprintf(__('cctm_post_form shortcode does not support that post_type: %s', CCTM_TXTDOMAIN)
+				,$post_type);
+		}
+		// WTF?
+		if (!post_type_exists($post_type)) {
+			return sprintf(__('cctm_post_form shortcode post_type not found: %s', CCTM_TXTDOMAIN)
+				,$post_type);
+		}
+		//return print_r(post_type_supports($raw_args['post_type'],'revisions'),true);
+		//return print_r($post_types, true);
+		// Form was submitted? Handle it.
+		$nonce = CCTM::get_value($_POST, '_cctm_nonce');
+		if ( !empty($_POST)) {
+			// Bogus submission
+			if (!wp_verify_nonce($nonce, 'cctm_post_form_nonce')) {
+				die('Your form could not be submitted.  Please reload the page and try again.');
+			}
+			// Strip prefix from post keys
+			$vals = array();
+			foreach ($_POST as $k => $v) {
+				if (preg_match('/^_/',$k)) {
+					continue;
+				}
+				$k = preg_replace('/^'.preg_quote($args['_name_prefix']).'/', '', $k);
+				$vals[$k] = $v;
+				// wp_kses($v, array());
+			}
+			// Validate fields
+			StandardizedCustomFields::validate_fields($post_type,$vals);
+			
+			// Save data if it was properly submitted	
+			if (empty(CCTM::$post_validation_errors)) {
+				return 'SUCCESS: '.print_r($_POST, true);	
+			}
+			
+			//return 'Submitted: '.print_r($_POST, true);
+        }
+        
+        //------------------------------
+		// Otherwise, generate the form.        		
+        //------------------------------
+		$output['_action'] = $args['_action'];
+
+		// Post Title
+		if (post_type_supports($args['post_type'],'title') && !isset($args['post_title'])) {
+        	$FieldObj = CCTM::load_object('text','fields');
+			$post_title_def = array(
+				'label' => __('Title'),
+				'name' => 'post_title',
+				'default_value' => wp_kses(
+					CCTM::get_value($_POST,$args['_name_prefix'].'post_title'),array()),
+				'extra' => '',
+				'class' => '',
+				'description' => '',
+				'validator' => '',
+				'output_filter' => '',
+				'type' => 'text'
+			);
+			$FieldObj->set_props($post_title_def);
+			    $output_this_field = $FieldObj->get_create_field_instance();
+			$output['post_title'] = $output_this_field;
+			$output['content'] .= $output_this_field;
+		}
+		
+		// Post Content (editor)
+		if (post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])) {
+        	$FieldObj = CCTM::load_object('textarea','fields'); // TODO: change to wysiwyg
+			$post_title_def = array(
+				'label' => __('Content'),
+				'name' => 'post_content',
+				'default_value' => wp_kses(
+					CCTM::get_value($_POST,$args['_name_prefix'].'post_content'),array()),
+				'extra' => 'cols="80" rows="10"',
+				'class' => '',
+				'description' => '',
+				'validator' => '',
+				'output_filter' => '',
+				'type' => 'textarea' // TODO: implement simplified WYSIWYG
+			);
+			$FieldObj->set_props($post_title_def);
+			    $output_this_field = $FieldObj->get_create_field_instance();
+			$output['post_content'] = $output_this_field;
+			$output['content'] .= $output_this_field;
+		}
+		// Post Excerpt
+		if (post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])) {
+        	$FieldObj = CCTM::load_object('textarea','fields');
+			$post_title_def = array(
+				'label' => __('Excerpt'),
+				'name' => 'post_excerpt',
+				'default_value' => wp_kses(
+					CCTM::get_value($_POST,$args['_name_prefix'].'post_excerpt'),array()),
+				'extra' => 'cols="80" rows="10"',
+				'class' => '',
+				'description' => '',
+				'validator' => '',
+				'output_filter' => '',
+				'type' => 'textarea'
+			);
+			$FieldObj->set_props($post_title_def);
+			    $output_this_field = $FieldObj->get_create_field_instance();
+			$output['post_excerpt'] = $output_this_field;
+			$output['content'] .= $output_this_field;
+		}
+		
+		// Custom fields		
+		$custom_fields = array();
+		
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
+		  $custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
+		}
+		foreach ( $custom_fields as $cf ) {
+
+			if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
+				// throw error!!
+				continue;
+			}
+			$def = CCTM::$data['custom_field_defs'][$cf];
+			//print_r($def); exit;
+			if (isset($def['required']) && $def['required'] == 1) {
+				$def['label'] = $def['label'] . '*'; // Add asterisk
+			}
+			// SECURITY OVERRIDES!!! 
+			// See https://code.google.com/p/wordpress-custom-content-type-manager/wiki/cctm_post_form
+			if ($def['type'] == 'wysiwyg') {
+				$def['type'] = 'textarea';
+			}
+			elseif (in_array($def['type'], array('relation','image','media'))) {
+				$output['errors'] .= ' '.$def['type'].' fields not allowed.';
+				continue;
+			}
+			$output_this_field = '';
+			if (!$FieldObj = CCTM::load_object($def['type'],'fields')) {
+				continue;
+			}
+			// Repopulate
+			if (isset($_POST[ $args['_name_prefix'].$def['name'] ])) {
+				$def['default_value'] = wp_kses(
+					$_POST[ $args['_name_prefix'].$def['name'] ],array());
+			}
+					
+			if (empty(CCTM::$post_validation_errors)) {	
+				$FieldObj->set_props($def);
+				$output_this_field = $FieldObj->get_create_field_instance();
+			}
+			else {
+				$current_value = get_post_meta( $post->ID, $def['name'], true );				
+				
+				if (isset(CCTM::$post_validation_errors[ $def['name'] ])) {
+					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', CCTM::$post_validation_errors[ $def['name'] ]);
+					if (isset($def['class'])) {
+						$def['class'] .= 'cctm_validation_error';
+					}
+					else {
+						$def['class'] = 'cctm_validation_error';
+					}
+					
+				}
+				$FieldObj->set_props($def);
+				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
+			}
+			$output[$cf] = $output_this_field;	
+			$output['content'] .= $output_this_field;
+		}
+
+		// Add Nonce
+		$output['nonce'] = '<input type="hidden" name="_cctm_nonce" value="'.wp_create_nonce('cctm_post_form_nonce').'" />';
+        $output['content'] .= $output['nonce'];
+        
+		// Add Submit
+		$output['submit'] = '<input type="submit" value="'.__('Submit', CCTM_TXTDOMAIN).'" />';
+        $output['content'] .= $output['submit'];
+		
+
+		//return '<form method="post" action="">'.$output['content'].'<input type="Submit" name="here" value="Submit" /></form>';
+		$formtpl = CCTM::load_tpl(
+			array('forms/'.$args['_tpl'].'.tpl'
+				, 'forms/_'.$post_type.'.tpl'
+				, 'forms/_default.tpl'
+			)
+		);
+		
+		return CCTM::parse($formtpl, $output);
+		
+	}
+
+	/**
+	 * Callback function used by the cctm_post_form() function.  This is what gets 
+	 * called 
+	 *
+	 * @param	array	$raw_args: parameters from the shortcode: name, filter
+	 * @param	string	$options (optional)
+	 * @return string (printed)	 
+	 */
+	public static function post_form_handler($args) {
+		
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -549,7 +786,7 @@ class CCTM {
 
 		/* Only do the slow convert if there are 8-bit characters */
 		/* avoid using 0xA0 (\240) in ereg ranges. RH73 does not like that */
-		if (! preg_match("/[\200-\237]/", $string) and ! preg_match("/[\241-\377]/", $string)) {
+		if (!preg_match("/[\200-\237]/", $string) and !preg_match("/[\241-\377]/", $string)) {
 			return $string;
 		}
 
