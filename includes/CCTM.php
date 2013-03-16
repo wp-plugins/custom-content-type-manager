@@ -575,38 +575,39 @@ class CCTM {
 			return sprintf(__('cctm_post_form shortcode post_type not found: %s', CCTM_TXTDOMAIN)
 				,$post_type);
 		}
-		//return print_r(post_type_supports($raw_args['post_type'],'revisions'),true);
-		//return print_r($post_types, true);
-		// Form was submitted? Handle it.
+		
+        //------------------------------
+		// Process the form on submit
+        //------------------------------		
 		$nonce = CCTM::get_value($_POST, '_cctm_nonce');
 		if ( !empty($_POST)) {
 			// Bogus submission
 			if (!wp_verify_nonce($nonce, 'cctm_post_form_nonce')) {
 				die('Your form could not be submitted.  Please reload the page and try again.');
 			}
-			// Strip prefix from post keys
+			// Strip prefix from post keys: only collect those with the given prefix.
+			// This should allow mulitiple forms on one page.
 			$vals = array();
 			foreach ($_POST as $k => $v) {
-				if (preg_match('/^_/',$k)) {
-					continue;
+				if (preg_match('/^'.preg_quote($args['_name_prefix']).'/',$k)) {
+					$k = preg_replace('/^'.preg_quote($args['_name_prefix']).'/', '', $k);
+					$vals[$k] = wp_kses($v, array()); // TODO: options for this?
 				}
-				$k = preg_replace('/^'.preg_quote($args['_name_prefix']).'/', '', $k);
-				$vals[$k] = $v;
-				// wp_kses($v, array());
 			}
 			// Validate fields
 			StandardizedCustomFields::validate_fields($post_type,$vals);
 			
+			// Add the arguments back in
+			$vals = array_merge($vals,$args);
+			
 			// Save data if it was properly submitted	
 			if (empty(CCTM::$post_validation_errors)) {
-				return 'SUCCESS: '.print_r($_POST, true);	
+				return call_user_func($args['_callback'], $vals);
 			}
-			
-			//return 'Submitted: '.print_r($_POST, true);
         }
         
         //------------------------------
-		// Otherwise, generate the form.        		
+		// Generate the form.        		
         //------------------------------
 		$output['_action'] = $args['_action'];
 
@@ -713,7 +714,7 @@ class CCTM {
 				$output_this_field = $FieldObj->get_create_field_instance();
 			}
 			else {
-				$current_value = get_post_meta( $post->ID, $def['name'], true );				
+				$current_value = wp_kses(CCTM::get_value($_POST,$args['_name_prefix'].$def['name']),array());
 				
 				if (isset(CCTM::$post_validation_errors[ $def['name'] ])) {
 					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', CCTM::$post_validation_errors[ $def['name'] ]);
@@ -740,8 +741,6 @@ class CCTM {
 		$output['submit'] = '<input type="submit" value="'.__('Submit', CCTM_TXTDOMAIN).'" />';
         $output['content'] .= $output['submit'];
 		
-
-		//return '<form method="post" action="">'.$output['content'].'<input type="Submit" name="here" value="Submit" /></form>';
 		$formtpl = CCTM::load_tpl(
 			array('forms/'.$args['_tpl'].'.tpl'
 				, 'forms/_'.$post_type.'.tpl'
@@ -757,12 +756,55 @@ class CCTM {
 	 * Callback function used by the cctm_post_form() function.  This is what gets 
 	 * called 
 	 *
-	 * @param	array	$raw_args: parameters from the shortcode: name, filter
-	 * @param	string	$options (optional)
+	 * @param	array $args: parameters from the shortcode and posted data
 	 * @return string (printed)	 
 	 */
 	public static function post_form_handler($args) {
+		return print_r($args,true);
+		// Strip out the control stuff (keys begin with underscore)
+		$vals = array();
+		foreach ($args as $k => $v) {
+			if (preg_match('/^_/',$k)) {
+				continue;
+			}
+			$vals[$k] = $v;
+		}
 		
+		
+		// Insert into Database
+		$email_only = CCTM::get_value($args, '_email_only');
+		if (!$email_only) {
+			$P = new SP_Post();
+			$post_id = $P->insert($vals);
+		}
+		
+		// Email stuff
+		if (isset($args['_email_to']) && !empty($args['_email_to']) && isset($args['_email_tpl']) && !empty($args['_email_tpl'])) {
+		
+			$Q = new GetPostsQuery();
+			$P = $Q->get_post($args['_email_tpl']);
+			$subject = $P['post_title'];
+			$message_tpl = wpautop($P['post_content']);
+			$from = CCTM::get_value($args, '_email_from', blog_info('admin_email'));
+			$subject = CCTM::get_value($args, '_email_subject', 'From '.blog_info('name'));
+			$headers = 'From: '.$from . "\r\n";
+			$headers .= 'content-type: text/html' . "\r\n";
+			
+			$message = CCTM::parse($message_tpl, $vals);
+			wp_mail($_args['_email_to'], $subject, $message, $headers);
+		}
+		
+		// Redirect or show a simple message.
+		$redirect = CCTM::get_value($args, '_redirect');
+		if ($redirect) {
+			$url = get_permalink($redirect);
+			wp_redirect($url);
+			exit;
+		}
+		
+		// Else, return message:
+		return "Thanks for submitting the form!";
+
 	}
 
 	//------------------------------------------------------------------------------
