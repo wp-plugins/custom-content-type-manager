@@ -872,8 +872,13 @@ abstract class CCTM_FormElement {
 		// See this: http://kovshenin.com/archives/wordpress-and-magic-quotes/
 		$posted_data = CCTM::stripslashes_deep($posted_data);
 
+		//return $posted_data; // simplifiying immutable
+		foreach ($this->immutable as $x) {
+			$posted_data[$x] = $this->props[$x];
+		}
+		return $posted_data;
 		// Apply immutable properties, and return filtered data
-		return array_merge($posted_data, $this->immutable);
+		//return array_merge($posted_data, $this->immutable);
 	}
 
 	//------------------------------------------------------------------------------

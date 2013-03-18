@@ -44,6 +44,7 @@ class CCTM_userinfo extends CCTM_OutputFilter {
 		foreach ($inputs as $input) {
 			$input = (int) $input;
 			$user = get_user_by('id',$input);
+			unset($user->data->user_pass);
 			$output .= CCTM::parse($tpl, get_object_vars($user->data));
 		}
 		

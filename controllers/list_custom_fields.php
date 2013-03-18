@@ -16,7 +16,12 @@ $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm
 
 // Load 'em up
 $defs = CCTM::get_custom_field_defs();
-
+/*
+unset($defs['status']);
+self::$data['custom_field_defs'] = $defs;
+update_option( self::db_key, self::$data );
+exit;
+*/
 $def_cnt = count($defs);
 
 if (!isset($reset) && !$def_cnt ) {
@@ -27,7 +32,7 @@ if (!isset($reset) && !$def_cnt ) {
 $data['fields'] = '';
 
 foreach ($defs as $field_name => $d) {
-	
+	//print_r($defs); exit;
 	$d['name'] = $field_name; // just in case the key and the 'name' got out of sync.
 	
 	if (isset($d['required']) && $d['required']) {
@@ -89,28 +94,6 @@ foreach ($defs as $field_name => $d) {
     // TODO: add get_options() as a field to the FormElement class
     // See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=457
     $d['options_desc'] = $FieldObj->get_options_desc();
-/*
-    if (isset($d['options']) && !empty($d['options'])) {
-      //  print_r($d['options']); exit;
-        if (is_array($d['options'])) {
-            $d['options'] = implode(', ',$d['options']);
-            if (strlen($d['options']) > 50) {
-                $d['options'] = substr($d['options'], 0, 50). '&hellip;';
-            }
-        }
-    }
-    elseif (isset($d['alternate_input']) && !empty($d['alternate_input'])) {
-        if (strlen($d['alternate_input']) > 50) {
-            $d['options'] = substr($d['alternate_input'], 0, 50). '&hellip;';
-        }
-        else {
-            $d['options'] = $d['alternate_input'];
-        }
-    }
-    else {
-        $d['options'] = '';
-    }	
-*/
 	
 	if (empty($d['post_types'])) {
 		$d['post_types'] = '<em>'.__('Unassigned', CCTM_TXTDOMAIN).'</em>';

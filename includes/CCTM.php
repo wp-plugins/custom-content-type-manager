@@ -539,11 +539,6 @@ class CCTM {
 	 * @return string (printed)	 
 	 */
 	public static function cctm_post_form($raw_args=array(), $options = null) {
-		wp_register_style('CCTM_css', CCTM_URL . '/css/manager.css');
-		wp_enqueue_style('CCTM_css');
-		
-		wp_register_style('CCTM_validation_css', CCTM_URL.'/css/validation.css');
-		wp_enqueue_style('CCTM_validation_css');
 		
 		$post_type = CCTM::get_value($raw_args, 'post_type');
 		$output = array(
@@ -553,14 +548,27 @@ class CCTM {
 		$defaults = array(
 			'post_type' => '',
 			'post_status' => 'draft', // for security!
+			'_label_title' => __('Title'),
+			'_label_content' => __('Content'),
+			'_label_excerpt' => __('Excerpt'),			
 			'_callback' => 'CCTM::post_form_handler',
 			'_action' => get_permalink(), // of current page
 			'_tpl' => '_default',
 			'_id_prefix' => 'cctm_',
 			'_name_prefix' => 'cctm_',
+			'_css' => CCTM_URL . '/css/manager.css,'.CCTM_URL.'/css/validation.css'
 		);
 
 		$args = array_merge($defaults, $raw_args );
+	
+		// Load CSS
+		$css = explode(',', $args['_css']);
+		foreach ($css as $c) {
+			$css_id = basename($c);
+			wp_register_style($css_id, $c);
+			wp_enqueue_style($css_id);
+		}
+		
 		// Hard error
 		if (empty($post_type)) {
 			return __('cctm_post_form shortcode requires the "post_type" parameter.', CCTM_TXTDOMAIN);
@@ -604,6 +612,19 @@ class CCTM {
 			if (empty(CCTM::$post_validation_errors)) {
 				return call_user_func($args['_callback'], $vals);
 			}
+			// Populate the main error block
+			else {
+				$error_item_tpl = CCTM::load_tpl(array('forms/_error_item.tpl'));
+				$hash = array();
+				$hash['errors'] = '';
+				$hash['error_msg'] = __('This form has validation errors.', CCTM_TXTDOMAIN);
+				$hash['cctm_url'] = CCTM_URL;
+				foreach (CCTM::$post_validation_errors as $k => $v) {
+					$hash['errors'] .= CCTM::parse($error_item_tpl, array('error'=>$v));				
+				}
+				$error_wrapper_tpl = CCTM::load_tpl(array('forms/_error_wrapper.tpl'));
+				$output['errors'] = CCTM::parse($error_wrapper_tpl, $hash);
+			}
         }
         
         //------------------------------
@@ -615,7 +636,7 @@ class CCTM {
 		if (post_type_supports($args['post_type'],'title') && !isset($args['post_title'])) {
         	$FieldObj = CCTM::load_object('text','fields');
 			$post_title_def = array(
-				'label' => __('Title'),
+				'label' => $args['_label_title'],
 				'name' => 'post_title',
 				'default_value' => wp_kses(
 					CCTM::get_value($_POST,$args['_name_prefix'].'post_title'),array()),
@@ -636,7 +657,7 @@ class CCTM {
 		if (post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])) {
         	$FieldObj = CCTM::load_object('textarea','fields'); // TODO: change to wysiwyg
 			$post_title_def = array(
-				'label' => __('Content'),
+				'label' => $args['_label_content'],
 				'name' => 'post_content',
 				'default_value' => wp_kses(
 					CCTM::get_value($_POST,$args['_name_prefix'].'post_content'),array()),
@@ -656,7 +677,7 @@ class CCTM {
 		if (post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])) {
         	$FieldObj = CCTM::load_object('textarea','fields');
 			$post_title_def = array(
-				'label' => __('Excerpt'),
+				'label' => $args['_label_excerpt'],
 				'name' => 'post_excerpt',
 				'default_value' => wp_kses(
 					CCTM::get_value($_POST,$args['_name_prefix'].'post_excerpt'),array()),
@@ -680,13 +701,11 @@ class CCTM {
 		  $custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
 		}
 		foreach ( $custom_fields as $cf ) {
-
-			if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
-				// throw error!!
+			// skip the field if its value is hard-coded
+			if (!isset(CCTM::$data['custom_field_defs'][$cf]) || isset($args[$cf])) {
 				continue;
 			}
 			$def = CCTM::$data['custom_field_defs'][$cf];
-			//print_r($def); exit;
 			if (isset($def['required']) && $def['required'] == 1) {
 				$def['label'] = $def['label'] . '*'; // Add asterisk
 			}
@@ -760,7 +779,7 @@ class CCTM {
 	 * @return string (printed)	 
 	 */
 	public static function post_form_handler($args) {
-		return print_r($args,true);
+		//return print_r($args,true);
 		// Strip out the control stuff (keys begin with underscore)
 		$vals = array();
 		foreach ($args as $k => $v) {
@@ -774,36 +793,40 @@ class CCTM {
 		// Insert into Database
 		$email_only = CCTM::get_value($args, '_email_only');
 		if (!$email_only) {
+			require_once(CCTM_PATH.'/includes/SP_Post.php');
 			$P = new SP_Post();
 			$post_id = $P->insert($vals);
 		}
 		
 		// Email stuff
-		if (isset($args['_email_to']) && !empty($args['_email_to']) && isset($args['_email_tpl']) && !empty($args['_email_tpl'])) {
+		if (isset($args['_email_to']) && !empty($args['_email_to']) 
+			&& isset($args['_email_tpl']) && !empty($args['_email_tpl'])) {
 		
 			$Q = new GetPostsQuery();
 			$P = $Q->get_post($args['_email_tpl']);
+			//return print_r($P, true);
 			$subject = $P['post_title'];
 			$message_tpl = wpautop($P['post_content']);
-			$from = CCTM::get_value($args, '_email_from', blog_info('admin_email'));
-			$subject = CCTM::get_value($args, '_email_subject', 'From '.blog_info('name'));
+			$from = CCTM::get_value($args, '_email_from', get_bloginfo('admin_email'));
+			$subject = CCTM::get_value($args, '_email_subject', $subject);
 			$headers = 'From: '.$from . "\r\n";
 			$headers .= 'content-type: text/html' . "\r\n";
 			
 			$message = CCTM::parse($message_tpl, $vals);
-			wp_mail($_args['_email_to'], $subject, $message, $headers);
+			if(!wp_mail($args['_email_to'], $subject, $message, $headers)) {
+				return "There was a problem sending the email.";
+			}
 		}
 		
 		// Redirect or show a simple message.
 		$redirect = CCTM::get_value($args, '_redirect');
 		if ($redirect) {
 			$url = get_permalink($redirect);
-			wp_redirect($url);
-			exit;
+			CCTM::redirect($url, true);
 		}
 		
 		// Else, return message:
-		return "Thanks for submitting the form!";
+		return CCTM::get_value($args, '_msg', "Thanks for submitting the form!");
 
 	}
 
@@ -2337,12 +2360,17 @@ class CCTM {
 	 * Performs a Javascript redirect in order to refresh the page. The $url should
 	 * should include only query parameters and start with a ?, e.g. '?page=cctm'
 	 *
-	 * @param string  the CCTM admin page to redirect to.
+	 * @param string $url the CCTM (admin_ page to redirect to.
+	 * @param boolean $absolute if true, then the target URL is absolute (not in the mgr)
 	 * @return none; this prints the result.
-	 * @param string $url
 	 */
-	public static function redirect($url) {
-		print '<script type="text/javascript">window.location.replace("'.get_admin_url(false, 'admin.php').$url.'");</script>';
+	public static function redirect($url, $absolute=false) {
+		if ($absolute) {
+			print '<script type="text/javascript">window.location.replace("'.$url.'");</script>';
+		}
+		else {
+			print '<script type="text/javascript">window.location.replace("'.get_admin_url(false, 'admin.php').$url.'");</script>';
+		}
 		exit;
 	}
 
