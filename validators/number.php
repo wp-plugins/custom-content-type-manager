@@ -4,7 +4,7 @@
  * @package CCTM_Validator
  *
  */
-class CCTM_number extends CCTM_Validator {
+class CCTM_Rule_number extends CCTM_Validator {
 
 	public $options = array(
 		'min' => '',

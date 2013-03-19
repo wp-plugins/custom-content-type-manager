@@ -56,7 +56,7 @@ class CCTM_help extends CCTM_OutputFilter {
 		$filters = CCTM::get_available_helper_classes('filters');
 		foreach ($filters as $filter => $file) {
 			if( CCTM::include_output_filter_class($filter) ) {
-				$filter_name = CCTM::classname_prefix . $filter;
+				$filter_name = CCTM::filter_prefix . $filter;
 				$Obj = new $filter_name();
 				
 				$output .= sprintf('<h3 class="cctm_h3">%s (%s)</h3>

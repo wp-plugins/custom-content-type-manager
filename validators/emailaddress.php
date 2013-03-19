@@ -4,7 +4,7 @@
  * @package CCTM_Validator
  *
  */
-class CCTM_emailaddress extends CCTM_Validator {
+class CCTM_Rule_emailaddress extends CCTM_Validator {
 
 
 	/**

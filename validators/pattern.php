@@ -6,7 +6,7 @@
  * @package CCTM_Validator
  *
  */
-class CCTM_pattern extends CCTM_Validator {
+class CCTM_Rule_pattern extends CCTM_Validator {
 
 	public $options = array(
 		'pattern' => '',

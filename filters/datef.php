@@ -2,52 +2,36 @@
 /**
  * @package CCTM_OutputFilter
  * 
- * Formats a string into a number format 
+ * Formats a string into a date
  */
 
-class CCTM_number extends CCTM_OutputFilter {
+class CCTM_datef extends CCTM_OutputFilter {
 
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	mixed 	integer/string or an array of them
-	 * @param	mixed	optional pipe-separated string containing the number of decimals (2), the thousands separator (,), the decimal separator (.). The default is 0|,|.
+	 * @param 	mixed 	string or an array of them
+	 * @param	string date format	
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
-		$format = '0|,|.';
-		$decimals = 0;
-		$thousands_sep = ',';
-		$dec_point = '.';
+		$format = get_option('date_format');
 
-		if ($options == 0) {
-			$decimals = 0;
-		}
-		elseif (!empty($options)) {
-			$args = explode('|',$options);
+		if (!empty($options)) {
+			$format = $options;
 		}
 
 		$inputs = $this->to_array($input);
-		$output = '';		
-		
-		if (isset($args[0])) {
-			$decimals = $args[0];
-		}
-		if (isset($args[1])) {
-			$thousands_sep = $args[1];
-		}
-		if (isset($args[2])) {
-			$dec_point = $args[2];
-		}
+		$output = '';
 
 		if ($this->is_array_input) {
 			foreach ($inputs as &$input) {
-				$input = number_format($input, $decimals, $dec_point, $thousands_sep);
+				$input = date($format, strtotime($input));
 			}
 			return $input;
 		}
 		else {
-			return number_format($inputs[0], $decimals, $dec_point, $thousands_sep);
+			return date($format, strtotime($inputs[0]));
 		}
 	}
 
@@ -56,7 +40,7 @@ class CCTM_number extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __("The <em>money</em> formats numbers as currency..", CCTM_TXTDOMAIN);
+		return __("The <em>date</em> formats strings as dates.", CCTM_TXTDOMAIN);
 	}
 
 
@@ -66,7 +50,7 @@ class CCTM_number extends CCTM_OutputFilter {
 	 * @return string 	a code sample 
 	 */
 	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
-		return '<?php print_custom_field("'.$fieldname.':money"); ?>';
+		return '<?php print_custom_field("'.$fieldname.':date", ""); ?>';
 	}
 
 

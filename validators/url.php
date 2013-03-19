@@ -4,7 +4,7 @@
  * @package CCTM_Validator
  *
  */
-class CCTM_url extends CCTM_Validator {
+class CCTM_Rule_url extends CCTM_Validator {
 
 
 	/**

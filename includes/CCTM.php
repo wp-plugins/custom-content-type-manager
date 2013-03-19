@@ -42,8 +42,10 @@ class CCTM {
 
 	// Each class that extends either the CCTM_FormElement class or the
 	// the CCTM_OutputFilter class must prefix this to its class name.
-	const classname_prefix = 'CCTM_';
-
+	const field_prefix = 'CCTM_';
+	const filter_prefix = 'CCTM_';
+	const validator_prefix = 'CCTM_Rule_';
+	
 	// used to control the uploading of the .cctm.json files
 	const max_def_file_size = 524288; // in bytes
 
@@ -548,9 +550,15 @@ class CCTM {
 		$defaults = array(
 			'post_type' => '',
 			'post_status' => 'draft', // for security!
+			'post_author' => CCTM::get_user_identifier(),
+			'post_date' => date('Y-m-d H:i:s'),
+			'post_date_gmt' => gmdate('Y-m-d H:i:s'),
+			'post_modified' => date('Y-m-d H:i:s'),
+			'post_modified_gmt' => gmdate('Y-m-d H:i:s'),
 			'_label_title' => __('Title'),
 			'_label_content' => __('Content'),
 			'_label_excerpt' => __('Excerpt'),			
+			'_callback_pre' => null,
 			'_callback' => 'CCTM::post_form_handler',
 			'_action' => get_permalink(), // of current page
 			'_tpl' => '_default',
@@ -560,6 +568,11 @@ class CCTM {
 		);
 
 		$args = array_merge($defaults, $raw_args );
+		
+		// Call the _callback_pre function (if present).
+		if ($args['_callback_pre']) {
+		
+		}
 	
 		// Load CSS
 		$css = explode(',', $args['_css']);
@@ -1016,7 +1029,7 @@ class CCTM {
 	 */
 	public static function filter($value, $outputfilter, $options=null) {
 	
-		$filter_class = CCTM::classname_prefix.$outputfilter;
+		$filter_class = CCTM::filter_prefix.$outputfilter;
 
 		require_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
 		
@@ -1917,7 +1930,19 @@ class CCTM {
 	public static function load_object($shortname, $type) {
 	
 		$path = '';	
-		$object_classname = self::classname_prefix . $shortname;
+		$object_classname = '';
+		switch ($type) {
+			case 'fields':
+				$object_classname = self::field_prefix . $shortname;
+				break;
+			case 'filters':
+				$object_classname = self::filter_prefix . $shortname;
+				break;
+			case 'validators':
+				$object_classname = self::validator_prefix . $shortname;
+				break;
+		}
+		
 
 		// Already included?
 		if (class_exists($object_classname)) {

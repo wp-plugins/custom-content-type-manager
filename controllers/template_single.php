@@ -20,7 +20,7 @@ require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
 
 $data     = array();
 $data['page_title'] = sprintf(__('Sample Themes for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
-$data['help']  = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SampleTemplates?ts=1317363617&updated=SampleTemplates';
+$data['help']  = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SampleTemplates';
 $data['menu']   = sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm&a=list_post_types" class="button">%s</a>', __('Back', CCTM_TXTDOMAIN) )
 	. ' ' . sprintf('<a href="'.get_admin_url(false, 'admin.php').'?page=cctm&a=list_custom_field_types&pt=%s" class="button">%s</a>', $post_type, __('Create Custom Field for this Post Type', CCTM_TXTDOMAIN) );
 $data['msg']  = '';
@@ -131,7 +131,7 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 			$filter_class = '';
 			if (!empty($filter)) {
 			
-				$filter_class = CCTM::classname_prefix.$filter;
+				$filter_class = CCTM::filter_prefix.$filter;
 				if (!class_exists($filter_class)) {
 					$filter_included = CCTM::load_file("/filters/$filter.php");
 				}
