@@ -568,10 +568,10 @@ class CCTM {
 		);
 
 		$args = array_merge($defaults, $raw_args );
-		
+
 		// Call the _callback_pre function (if present).
 		if ($args['_callback_pre']) {
-		
+			$output['content'] .= call_user_func($args['_callback_pre'], $args);
 		}
 	
 		// Load CSS
