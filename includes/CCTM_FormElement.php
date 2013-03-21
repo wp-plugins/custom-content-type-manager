@@ -874,7 +874,12 @@ abstract class CCTM_FormElement {
 
 		//return $posted_data; // simplifiying immutable
 		foreach ($this->immutable as $x) {
-			$posted_data[$x] = $this->props[$x];
+			if (isset($this->props[$x])) {
+				$posted_data[$x] = $this->props[$x];
+			}
+			else {
+				$posted_data[$x] = '';
+			}		
 		}
 		return $posted_data;
 		// Apply immutable properties, and return filtered data
