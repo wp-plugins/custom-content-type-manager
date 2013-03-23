@@ -392,6 +392,14 @@ class CCTMUnitTests extends UnitTestCase {
 		$this->assertTrue($txt =='<strong>Big Stuff</strong>');
 	}
 	
+	// help
+/*
+	function testFilter120() {
+		$txt = CCTM::filter('ignore','help');
+		$this->assertTrue(in_html('Output Filter Help',$txt));
+	}
+*/
+	
 	
 		
 	//------------------------------------------------------------------------------

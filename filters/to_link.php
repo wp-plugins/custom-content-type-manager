@@ -10,26 +10,31 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	/**
 	 * Apply the filter.
 	 *
-	 * @param 	mixed 	input
-	 * @param	mixed	optional arguments
+	 * @param 	mixed 	input: a single post ID or an array of them
+	 * @param	string	formatting string
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
 
 		$output = '';
-		if (is_array($options)) {
-			$options = $options[0];
-		}		
+		
+		// Gotta set the default here due to how print_custom_field calls get_custom_field
+		if (empty($options)) {
+			$options = '<a href="[+permalink+]" title="[+post_title+]">[+post_title+]</a>';
+		}
 		$input = $this->to_array($input);
 		
 		if (empty($input)) {
 			return '';
 		}
+		$output = '';
 		
 		if ($this->is_array_input) {
+		
 			foreach ($input as &$item) {
 				if ($item) {
 					//$post = get_post($item);
+
 					if (!is_numeric($item)) {
 						$item = sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN), 'to_link');
 						continue;
@@ -40,18 +45,10 @@ class CCTM_to_link extends CCTM_OutputFilter {
 						continue;
 					}
 					$link_text = $post['post_title'];
-					if (!empty($options)) {
-						if (is_array($options) && isset($options[0])) {
-							$link_text = $options[0];
-						}
-						else {
-							$link_text = $options;
-						}				
-					}
-					$item = sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post['ID']), $post['post_title'], $link_text);
+					$item = CCTM::parse($options, $post);
 				}
 			}
-			return $input;
+			return implode(', ',$input);
 		}
 		else {
 			if (!is_numeric($input[0])) {
@@ -61,13 +58,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 			if (!is_array($post)) {
 				return _e('Referenced post not found.', CCTM_TXTDOMAIN);
 			}
-			if ($options) {
-				$link_text = $options;
-			}
-			else {
-				$link_text = $post['post_title'];
-			}		
-			return sprintf('<a href="%s" title="%s">%s</a>', get_permalink($post['ID']), $post['post_title'], $link_text);
+			return CCTM::parse($options, $post);
 		}
 
 	}
@@ -87,7 +78,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * @return string 	a code sample 
 	 */
 	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
-		return "<?php print_custom_field('$fieldname:to_link', 'Click here'); ?>";
+		return "<?php print_custom_field('$fieldname:to_link'); ?>";
 	}
 
 

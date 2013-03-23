@@ -50,7 +50,12 @@ foreach ($defs as $field_name => $d) {
 		$icon_src = self::get_custom_icons_src_dir() . 'default.png';
 	}
 
-	$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $d['icon']);
+	$d['icon'] = sprintf('<a href="?page=cctm_fields&a=edit_custom_field&field=%s&_wpnonce=%s" title="%s">
+		<img src="%s" style="float:left; margin:5px;"/></a>'
+		, $d['name']
+		, wp_create_nonce('cctm_edit_field')
+		, __('Edit this custom field', CCTM_TXTDOMAIN)
+		, $d['icon']);
 
 	
 	$d['edit'] = __('Edit');

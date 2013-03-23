@@ -25,6 +25,12 @@
 		<?php _e('Purge your database of orphaned posts that do not have a post-type defined for them.  Warning: this will permanently delete data!',CCTM_TXTDOMAIN); ?>
 	</li>
 
+	<li>
+		<a href="?page=cctm_tools&a=show_sources"><img src="<?php print CCTM_URL; ?>/images/custom-fields/directory.png" height="32" width="32" alt="Purge posts"/></a>
+		<a href="?page=cctm_tools&a=show_sources"><?php _e('Show Sources', CCTM_TXTDOMAIN); ?></a>
+		:
+		<?php _e('See which CCTM files are being overridden by local customizations.',CCTM_TXTDOMAIN); ?>
+	</li>
 
 	<!-- li><a href="?page=cctm_tools&a=detect_post_types"><?php _e('Detect Post Types', CCTM_TXTDOMAIN); ?></a></li -->
 </ul>

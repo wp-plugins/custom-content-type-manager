@@ -21,7 +21,7 @@ if(!empty($post_type)) {
 }
 
 $elements = CCTM::get_available_helper_classes('fields');
-
+//print_r($elements); exit; // EHG 
 foreach ( $elements as $field_type => $file ) {
 	if ($FieldObj = CCTM::load_object($field_type,'fields') ) {
 		$d = array();		

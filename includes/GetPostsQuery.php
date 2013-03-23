@@ -683,8 +683,8 @@ class GetPostsQuery {
 
 		// Some cleanup, fine-tuning
 		if (is_array($val)) {
-			// Filter out "empty" arrays, e.g. array('') or Array([0] => '')
-			// these arise from certain form submissions.
+			// Filter out "empty" arrays, e.g. array('') or Array([0] => ''),
+			// which arise from certain form submissions.
 			foreach ($val as $k => $v) {
 				if (empty($v)) {
 					unset($val[$k]);

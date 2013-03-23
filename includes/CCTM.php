@@ -1223,10 +1223,10 @@ class CCTM {
 	 * @param string $type validators|filters|fields
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
-	public static function get_available_helper_classes($type) {
-	
+	public static function get_available_helper_classes($type, $flush_cache=false) {
+
 		// return from cache, if available
-		if(isset(self::$data['cache']['helper_classes'][$type])) {
+		if(isset(self::$data['cache']['helper_classes'][$type]) && !$flush_cache) {
 			return self::$data['cache']['helper_classes'][$type];
 		}
 		
@@ -1277,11 +1277,12 @@ class CCTM {
 				}
 			}
 		}
-		
+
 		// write to cache
 		self::$data['cache']['helper_classes'][$type] = $files;
+
 		update_option(self::db_key, self::$data);
-		
+
 		return $files;
 	}
 
@@ -1765,8 +1766,6 @@ class CCTM {
 	 *
 	 * This must also be able to handle when WP is installed in a sub directory.
 	 *
-	 *     or 'http://mysite.com/some/img.jpg'
-	 *
 	 * @param string  $src a URL path to an image ON THIS SERVER, e.g. '/wp-content/uploads/img.jpg'
 	 * @return boolean true if the img is valid, false if the img link is broken
 	 */
@@ -1836,6 +1835,16 @@ class CCTM {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * TODO: Ick.  get the load_object, load_tpl, and get_available_helper_classes (and load_view (?))
+	 * working together cleanly or rewrite them all to use this function.
+	 *
+	 * Suggested inputs:
+	 		$files (ie. variants)
+	 		$load_type : include|require|require_once|file_get_contents
+	 		$type : base dir, e.g. "filters", "fields", "config", "tpls", appended to $paths
+	 		$return_type : object|path|contents
+	 		$additional_paths : if null, use default CCTM_PATH and wp-content/uploads as bases
+	 *
 	 * When given a PHP file name relative to the CCTM_PATH, e.g. '/config/image_search_parameters.php',
 	 * this function will include (or require) that file. However, if the same file exists
 	 * in the same location relative to the wp-content/uploads/cctm directory, THAT version of 
@@ -1854,7 +1863,8 @@ class CCTM {
 	 * To prevent directory transversing, file names may not contain '..'!
 	 *
 	 * @param	array|string	$files: filename relative to the path, e.g. '/config/x.php'. Should begin with "/"
-	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
+	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. 
+	 *							OMIT trailing /, e.g. called via dirname(__FILE__)
 	 * @param	string			$load_type (optional) include|include_once|require|require_once -- default is 'include'
 	 * @param	mixed	file name used on success, false on fail.
 	 */
@@ -1908,7 +1918,7 @@ class CCTM {
 				return $dir.$file;
 			}
 		}
-		
+
 		// Try again with the remaining files... or fail.
 		if (!empty($files)) {
 			return self::load_file($files, $additional_paths, $load_type);
@@ -1955,7 +1965,7 @@ class CCTM {
 		}
 		// populate the cache and try again
 		else {
-			$classes = self::get_available_helper_classes($type);
+			$classes = self::get_available_helper_classes($type, true);
 			if(isset($classes[$shortname])) {
 				$path = $classes[$shortname];
 			}

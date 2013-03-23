@@ -40,7 +40,7 @@ class CCTM_datef extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __("The <em>date</em> formats strings as dates.", CCTM_TXTDOMAIN);
+		return __("The <em>datef</em> formats strings as dates.", CCTM_TXTDOMAIN);
 	}
 
 
@@ -50,7 +50,7 @@ class CCTM_datef extends CCTM_OutputFilter {
 	 * @return string 	a code sample 
 	 */
 	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
-		return '<?php print_custom_field("'.$fieldname.':date", ""); ?>';
+		return '<?php print_custom_field("'.$fieldname.':datef", ""); ?>';
 	}
 
 
@@ -58,7 +58,7 @@ class CCTM_datef extends CCTM_OutputFilter {
 	 * @return string	the human-readable name of the filter.
 	 */
 	public function get_name() {
-		return __('Money', CCTM_TXTDOMAIN);
+		return __('Date Format', CCTM_TXTDOMAIN);
 	}
 
 	/**

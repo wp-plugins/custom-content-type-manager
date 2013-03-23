@@ -78,6 +78,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.7.1=
+
+* Added support for cctm_post_form shortcode: now you can have users on the front-end create posts (see feature request 132).
+
 = 0.9.7 = 
 
 * Support for custom metaboxes: you can now put your fields anywhere on the admin pages.
@@ -403,6 +407,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.7.1 =
+
+* Implemented new post-creation shortcode for users wishing to create forms on the front-end.  Notice to developers: the class prefix for custom Output Filters has changed.  Includes various bug fixes.
 
 = 0.9.7 = 
 
