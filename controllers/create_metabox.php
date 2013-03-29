@@ -52,7 +52,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 			CCTM::redirect('?page=cctm&a=edit_metabox&id='.$def['id']);
 		}
 		else {
-			CCTM::redirect('?page=cctm&a=list_pt_associations&pt=movie');
+			CCTM::redirect('?page=cctm');
 		}
 		return;
 	}

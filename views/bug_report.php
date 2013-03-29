@@ -22,6 +22,7 @@ print $result[0]->ver;
 print "\n";
 ?>
 Server OS: <?php print PHP_OS; print "\n"; ?>
+Language: <?php print WPLANG; print "\n"; ?>
 ------------------------ <?php print "\n"; ?>
 ACTIVE PLUGINS: <?php 
 print "\n";
