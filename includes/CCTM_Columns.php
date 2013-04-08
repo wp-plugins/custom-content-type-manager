@@ -30,7 +30,8 @@ class CCTM_Columns {
 	 */
 	public $no_title_flag = false;
 
-	// Count as we iterate over columns in each row
+	// I use these to count as I iterate over columns in each row. new_row triggers a break... 
+	// req'd due to some WP wonkyness
 	public $new_row = true;
 	public $last_post;
 
@@ -46,12 +47,17 @@ class CCTM_Columns {
 	 * @return array associative array of column ids and translated names for header names.
 	 */
 	public function __call($post_type, $default_columns) {
+
+		$this->post_type = $post_type;
+//		print_r($default_columns); exit;
+		$default_columns['author'] = 'Author';
 		$custom_columns = array('cb' => '<input type="checkbox" />');
 		$raw_columns = array();
 		if (isset(CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])) {
 			$raw_columns = CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'];
 		}
 
+//		print_r($raw_columns); exit;
 		// The $raw_columns contains a simple array, e.g. array('field1','wonky');
 		// we need to create an associative array.
 		// Look up what kind of column this is.
@@ -63,6 +69,11 @@ class CCTM_Columns {
 			// Custom Field
 			elseif (isset(CCTM::$data['custom_field_defs'][$c])) {
 				$custom_columns[$c] = __(CCTM::$data['custom_field_defs'][$c]['label']);
+			}
+			// Author
+			// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=456
+			elseif ($c == 'author') {
+				$custom_columns[$c] = __('Author');
 			}
 			// Taxonomies: moronically, WP sends this function plurals instead of taxonomy slugs.
 			// so we have to manually remap this. *facepalm*
@@ -92,14 +103,24 @@ class CCTM_Columns {
 	 * Populate the custom data for a given column.  This function should actually
 	 * *print* data, not just return it.
 	 * Oddly, WP doesn't even send the column this way unless it is something custom.
-	 * Note that things get all broken and wonky if you do not include the post title column,
-	 * so this function has some customizations here to print out the various eye-candy
-	 * Edit/Trash/View links in that case.
+	 * Note that things get all broken and wonky if you do not include the "post_title" 
+	 * column, so we rely on the $this->no_title_flag boolean variable (set in __call)
+	 * to trigger customizations here which print out the various eye-candy
+	 * "Edit/Trash/View" links when the post_title column has been omitted.
+	 *
 	 * See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=443
 	 *
-	 * @param string $column
+	 * @param string $column name
 	 */
 	public function populate_custom_column_data($column) {
+		
+		// See https://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomColumns
+
+		$function_name = 'cctm_custom_column_'.$this->post_type.'_'.$column;
+//		print $function_name; return;
+		if (function_exists($function_name)) {
+			return $function_name();
+		}
 
 		global $post;
 
@@ -107,6 +128,7 @@ class CCTM_Columns {
 			$this->new_row = true;
 		}
 
+		// This attaches the Edit/Trash/View links to the first column if the post_title isn't there
 		if ($this->no_title_flag && $this->new_row) {
 			printf('<strong><a class="row-title" href="post.php?post=%s&amp;action=edit">',$post->ID);
 		}
@@ -120,10 +142,12 @@ class CCTM_Columns {
 			$id = get_custom_field($column.":raw");
 			printf('<a target="_blank" href="%s">%s</a>',get_edit_post_link($id), get_the_title($id));
 		}
+		// uses the default output filter
 		else {
 			print_custom_field($column);
 		}
 
+		// End the anchor
 		if ($this->no_title_flag && $this->new_row) {
 			print '</a></strong>
 				<div class="row-actions"><span class="edit"><a href="post.php?post='.$post->ID.'&amp;action=edit" title="'.__('Edit').'">'.__('Edit').'</a> | </span>

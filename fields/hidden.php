@@ -177,10 +177,10 @@ class CCTM_hidden extends CCTM_FormElement {
 			'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_create_value" class="cctm_checkbox" id="evaluate_create_value" value="1" '. $is_ecv_checked.'/> '
-			.__('Check this box to evaluate the PHP code in the "New Values" box. This value is calculated when the form is drawn.', CCTM_TXTDOMAIN).'<br/>
+			.__('Check this box to evaluate the PHP code in the "New Values" box. This value is calculated when the create form is drawn.', CCTM_TXTDOMAIN).'<br/>
 			
 				<input type="checkbox" name="evaluate_update_value" class="cctm_checkbox" id="evaluate_update_value" value="1" '. $is_euv_checked.'/> '
-			.__('Check this box to evaluate the PHP code in the "Updated Values".  This value is calculated when the form is drawn.', CCTM_TXTDOMAIN).'<br/>
+			.__('Check this box to evaluate the PHP code in the "Updated Values".  This value is calculated when the edit form is drawn.', CCTM_TXTDOMAIN).'<br/>
     			<input type="checkbox" name="evaluate_onsave" class="cctm_checkbox" id="evaluate_onsave" value="1" '. $is_onsave_checked.'/> '
 			.__('Check this box to evaluate the PHP code when the post is saved.', CCTM_TXTDOMAIN).'
 			 </div>
