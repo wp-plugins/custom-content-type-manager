@@ -18,6 +18,8 @@ to the wp_posts table e.g. the '(4)' in 'Preview HTML (4)'*/
 .cctm_description {
 	display:block;
 	font-style:italic;
+	margin-top: 3px;
+	color: #999;
 }
 
 label.cctm_checkbox {

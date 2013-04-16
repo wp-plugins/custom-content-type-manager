@@ -115,9 +115,7 @@ class CCTM_Columns {
 	public function populate_custom_column_data($column) {
 		
 		// See https://code.google.com/p/wordpress-custom-content-type-manager/wiki/CustomColumns
-
 		$function_name = 'cctm_custom_column_'.$this->post_type.'_'.$column;
-//		print $function_name; return;
 		if (function_exists($function_name)) {
 			return $function_name();
 		}
