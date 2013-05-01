@@ -836,6 +836,9 @@ class GetPostsQuery {
 //		case 'post_modified':
 //		case 'post_date':
 		case 'date':
+			if ($val == 'NOW') {
+				$val = date('Y-m-d H:i:s');
+			}
 			// if it's a date
 			if ( in_array($this->_get_operator($arg), array('=','!=')) && $this->_is_date($val) ) {
 				return $val;
@@ -848,8 +851,11 @@ class GetPostsQuery {
 		// Datetimes
 		case 'date_min':
 		case 'date_max':
+			if ($val == 'NOW') {
+				$val = date('Y-m-d H:i:s');
+			}
 			// if is a datetime
-			if ($this->_is_datetime($val) ) {
+			elseif ($this->_is_datetime($val) ) {
 				return $val;
 			}
 			else {
@@ -893,9 +899,12 @@ class GetPostsQuery {
 			break;
 
 		// Almost any value... prob. should use $wpdb->prepare( $query, $val )
+		case 'author':
+			if ($val == 'CURRENT_USER') {
+				$val = get_current_user_id();
+			}
 		case 'meta_key':
 		case 'meta_value':
-		case 'author':
 		case 'search_term':
 			return $val;
 			break;
@@ -994,8 +1003,19 @@ class GetPostsQuery {
 					$val_str = $val;
 				}
 				$this->notices[] = sprintf(__('Filtering on direct column/value: %s', CCTM_TXTDOMAIN ), '<em>'.$arg.': '.$this->_get_operator($arg).' '.htmlspecialchars($val_str).'</em>');
+				
+				if ($arg == 'post_author' && $val == 'CURRENT_USER') {
+					$val = get_current_user_id();
+				}
+				elseif ($val == 'NOW' && in_array($arg, array('post_date', 'post_modified'))) {
+					$val = date('Y-m-d H:i:s');
+				}
+				elseif ($val == 'NOW' && in_array($arg, array('post_date_gmt', 'post_modified_gmt'))) {
+					$val = gmdate('Y-m-d H:i:s');
+				}				
+				
 				// We can easily filter for integers...
-				if (in_array($arg, array('ID','post_parent','menu_order','comment_count'))) {
+				if (in_array($arg, array('ID','post_parent','post_author','menu_order','comment_count'))) {
 					return (int) $val;
 				}
 				// TO-DO: filter for other data-types?  Or should this just be moved to the above?
