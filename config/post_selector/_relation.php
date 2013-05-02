@@ -21,7 +21,7 @@ should be valid arguments to the GetPostsQuery::get_posts() function:
 	CCTM::$post_selector['post_mime_type'] = 'image';
 	// ... etc... 
 
-See http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts e.g.
+See http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts
 ------------------------------------------------------------------------------*/
 
 CCTM::$post_selector['search_columns'] = array('post_title', 'post_content');

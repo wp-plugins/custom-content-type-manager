@@ -64,6 +64,18 @@ elseif (empty($def)) {
 	return;
 }
 
+// Set up search boundaries (i.e. the parameters used when nothing else is specified).
+// Load up the config...
+$possible_configs = array();
+$possible_configs[] = '/config/post_selector/'.$fieldname.'.php'; 	// e.g. my_field.php
+$possible_configs[] = '/config/post_selector/_'.$def['type'].'.php'; 		// e.g. _image.php
+$possible_configs[] = '/config/post_selector/_relation.php'; 		// default
+
+CCTM::$post_selector = array();
+if (!CCTM::load_file($possible_configs)) {
+	print '<p>'.__('Post Selector configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
+}
+
 
 // This gets subsequent search data that gets passed when the user refines the search.
 $args = array();
@@ -79,20 +91,6 @@ if (isset($_POST['search_parameters'])) {
 	// Unsest these, otherwise the query will try to search them as custom field values.
 	unset($args['page_number']);
 	unset($args['fieldname']);	
-}
-
-
-
-// Set up search boundaries (i.e. the parameters used when nothing else is specified).
-// Load up the config...
-$possible_configs = array();
-$possible_configs[] = '/config/post_selector/'.$fieldname.'.php'; 	// e.g. my_field.php
-$possible_configs[] = '/config/post_selector/_'.$def['type'].'.php'; 		// e.g. _image.php
-$possible_configs[] = '/config/post_selector/_relation.php'; 		// default
-
-CCTM::$post_selector = array();
-if (!CCTM::load_file($possible_configs)) {
-	print '<p>'.__('Post Selector configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
