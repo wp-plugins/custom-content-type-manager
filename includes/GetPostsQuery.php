@@ -179,7 +179,8 @@ class GetPostsQuery {
 		'search_columns' => array('post_title', 'post_content'), // comma-sparated string or array or more one of the following columns; if not one of the post columns, this will search the meta columns.
 
 		// Global complicated stuff
-		'join_rule'  => 'AND', // AND | OR. You can set this to OR if you really know what you're doing. Defines how the WHERE criteria are joined.
+		'join_rule'  => 'AND', // AND | OR. Defines how the WHERE criteria are joined.
+		'data' => 'author,parent,thumbnail', // Here just as ref. See $this->join_tables
 		'match_rule' => 'contains', // contains|starts_with|ends_with corresponding to '%search_term%', 'search_term%', '%search_term'
 		'date_column' => 'post_modified', // which date column to use for date searches: post_date, post_date_gmt, post_modified, post_modified_gmt
 
@@ -187,6 +188,9 @@ class GetPostsQuery {
 
 
 	);
+	
+	// Hash: flag which related tables are joined
+	private $join_tables = array('author'=>true,'parent'=>true,'thumbnail'=>true);
 
 	// Accessed by the set_default function, this affects field values when the recordset is
 	// normalized.
@@ -504,19 +508,18 @@ class GetPostsQuery {
 	/**
 	 * Ensure a valid date. 0000-00-00 qualifies as valid; if you need to ensure a REAL
 	 * date (i.e. where '0000-00-00' is not allowed), then simply marking the field required
-	 * won't work because the string '0000-00-00' is not empty.  To require a REAL date, use
-	 * the following syntax in your definitions:
-	 * 'mydatefield' => 'date["YYYY-MM-DD","required"]
+	 * won't work because the string '0000-00-00' is not empty.  To require a REAL date,
+	 * then define your custom fields as dates AND mark them as required.
 	 *
 	 * @param string  $date to be checked
 	 * @return boolean whether or not the input is a valid date
 	 */
-	private function _is_date( $date ) {
+	private function _is_date($date) {
 		if (empty($date)) {
 			return false;
 		}
 		
-		if( !strpos($date,'-') && is_numeric($date)) {
+		if(!strpos($date,'-') && is_numeric($date)) {
 			return true;
 		}
 		
@@ -533,7 +536,7 @@ class GetPostsQuery {
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Is a datetime in MySQL YYYY-MM-DD HH:MM:SS date format?  (Time is optional).
+	 * Is a datetime in MySQL YYYY-MM-DD [HH:MM:SS] date format?  (Time is optional).
 	 *
 	 * @param string
 	 * @param string $datetime
@@ -572,7 +575,8 @@ class GetPostsQuery {
 	//------------------------------------------------------------------------------
 	/**
 	 * Tests whether a string is valid for use as a MySQL column name.  This isn't 
-	 * 100% accurate, but the postmeta virtual columns can be more flexible.
+	 * 100% accurate b/c the first character normally can't be a number, but the 
+	 * postmeta virtual columns can be more flexible.
 	 * @param	string
 	 * @return	boolean
 	 */
@@ -832,9 +836,7 @@ class GetPostsQuery {
 		case 'post_parent':
 			return $this->_comma_separated_to_array($val, 'integer');
 			break;
-			// Dates
-//		case 'post_modified':
-//		case 'post_date':
+		// Dates
 		case 'date':
 			if ($val == 'NOW') {
 				$val = date('Y-m-d H:i:s');
@@ -855,7 +857,7 @@ class GetPostsQuery {
 				$val = date('Y-m-d H:i:s');
 			}
 			// if is a datetime
-			elseif ($this->_is_datetime($val) ) {
+			if ($this->_is_datetime($val) ) {
 				return $val;
 			}
 			else {
@@ -942,6 +944,13 @@ class GetPostsQuery {
 			else {
 				$this->errors[] = __('Invalid parameter for join_rule. join_rule must be "AND" or "OR"', CCTM_TXTDOMAIN);
 				return null;
+			}
+			break;
+		case 'join':
+			$this->join_tables = array(); // reset
+			$array = $this->_comma_separated_to_array($val, 'alpha');
+			foreach ($array as $a) {
+				$this->join_tables[$a] = true;
 			}
 			break;
 			// match rule...
@@ -1227,29 +1236,56 @@ class GetPostsQuery {
 		}
 		
 		$query = "SELECT {$wpdb->posts}.*
-			, parent.ID as 'parent_ID'
-			, parent.post_title as 'parent_title'
-			, parent.post_excerpt as 'parent_excerpt'
-			, author.display_name as 'author'
-			, thumbnail.ID as 'thumbnail_id'
-			, thumbnail.guid as 'thumbnail_src'
+			[+parent_cols+]
+			[+author_cols+]
+			[+thumbnail_cols+]
+			[+taxonomy_cols+]
+			
 		FROM {$wpdb->posts}
 
-		LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
-			AND thumb_join.meta_key='_thumbnail_id'
-		LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value
-		LEFT JOIN {$wpdb->posts} parent ON {$wpdb->posts}.post_parent=parent.ID
-		LEFT JOIN {$wpdb->users} author ON {$wpdb->posts}.post_author=author.ID
-
+		[+thumbnail_join+]
+		[+parent_join+]
+		[+author_join+]
+		[+taxonomy_join+]
+		
 		[+join_for_metasortcolumn+]
 		
 		$where
 
+		[+group_by+]
+		
 		ORDER BY [+orderby+] [+order+]";
 		
 		$hash = array();
 		$hash['order'] = $this->order;
 		
+		// Join on other tables
+		if (isset($this->join_tables['parent'])) {
+			$hash['parent_cols'] = ", parent.ID as 'parent_ID'
+			, parent.post_title as 'parent_title'
+			, parent.post_excerpt as 'parent_excerpt'";
+			$hash['parent_join'] = "LEFT JOIN {$wpdb->posts} parent ON {$wpdb->posts}.post_parent=parent.ID";
+		}
+		if (isset($this->join_tables['author'])) {
+			$hash['author_cols'] = ", author.display_name as 'author'";
+			$hash['author_join'] = "LEFT JOIN {$wpdb->users} author ON {$wpdb->posts}.post_author=author.ID";
+		}		
+		if (isset($this->join_tables['thumbnail'])) {
+			$hash['thumbnail_cols'] = "			, thumbnail.ID as 'thumbnail_id'
+			, thumbnail.guid as 'thumbnail_src'";
+			$hash['tumbnail_join'] = "LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
+			AND thumb_join.meta_key='_thumbnail_id'
+		LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value";
+		}
+		if (isset($this->join_tables['taxonomy'])) {
+			$hash['taxonomy_cols'] = ", GROUP_CONCAT({$wpdb->terms}.name) as taxonomy_names
+			, GROUP_CONCAT({$wpdb->terms}.slug) as taxonomy_slugs";
+			$hash['taxonomy_join'] = "LEFT JOIN {$wpdb->term_relationships} ON {$wpdb->posts}.ID={$wpdb->term_relationships}.object_id
+				LEFT JOIN {$wpdb->term_taxonomy} ON {$wpdb->term_taxonomy}.term_taxonomy_id={$wpdb->term_relationships}.term_taxonomy_id
+				LEFT JOIN {$wpdb->terms} ON {$wpdb->terms}.term_id={$wpdb->term_taxonomy}.term_id";
+			$hash['group_by'] = "GROUP BY {$wpdb->posts}.ID";
+		}
+				
 		if ($this->sort_by_random) {
 			$hash['orderby'] = 'RAND()';
 			$hash['order'] = '';
@@ -2123,7 +2159,7 @@ class GetPostsQuery {
 		if ($ignore_defaults) {
 			$this->set_defaults(array(), true);
 		}
-		
+
 		// Include no IDs = empty result set.  Gotta uncomment this or shortcodes and other 
 		// forms break
 /*
@@ -2131,7 +2167,6 @@ class GetPostsQuery {
 			return array();
 		}
 */
-		
 		foreach ($args as $k => $v) {
 			$this->$k = $v; // this will utilize the _sanitize_arg() function.
 		}
@@ -2190,7 +2225,9 @@ class GetPostsQuery {
 				$r = array_merge($r, $indexed_meta[$r['ID']]);
 			}		
 			$r['permalink'] 		= get_permalink( $r['ID'] );
-			$r['parent_permalink'] 	= get_permalink( $r['parent_ID'] );
+			if (isset($this->join_tables['parent'])) {
+				$r['parent_permalink'] 	= get_permalink( $r['parent_ID'] );
+			}
 			$r['post_id']  			= $r['ID'];
 			$r['post_title'] 		= __($r['post_title']);
 //			$r['post_content']		= do_shortcode(wpautop(__($r['post_content'])));
