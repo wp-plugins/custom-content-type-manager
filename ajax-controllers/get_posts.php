@@ -8,7 +8,13 @@ The thickbox appears (for example) when you create or edit a post that uses a
 relation, image, or media field.
 ------------------------------------------------------------------------------*/
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('edit_posts')) die('You do not have permission to do that.');
+// See https://code.google.com/p/wordpress-summarize-posts/issues/detail?id=39
+$post_type = CCTM::get_value($_POST, 'post_type', 'post');
+$cap = 'edit_posts';
+if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
+	$cap = $GLOBALS['wp_post_types'][$post_type]->cap->edit_posts; 
+}
+if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
@@ -63,9 +69,6 @@ elseif (empty($def)) {
 $args = array();
 if (isset($_POST['search_parameters'])) {
 
-
-	//print '<pre> HERE...'. print_r($_POST['search_parameters'], true).'</pre>';
-//	$d['content'] .= '<pre>HERE... '. print_r($_POST['search_parameters'], true).'</pre>';
 	parse_str($_POST['search_parameters'], $args);
 
 	// Pass the "view" parameters to the view
@@ -75,8 +78,7 @@ if (isset($_POST['search_parameters'])) {
 	
 	// Unsest these, otherwise the query will try to search them as custom field values.
 	unset($args['page_number']);
-	unset($args['fieldname']);
-	
+	unset($args['fieldname']);	
 }
 
 
@@ -107,7 +109,7 @@ if (isset($def['search_parameters'])) {
 }
 $additional_defaults = array();
 parse_str($search_parameters_str, $additional_defaults);
-//print '<pre>'.print_r($additional_defaults,true).'</pre>';
+
 foreach($additional_defaults as $k => $v) {
 	if (!empty($v)) {
 		CCTM::$post_selector[$k] = $v;
@@ -119,8 +121,6 @@ foreach($additional_defaults as $k => $v) {
 // Begin!
 //------------------------------------------------------------------------------
 $Q = new GetPostsQuery(); 
-// print '<pre>'.print_r(CCTM::$post_selector, true) . '</pre>';
-//$Q->set_defaults(CCTM::$post_selector); // BRoken!
 
 foreach(CCTM::$post_selector as $k => $v) {
 	if (!isset($args[$k]) || empty($args[$k])) {

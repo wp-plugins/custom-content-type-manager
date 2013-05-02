@@ -81,6 +81,9 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.7.1=
 
 * Added support for cctm_post_form shortcode: now you can have users on the front-end create posts (see feature request 132).
+* Added "join" argument to GetPostsQuery::get_posts()
+* Added datef output filter for date formatting.
+* Added number output filter for number formatting.
 
 = 0.9.7 = 
 

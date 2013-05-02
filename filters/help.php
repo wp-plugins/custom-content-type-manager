@@ -21,6 +21,7 @@ class CCTM_help extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+
 		$output = '
 		<style>
 			div.cctm_code {
@@ -86,7 +87,7 @@ class CCTM_help extends CCTM_OutputFilter {
 				) . '<br/>';
 			}
 		}
-		
+
 		return $output . '</div>';
 	}
 

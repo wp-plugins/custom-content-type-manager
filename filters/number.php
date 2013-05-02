@@ -56,7 +56,7 @@ class CCTM_number extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __("The <em>money</em> formats numbers as currency..", CCTM_TXTDOMAIN);
+		return __("The <em>number</em> formats numbers in a readable way, e.g. for currency.", CCTM_TXTDOMAIN);
 	}
 
 
@@ -66,7 +66,7 @@ class CCTM_number extends CCTM_OutputFilter {
 	 * @return string 	a code sample 
 	 */
 	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
-		return '<?php print_custom_field("'.$fieldname.':money"); ?>';
+		return '<?php print_custom_field("'.$fieldname.':number"); ?>';
 	}
 
 
@@ -81,7 +81,7 @@ class CCTM_number extends CCTM_OutputFilter {
 	 * @return string	the URL where the user can read more about the filter
 	 */
 	public function get_url() {
-		return __('http://code.google.com/p/wordpress-custom-content-type-manager/wiki/money_OutputFilter', CCTM_TXTDOMAIN);
+		return __('https://code.google.com/p/wordpress-custom-content-type-manager/wiki/number_OutputFilter', CCTM_TXTDOMAIN);
 	}
 		
 }

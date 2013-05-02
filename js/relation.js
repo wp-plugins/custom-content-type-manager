@@ -451,6 +451,7 @@ function thickbox_results(css_field_id, omit_existing_values) {
 	    cctm.ajax_url,
 	    {
 	        "action" : 'get_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : css_field_id,
 	        "fieldtype" : fieldtype,
 	        "exclude" : existing_values,
