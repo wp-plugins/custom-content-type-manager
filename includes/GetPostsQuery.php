@@ -1273,7 +1273,7 @@ class GetPostsQuery {
 		if (isset($this->join_tables['thumbnail'])) {
 			$hash['thumbnail_cols'] = "			, thumbnail.ID as 'thumbnail_id'
 			, thumbnail.guid as 'thumbnail_src'";
-			$hash['tumbnail_join'] = "LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
+			$hash['thumbnail_join'] = "LEFT JOIN {$wpdb->postmeta} thumb_join ON {$wpdb->posts}.ID=thumb_join.post_id
 			AND thumb_join.meta_key='_thumbnail_id'
 		LEFT JOIN {$wpdb->posts} thumbnail ON thumbnail.ID=thumb_join.meta_value";
 		}
