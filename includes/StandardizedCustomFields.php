@@ -109,7 +109,7 @@ class StandardizedCustomFields {
 				
 				// Is this field required?  OR did validation fail?
 				if ($FieldObj->required) {
-					if ((is_array($value_copy) && !strlen(trim($value_copy[0])))
+					if ((is_array($value_copy) && !empty($value_copy))
 						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
 						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 					}
