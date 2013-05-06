@@ -108,8 +108,11 @@ class StandardizedCustomFields {
 
 				
 				// Is this field required?  OR did validation fail?
-				if ($FieldObj->required && empty($value_copy) ) {
-					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
+				if ($FieldObj->required) {
+					if ((is_array($value_copy) && !strlen(trim($value_copy[0])))
+						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
+						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
+					}
 				}
 				// Do any other validation checks here: TODO
 				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426

@@ -615,7 +615,7 @@ abstract class CCTM_FormElement {
 			}
 		}
 		// to_string.  We do some special acrobatics here to handle the case where a repeatable 
-		// field was changed a normal singular field.  Repeatable fields would be JSON encoded,
+		// field was changed to a normal singular field.  Repeatable fields would be JSON encoded,
 		// so we test for that and we try to extract the 1st value.
 		// Note that json_decode treats alphabetical strings differently than numeric strings!!!
 		else {
