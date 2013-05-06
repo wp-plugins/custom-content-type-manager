@@ -180,7 +180,7 @@ class GetPostsQuery {
 
 		// Global complicated stuff
 		'join_rule'  => 'AND', // AND | OR. Defines how the WHERE criteria are joined.
-		'data' => 'author,parent,thumbnail', // Here just as ref. See $this->join_tables
+		'join' => 'author,parent,thumbnail', // Here just as ref. See $this->join_tables
 		'match_rule' => 'contains', // contains|starts_with|ends_with corresponding to '%search_term%', 'search_term%', '%search_term'
 		'date_column' => 'post_modified', // which date column to use for date searches: post_date, post_date_gmt, post_modified, post_modified_gmt
 

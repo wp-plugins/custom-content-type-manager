@@ -273,6 +273,7 @@ class SummarizePosts {
 	 * @return array
 	 */
 	public static function get_posts($raw_args=array(), $content_str = null) {
+
 		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=389
 		$content_str = preg_replace('#^</p>#', '', $content_str);
 		$content_str = preg_replace('#<p>$#', '', $content_str);
