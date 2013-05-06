@@ -181,10 +181,9 @@ class GetPostsForm {
 	 * user wants to search a specific field for an exact value, e.g. 'post_excerpt'.
 	 *
 	 * @param string  $name the name of the field you want to search.
-	 * @param unknown $args
 	 * @return string html for this field element.
 	 */
-	public function __call($name, $args) {
+	public function __call($name) {
 		//$ph = $this->placeholders;
 		$ph = array();
 		$ph['value'] = '';
