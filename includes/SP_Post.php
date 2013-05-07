@@ -391,7 +391,7 @@ class SP_Post {
 			if (is_array($v)) {
 				$v = json_encode($v);
 			}
-			if ($wpdb->update( $wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) == false ) {
+			if ($wpdb->update( $wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) === false ) {
 				// it's a new row, so we insert
 				if ($wpdb->insert($wpdb->postmeta, array('post_id' => $post_id, 'meta_key' => $k, 'meta_value'=>$v)) == false) {
 					$this->errors[] = "Error inserting row into {$wpdb->postmeta} for column $k";
