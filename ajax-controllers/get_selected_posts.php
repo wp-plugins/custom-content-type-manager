@@ -19,7 +19,13 @@ TODO: Should there be limits on what gets posted to this form because it does
 cough up post contents?  Is the Ajax nonce enough?
 ------------------------------------------------------------------------------*/
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+// See https://code.google.com/p/wordpress-summarize-posts/issues/detail?id=39
+$post_type = CCTM::get_value($_POST, 'post_type', 'post');
+$cap = 'edit_posts';
+if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
+	$cap = $GLOBALS['wp_post_types'][$post_type]->cap->edit_posts; 
+}
+if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');

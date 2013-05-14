@@ -73,6 +73,7 @@ function cctm_upload(fieldname, upload_type) {
     	
 		var data = {
 		        "action" : 'get_selected_posts',
+		        "post_type": jQuery('#post_type').val(),
 		        "fieldname" : cctm_fieldname, // Read from global scope
 		        "guid": attachment_guid,
 		        "get_selected_posts_nonce" : cctm.ajax_nonce
@@ -164,6 +165,7 @@ function change_page(page_number) {
 
 	var data = {
 	        "action" : 'get_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
@@ -219,6 +221,7 @@ function search_form_display(fieldname,fieldtype) {
 	console.log(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "fieldtype" : fieldtype,
 	        "search_parameters" : search_parameters,
@@ -262,6 +265,7 @@ function search_parameters_save(form_id) {
 	// Visually print out the new search parameters
 	var data = {
 	        "action" : 'summarize_posts_get_args',
+	        "post_type": jQuery('#post_type').val(),
 	        "search_parameters" : search_parameters,
 	        "summarize_posts_get_args_nonce" : cctm.ajax_nonce
 	    };
@@ -304,6 +308,7 @@ function send_selected_posts_to_wp() {
 
 	var data = {
 	        "action" : 'get_selected_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "post_id": post_ids,
 	        "get_selected_posts_nonce" : cctm.ajax_nonce
@@ -332,9 +337,9 @@ Similar to the send_selected_posts_to_wp() function.
 function send_single_post_to_wp( post_id ) {
 	// It's easier to read it from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
-	//console.log('here...' + fieldname);
 	var data = {
 	        "action" : 'get_selected_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "post_id": post_id,
 	        "get_selected_posts_nonce" : cctm.ajax_nonce
@@ -344,7 +349,6 @@ function send_single_post_to_wp( post_id ) {
 	    cctm.ajax_url,
 	    data,
 	    function( response ) {
-	    	//alert('cctm_instance_wrapper_'+fieldname);
 	    	// Write the response to the div
 			jQuery('#cctm_instance_wrapper_'+fieldname).html(response);
 			
@@ -373,6 +377,7 @@ function thickbox_refine_search() {
 	var data = 
 		{
 	        "action" : 'get_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
@@ -405,6 +410,7 @@ function thickbox_reset_search() {
 	var data = 
 		{
 	        "action" : 'get_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
@@ -496,6 +502,7 @@ function thickbox_sort_results(sort_column) {
 	var data = 
 		{
 	        "action" : 'get_posts',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };

@@ -67,6 +67,7 @@ function search_form_display(fieldname,fieldtype) {
 	//alert(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
+	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "fieldtype" : fieldtype,
 	        "search_parameters" : search_parameters,
@@ -108,6 +109,7 @@ function send_single_post_to_wp( post_id ) {
 	//console.log('here...' + fieldname);
 	var data = {
 	        "action" : 'get_widget_post_tpl',
+	        "post_type": jQuery('#post_type').val(),
 	        "get_widget_post_tpl_nonce" : cctm.ajax_nonce,
 	       	"post_id": post_id
 	    };
@@ -146,6 +148,7 @@ function thickbox_refine_search() {
 	var data = 
 		{
 	        "action" : 'post_content_widget',
+	        "post_type": jQuery('#post_type').val(),
 	        "post_content_widget_nonce" : cctm.ajax_nonce
 	    };
 	// This is how we maintain our existing parameters.
@@ -260,6 +263,7 @@ function thickbox_sort_results(sort_column) {
 	var data = 
 		{
 	        "action" : 'post_content_widget',
+	        "post_type": jQuery('#post_type').val(),
 	        "post_content_widget_nonce" : cctm.ajax_nonce
 	    };
 
