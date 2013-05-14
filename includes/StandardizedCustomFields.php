@@ -106,16 +106,19 @@ class StandardizedCustomFields {
 					$value_copy = $FieldObj->get_value($value, 'to_string');
 				}
 
-				
 				// Is this field required?  OR did validation fail?
 				if ($FieldObj->required) {
-					if ((is_array($value_copy) && !empty($value_copy))
+					if ((is_array($value_copy) && empty($value_copy))
 						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
 						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
+					}
+					elseif(!strlen(trim($value_copy))) {
+						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);					
 					}
 				}
 				// Do any other validation checks here: TODO
 				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
+				// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=374
 				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
 					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
 					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
@@ -141,7 +144,7 @@ class StandardizedCustomFields {
 				// error!  Can't include the field class.  WTF did you do to get here?
 			}
 		}
-		
+
 		if (empty(CCTM::$post_validation_errors)) {
 			return true;
 		}
@@ -510,19 +513,9 @@ class StandardizedCustomFields {
 								}
 							}
 						}
-						// Is this field required?  
-						if ($FieldObj->required && empty($value_copy)) {
 
-							// Override!! set post to draft status
-							global $wpdb;
-							$post_id = (int) CCTM::get_value($_POST, 'ID');
-							$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $post_id ) );
-							// set flash message to notify user
-							$validation_errors[$FieldObj->name] = 'required';
-							update_post_meta($post_id, $field_name, $value);
-						}
-						// We do some more work to ensure the database stays lean
-						elseif(empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
+                        // We do some more work to ensure the database stays lean
+						if(!strlen(trim($value_copy)) && !CCTM::get_setting('save_empty_fields')) {
 							// Delete the row from wp_postmeta, or don't write it at all
 							delete_post_meta($post_id, $field_name);
 						}

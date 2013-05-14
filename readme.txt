@@ -5,7 +5,7 @@ Tags: cms, content management, custom post types, custom content types, custom f
 Requires at least: 3.3.0
 Tested up to: 3.5.1
 Stable tag: 0.9.7.4
-Version: 0.9.7.4
+Version: 0.9.7.5-dev
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -13,7 +13,7 @@ Break out of your blog!  Create custom fields for dropdowns, images, and more!  
 
 http://www.youtube.com/watch?v=rbRHrdKwo5A
 
-The Custom Content Type Manager requires WordPress 3.3.  It allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality: Break out of your Blog!
+The Custom Content Type Manager (CCTM) allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images and more! This gives WordPress CMS functionality: Break out of your Blog!
 
 You can select multiple images, posts, or media items to be stored in a single field making it easy for you to store a gallery of images or long lists of values.  This plugin also lets you export and import your content definitions, making it easy to ensure a similar structure between multiple sites.
 
@@ -29,6 +29,13 @@ Please use the following links for support and discussion:
 * Participate in the [Forum](http://wordpress.org/tags/custom-content-type-manager?forum_id=10)
 * File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) or make feature requests.
 * Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
+
+= Requirements =
+
+* WordPress 3.3.0 or greater
+* PHP 5.2.6 or greater (5.3 recommended)
+* MySQL 4.1.2 or greater (5.x recommended)
+
 
 == Installation ==
 
