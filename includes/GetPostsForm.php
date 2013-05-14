@@ -183,7 +183,7 @@ class GetPostsForm {
 	 * @param string  $name the name of the field you want to search.
 	 * @return string html for this field element.
 	 */
-	public function __call($name) {
+	public function __call($name, $args=array()) {
 		//$ph = $this->placeholders;
 		$ph = array();
 		$ph['value'] = '';
@@ -1223,7 +1223,7 @@ class GetPostsForm {
 	public function generate($search_by=array(), $existing_values=array()) {
 
 		foreach ($existing_values as $k => $v) {
-			$this->Q->$k = $v; // to __call()
+			$this->Q->$k = $v; // to __set() on GetPostsQuery
 		}
 		$this->values = $this->Q->args; // from GetPostsQuery
 
@@ -1259,7 +1259,7 @@ class GetPostsForm {
 				$this->placeholders['content'] .= $this->placeholders[$p];
 			}
 			else {
-				$this->placeholders[$p] = $this->__call($p);
+				$this->placeholders[$p] = $this->__call($p,array());
 				// Keep the main 'content' bit populated.
 				$this->placeholders['content'] .= $this->placeholders[$p];
 				$this->errors['invalid_searchby_parameter'] = sprintf( __('Possible invalid search_by parameter:'), "<em>$p</em>");
