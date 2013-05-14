@@ -26,6 +26,7 @@
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');
 require_once(dirname(__FILE__) . '/../../../../wp-config.php');
+require_once('functions.php');
 class SummarizePostsUnitTests extends UnitTestCase {
 
 
@@ -127,12 +128,126 @@ class SummarizePostsUnitTests extends UnitTestCase {
 		$warnings = strip_tags($Q->get_warnings());
 		$this->assertTrue(strpos($warnings, 'Taxonomy does not exist: does_not_exist'));
 	}
+    
+    // Test for Join
+	function test_join() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['include'] = 1;
+		$args['join'] = 'taxonomy';
+
+		$results = $Q->get_posts($args);		
+		$this->assertTrue(isset($results[0]['taxonomy_names']));
+		$this->assertTrue(isset($results[0]['taxonomy_slugs']));
+		$this->assertTrue(!isset($results[0]['author']));
+		
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['include'] = 1;
+		$results = $Q->get_posts($args);		
+		$this->assertTrue(isset($results[0]['author']));
+		$this->assertTrue(!isset($results[0]['taxonomy_names']));
+	}
+
+    // Test summarize-posts shortcode
+	function test_summarize_posts1() {
+		$str = '[summarize-posts post_type="movie" tpl="x.tpl"]';
+		$actual = do_shortcode($str);
+		$expected = '<ul class="summarize-posts"><li>FROM FILE: Letters from Iwo Jima</li><li>FROM FILE: Harry Potter</li><li>FROM FILE: Bourne Identity</li><li>FROM FILE: Fellowship of the Ring</li><li>FROM FILE: Lord of the Rings</li></ul>';
+		$this->assertTrue(in_html($actual,$expected));
+	}
+	function test_summarize_posts2() {
+		$str = '[summarize-posts post_type="movie" join="taxonomy" tpl="x.tpl"]';
+		$actual = do_shortcode($str);
+		$expected = '<ul class="summarize-posts"><li>FROM FILE: Letters from Iwo Jima</li><li>FROM FILE: Harry Potter</li><li>FROM FILE: Bourne Identity</li><li>FROM FILE: Fellowship of the Ring</li><li>FROM FILE: Lord of the Rings</li></ul>';
+		$this->assertTrue(in_html($actual,$expected));
+	}
 
 	// Order By
+	function test_order_posts1() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'page';
+		$args['orderby'] = 'post_title';
+		$args['order'] = 'ASC';
+		$results = $Q->get_posts($args);
+		$this->assertTrue($results[0]['ID'] == 2);
+		$this->assertTrue($results[1]['ID'] == 17);
+		$this->assertTrue($results[2]['ID'] == 19);
+	}
 	
 	// Sort on Custom column
+	function test_order_posts2() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['orderby'] = 'rating';
+		$args['order'] = 'ASC';
+		$results = $Q->get_posts($args);
+		$this->assertTrue($results[0]['ID'] == 33);
+		$this->assertTrue($results[1]['ID'] == 77);
+		$this->assertTrue($results[2]['ID'] == 32);
+	}
+		
+	// Operators on custom columns
+	function test_get_posts_operators1() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['release_date']['>'] = '2013-02-01';
+		$results = $Q->get_posts($args);		
+		$this->assertTrue(count($results) == 1);
+		$this->assertTrue($results[0]['ID'] == 32);
+	}
+
+	function test_get_posts_operators2() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['release_date']['='] = '2005-06-01';
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 1);
+		$this->assertTrue($results[0]['ID'] == 78);
+	}
+
+
+	function test_get_posts_operators3() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['rating']['LIKE'] = 'G';
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 3);
+	}
+
+	function test_get_posts_operators4() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['release_date']['starts_with'] = '2005-';
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 1);
+		$this->assertTrue($results[0]['ID'] == 78);
+	}
 	
-	// complex sorting
+	function test_get_posts_operators5() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['rating']['NOT_LIKE'] = 'G'; // get the R films
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 2);
+	}	
+
+	function test_get_posts_operators6() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['post_title']['starts_with'] = 'L';
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 2);
+	}	
+
 
 }
  

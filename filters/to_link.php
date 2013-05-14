@@ -11,7 +11,7 @@ class CCTM_to_link extends CCTM_OutputFilter {
 	 * Apply the filter.
 	 *
 	 * @param 	mixed 	input: a single post ID or an array of them
-	 * @param	string	formatting string
+	 * @param	string	formatting string OR clickable title
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
@@ -21,6 +21,9 @@ class CCTM_to_link extends CCTM_OutputFilter {
 		// Gotta set the default here due to how print_custom_field calls get_custom_field
 		if (empty($options)) {
 			$options = '<a href="[+permalink+]" title="[+post_title+]">[+post_title+]</a>';
+		}
+		elseif(strpos($options,'[+') === false) {
+			$options = '<a href="[+permalink+]" title="[+post_title+]">'.$options.'</a>';		
 		}
 		$input = $this->to_array($input);
 		

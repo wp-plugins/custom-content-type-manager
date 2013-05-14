@@ -700,7 +700,7 @@ class GetPostsQuery {
 				if (is_numeric($k)) {
 					break; // if it's numeric, the operator was not supplied verbosely, so we assume '='
 				}
-				
+				$k = strtolower($k);
 				switch($k) {
 					case '!=':
 					case 'ne':
@@ -1485,7 +1485,7 @@ class GetPostsQuery {
 		
 		$sub_query = '';
 		$line_item_join_rule = 'OR'; // TODO
-		
+
 		switch($operator) {
 			case 'starts_with': 
 				if ( is_array($value) ) {
@@ -1558,7 +1558,7 @@ class GetPostsQuery {
 					return '';
 				}
 				
-				return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value $operator %s)", $wpdb->prepare('%s',$column), $value);
+				return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value $operator %s)", $wpdb->prepare('%s',$column), $wpdb->prepare('%s',$value));
 				
 				break;
 				

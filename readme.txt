@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.5.1
-Stable tag: 0.9.7.2
-Version: 0.9.7.2
+Stable tag: 0.9.7.3
+Version: 0.9.7.3
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -81,6 +81,7 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.7.3=
 
 * Fixes glitch in Summarize Posts shortcode.
+* Unit Tests added for Summarize Posts shortcode and operators.
 
 = 0.9.7.1=
 
