@@ -78,6 +78,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.7.3=
+
+* Fixes glitch in Summarize Posts shortcode.
+
 = 0.9.7.1=
 
 * Added support for cctm_post_form shortcode: now you can have users on the front-end create posts (see feature request 132).
@@ -410,6 +414,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.7.3 =
+
+* Patches glitch in 0.9.7.2 -- all users of 0.9.7.2 should run this upgrade.
 
 = 0.9.7.1 =
 

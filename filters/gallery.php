@@ -57,10 +57,10 @@ class CCTM_gallery extends CCTM_OutputFilter {
 				$this_image = imagecreatefromjpeg($r['guid']);
 			} 
 			elseif( $image_type == IMAGETYPE_GIF ) {
-				$this->image = imagecreatefromgif($r['guid']);
+				$this_image = imagecreatefromgif($r['guid']);
 			} 
 			elseif( $image_type == IMAGETYPE_PNG ) {
-				$this->image = imagecreatefrompng($r['guid']);
+				$this_image = imagecreatefrompng($r['guid']);
 			}
 		
 			if (isset($r['_wp_attachment_image_alt'])) {
