@@ -2506,8 +2506,8 @@ class CCTM {
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=360
-
 		// 	http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=458
+		// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=493
 		if ( substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1) == 'edit.php' 
 			&& self::get_value($_GET, 'post_type')) {
 			return $query;
@@ -2543,7 +2543,7 @@ class CCTM {
 
 		}
 		// Handle Year/Month Archives
-		elseif (isset($query['year']) && isset($query['monthnum'])) {
+		elseif (!isset($query['post_type']) && isset($query['year']) && isset($query['monthnum'])) {
 			// Get only public, custom post types
 			$args = array( 'public' => true, '_builtin' => false );
 			$public_post_types = get_post_types( $args );
@@ -2563,8 +2563,8 @@ class CCTM {
 
 		}
 		// Ensure category pages show all available post-types
-		elseif ((isset($query['category_name']) && !empty($query['category_name'])) 
-			|| (isset($query['cat']) && !empty($query['cat']))) {
+		elseif (!isset($query['post_type']) && ((isset($query['category_name']) && !empty($query['category_name'])) 
+			|| (isset($query['cat']) && !empty($query['cat'])))) {
 			if (!isset($query['page'])) { // <-- on a true category page, this won't be set
 				$args = array( 'public' => true, '_builtin' => false );
 				$public_post_types = get_post_types( $args );

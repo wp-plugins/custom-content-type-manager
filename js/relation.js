@@ -218,7 +218,7 @@ yet have a fieldname.
 ------------------------------------------------------------------------------*/
 function search_form_display(fieldname,fieldtype) {
 	var search_parameters = jQuery('#search_parameters').val();
-	console.log(search_parameters);
+	// console.log(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
 	        "post_type": jQuery('#post_type').val(),
@@ -335,7 +335,7 @@ Similar to the send_selected_posts_to_wp() function.
 @param	integer	post_id is the ID of the attachment that has been selected
 ------------------------------------------------------------------------------*/
 function send_single_post_to_wp( post_id ) {
-	// It's easier to read it from a hidden field than it is to pass it to this function
+	// Read this from a hidden field inside views/templates/thickbox.php
 	var fieldname = jQuery('#fieldname').val();
 	var data = {
 	        "action" : 'get_selected_posts',

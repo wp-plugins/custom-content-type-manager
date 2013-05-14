@@ -25,6 +25,7 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 $d = array(); 
 $d['search_parameters'] = '';
 $d['fieldname'] 		= '';
+$d['fieldtype']         = '';
 $d['menu']				= '';
 $d['search_form']		= '';
 $d['content']			= '';
@@ -44,6 +45,7 @@ $Form = new GetPostsForm();
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
 $fieldtype = CCTM::get_value($_POST, 'fieldtype');
+$d['fieldtype'] = $fieldtype;
 
 if (empty($raw_fieldname) && empty($fieldtype)) {
 	print '<pre>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</pre>';

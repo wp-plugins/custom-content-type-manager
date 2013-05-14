@@ -22,6 +22,7 @@ $d = array();
 $d['search_parameters'] = '';
 $d['menu']				= '';
 $d['fieldname']			= ''; // needed for thickbox.php
+$d['fieldtype']         = ''; // needed for thickbox.php
 $d['search_form']		= '';
 $d['content']			= '';
 $d['page_number']		= '0'; 

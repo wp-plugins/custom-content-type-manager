@@ -26,6 +26,7 @@ serialization.
 
 	<form id="select_posts_form" onkeypress="return disableEnterKey(event)">
 		<input type="hidden" name="fieldname" id="fieldname" value="<?php print $data['fieldname']; ?>" />
+		<input type="hidden" name="fieldtype" id="fieldtype" value="<?php print $data['fieldtype']; ?>" />
 		<input type="hidden" name="page_number" id="page_number" value="<?php print $data['page_number']; ?>" />
 		<input type="hidden" name="orderby" id="orderby" value="<?php print $data['orderby']; ?>" />
 		<input type="hidden" name="order" id="order" value="<?php print $data['order']; ?>" />
