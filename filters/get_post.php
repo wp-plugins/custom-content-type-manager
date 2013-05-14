@@ -23,7 +23,9 @@ class CCTM_get_post extends CCTM_OutputFilter {
 		else {
 			$output = array();
 		}
-		
+		if (empty($input)) {
+		  return false;
+		}
 		if ($this->is_array_input) {
 			foreach ($input as $k => $item) {
 				$item = (int) $item;

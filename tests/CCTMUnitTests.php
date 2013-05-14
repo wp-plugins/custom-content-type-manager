@@ -269,6 +269,9 @@ class CCTMUnitTests extends UnitTestCase {
 		
 		$post_title = CCTM::filter(1,'get_post','[+post_title+]');
 		$this->assertTrue($post_title =='Post1');
+		
+		$result = CCTM::filter(null,'get_post','[+post_title+]');
+		$this->assertTrue($result ==false);
 	}
 	
 	// raw
