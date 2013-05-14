@@ -162,6 +162,13 @@ class SummarizePostsUnitTests extends UnitTestCase {
 		$expected = '<ul class="summarize-posts"><li>FROM FILE: Letters from Iwo Jima</li><li>FROM FILE: Harry Potter</li><li>FROM FILE: Bourne Identity</li><li>FROM FILE: Fellowship of the Ring</li><li>FROM FILE: Lord of the Rings</li></ul>';
 		$this->assertTrue(in_html($actual,$expected));
 	}
+	function test_summarize_posts3() {
+		$str = '[summarize-posts post_type="movie" before="AAAA..." after="...ZZZZ" tpl="x.tpl" help="1"]';
+		$actual = do_shortcode($str);
+		$expected = 'AAAA...<li>FROM FILE: Letters from Iwo Jima</li><li>FROM FILE: Harry Potter</li><li>FROM FILE: Bourne Identity</li><li>FROM FILE: Fellowship of the Ring</li><li>FROM FILE: Lord of the Rings</li>...ZZZZ';
+		$this->assertTrue(in_html($actual,$expected));
+	}
+
 
 	// Order By
 	function test_order_posts1() {

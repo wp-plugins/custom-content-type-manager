@@ -38,7 +38,6 @@ class SummarizePosts {
 
 	// These are defaults for OTHER settings, outside of the get_posts()
 	public static $formatting_defaults = array(
-		'get_meta'  => false,
 		'before'   => '<ul class="summarize-posts">',
 		'after'   => '</ul>',
 		'paginate'   => false,
@@ -193,7 +192,6 @@ class SummarizePosts {
 	 * 'post_parent'     => ,
 	 * 'post_status'     => 'publish'
 	 * * CUSTOM **
-	 * get_meta
 	 * before
 	 * after
 	 * paginate true|false
@@ -287,12 +285,13 @@ class SummarizePosts {
 			$raw_args = array();
 		}
 
-		$formatting_args = shortcode_atts( self::$formatting_defaults, $raw_args );
+		$formatting_args = shortcode_atts(self::$formatting_defaults, $raw_args);
 		$formatting_args['tpl_str'] = self::_get_tpl($content_str, $formatting_args);
-		
+
 		// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=427
-		if (isset($raw_args['tpl']) ) {
-            unset($raw_args['tpl']);
+        // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=483
+        foreach (self::$formatting_defaults as $k => $v) {
+            unset($raw_args[$k]);
         }
         
 		$output = '';
