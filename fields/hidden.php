@@ -80,7 +80,7 @@ class CCTM_hidden extends CCTM_FormElement {
 	public function get_create_field_instance() {
 
 		// Populate the values (i.e. properties) of this field
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$fieldtpl = '';
 		$wrappertpl = '';

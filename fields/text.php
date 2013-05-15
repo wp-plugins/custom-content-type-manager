@@ -75,7 +75,7 @@ class CCTM_text extends CCTM_FormElement
 	public function get_edit_field_instance($current_value) {
 
 		// Populate the values (i.e. properties) of this field
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 		$fieldtpl = '';
 		$wrappertpl = '';
 

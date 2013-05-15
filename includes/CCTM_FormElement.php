@@ -238,8 +238,9 @@ abstract class CCTM_FormElement {
 	/**
 	 * This runs when the WP dashboard (i.e. admin area) is initialized.
 	 * Override this function to register any necessary CSS/JS req'd by your field.
+	 * @param array $fieldlist optional list of names of this type of field
 	 */
-	public function admin_init() { }
+	public function admin_init($fieldlist=array()) { }
 
 	//------------------------------------------------------------------------------
 	/**
@@ -897,6 +898,7 @@ abstract class CCTM_FormElement {
 		}
 		else {
 			$this->errors['improper_input_set_props'] = __('Improper input to the set_prop() function.', CCTM_TXTDOMAIN);
+			return false;
 		}
 	}
 	
@@ -907,6 +909,7 @@ abstract class CCTM_FormElement {
 	public function set_props($array) {
 		if (!is_array($array)) {
 			$this->errors['improper_input_set_props'] = __('Improper input to the set_props() function.', CCTM_TXTDOMAIN);
+			return false;
 		}
 		
 		foreach ($array as $k => $v) {

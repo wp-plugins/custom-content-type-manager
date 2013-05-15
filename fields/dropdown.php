@@ -28,7 +28,7 @@ class CCTM_dropdown extends CCTM_FormElement
 	/**
 	 * Register the appropriatejs
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
 		wp_enqueue_script('cctm_dropdown');
 	}
@@ -234,7 +234,7 @@ class CCTM_dropdown extends CCTM_FormElement
 
 
 		// Populate the values (i.e. properties) of this field
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 		$this->value    = htmlspecialchars( html_entity_decode($current_value) );
 
 		// wrap

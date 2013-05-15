@@ -112,7 +112,7 @@ class CCTM_checkbox extends CCTM_FormElement
 			)
 		);
 
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 		$this->value    = htmlspecialchars($this->checked_value);
 		$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		return CCTM::parse($wrappertpl, $this->get_props());

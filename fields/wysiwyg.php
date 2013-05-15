@@ -70,7 +70,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$wrappertpl = CCTM::load_tpl(
 			array('fields/wrappers/'.$this->name.'.tpl'

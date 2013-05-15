@@ -44,10 +44,9 @@ $Form = new GetPostsForm();
 //! Validation
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
-$fieldtype = CCTM::get_value($_POST, 'fieldtype');
-$d['fieldtype'] = $fieldtype;
+$d['fieldtype'] = CCTM::get_value($_POST, 'fieldtype');
 
-if (empty($raw_fieldname) && empty($fieldtype)) {
+if (empty($raw_fieldname) && empty($d['fieldtype'])) {
 	print '<pre>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</pre>';
 	return;
 }
@@ -58,8 +57,8 @@ $fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $raw_
 
 $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
 //print '<pre>'.print_r($def, true).'</pre>';
-if (!empty($fieldtype)) {
-	$def['type'] = $fieldtype;
+if (!empty($d['fieldtype'])) {
+	$def['type'] = $d['fieldtype'];
 }
 elseif (empty($def)) {
 	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>').'</p>';

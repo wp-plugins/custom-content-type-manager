@@ -25,7 +25,7 @@ class CCTM_colorselector extends CCTM_FormElement
 	/**
 	 * Add some necessary Javascript
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
 	}
 
@@ -157,7 +157,7 @@ class CCTM_colorselector extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 		// Populate the values (i.e. properties) of this field
-		$this->id 					= $this->name; 
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$fieldtpl = '';
 		$wrappertpl = '';

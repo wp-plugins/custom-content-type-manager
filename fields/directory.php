@@ -176,7 +176,7 @@ class CCTM_directory extends CCTM_FormElement
 
 
 		// Populate the values (i.e. properties) of this field
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		// wrap
 		$this->content = CCTM::parse($fieldtpl, $this->get_props());

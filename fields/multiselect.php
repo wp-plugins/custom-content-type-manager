@@ -29,7 +29,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	/**
 	 * Register the appropriatejs
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
 		wp_enqueue_script('cctm_dropdown');
 	}
@@ -89,7 +89,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->id = $this->name; 
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$optiontpl = '';
 		$fieldtpl = '';

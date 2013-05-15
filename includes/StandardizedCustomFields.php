@@ -65,93 +65,6 @@ class StandardizedCustomFields {
 		}
 	}
 
-	//------------------------------------------------------------------------------
-	/**
-	 * Validate custom fields on a post that's already been saved.
-	 *
-	 * @param string $post_type
-	 * @param array $full_post array of all submitted values
-	 * @return boolean : true if valid, false if there were errors
-	 */
-	public static function validate_fields($post_type,$full_post) {
-
-		$custom_fields = self::_get_custom_fields($post_type);
-		$validation_errors = array();
-		foreach ( $custom_fields as $field_name ) {
-			if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
-				continue;
-			}
-			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
-			
-			if ($FieldObj = CCTM::load_object($field_type,'fields')) {
-				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
-				$value = '';
-				if (isset($full_post[$field_name])) {
-					$value = $full_post[$field_name];
-				}
-				
-				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
-				$value_copy = '';
-				if ($FieldObj->is_repeatable) {
-					$value_copy = $FieldObj->get_value($value, 'to_array');
-					if (is_array($value_copy)) {
-						foreach ($value_copy as $k => $v) {
-							if (empty($v)) {
-								unset($value_copy[$k]);
-							}
-						}
-					}
-				}
-				else {
-					$value_copy = $FieldObj->get_value($value, 'to_string');
-				}
-
-				// Is this field required?  OR did validation fail?
-				if ($FieldObj->required) {
-					if ((is_array($value_copy) && empty($value_copy))
-						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
-						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
-					}
-					elseif(!strlen(trim($value_copy))) {
-						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);					
-					}
-				}
-				// Do any other validation checks here: TODO
-				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
-				// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=374
-				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
-					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
-					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
-						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
-					}
-					$Validator->set_subject($FieldObj->label);
-					$Validator->set_options($FieldObj->validator_options);
-					if (is_array($value_copy)) {
-						foreach ($value_copy as $i => $val) {
-							$value_copy[$i] = $Validator->validate($val);
-						}
-					}
-					else {
-						$value_copy = $Validator->validate($value_copy);
-					}					
-					if (!empty($Validator->error_msg)) {
-						CCTM::$post_validation_errors[$FieldObj->name] = $Validator->get_error_msg();
-					}
-				}
-				
-			}
-			else {
-				// error!  Can't include the field class.  WTF did you do to get here?
-			}
-		}
-
-		if (empty(CCTM::$post_validation_errors)) {
-			return true;
-		}
-		else {
-			return false;
-		}		
-	}
 
 	//------------------------------------------------------------------------------
 	//! Public Functions	
@@ -515,7 +428,10 @@ class StandardizedCustomFields {
 						}
 
                         // We do some more work to ensure the database stays lean
-						if(!strlen(trim($value_copy)) && !CCTM::get_setting('save_empty_fields')) {
+                        if(is_array($value_copy) && empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
+                            delete_post_meta($post_id, $field_name);
+                        }
+						if(!is_array($value_copy) && !strlen(trim($value_copy)) && !CCTM::get_setting('save_empty_fields')) {
 							// Delete the row from wp_postmeta, or don't write it at all
 							delete_post_meta($post_id, $field_name);
 						}
@@ -544,6 +460,93 @@ class StandardizedCustomFields {
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Validate custom fields on a post that's already been saved.
+	 *
+	 * @param string $post_type
+	 * @param array $full_post array of all submitted values
+	 * @return boolean : true if valid, false if there were errors
+	 */
+	public static function validate_fields($post_type,$full_post) {
+
+		$custom_fields = self::_get_custom_fields($post_type);
+		$validation_errors = array();
+		foreach ( $custom_fields as $field_name ) {
+			if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
+				continue;
+			}
+			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
+			
+			if ($FieldObj = CCTM::load_object($field_type,'fields')) {
+				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
+				$value = '';
+				if (isset($full_post[$field_name])) {
+					$value = $full_post[$field_name];
+				}
+				
+				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
+				$value_copy = '';
+				if ($FieldObj->is_repeatable) {
+					$value_copy = $FieldObj->get_value($value, 'to_array');
+					if (is_array($value_copy)) {
+						foreach ($value_copy as $k => $v) {
+							if (empty($v)) {
+								unset($value_copy[$k]);
+							}
+						}
+					}
+				}
+				else {
+					$value_copy = $FieldObj->get_value($value, 'to_string');
+				}
+
+				// Is this field required?  OR did validation fail?
+				if ($FieldObj->required) {
+					if ((is_array($value_copy) && empty($value_copy))
+						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
+						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
+					}
+					elseif(!strlen(trim($value_copy))) {
+						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);					
+					}
+				}
+				// Do any other validation checks here: TODO
+				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
+				// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=374
+				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
+					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
+					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
+						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
+					}
+					$Validator->set_subject($FieldObj->label);
+					$Validator->set_options($FieldObj->validator_options);
+					if (is_array($value_copy)) {
+						foreach ($value_copy as $i => $val) {
+							$value_copy[$i] = $Validator->validate($val);
+						}
+					}
+					else {
+						$value_copy = $Validator->validate($value_copy);
+					}					
+					if (!empty($Validator->error_msg)) {
+						CCTM::$post_validation_errors[$FieldObj->name] = $Validator->get_error_msg();
+					}
+				}
+				
+			}
+			else {
+				// error!  Can't include the field class.  WTF did you do to get here?
+			}
+		}
+
+		if (empty(CCTM::$post_validation_errors)) {
+			return true;
+		}
+		else {
+			return false;
+		}		
+	}
 
 } // End of class
 

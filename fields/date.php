@@ -34,8 +34,7 @@ class CCTM_date extends CCTM_FormElement
 	/**
 	 * Add some necessary Javascript/CSS.
 	 */
-	public function admin_init() {
-	
+	public function admin_init($fieldlist=array()) {
 		// Standard Datepicker		
 		wp_enqueue_script( 'jquery-ui-datepicker', CCTM_URL . '/js/datepicker.js', 'jquery-ui-core');
 		// Datetime Picker
@@ -118,7 +117,7 @@ class CCTM_date extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$fieldtpl = '';
 		$wrappertpl = '';

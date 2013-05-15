@@ -71,7 +71,7 @@ class CCTM_textarea extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->id   = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 
 		$fieldtpl = '';

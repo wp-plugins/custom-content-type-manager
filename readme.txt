@@ -85,6 +85,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.7.5 =
+
+* Adding new Relation-Meta field.
+
 = 0.9.7.4=
 
 * A few more minor fixes.
@@ -426,6 +430,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.7.5 =
+
+* Added Relation-Meta field. If you have customized any of your manager tpls (especially for any relation, image, or media fields) then please note the new function arguments for the thickbox_results() javascript function!  It is recommended you rename your uploads/cctm folder prior to upgrading and clear your tpl cache (CCTM -> Clear Cache): this will force the default tpls to load, and then you can re-add your customizations.
 
 = 0.9.7.4 =
 

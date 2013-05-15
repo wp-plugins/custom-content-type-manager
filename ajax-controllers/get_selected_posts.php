@@ -135,6 +135,44 @@ foreach($results as $r) {
 	$r['post_title'] = __($r['post_title']);
 	$r['post_content'] = __($r['post_content']);
 	$r['post_excerpt'] = __($r['post_excerpt']);
+	
+	// Special Stuff for RelationMeta fields: generate the other form elements
+	// TODO: put this as a method in CCTM_FormElement to make it extendable? 
+	if ($def['type']=='relationmeta') {
+	   
+        $r['metafields'] = '';
+	   
+        // Custom fields		
+        $custom_fields = CCTM::get_value($def, 'metafields', array());
+        $relationmeta_tpl = CCTM::load_tpl(
+    		array('fields/options/'.$def['name'].'.tpl'
+    			, 'fields/options/_relationmeta.tpl'
+    		)
+    	);      
+        foreach ( $custom_fields as $cf ) {
+        	// skip the field if it no longer exists
+        	if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
+        		continue;
+        	}
+        	$d = CCTM::$data['custom_field_defs'][$cf];
+        	if (isset($d['required']) && $d['required'] == 1) {
+        		$d['label'] = $d['label'] . '*'; // Add asterisk
+        	}
+
+        	$output_this_field = '';
+        	if (!$FieldObj = CCTM::load_object($d['type'],'fields')) {
+        		continue;
+        	}
+        
+            $d['name'] = $fieldname.'['.$r['ID'].']['.$d['name'].']';
+            $d['is_repeatable'] = false; // override
+            $FieldObj->set_props($d);
+            $output_this_field = $FieldObj->get_create_field_instance();
+            $r['metafields'] .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
+        }
+	
+
+	}
 
 	print CCTM::parse($tpl, $r);
 }

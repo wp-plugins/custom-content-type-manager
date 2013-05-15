@@ -28,7 +28,7 @@ class CCTM_media extends CCTM_FormElement
 	/**
 	 * Thickbox support
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_enqueue_script('media-upload');
 		wp_enqueue_script('thickbox');
 		wp_register_script('cctm_relation', CCTM_URL.'/js/relation.js', array('jquery', 'media-upload', 'thickbox'));
@@ -176,7 +176,7 @@ class CCTM_media extends CCTM_FormElement
 		$Q = new GetPostsQuery();
 
 		// Populate the values (i.e. properties) of this field
-		$this->id   = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 		$this->content  = '';
 
 		$this->post_id = $this->value;

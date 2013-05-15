@@ -1,6 +1,7 @@
 /*------------------------------------------------------------------------------
 The relation fields require a lot of Javascript to handle the Ajax functionality
-that goes into the Thickbox.
+that makes the Thickbox work and makes it interact with the WordPress page
+underneath it.
 
 Note that the cctm_upload function overrides WP's send_to_editor() function!!!
 
@@ -30,7 +31,7 @@ var append_or_replace = 'append';
 //------------------------------------------------------------------------------
 
 /*------------------------------------------------------------------------------
-This pops WP's media uploader
+This pops WP's media uploader (from WP, not from the thickbox)
 http://www.webmaster-source.com/2010/01/08/using-the-wordpress-uploader-in-your-plugin-or-theme/
 
 TODO: Redo this to use our own uploader that doesn't suck...
@@ -39,9 +40,13 @@ would ever be used for anything other than to select a featured post.  So we hav
 to override the send_to_editor() function so we can alter the behavior so it 
 inserts into our custom field instead of to the destinations hard-coded by WP.
 
-In this function, I restore the the original WP function.
+In this function, I override and then restore the the original WP function.
+
+@param string fieldname unique name of the field in the CCTM 
+@param string fieldtype type of field e.g. dropbox, relation
+@param string upload_type, either 'append' for multi-fields or 'replace' for singles
 ------------------------------------------------------------------------------*/
-function cctm_upload(fieldname, upload_type) {
+function cctm_upload(fieldname, fieldtype, upload_type) {
 
 	cctm_fieldname = fieldname; // pass this to global scope
 	append_or_replace = upload_type; // pass this to global scope
@@ -62,19 +67,17 @@ function cctm_upload(fieldname, upload_type) {
 
 		if (matches != null) {
     		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=404
-    		// could be something like http://mysite.com/?attachment_id=412 or http://mysite.com/wp-content/uploads/2012/08/my-image.jpg
-    		// Or alt. size: http://mysite.com/wp-content/uploads/2012/06/IMG_0448-150x150.jpg
+    		// could be something like http://mysite.com/?attachment_id=412 
+    		// or http://mysite.com/wp-content/uploads/2012/08/my-image.jpg
+    		// or alt. size: http://mysite.com/wp-content/uploads/2012/06/IMG_0448-150x150.jpg
     		attachment_guid = matches[1];
-    		
-			//var more_match = matches.attachment_guid(/\d{2,3}x\d{2,3}.*{3,4}$/);
-			
-			//console.log(more_match);
     	}
     	
 		var data = {
-		        "action" : 'get_selected_posts',
+		        "action" : "get_selected_posts",
 		        "post_type": jQuery('#post_type').val(),
 		        "fieldname" : cctm_fieldname, // Read from global scope
+		        "fieldtype" : fieldtype,
 		        "guid": attachment_guid,
 		        "get_selected_posts_nonce" : cctm.ajax_nonce
 		    };
@@ -158,15 +161,17 @@ Used for flipping through pages of thickbox'd search results.
 ------------------------------------------------------------------------------*/
 function change_page(page_number) {
 
-	// It's easier to read it from a hidden field than it is to pass it to this function
+	// read from a hidden field on the thickbox.php template
 	var fieldname = jQuery('#fieldname').val();
-
+	var fieldtype = jQuery('#fieldtype').val();
+	
 	jQuery('#page_number').val(page_number); // store the value so it can be serialized
 
 	var data = {
 	        "action" : 'get_posts',
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	    
@@ -210,15 +215,14 @@ function save_and_close() {
 /*------------------------------------------------------------------------------
 Shows a search form from the "edit custom field" definition.
 We send along the fieldname and fieldtype to allow for customizations.
-On new definitions, the behavior defaults to the fieldtype because we don't 
+On new field definitions we need the fieldtype because we don't 
 yet have a fieldname.
 
 @param	fieldname	string	name of the field
-@param	fieldtyp	string	type of field (e.g. relation, image)
+@param	fieldtype	string	type of field (e.g. relation, image)
 ------------------------------------------------------------------------------*/
 function search_form_display(fieldname,fieldtype) {
 	var search_parameters = jQuery('#search_parameters').val();
-	// console.log(search_parameters);
 	var data = {
 	        "action" : 'get_search_form',
 	        "post_type": jQuery('#post_type').val(),
@@ -259,12 +263,11 @@ See also search_form_display(), which popped the search_form to begin with.
 ------------------------------------------------------------------------------*/
 function search_parameters_save(form_id) {
 	var search_parameters = jQuery('#'+form_id).serialize();
-	//alert(search_parameters);
 	jQuery('#search_parameters').val(search_parameters);
 	
 	// Visually print out the new search parameters
 	var data = {
-	        "action" : 'summarize_posts_get_args',
+	        "action" : "summarize_posts_get_args",
 	        "post_type": jQuery('#post_type').val(),
 	        "search_parameters" : search_parameters,
 	        "summarize_posts_get_args_nonce" : cctm.ajax_nonce
@@ -278,26 +281,25 @@ function search_parameters_save(form_id) {
 	    }
 	);
 	tb_remove();
-//	alert('Search parameters saved.');
 }
 
 
-
 /*------------------------------------------------------------------------------
-Adds posts checked in the thickbox to the parent post. (used by relation fields
-with "is-repeatable" checked).  This does the magic thusly:
+Adds posts checked in the thickbox to the parent page that launched the thickbox. 
+(used by relation fields with "is-repeatable" checked).  This does the magic thusly:
 
 	1. Get all the checked posts and read their post_id's
-	2. Hide that post from the current search form (so you can't select it twice)
+	2. Hide those posts from the current search form (so you can't select 'em twice)
 	3. Generate html for the preview of these post_id's (via ajax)
 	4. Append (not overwrite) that data to the post/page
 
 Similar to the send_single_post_to_wp() function.
 ------------------------------------------------------------------------------*/
 function send_selected_posts_to_wp() {
-	// It's easier to read it from a hidden field than it is to pass it to this function
+	// read from a hidden field on the thickbox.php template
 	var fieldname = jQuery('#fieldname').val();
-
+	var fieldtype = jQuery('#fieldtype').val();
+	
 	var post_ids = new Array();
 	jQuery('#cctm_thickbox_content input:checked').each(function() {
 		var post_id = jQuery(this).val();
@@ -310,6 +312,7 @@ function send_selected_posts_to_wp() {
 	        "action" : 'get_selected_posts',
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "post_id": post_ids,
 	        "get_selected_posts_nonce" : cctm.ajax_nonce
 	    };
@@ -337,10 +340,13 @@ Similar to the send_selected_posts_to_wp() function.
 function send_single_post_to_wp( post_id ) {
 	// Read this from a hidden field inside views/templates/thickbox.php
 	var fieldname = jQuery('#fieldname').val();
+    var fieldtype = jQuery('#fieldtype').val();
+
 	var data = {
 	        "action" : 'get_selected_posts',
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "post_id": post_id,
 	        "get_selected_posts_nonce" : cctm.ajax_nonce
 	    };
@@ -369,9 +375,10 @@ search form are read and preserved.
 @param	string	form_id: the form which contains the additional search parameters
 ------------------------------------------------------------------------------*/
 function thickbox_refine_search() {
-	// It's easier to read it from a hidden field than it is to pass it to this function
+	// read from a hidden field on template.php
 	var fieldname = jQuery('#fieldname').val();
-	
+	var fieldtype = jQuery('#fieldtype').val();
+		
 	jQuery('#page_number').val('0');
 	
 	var data = 
@@ -379,6 +386,7 @@ function thickbox_refine_search() {
 	        "action" : 'get_posts',
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	// This is how we maintain our existing parameters.
@@ -402,9 +410,10 @@ Reset search -- back to the original results
 @param	string	form_id: the form which contains the additional search parameters
 ------------------------------------------------------------------------------*/
 function thickbox_reset_search() {
-	// It's easier to read it from a hidden field than it is to pass it to this function
+	// read from a hidden field on thickbox.php template
 	var fieldname = jQuery('#fieldname').val();
-	
+	var fieldtype = jQuery('#fieldtype').val();
+		
 	jQuery('#page_number').val('0');
 	
 	var data = 
@@ -412,6 +421,7 @@ function thickbox_reset_search() {
 	        "action" : 'get_posts',
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 	data.search_parameters = '';
@@ -428,9 +438,10 @@ function thickbox_reset_search() {
 }
 
 /*------------------------------------------------------------------------------
-This is the generic CCTM thickbox showing selectable search results: 
-i.e. the "Post Selector".  It allows user to select one or many posts for use 
-in a relation field (image, media).
+This is the function that launches the thickbox from the WP edit post page 
+and shows a thickbox of selectable search results: i.e. the "Post Selector".  
+It allows user to select one or many posts for use in a relation field 
+(image, media, etc).
 
 If omit_existing_values is passed as true, then the post-selector pop-up
 will not display any posts that have already been selected. This creates 
@@ -439,9 +450,10 @@ list to another.  We use it for the multi-select fields where we don't
 want the user adding the same post over and over again.
 
 @param	string css_field_id	field id, e.g. cctm_pics
+@param  string fieldtype e.g. dropdown, relation, etc
 @param	boolean omit_existing_values
 ------------------------------------------------------------------------------*/
-function thickbox_results(css_field_id, omit_existing_values) {
+function thickbox_results(css_field_id, fieldtype, omit_existing_values) {
 
 	var existing_values = new Array();
 	if (omit_existing_values) {
@@ -449,9 +461,6 @@ function thickbox_results(css_field_id, omit_existing_values) {
 			existing_values.push(jQuery(this).val());
 		});
 	}
-	
-	// Optional fieldtype: present in the field definitions
-	var fieldtype = jQuery('#fieldtype').val();
 	
 	jQuery.post(
 	    cctm.ajax_url,
@@ -471,7 +480,7 @@ function thickbox_results(css_field_id, omit_existing_values) {
 			var width = jQuery(window).width(), H = jQuery(window).height(), W = ( 720 < width ) ? 720 : width;
 			W = W - 80;
 			H = H - 84;
-			// then thickbox the div
+			// then show the thickbox the div
 			tb_show('', '#TB_inline?width=' + W + '&height=' + H + '&inlineId=target_'+css_field_id );			
 	    }
 	);	
@@ -482,8 +491,9 @@ Fired when a column header is clicked.
 @param	string	sort_column the column we want to sort by.
 ------------------------------------------------------------------------------*/
 function thickbox_sort_results(sort_column) {
-		// It's easier to read it from a hidden field than it is to pass it to this function
+    // Read from a hidden field than it is to pass it to this function
 	var fieldname = jQuery('#fieldname').val();
+	var fieldtype = jQuery('#fieldtype').val();
 	var order = jQuery('#order').val();
 	var orderby = jQuery('#orderby').val(); 
 	
@@ -504,6 +514,7 @@ function thickbox_sort_results(sort_column) {
 	        "action" : 'get_posts',
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
+	        "fieldtype" : fieldtype,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
 

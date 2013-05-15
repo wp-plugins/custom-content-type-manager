@@ -1,6 +1,6 @@
 <?php
 /**
- * CCTM_relation
+ * CCTM_relationmeta
  *
  * Implements a special AJAX form element used to store a wp_posts.ID representing
  * another post of some kind
@@ -9,7 +9,7 @@
  */
 
 
-class CCTM_relation extends CCTM_FormElement
+class CCTM_relationmeta extends CCTM_FormElement
 {
 	public $props = array(
 		'label' => '',
@@ -22,7 +22,8 @@ class CCTM_relation extends CCTM_FormElement
 		'required' => '',
 		'default_value' => '',
 		'search_parameters' => '',
-		'output_filter' => 'to_link_href',
+		'output_filter' => '',
+		'metafields' => array()
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
@@ -38,6 +39,21 @@ class CCTM_relation extends CCTM_FormElement
 		wp_enqueue_script('thickbox');
 		wp_register_script('cctm_relation', CCTM_URL.'/js/relation.js', array('jquery', 'media-upload', 'thickbox'));
 		wp_enqueue_script('cctm_relation');
+
+		// Bit of a wormhole here: Load up the children's req's, organize into fieldtypes
+		$fieldtypes = array();
+        foreach ($fieldlist as $f) {
+            $metafields = CCTM::get_value(CCTM::$data['custom_field_defs'][$f], 'metafields');
+            foreach ($metafields as $mf) {
+                $type = CCTM::get_value(CCTM::$data['custom_field_defs'][$mf], 'type');
+                $fieldtypes[$type][] = $mf;
+            }
+		}
+		foreach($fieldtypes as $ft => $list) {
+            if ($FieldObj = CCTM::load_object($ft, 'fields')) {			
+				$FieldObj->admin_init($list);
+			}
+		}
 	}
 
 
@@ -136,7 +152,7 @@ class CCTM_relation extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_name() {
-		return __('Relation', CCTM_TXTDOMAIN);
+		return __('Relation-Meta (EXPERIMENTAL)', CCTM_TXTDOMAIN);
 	}
 
 
@@ -149,7 +165,7 @@ class CCTM_relation extends CCTM_FormElement
 	 * @return string text description
 	 */
 	public function get_description() {
-		return __('Relation fields are used to store a reference to another post, including media posts. For example you can use a relation to link to a parent post or to an image or attachment.', CCTM_TXTDOMAIN);
+		return __('Relation-Meta fields are advanced fields that allow you to add meta data to a selected relation, allowing you to create complex data models.  You can select a related page, for example, and then add a page-rank to that relation.', CCTM_TXTDOMAIN);
 	}
 
 
@@ -162,7 +178,7 @@ class CCTM_relation extends CCTM_FormElement
 	 * @return string  e.g. http://www.yoursite.com/some/page.html
 	 */
 	public function get_url() {
-		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Relation';
+		return 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/RelationMeta';
 	}
 
 
@@ -174,7 +190,7 @@ class CCTM_relation extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
-
+        
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
 		$Q = new GetPostsQuery();
@@ -196,7 +212,7 @@ class CCTM_relation extends CCTM_FormElement
 
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_relation_multi.tpl'
+					, 'fields/elements/_relationmeta_multi.tpl'
 				)
 			);
 
@@ -233,13 +249,17 @@ class CCTM_relation extends CCTM_FormElement
 		}
 		// Regular old Single-selection
 		else {
+            error_log('Current Value::: '.print_r($current_value,true));
+			//$this->post_id    = $this->get_value($current_value,'ignored'); 
 
-			$this->post_id    = $this->get_value($current_value,'to_string'); 
-			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
-
+            $relationmeta_tpl = CCTM::load_tpl(
+        		array('fields/options/'.$this->name.'.tpl'
+        			, 'fields/options/_relationmeta.tpl'
+        		)
+        	);
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
-					, 'fields/elements/_relation.tpl'
+					, 'fields/elements/_relationmeta.tpl'
 				)
 			);
 
@@ -249,23 +269,52 @@ class CCTM_relation extends CCTM_FormElement
 				)
 			);
 
-			if ($this->post_id) {
-				// Look up all the data on that foriegn key
-				// We gotta watch out: what if the related post has custom fields like "description" or 
-				// anything that would conflict with the definition?
-				$post = $Q->get_post($this->post_id);
-				if (empty($post)) {
-					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $this->post_id).'</p></div>';
-				}
-				else {
-					foreach($post as $k => $v) {
-						// Don't override the def's attributes!
-						if (!isset($this->$k)) {
-							$this->$k = $v;
-						}
-					}
-					$this->content = CCTM::parse($fieldtpl, $this->get_props());				
-				}
+			$data    = $this->get_value($current_value,'ignored'); 
+			
+
+			if ($data) {
+//			 print_r($data); exit;
+			     foreach ($data as $post_id => $metafields) {
+    				// Look up all the data on those foriegn keys
+    				// We gotta watch out: what if the related post has custom fields like "description" or 
+    				// anything that would conflict with the definition?
+    				$post = $Q->get_post($post_id);
+    				$this->thumbnail_url = CCTM::get_thumbnail($post_id);
+    				if (empty($post)) {
+    					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $post_id).'</p></div>';
+    				}
+    				else {
+    					foreach($post as $k => $v) {
+    						// Don't override the def's attributes!
+    						if (!isset($this->$k)) {
+    							$this->$k = $v;
+    						}
+    					}
+    					$this->post_id = $post_id;
+    					
+    					// Look up data for each of the metafields
+    					$content = '';
+    					foreach ($metafields as $mf => $v) {
+                            if (!isset(CCTM::$data['custom_field_defs'][$mf])) {
+                                continue;
+                            }
+                            $d = CCTM::$data['custom_field_defs'][$mf];
+                            if (!$FieldObj = CCTM::load_object($d['type'],'fields')) {
+                                continue;
+                            }
+                            $d['name'] = $this->name.'['.$post_id.']['.$d['name'].']';
+                            $d['value'] = $v;
+                            $d['is_repeatable'] = false; // override
+                            $FieldObj->set_props($d);
+                            $output_this_field = $FieldObj->get_edit_field_instance($v);
+                            $content .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
+    					}
+    					$this->set_prop('metafields',$content);
+    					$this->content = CCTM::parse($fieldtpl, $this->get_props());
+    				}			     
+			     
+			         break; // should only be one...
+			     }
 			}
 		}
 
@@ -293,8 +342,16 @@ class CCTM_relation extends CCTM_FormElement
 		// Used to fetch the default value.
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
+        // So we can arrange the metafields
+		$out = '<script>
+          jQuery(function() {
+            jQuery( "#sortable" ).sortable();
+            jQuery( "#sortable" ).disableSelection();
+          });
+          </script>';
+          
 		// Standard
-		$out = $this->format_standard_fields($def);
+		$out .= $this->format_standard_fields($def);
 
 		// Options
 		$Q = new GetPostsQuery();
@@ -367,6 +424,33 @@ class CCTM_relation extends CCTM_FormElement
 		// Validations / Required
 		$out .= $this->format_validators($def,false);
 
+        $defs = CCTM::get_custom_field_defs();
+        $li = '<li><input type="checkbox" 
+			     name="metafields[]" class="cctm_checkbox" id="metafield_%s" value="%s"%s/> 
+			 <label for="metafield_%s"><strong>%s</strong> (%s)</label>
+			 </li>';
+        //$out .= '<pre>'.print_r($defs,true).'</pre>';
+        $out .= '<div class="postbox">
+			<div class="handlediv" title="Click to toggle"><br /></div>
+			<h3 class="hndle"><span>'. __('Meta Fields', CCTM_TXTDOMAIN).'</span></h3>
+			<div class="inside">
+                <p>'.__('Select which fields should appear as meta data for this relation.',CCTM_TXTDOMAIN).'</p>
+                <ul id="sortable">';
+                // First show the ones already assigned here
+                foreach ($this->props['metafields'] as $fieldname) {
+			 	   $out .= sprintf($li,$fieldname,$fieldname,' checked="checked"',$fieldname,$defs[$fieldname]['label'],$fieldname);                    
+                }
+                // Grab all the others
+			 	foreach ($defs as $fieldname => $d) {
+			 	   if ($d['type'] == 'relationmeta' || in_array($fieldname,$this->props['metafields'])) {
+			 	       continue;
+			 	   }
+			 	   $out .= sprintf($li,$fieldname,$fieldname,'',$fieldname,$d['label'],$fieldname);
+			 	}
+        $out .= '</ul>
+            </div><!-- /inside -->
+		</div><!-- /postbox -->';
+
 		// Output Filter
 		$out .= $this->format_available_output_filters($def);
 
@@ -380,6 +464,46 @@ class CCTM_relation extends CCTM_FormElement
     public function get_options_desc() {
         return $this->_get_search_parameters_visible($this->props['search_parameters']);
     }
+
+	/**
+	 * RelationMeta data is ALWAYS stored as JSON: it's a complex data structure.
+	 *
+	 * @param	string	$str
+	 * @param	string	$conversion to_string|to_array (ignored)
+	 * @return mixed (a string or an array, depending on the $conversion)
+	 */		
+	public function get_value($str, $conversion='to_array') {		
+		if (empty($str) || $str=='[""]') {
+			return array();
+		}
+		
+		$out = (array) json_decode($str, true );
+		// the $str was not JSON encoded
+		if (empty($out)) {
+			return array($str);
+		}
+		else {
+			return $out;
+		}
+	}
+
+	//------------------------------------------------------------------------------
+	/**
+	 * We are always storing a data object in this case.
+	 *
+	 * @param mixed   $posted_data $_POST data
+	 * @param string  $field_name: the unique name for this instance of the field
+	 * @return string whatever value you want to store in the wp_postmeta table where meta_key = $field_name
+	 */
+	public function save_post_filter($posted_data, $field_name) {
+		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+            return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+		}
+		else {
+			return '';
+		}
+	}
+
 
 }
 

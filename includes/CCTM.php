@@ -1568,7 +1568,7 @@ class CCTM {
 			if ( is_array($hash[$key]) ) {
 				return $hash[$key];
 			}
-			// Warning: stripslashes was added to avoid some weird behavior
+			// Warning: stripslashes was added to avoid some weird behavior... but beware, it causes others
 			else {
 				return esc_html(stripslashes($hash[$key]));
 			}
@@ -1643,7 +1643,7 @@ class CCTM {
 			if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
 				$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_fields', array() );
 				
-				// We gotta convert the fieldname to fieldtype
+				// We gotta lookup the fieldtype by the name
 				foreach ($custom_fields as $cf) {
 					if (!isset(self::$data['custom_field_defs'][$cf])) {
 						// unset this? 
@@ -1652,28 +1652,29 @@ class CCTM {
 					// Get an array of field-types for this 
 					$fieldtype = self::get_value(self::$data['custom_field_defs'][$cf], 'type');
 					if (!empty($fieldtype)) {
-						$field_types[] = $fieldtype;
+						$field_types[$fieldtype][] = $cf;
 					}
 				}
 			}
 		}
 		// Create custom field definitions
 		elseif ( $page == 'admin.php' && $action == 'create_custom_field') {
-			$field_types[] = $fieldtype;
+			$field_types[$fieldtype] = array();
 		}
 		// Edit custom field definitions (the name is specified, not the type)
 		elseif ( $page == 'admin.php' && $action == 'edit_custom_field' && isset(self::$data['custom_field_defs'][$fieldname])) {
 			$fieldtype = self::get_value(self::$data['custom_field_defs'][$fieldname], 'type');
-			$field_types[] = $fieldtype;
+			$field_types[$fieldtype][] = $fieldname;
 		}
 		elseif ($page == 'admin.php' && $action =='duplicate_custom_field') {
-			$field_types[] = CCTM::get_value($_GET,'type');
+            $fieldtype = CCTM::get_value($_GET,'type');
+			$field_types[$fieldtype] = array(); 
 		}
 
 		// We only get here if we survived the gauntlet above
-		foreach ($field_types as $shortname) {
-			if ($FieldObj = CCTM::load_object($shortname, 'fields')) {			
-				$FieldObj->admin_init();
+		foreach ($field_types as $ft => $fieldlist) {
+			if ($FieldObj = CCTM::load_object($ft, 'fields')) {			
+				$FieldObj->admin_init($fieldlist);
 			}
 		}
 
