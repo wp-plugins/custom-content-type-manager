@@ -90,16 +90,16 @@ or by going to your wp-content/plugins directory and executing the following com
 * Adding new Relation-Meta field.
 * Various other bug-fixes.
 
-= 0.9.7.4=
+= 0.9.7.4 =
 
-* A few more minor fixes.
+* Fixes a few more minor fixes.
 
-= 0.9.7.3=
+= 0.9.7.3 =
 
-* Fixes glitch in Summarize Posts shortcode.
+* Fixes glitch in 0.9.7.2 in Summarize Posts shortcode.
 * Unit Tests added for Summarize Posts shortcode and operators.
 
-= 0.9.7.1=
+= 0.9.7.1 =
 
 * Added support for cctm_post_form shortcode: now you can have users on the front-end create posts (see feature request 132).
 * Added "join" argument to GetPostsQuery::get_posts()

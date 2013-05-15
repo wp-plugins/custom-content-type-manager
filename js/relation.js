@@ -168,15 +168,15 @@ function change_page(page_number) {
 	jQuery('#page_number').val(page_number); // store the value so it can be serialized
 
 	var data = {
-	        "action" : 'get_posts',
+	        "action" : "get_posts",
 	        "post_type": jQuery('#post_type').val(),
 	        "fieldname" : fieldname,
 	        "fieldtype" : fieldtype,
 	        "get_posts_nonce" : cctm.ajax_nonce
 	    };
-	    
-	data.search_parameters = jQuery('#select_posts_form').serialize();
 
+	data.search_parameters = jQuery('#select_posts_form').serialize();
+    //console.log(data);
 	jQuery.post(
 	    cctm.ajax_url,
 	    data,

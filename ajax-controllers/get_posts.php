@@ -91,7 +91,8 @@ if (isset($_POST['search_parameters'])) {
 	
 	// Unsest these, otherwise the query will try to search them as custom field values.
 	unset($args['page_number']);
-	unset($args['fieldname']);	
+	unset($args['fieldname']);
+	unset($args['fieldtype']);
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)

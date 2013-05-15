@@ -496,7 +496,7 @@ class StandardizedCustomFields {
 						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
 						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
 					}
-					elseif(!strlen(trim($value_copy))) {
+					elseif(!is_array($value_copy) && !strlen(trim($value_copy))) {
 						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);					
 					}
 				}
