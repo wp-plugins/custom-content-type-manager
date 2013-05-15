@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.5.1
-Stable tag: 0.9.7.4
-Version: 0.9.7.5-dev
+Stable tag: 0.9.7.5
+Version: 0.9.7.5
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -88,6 +88,7 @@ or by going to your wp-content/plugins directory and executing the following com
 = 0.9.7.5 =
 
 * Adding new Relation-Meta field.
+* Various other bug-fixes.
 
 = 0.9.7.4=
 
@@ -433,7 +434,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 = 0.9.7.5 =
 
-* Added Relation-Meta field. If you have customized any of your manager tpls (especially for any relation, image, or media fields) then please note the new function arguments for the thickbox_results() javascript function!  It is recommended you rename your uploads/cctm folder prior to upgrading and clear your tpl cache (CCTM -> Clear Cache): this will force the default tpls to load, and then you can re-add your customizations.
+* Added Relation-Meta field. If you have customized any of your manager tpls (especially for any relation, image, or media fields) then please note the new function arguments for the thickbox_results() and cctm_upload() javascript functions!  It is recommended you rename your uploads/cctm folder prior to upgrading and clear your tpl cache (CCTM -> Clear Cache): this will force the default tpls to load, and then you can re-add your customizations.
 
 = 0.9.7.4 =
 

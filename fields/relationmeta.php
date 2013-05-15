@@ -33,6 +33,8 @@ class CCTM_relationmeta extends CCTM_FormElement
 	//------------------------------------------------------------------------------
 	/**
 	 * Thickbox support
+	 *
+	 * @param unknown $fieldlist (optional)
 	 */
 	public function admin_init($fieldlist=array()) {
 		wp_enqueue_script('media-upload');
@@ -42,15 +44,15 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 		// Bit of a wormhole here: Load up the children's req's, organize into fieldtypes
 		$fieldtypes = array();
-        foreach ($fieldlist as $f) {
-            $metafields = CCTM::get_value(CCTM::$data['custom_field_defs'][$f], 'metafields');
-            foreach ($metafields as $mf) {
-                $type = CCTM::get_value(CCTM::$data['custom_field_defs'][$mf], 'type');
-                $fieldtypes[$type][] = $mf;
-            }
+		foreach ($fieldlist as $f) {
+			$metafields = CCTM::get_value(CCTM::$data['custom_field_defs'][$f], 'metafields');
+			foreach ($metafields as $mf) {
+				$type = CCTM::get_value(CCTM::$data['custom_field_defs'][$mf], 'type');
+				$fieldtypes[$type][] = $mf;
+			}
 		}
-		foreach($fieldtypes as $ft => $list) {
-            if ($FieldObj = CCTM::load_object($ft, 'fields')) {			
+		foreach ($fieldtypes as $ft => $list) {
+			if ($FieldObj = CCTM::load_object($ft, 'fields')) {
 				$FieldObj->admin_init($list);
 			}
 		}
@@ -61,8 +63,10 @@ class CCTM_relationmeta extends CCTM_FormElement
 	/**
 	 * Get the standard fields
 	 *
-	 * @param	array	current def
-	 * @return	strin	HTML
+	 * @param array   current def
+	 * @param unknown $def
+	 * @param unknown $show_repeatable (optional)
+	 * @return strin HTML
 	 */
 	public function format_standard_fields($def, $show_repeatable=true) {
 		$is_checked = '';
@@ -74,7 +78,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 			<div class="handlediv" title="Click to toggle"><br /></div>
 			<h3 class="hndle"><span>'. __('Standard Fields', CCTM_TXTDOMAIN).'</span></h3>
 			<div class="inside">';
-			
+
 		// Label
 		$out .= '<div class="'.self::wrapper_css_class .'" id="label_wrapper">
 			 		<label for="label" class="'.self::label_css_class.'">'
@@ -136,11 +140,11 @@ class CCTM_relationmeta extends CCTM_FormElement
 			 	<textarea name="description" class="cctm_textarea" id="description" rows="5" cols="60">'. htmlspecialchars($def['description']).'</textarea>
 			 	' . $this->get_translation('description').'
 			 	</div>';
-			 	
+
 		$out .= '</div><!-- /inside -->
-			</div><!-- /postbox -->';	 	
-		
-		return $out;	
+			</div><!-- /postbox -->';
+
+		return $out;
 	}
 
 
@@ -190,13 +194,13 @@ class CCTM_relationmeta extends CCTM_FormElement
 	 * @return string
 	 */
 	public function get_edit_field_instance($current_value) {
-        
+
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
 		$Q = new GetPostsQuery();
-		
+
 		// Populate the values (i.e. properties) of this field
-		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
+		$this->id      = str_replace(array('[', ']', ' '), '_', $this->name);
 		$this->content  = '';
 
 		if (empty($this->button_label)) {
@@ -207,9 +211,14 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 		$fieldtpl = '';
 		$wrappertpl = '';
+        $relationmeta_tpl = CCTM::load_tpl(
+            array('fields/options/'.$this->name.'.tpl'
+                , 'fields/options/_relationmeta.tpl'
+            )
+        );
+
 		// Multi field?
 		if ($this->is_repeatable) {
-
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relationmeta_multi.tpl'
@@ -221,42 +230,10 @@ class CCTM_relationmeta extends CCTM_FormElement
 					, 'fields/wrappers/_relation_multi.tpl'
 				)
 			);
-
-			$values = $this->get_value($current_value,'to_array');
-			
-			foreach ($values as $v) {
-				$hash 					= $this->get_props();
-				$hash['post_id']    	= (int) $v;
-				$hash['thumbnail_url']	= CCTM::get_thumbnail($hash['post_id']);
-
-				// Look up all the data on that foreign key
-				// We gotta watch out: what if the related post has custom fields like "description" or 
-				// anything that would conflict with the definition?
-				$post = $Q->get_post($hash['post_id']);
-				if (empty($post)) {
-					$this->content .= '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $v).'</p></div>';
-				}
-				else {
-					foreach($post as $k => $v) {
-						// Don't override the def's attributes!
-						if (!isset($hash[$k])) {
-							$hash[$k] = $v;
-						}
-					}	
-					$this->content .= CCTM::parse($fieldtpl, $hash);
-				}
-			}
 		}
 		// Regular old Single-selection
 		else {
-            error_log('Current Value::: '.print_r($current_value,true));
-			//$this->post_id    = $this->get_value($current_value,'ignored'); 
 
-            $relationmeta_tpl = CCTM::load_tpl(
-        		array('fields/options/'.$this->name.'.tpl'
-        			, 'fields/options/_relationmeta.tpl'
-        		)
-        	);
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relationmeta.tpl'
@@ -268,55 +245,51 @@ class CCTM_relationmeta extends CCTM_FormElement
 					, 'fields/wrappers/_relation.tpl'
 				)
 			);
+        }
+        
+        $data = $this->get_value($current_value, 'ignored');
 
-			$data    = $this->get_value($current_value,'ignored'); 
-			
+		if ($data) {
+			foreach ($data as $post_id => $metafields) {
+				// Look up all the data on those foriegn keys
+				// We gotta watch out: what if the related post has custom fields like "description" or
+				// anything that would conflict with the definition?
+				$post = $Q->get_post($post_id);
+				$this->thumbnail_url = CCTM::get_thumbnail($post_id);
+				if (empty($post)) {
+					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $post_id).'</p></div>';
+				}
+				else {
+					foreach ($post as $k => $v) {
+						// Don't override the def's attributes!
+						if (!isset($this->$k)) {
+							$this->$k = $v;
+						}
+					}
+					$this->post_id = $post_id;
 
-			if ($data) {
-//			 print_r($data); exit;
-			     foreach ($data as $post_id => $metafields) {
-    				// Look up all the data on those foriegn keys
-    				// We gotta watch out: what if the related post has custom fields like "description" or 
-    				// anything that would conflict with the definition?
-    				$post = $Q->get_post($post_id);
-    				$this->thumbnail_url = CCTM::get_thumbnail($post_id);
-    				if (empty($post)) {
-    					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $post_id).'</p></div>';
-    				}
-    				else {
-    					foreach($post as $k => $v) {
-    						// Don't override the def's attributes!
-    						if (!isset($this->$k)) {
-    							$this->$k = $v;
-    						}
-    					}
-    					$this->post_id = $post_id;
-    					
-    					// Look up data for each of the metafields
-    					$content = '';
-    					foreach ($metafields as $mf => $v) {
-                            if (!isset(CCTM::$data['custom_field_defs'][$mf])) {
-                                continue;
-                            }
-                            $d = CCTM::$data['custom_field_defs'][$mf];
-                            if (!$FieldObj = CCTM::load_object($d['type'],'fields')) {
-                                continue;
-                            }
-                            $d['name'] = $this->name.'['.$post_id.']['.$d['name'].']';
-                            $d['value'] = $v;
-                            $d['is_repeatable'] = false; // override
-                            $FieldObj->set_props($d);
-                            $output_this_field = $FieldObj->get_edit_field_instance($v);
-                            $content .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
-    					}
-    					$this->set_prop('metafields',$content);
-    					$this->content = CCTM::parse($fieldtpl, $this->get_props());
-    				}			     
-			     
-			         break; // should only be one...
-			     }
-			}
-		}
+					// Look up data for each of the metafields
+					$content = '';
+					foreach ($metafields as $mf => $v) {
+						if (!isset(CCTM::$data['custom_field_defs'][$mf])) {
+							continue;
+						}
+						$d = CCTM::$data['custom_field_defs'][$mf];
+						if (!$FieldObj = CCTM::load_object($d['type'], 'fields')) {
+							continue;
+						}
+						$d['name'] = $this->name.'['.$post_id.']['.$d['name'].']';
+						$d['value'] = $v;
+						$d['is_repeatable'] = false; // override
+						$FieldObj->set_props($d);
+						$output_this_field = $FieldObj->get_edit_field_instance($v);
+						$content .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
+					}
+					$this->set_prop('metafields', $content);
+					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				}
+			}  // endforeach
+		} // end $data
 
 		if (empty($this->button_label)) {
 			$this->button_label = __('Choose Relation', CCTM_TXTDOMAIN);
@@ -334,7 +307,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 	 * with the public $props variable. A populated array of $props will be stored alongside
 	 * the custom-field data for the containing post-type.
 	 *
-	 * @param array $def
+	 * @param array   $def
 	 * @return string HTML input fields
 	 */
 	public function get_edit_field_definition($def) {
@@ -342,26 +315,26 @@ class CCTM_relationmeta extends CCTM_FormElement
 		// Used to fetch the default value.
 		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
-        // So we can arrange the metafields
+		// So we can arrange the metafields
 		$out = '<script>
           jQuery(function() {
             jQuery( "#sortable" ).sortable();
             jQuery( "#sortable" ).disableSelection();
           });
           </script>';
-          
+
 		// Standard
 		$out .= $this->format_standard_fields($def);
 
 		// Options
 		$Q = new GetPostsQuery();
-		
+
 		$out .= '
 			<div class="postbox">
 				<div class="handlediv" title="Click to toggle"><br /></div>
 				<h3 class="hndle"><span>'. __('Options', CCTM_TXTDOMAIN).'</span></h3>
 				<div class="inside">';
-		
+
 		// Note fieldtype: used to set the default value on new fields
 		$out .= '<input type="hidden" id="fieldtype" value="image" />';
 
@@ -400,7 +373,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 			$search_parameters_str = $def['search_parameters'];
 		}
 		$search_parameters_visible = $this->_get_search_parameters_visible($seach_parameters_str);
-		
+
 
 		$out .= '
 			<div class="cctm_element_wrapper" id="search_parameters_wrapper">
@@ -412,42 +385,42 @@ class CCTM_relationmeta extends CCTM_FormElement
 				<span class="button" onclick="javascript:search_form_display(\''.$def['name'].'\',\''.$def['type'].'\');">'.__('Set Search Parameters', CCTM_TXTDOMAIN) .'</span>
 				<div id="cctm_thickbox"></div>
 				<span id="search_parameters_visible">'.
-				$search_parameters_visible
-				.'</span>
+			$search_parameters_visible
+			.'</span>
 				<input type="hidden" id="search_parameters" name="search_parameters" value="'.$search_parameters_str.'" />
 				<br/>
 			</div>';
-			
+
 		$out .= '</div><!-- /inside -->
 			</div><!-- /postbox -->';
 
 		// Validations / Required
-		$out .= $this->format_validators($def,false);
+		$out .= $this->format_validators($def, false);
 
-        $defs = CCTM::get_custom_field_defs();
-        $li = '<li><input type="checkbox" 
-			     name="metafields[]" class="cctm_checkbox" id="metafield_%s" value="%s"%s/> 
+		$defs = CCTM::get_custom_field_defs();
+		$li = '<li><input type="checkbox"
+			     name="metafields[]" class="cctm_checkbox" id="metafield_%s" value="%s"%s/>
 			 <label for="metafield_%s"><strong>%s</strong> (%s)</label>
 			 </li>';
-        //$out .= '<pre>'.print_r($defs,true).'</pre>';
-        $out .= '<div class="postbox">
+		//$out .= '<pre>'.print_r($defs,true).'</pre>';
+		$out .= '<div class="postbox">
 			<div class="handlediv" title="Click to toggle"><br /></div>
 			<h3 class="hndle"><span>'. __('Meta Fields', CCTM_TXTDOMAIN).'</span></h3>
 			<div class="inside">
-                <p>'.__('Select which fields should appear as meta data for this relation.',CCTM_TXTDOMAIN).'</p>
+                <p>'.__('Select which fields should appear as meta data for this relation.', CCTM_TXTDOMAIN).'</p>
                 <ul id="sortable">';
-                // First show the ones already assigned here
-                foreach ($this->props['metafields'] as $fieldname) {
-			 	   $out .= sprintf($li,$fieldname,$fieldname,' checked="checked"',$fieldname,$defs[$fieldname]['label'],$fieldname);                    
-                }
-                // Grab all the others
-			 	foreach ($defs as $fieldname => $d) {
-			 	   if ($d['type'] == 'relationmeta' || in_array($fieldname,$this->props['metafields'])) {
-			 	       continue;
-			 	   }
-			 	   $out .= sprintf($li,$fieldname,$fieldname,'',$fieldname,$d['label'],$fieldname);
-			 	}
-        $out .= '</ul>
+		// First show the ones already assigned here
+		foreach ($this->props['metafields'] as $fieldname) {
+			$out .= sprintf($li, $fieldname, $fieldname, ' checked="checked"', $fieldname, $defs[$fieldname]['label'], $fieldname);
+		}
+		// Grab all the others
+		foreach ($defs as $fieldname => $d) {
+			if ($d['type'] == 'relationmeta' || in_array($fieldname, $this->props['metafields'])) {
+				continue;
+			}
+			$out .= sprintf($li, $fieldname, $fieldname, '', $fieldname, $d['label'], $fieldname);
+		}
+		$out .= '</ul>
             </div><!-- /inside -->
 		</div><!-- /postbox -->';
 
@@ -457,26 +430,30 @@ class CCTM_relationmeta extends CCTM_FormElement
 		return $out;
 	}
 
-    //------------------------------------------------------------------------------
-    /**
-     * Options here are any search criteria
-     */
-    public function get_options_desc() {
-        return $this->_get_search_parameters_visible($this->props['search_parameters']);
-    }
+
+	//------------------------------------------------------------------------------
+	/**
+	 * Options here are any search criteria
+	 *
+	 * @return unknown
+	 */
+	public function get_options_desc() {
+		return $this->_get_search_parameters_visible($this->props['search_parameters']);
+	}
+
 
 	/**
 	 * RelationMeta data is ALWAYS stored as JSON: it's a complex data structure.
 	 *
-	 * @param	string	$str
-	 * @param	string	$conversion to_string|to_array (ignored)
+	 * @param string  $str
+	 * @param string  $conversion (optional) to_string|to_array (ignored)
 	 * @return mixed (a string or an array, depending on the $conversion)
-	 */		
-	public function get_value($str, $conversion='to_array') {		
+	 */
+	public function get_value($str, $conversion='to_array') {
 		if (empty($str) || $str=='[""]') {
 			return array();
 		}
-		
+
 		$out = (array) json_decode($str, true );
 		// the $str was not JSON encoded
 		if (empty($out)) {
@@ -486,6 +463,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 			return $out;
 		}
 	}
+
 
 	//------------------------------------------------------------------------------
 	/**
@@ -497,7 +475,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 	 */
 	public function save_post_filter($posted_data, $field_name) {
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
-            return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+			return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
 		}
 		else {
 			return '';

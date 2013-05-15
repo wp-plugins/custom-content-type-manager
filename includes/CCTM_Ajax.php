@@ -52,25 +52,13 @@ class CCTM_Ajax {
 	public function __call($name, $args) {
 
 		if (!isset($this->controllers[$name])) {
-			// LOGGING
-			if (defined('CCTM_DEBUG')) {
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, sprintf(__('Invalid Ajax controller: %s', CCTM_TXTDOMAIN), "<em>$name</em>"));
-				fclose($fh);
-			}
+			CCTM::log(sprintf(__('Invalid Ajax controller: %s', CCTM_TXTDOMAIN), "<em>$name</em>"),__FILE__,__LINE__);
 			die(sprintf(__('Invalid Ajax controller: %s', CCTM_TXTDOMAIN), "<em>$name</em>"));
 		}
 
 		$nonce = CCTM::get_value($_REQUEST, $name.'_nonce');
 		if ( ! wp_verify_nonce( $nonce, 'ajax_nonce' ) ) {
-			// LOGGING
-			if (defined('CCTM_DEBUG')) {
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, sprintf(__('Invalid nonce for %s', CCTM_TXTDOMAIN), "<em>$name</em>"));
-				fclose($fh);
-			}
+			CCTM::log(sprintf(__('Invalid nonce for %s', CCTM_TXTDOMAIN), "<em>$name</em>"),__FILE__,__LINE__);
 			die(sprintf(__('Invalid nonce for %s', CCTM_TXTDOMAIN), "<em>$name</em>"));
 		}
 

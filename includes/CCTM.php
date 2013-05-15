@@ -20,7 +20,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.7.5';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -310,12 +310,7 @@ class CCTM {
 				__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
 				, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
 
-			if (defined('CCTM_DEBUG')) {			
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, 'Failed to create directory '.$cache_dir.$subdir."\n");
-				fclose($fh);
-			}
+            CCTM::log('Failed to create directory '.$cache_dir.$subdir, __FILE__,__LINE__);
 
 			// Failed to create the dir... now what?!?  We cram the full-sized image into the 
 			// small image tag, which is exactly what WP does (yes, seriously.)				
@@ -2078,7 +2073,25 @@ class CCTM {
 		die('View file does not exist: ' .$path.$filename);
 	}
 
-
+    //------------------------------------------------------------------------------
+    /**
+     * Simple logging function
+     * @param string $msg to be logged
+     * 
+     */
+    public static function log($msg, $file='unknown', $line='?') {
+        if (defined('CCTM_DEBUG')) {
+            if (CCTM_DEBUG === true) {
+                error_log($msg);
+            }
+            else {	
+                $myFile = CCTM_DEBUG;
+                $fh = fopen($myFile, 'a') or die("CCTM Failure: Can't open file for appending: ".CCTM_DEBUG);
+                fwrite($fh, sprintf("[CCTM %s:%s] %s\n", $msg,$file,$line));
+                fclose($fh);
+            }
+        }    
+    }
 
 	//------------------------------------------------------------------------------
 	/**
@@ -2262,12 +2275,7 @@ class CCTM {
 			}
 		}
 		else {
-			if (defined('CCTM_DEBUG')) {			
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, print_r(debug_backtrace(), true));
-				fclose($fh);
-			}		
+            CCTM::log(print_r(debug_backtrace(), true),__FILE__,__LINE__);
 		}
 		
 		// Remove any unparsed [+placeholders+]
@@ -2521,12 +2529,7 @@ class CCTM {
 			unset($post_types['revision']);
 			unset($post_types['nav_menu_item']);
 			
-			if (defined('CCTM_DEBUG')) {			
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, 'Request post-types:'. print_r($post_types, true));
-				fclose($fh);
-			}
+			CCTM::log('Request post-types:'. print_r($post_types, true),__FILE__,__LINE__);
 
 			foreach ($post_types as $pt) {
 				if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
@@ -2671,15 +2674,6 @@ class CCTM {
 				unset($post_types['nav_menu_item']);
 //				unset($post_types['page']); // TO-DO: configure this?
 				foreach ($post_types as $pt) {
-/*
-					// we only exclude it if it was specifically excluded.
-					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) {
-						unset($post_types[$pt]);
-					}
-					elseif('page' == $pt) {
-						unset($post_types[$pt]);
-					}
-*/
 					// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=412
 					if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
 						// Leave pages in.
@@ -2707,12 +2701,7 @@ class CCTM {
 			}
 		}
 		
-		if (defined('CCTM_DEBUG')) {			
-			$myFile = CCTM_DEBUG;
-			$fh = fopen($myFile, 'a') or die("can't open file");
-			fwrite($fh, print_r($query->get('post_type'), true));
-			fclose($fh);
-		}
+		CCTM::log('search_filter '.print_r($query->get('post_type'), true),__FILE__,__LINE__);
 			
 		return $query;
 	}

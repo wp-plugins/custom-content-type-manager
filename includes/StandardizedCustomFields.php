@@ -403,12 +403,7 @@ class StandardizedCustomFields {
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 
-					if (defined('CCTM_DEBUG')) {			
-						$myFile = CCTM_DEBUG;
-						$fh = fopen($myFile, 'a') or die("can't open file");
-						fwrite($fh, "Field Type: $field_type  Value: $value\n");
-						fclose($fh);
-					}
+                    CCTM::log("Saving field Type: $field_type  with value: $value",__FILE__,__LINE__);
 										
 					// Custom fields can return a literal null if they don't save data to the db.
 					if ($value !== null) {
@@ -448,13 +443,7 @@ class StandardizedCustomFields {
 			
 			// Pass validation errors like this: fieldname => validator, e.g. myfield => required
 			if (!empty($validation_errors)) {
-				if (defined('CCTM_DEBUG')) {			
-					$myFile = "/tmp/cctm.txt";
-					$fh = fopen($myFile, 'a') or die("can't open file");
-					fwrite($fh, json_encode($validation_errors)."\n");
-					fclose($fh);
-				}
-
+                CCTM::log('Validation errors: '.json_encode($validation_errors),__FILE__,__LINE__);
 				CCTM::set_flash(json_encode($validation_errors));
 			}
 		}
