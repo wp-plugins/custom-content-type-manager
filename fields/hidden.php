@@ -173,25 +173,25 @@ class CCTM_hidden extends CCTM_FormElement {
 			<div class="inside">
 			<div class="'.self::wrapper_css_class .'" id="evaluate_default_value_wrapper">
 				 <label for="evaluate_default_value" class="cctm_label cctm_checkbox_label" id="evaluate_default_value_label">'
-			. __('EXPERIMENTAL USE ONLY. Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code>).', CCTM_TXTDOMAIN) .
+			. __('EXPERIMENTAL USE ONLY. Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code> ).', CCTM_TXTDOMAIN) .
 			'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_create_value" class="cctm_checkbox" id="evaluate_create_value" value="1" '. $is_ecv_checked.'/> '
-			.__('Check this box to evaluate the PHP code in the "New Values" box. This value is calculated when the create form is drawn.', CCTM_TXTDOMAIN).'<br/>
+			.__('Evaluate "OnCreate". This happens when the form for a new post is drawn.', CCTM_TXTDOMAIN).'<br/>
 			
 				<input type="checkbox" name="evaluate_update_value" class="cctm_checkbox" id="evaluate_update_value" value="1" '. $is_euv_checked.'/> '
-			.__('Check this box to evaluate the PHP code in the "Updated Values".  This value is calculated when the edit form is drawn.', CCTM_TXTDOMAIN).'<br/>
+			.__('Evaluate "OnEdit".  This happens when the form for an existing post is drawn.', CCTM_TXTDOMAIN).'<br/>
     			<input type="checkbox" name="evaluate_onsave" class="cctm_checkbox" id="evaluate_onsave" value="1" '. $is_onsave_checked.'/> '
-			.__('Check this box to evaluate the PHP code when the post is saved.', CCTM_TXTDOMAIN).'
+			.__('Evaluate "OnSave". This happens when the post form is submitted.', CCTM_TXTDOMAIN).'
 			 </div>
 			 
 			 <div class="'.self::wrapper_css_class .'" id="evaluate_create_value_wrapper">
-			 		<label for="create_value_code" class="cctm_label cctm_textarea_label" id="create_value_code_label">'.__('New Values',CCTM_TXTDOMAIN).'</label>
+			 		<label for="create_value_code" class="cctm_label cctm_textarea_label" id="create_value_code_label">'.__('OnCreate',CCTM_TXTDOMAIN).'</label>
 
 			 		<textarea id="evaluate_create_value" name="create_value_code" rows="5" cols="60">'.$def['create_value_code'].'</textarea>
-			 		<label for="evaluate_update_value" class="cctm_label cctm_textarea_label" id="evaluate_update_value_label">'.__('Updated Values', CCTM_TXTDOMAIN).'</label>
+			 		<label for="evaluate_update_value" class="cctm_label cctm_textarea_label" id="evaluate_update_value_label">'.__('OnEdit', CCTM_TXTDOMAIN).'</label>
 			 		<textarea id="evaluate_update_value" name="update_value_code" rows="5" cols="60">'.$def['update_value_code'].'</textarea>
-			 		<label for="onsave_code" class="cctm_label cctm_textarea_label" id="onsave_code_label">'.__('On Save', CCTM_TXTDOMAIN).'</label>
+			 		<label for="onsave_code" class="cctm_label cctm_textarea_label" id="onsave_code_label">'.__('OnSave', CCTM_TXTDOMAIN).'</label>
 			 		<textarea id="onsave_code" name="onsave_code" rows="5" cols="60">'.$def['onsave_code'].'</textarea>
 			 	
 			 </div>

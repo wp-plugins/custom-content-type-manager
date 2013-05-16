@@ -34,7 +34,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 	/**
 	 * Thickbox support
 	 *
-	 * @param unknown $fieldlist (optional)
+	 * @param array $fieldlist (optional)
 	 */
 	public function admin_init($fieldlist=array()) {
 		wp_enqueue_script('media-upload');
@@ -250,6 +250,7 @@ class CCTM_relationmeta extends CCTM_FormElement
         $data = $this->get_value($current_value, 'ignored');
 
 		if ($data) {
+
 			foreach ($data as $post_id => $metafields) {
 				// Look up all the data on those foriegn keys
 				// We gotta watch out: what if the related post has custom fields like "description" or
@@ -268,8 +269,15 @@ class CCTM_relationmeta extends CCTM_FormElement
 					}
 					$this->post_id = $post_id;
 
-					// Look up data for each of the metafields
+                    // Warning: $metafields may not contain newly added fields, so we need to go back to the field def.
+                    // so we rely on $this->metafields instead.
 					$content = '';
+					foreach ($this->metafields as $mf) {
+					   if (!isset($metafields[$mf])) {
+					       $metafields[$mf] = '';
+					   }
+					}
+					// Look up data for each of the metafields
 					foreach ($metafields as $mf => $v) {
 						if (!isset(CCTM::$data['custom_field_defs'][$mf])) {
 							continue;

@@ -1,3 +1,4 @@
+<p><?php _e('Choose the type of field you want to create.', CCTM_TXTDOMAIN); ?></p>
 <table class="wp-list-table widefat plugins" cellspacing="0">
 <thead>
 	<tr>

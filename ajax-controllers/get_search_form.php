@@ -62,30 +62,12 @@ $possible_configs[] = '/config/search_parameters/_default.php';
 
 
 if (!CCTM::load_file($possible_configs)) {
-	print '<p>'.__('Search parameter configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
+	print '<p>'.sprintf(__('Search parameter configuration file not found. Check config/search_parameters/ for a valid configuration file for the %s field or the %s field-type.', CCTM_TXTDOMAIN), "<code>$fieldname</code>", "<code>$type</code>") .'</p>';	
 }
 
-// TODO: put this into the tpls folder and a make a view for it.
-// save
-// cancel
-// description
-$Form->set_placeholder('description', __('This form will determine which posts will be selectable when users create or edit a post that uses this field.',  CCTM_TXTDOMAIN));
+$Form->set_placeholder('description', __('This form will determine which posts will be selectable when users create or edit a post that uses this field. WARNING: supplying incorrect or overly restrictive criteria will result in an empty list!',  CCTM_TXTDOMAIN));
 $Form->set_placeholder('save', __('Save', CCTM_TXTDOMAIN));
 $Form->set_placeholder('cancel', __('Cancel', CCTM_TXTDOMAIN));
-/*
-$form_tpl = '
-<style>
-[+css+]
-</style>
-<p>'. __('This form will determine which posts will be selectable when users create or edit a post that uses this field.',  CCTM_TXTDOMAIN).' <a href="http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SearchParameters"><img src="'.CCTM_URL .'/images/question-mark.gif" width="16" height="16" /></a></p>
-<form id="search_parameters_form" class="[+form_name+]">
-	[+content+]
-	<span class="button" onclick="javascript:search_parameters_save(\'search_parameters_form\');">'. __('Save', CCTM_TXTDOMAIN).'</span>
-	<span class="button" onclick="javascript:tb_remove();">'.__('Cancel', CCTM_TXTDOMAIN).'</span>
-</form>
-';
-*/
-
 $form_tpl = CCTM::load_tpl('post_selector/search_forms/_modal.tpl');
 $Form->set_name_prefix('');
 $Form->set_id_prefix('');
