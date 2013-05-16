@@ -177,12 +177,12 @@ class CCTM_hidden extends CCTM_FormElement {
 			'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_create_value" class="cctm_checkbox" id="evaluate_create_value" value="1" '. $is_ecv_checked.'/> '
-			.__('Evaluate "OnCreate". This happens when the form for a new post is drawn.', CCTM_TXTDOMAIN).'<br/>
+			.__('Evaluate "OnCreate". This executes when the form for a new post is drawn.', CCTM_TXTDOMAIN).'<br/>
 			
 				<input type="checkbox" name="evaluate_update_value" class="cctm_checkbox" id="evaluate_update_value" value="1" '. $is_euv_checked.'/> '
-			.__('Evaluate "OnEdit".  This happens when the form for an existing post is drawn.', CCTM_TXTDOMAIN).'<br/>
+			.__('Evaluate "OnEdit".  This executes when the form for an existing post is drawn.', CCTM_TXTDOMAIN).'<br/>
     			<input type="checkbox" name="evaluate_onsave" class="cctm_checkbox" id="evaluate_onsave" value="1" '. $is_onsave_checked.'/> '
-			.__('Evaluate "OnSave". This happens when the post form is submitted.', CCTM_TXTDOMAIN).'
+			.__('Evaluate "OnSave". This executes when the post form is submitted.', CCTM_TXTDOMAIN).'
 			 </div>
 			 
 			 <div class="'.self::wrapper_css_class .'" id="evaluate_create_value_wrapper">
@@ -217,9 +217,12 @@ class CCTM_hidden extends CCTM_FormElement {
 	public function save_post_filter($posted_data, $field_name) {
 	
 		global $wp_version;
-	
+
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
-            if ($this->evaluate_onsave) {
+//                print_r($_POST);  print 'asdfasdfasdf'; exit;
+//                print_r($this->props); exit;
+            if ($this->props['evaluate_onsave']) {
+
                 return eval($this->onsave_code);
             }
             else {

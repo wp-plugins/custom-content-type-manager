@@ -12,7 +12,8 @@
  *
  * RUNNING TESTS
  *
- * To run these tests, simply navigate to this file in your browser, e.g. 
+ * To run these tests, make sure you have THE test database loaded, then navigate 
+ * to this file in your browser, e.g. 
  * http://cctm:8888/wp-content/plugins/custom-content-type-manager/tests/SummarizePostsUnitTests.php
  *
  * Or execute them via php on the command line:
@@ -168,6 +169,33 @@ class SummarizePostsUnitTests extends UnitTestCase {
 		$expected = 'AAAA...<li>FROM FILE: Letters from Iwo Jima</li><li>FROM FILE: Harry Potter</li><li>FROM FILE: Bourne Identity</li><li>FROM FILE: Fellowship of the Ring</li><li>FROM FILE: Lord of the Rings</li>...ZZZZ';
 		$this->assertTrue(in_html($actual,$expected));
 	}
+
+    // Date filters
+	function test_date() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'page';
+		$args['date_column'] = 'post_date';
+		$args['date_min'] = '2012-06-10 20:03:43';
+		$args['date_max'] = '2012-06-10 20:04:59';
+		$results = $Q->get_posts($args);
+		$this->assertTrue($results[0]['ID'] == 23);
+		$this->assertTrue($results[1]['ID'] == 21);
+		$this->assertTrue($results[2]['ID'] == 19);		
+	}    
+
+    // Date Range custom field
+	function test_date_cf() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['post_type'] = 'movie';
+		$args['date_column'] = 'release_date';
+		$args['date_min'] = '2011-01-01';
+		$args['date_max'] = '2011-12-31';
+		$results = $Q->get_posts($args);
+		$this->assertTrue($results[0]['ID'] == 77);		
+	}    
+
 
 
 	// Order By

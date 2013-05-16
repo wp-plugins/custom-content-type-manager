@@ -970,13 +970,9 @@ class GetPostsQuery {
 				$this->custom_field_date_flag = false; // redundant setting in case the user sets this parameter repeatedly
 				return $val;
 			}
-			// You can't do a date sort on a built-in wp_posts column other than the ones id'd in $this->date_cols
-			elseif ( in_array($val, self::$wp_posts_columns)) {
-				$this->errors[] = __('Invalid date column.', CCTM_TXTDOMAIN);
-				return null;
-			}
 			// Otherwise, we're in custom-field land
 			else {
+                $this->notices[] = __('date_column not a valid date column from wp_posts table. Assuming custom field.', CCTM_TXTDOMAIN);
 				$this->custom_field_date_flag = true;
 				return $val;
 			}
@@ -2160,15 +2156,9 @@ class GetPostsQuery {
 			$this->set_defaults(array(), true);
 		}
 
-		// Include no IDs = empty result set.  Gotta uncomment this or shortcodes and other 
-		// forms break
-/*
-		if (isset($args['include']) && empty($args['include'])) {
-			return array();
-		}
-*/
+        // this will utilize the _sanitize_arg() function.
 		foreach ($args as $k => $v) {
-			$this->$k = $v; // this will utilize the _sanitize_arg() function.
+			$this->$k = $v; 
 		}
 
 		// if we are doing hierarchical queries, we need to trace down all the components before

@@ -227,7 +227,8 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 			$wrappertpl = CCTM::load_tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
-					, 'fields/wrappers/_relation_multi.tpl'
+					, 'fields/wrappers/_relationmeta_multi.tpl'
+					, 'fields/wrappers/_relation_multi.tpl' // yes, we can default to the relation_multi
 				)
 			);
 		}
@@ -254,23 +255,17 @@ class CCTM_relationmeta extends CCTM_FormElement
 			foreach ($data as $post_id => $metafields) {
 				// Look up all the data on those foriegn keys
 				// We gotta watch out: what if the related post has custom fields like "description" or
-				// anything that would conflict with the definition?
+				// anything that would conflict with the definition?  
+				// I'm using $post as my hash for $fieldtpl... I think $wrappertpl is what I need to watch out for.
 				$post = $Q->get_post($post_id);
-				$this->thumbnail_url = CCTM::get_thumbnail($post_id);
+				$post['thumbnail_url'] = CCTM::get_thumbnail($post_id);
 				if (empty($post)) {
 					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $post_id).'</p></div>';
 				}
 				else {
-					foreach ($post as $k => $v) {
-						// Don't override the def's attributes!
-						if (!isset($this->$k)) {
-							$this->$k = $v;
-						}
-					}
-					$this->post_id = $post_id;
 
-                    // Warning: $metafields may not contain newly added fields, so we need to go back to the field def.
-                    // so we rely on $this->metafields instead.
+                    // Warning: $metafields that is set on this post may not containt fields
+                    // that were newly added to the def, so we flesh it out from the $this->metafields def.
 					$content = '';
 					foreach ($this->metafields as $mf) {
 					   if (!isset($metafields[$mf])) {
@@ -293,8 +288,9 @@ class CCTM_relationmeta extends CCTM_FormElement
 						$output_this_field = $FieldObj->get_edit_field_instance($v);
 						$content .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
 					}
-					$this->set_prop('metafields', $content);
-					$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+
+					$post['metafields'] = $content;
+					$this->content .= CCTM::parse($fieldtpl, $post);
 				}
 			}  // endforeach
 		} // end $data
