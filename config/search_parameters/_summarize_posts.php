@@ -26,6 +26,11 @@ The options available as parameters include any option available to the
 GetPostsQuery::get_posts() function:
 
 http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts
+
+DO NOT OVERWRITE THIS FILE DIRECTLY!  Instead, create a copy of this file inside
+wp-content/uploads/cctm/search_parameters/ -- this ensures that your
+custom modications are preserved in a place that will not be overwritten by the 
+WordPress update process.
 ------------------------------------------------------------------------------*/
 
 CCTM::$search_by[] = 'post_type';

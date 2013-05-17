@@ -3,14 +3,23 @@
  * A class for programmatically creating posts with all their custom fields via 
  * a unified API.  It is similar to wp_insert_post() but with several important
  * differences:
+ *
  *	1. It does not call any actions or filters when it is executed, so for better
  *		or for worse, there is no way for 3rd parties to intervene with this.
+ *
  *	2. It automatically creates/updates/deletes all custom fields in the postmeta
  *		table without the need to have to use the update_post_meta() and related functions.
+ *
  *	3. It does not check for user permissions. If you're running around in the PHP
  *		code, you have full run of the database anyhow. BEWARE!  If implementing this
  * 		in your own code/plugin, you should check the user permissions before executing functions
  * 		in this class.
+ *
+ *  4. Array values for custom fields (postmeta) are converted to JSON arrays.  
+ *      This means that for each custom field, you will have exactly *one* row
+ *      in the postmeta table.  This isn't how WP handles things natively, but there
+ *      are advantages to doing things this way, and that makes this compatible with
+ *      the CCTM, for which it was written.
  *
  * @pacakge SummarizePosts
  */
@@ -61,14 +70,14 @@ class SP_Post {
 
 	public $errors = array();
 	
-	public $props = array();
+	public $Q; // where GetPostQuery gets instantiated.
 	
 	//------------------------------------------------------------------------------
 	/**
 	 * 
 	 */
-	public function __construct($props=array()) {
-		
+	public function __construct() {
+
 	}
 	
 	//------------------------------------------------------------------------------
@@ -147,27 +156,60 @@ class SP_Post {
 	 * Run the arguments through the various validators defined
 	 */
 	private function _sanitize($args) {
+        $sanitized = array();
 		foreach ($args as $k => $v) {
+            // Validators are only set for valid column names
 			// TODO: check for custom-field validators
 			if (isset($this->validators[$k])) {
 				$func_name = '_'.$this->validators[$k];
-				$args[$k] = $this->$func_name($v);
+				$sanitized[$k] = $this->$func_name($v);
 			}
 			elseif($this->_is_valid_column_name($k)) {
-				$args[$k] = $this->_text($v);
+				$sanitized[$k] = $this->_text($v);
 			}
 			else {
 				$this->errors[] = 'Invalid column name: ' . $k;
 			}
 		}
-		
-		return $args;
+		return $sanitized;
 	}
 	
 	
 	//------------------------------------------------------------------------------
 	//! Public Functions
 	//------------------------------------------------------------------------------
+	/**
+	 * Format any errors in an unordered list, or returns a message saying there were no errors.
+	 *
+	 * @return string message detailing errors.
+	 */
+	public function debug() {
+
+		$output = '';
+		
+		$errors = $this->errors;
+		
+		if ($errors) {
+			$items = '';
+			foreach ($errors as $e) {
+				$items .= '<li>'.$e.'</li>' ."\n";
+			}
+			$output = '<ul>'."\n".$items.'</ul>'."\n";
+		}
+
+        if ($this->Q) {
+           $output .= $this->Q->debug(); 
+        }
+	   
+        if (empty($output)) {
+			$output = __('There were no errors.', CCTM_TXTDOMAIN);
+        }
+		
+		return sprintf('<h2>%s</h2><div class="summarize-posts-errors">%s</div>'
+			, __('Errors', CCTM_TXTDOMAIN)
+			, $output);
+	}
+	
 	/**
 	 * Deletes a post, its custom fields, and any revisions of that post. 
 	 * @param	integer	$post_id
@@ -210,10 +252,10 @@ class SP_Post {
 	 * @return	mixed -- a single associative array if an integer was supplied, or false on no results.
 	 */
 	public function get($args) {
-		$Q = new GetPostsQuery();
+		$this->Q = new GetPostsQuery();
 		if (is_array($args)) {
 			$args['limit'] = 1; // for database efficiency
-			$posts = $Q->get_posts($args);
+			$posts = $this->Q->get_posts($args);
 			if (!empty($posts)) {
 				return $posts[0];
 			}
@@ -223,7 +265,7 @@ class SP_Post {
 		}
 		else {
 			$post_id = (int) $args;
-			$post = $Q->get_post($post_id);
+			$post = $this->Q->get_post($post_id);
 			if (!empty($post)) {
 				return $post;
 			}
@@ -231,33 +273,6 @@ class SP_Post {
 				return false;
 			}
 		}
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Format any errors in an unordered list, or returns a message saying there were no errors.
-	 *
-	 * @return string message detailing errors.
-	 */
-	public function get_errors() {
-
-		$output = '';
-		
-		$errors = $this->errors;
-		
-		if ($errors) {
-			$items = '';
-			foreach ($errors as $e) {
-				$items .= '<li>'.$e.'</li>' ."\n";
-			}
-			$output = '<ul>'."\n".$items.'</ul>'."\n";
-		}
-		else {
-			$output = __('There were no errors.', CCTM_TXTDOMAIN);
-		}
-		return sprintf('<h2>%s</h2><div class="summarize-posts-errors">%s</div>'
-			, __('Errors', CCTM_TXTDOMAIN)
-			, $output);
 	}
 	
 	//------------------------------------------------------------------------------
@@ -267,14 +282,16 @@ class SP_Post {
 	 * INSERT INTO `wp_posts` (ID) VALUES (NULL);
 	 *
 	 * @param	array	$args
-	 * @return	integer	post_id 
+	 * @return	integer	post_id or boolean false
 	 */
 	public function insert($args) {
 		
 		global $wpdb;
 		
 		unset($args['ID']); // just in case
-		$args = $this->_sanitize($args);
+		if(!$args = $this->_sanitize($args)) {
+            return false;
+		}
 
 		// Get the primary columns
 		$posts_args = array();
@@ -345,9 +362,14 @@ class SP_Post {
 
 	//------------------------------------------------------------------------------
 	/**
+	 * If you leave the 3rd arg as false, a "line-item" update is performed. Custom
+	 * fields are left alone unless they are specified in the $args.
+	 * If you set $overwrite to true, however, any custom fields not included in the 
+	 * $args will be purged from the database.
+	 *
 	 * @param	array	$args in column => value pairs
 	 * @param	integer	$post_id the post you want to update
-	 * @param	boolean	$overwrite (optional). If true, this will nuke any custom fields not included in $args.
+	 * @param	boolean	$overwrite (optional). Default: false.
 	 * @return 	mixed	integer $post_id on success, boolean false on fail
 	 */
 	public function update($args, $raw_post_id, $overwrite=false) {
@@ -377,7 +399,7 @@ class SP_Post {
 				$postmeta_args[$k] = $v;	
 			}
 		}
-		
+
 		// Main fields
 		$wpdb->update( $wpdb->posts, $posts_args, array('ID' => $post_id));
 
@@ -391,13 +413,25 @@ class SP_Post {
 			if (is_array($v)) {
 				$v = json_encode($v);
 			}
-			if ($wpdb->update( $wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) === false ) {
-				// it's a new row, so we insert
-				if ($wpdb->insert($wpdb->postmeta, array('post_id' => $post_id, 'meta_key' => $k, 'meta_value'=>$v)) == false) {
-					$this->errors[] = "Error inserting row into {$wpdb->postmeta} for column $k";
-					return false;
-				}
-			}	
+            // We  can't rely in what $wpdb->update returns to know whether or not the row already exists, so we must first 
+            // try to select it.
+            $find_meta_sql = $wpdb->prepare("SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %s AND meta_key=%s"
+                , $post_id,$k);
+            $existing_meta = $wpdb->get_col($find_meta_sql);
+            // Update existing row
+            if ($existing_meta) {
+    			if ($wpdb->update($wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) === false ) {
+                    $this->errors[] = "Error creating row in {$wpdb->postmeta} where post_id = $post_id and meta_key $k";
+                    return false;
+    			 }
+            }
+            // New row
+            else {
+                if ($wpdb->insert($wpdb->postmeta, array('post_id' => $post_id, 'meta_key' => $k, 'meta_value'=>$v)) === false) {
+                    $this->errors[] = "Error inserting row into {$wpdb->postmeta} where post_id = $post_id and meta_key $k ";
+                    return false;
+                }
+            }
 		}
 		
 		return $post_id; // successful if we made it here.

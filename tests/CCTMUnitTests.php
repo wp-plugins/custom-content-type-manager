@@ -8,7 +8,7 @@
  *
  * These tests are meant to run in a controlled environment with a specific version of 
  * WordPress, with a specific theme, and with specific plugins enabled or disabled.
- * A dump of the database used is included as reference for all tests.
+ * A dump of the database used is available upon request.
  *
  * RUNNING TESTS
  *
@@ -17,7 +17,7 @@
  * 
  * @package CCTM
  * @author Everett Griffiths
- * @url http://fireproofsocks.com/
+ * @url http://craftsmancoding.com/
  */
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');

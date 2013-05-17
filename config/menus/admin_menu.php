@@ -3,6 +3,11 @@
 This is run on the admin_init event: this is what generates the menus in 
 the WP dashboard.  The default behavior here makes the menu show only for 
 site administrators or for super_admin's (in a multi-site install).
+
+DO NOT OVERWRITE THIS FILE DIRECTLY!  Instead, create a copy of this file inside
+wp-content/uploads/cctm/menus/ -- this ensures that your
+custom modications are preserved in a place that will not be overwritten by the 
+WordPress update process.
 ------------------------------------------------------------------------------*/
 
 // Adjust menus for multi-site: menu should only be visible to the super_admin

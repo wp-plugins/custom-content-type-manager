@@ -22,6 +22,11 @@ should be valid arguments to the GetPostsQuery::get_posts() function:
 	// ... etc... 
 
 See http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts
+
+DO NOT OVERWRITE THIS FILE DIRECTLY!  Instead, create a copy of this file inside
+wp-content/uploads/cctm/post_selector/ -- this ensures that your
+custom modications are preserved in a place that will not be overwritten by the 
+WordPress update process.
 ------------------------------------------------------------------------------*/
 
 CCTM::$post_selector['search_columns'] = array('post_title', 'post_content');

@@ -8,19 +8,19 @@
  *
  * These tests are meant to run in a controlled environment with a specific version of 
  * WordPress, with a specific theme, and with specific plugins enabled or disabled.
- * A dump of the database used is included as reference for all tests.
+ * A dump of the database used is available upon request.
  *
  * RUNNING TESTS
  *
  * To run these tests, simply navigate to this file in your browser, e.g. 
- * http://cctm:8888/wp-content/plugins/custom-content-type-manager/tests/SummarizePostsUnitTests.php
+ * http://cctm:8888/wp-content/plugins/custom-content-type-manager/tests/GetPostsFormUnitTests.php
  *
  * Or execute them via php on the command line:
- *	php /full/path/to/SummarizePostsUnitTests.php
+ *	php /full/path/to/GetPostsFormUnitTests.php
  *
  * @package SummarizePosts
  * @author Everett Griffiths
- * @url http://fireproofsocks.com/
+ * @url http://craftsmancoding.com/
  */
 
 require_once(dirname(__FILE__) . '/simpletest/autorun.php');

@@ -85,6 +85,10 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.7.7 =
+
+* Added unit tests for SP_Post class.
+
 = 0.9.7.6 =
 
 * Fixes bug with pagination in the Thickbox (used for all relation, image, and media fields).

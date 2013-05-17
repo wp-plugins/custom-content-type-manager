@@ -2332,8 +2332,8 @@ class GetPostsQuery {
 	 * 'post_type', which if empty, will display ALL post-types from the db, registered
 	 * AND unregistered or 'post_status' -- usually users want only 'published'.
 	 *
-	 * By setting the optional 2nd parameter, you can overwrite the entire defaults array.
-	 * Default behavior is to "merge" the arguments.
+	 * By setting the optional 2nd parameter to true, you can overwrite the entire defaults array.
+	 * Default behavior is to "merge" the arguments 
 	 *
 	 * @param	array	parameters corresponding to the various search parameters
 	 * @param	boolean	(optional) $overwrite: if true
@@ -2344,11 +2344,16 @@ class GetPostsQuery {
 		$overwrite = (bool) $overwrite;
 		
 		if ($overwrite) {
-			$this->defaults = $args;		
-			foreach ($args as $k => $v) {
-				$this->$k = $v; // set the args
-			}
+            foreach ($this->defaults as $k =>$v) {
+                if (isset($args[$k])) {
+                    $this->defaults[$k] = $v;
+                }
+                else {
+                    $this->defaults[$k] = null;
+                }
+            }
 		}
+		// Line item override
 		else {
 			foreach ($args as $k => $v) {
 				$this->defaults[$k] = $v;

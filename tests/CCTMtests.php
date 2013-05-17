@@ -1,12 +1,12 @@
 <?php
 /*------------------------------------------------------------------------------
-Make sure we're cleared to launch.  The tests here are meant to run on each
-page request.  Ideally, the results could be cached so we don't have to hit
-the database and check other plugins repeatedly.
+Make sure we're cleared to launch.  The tests here are meant could run on each
+page request to ensure basic functionality.
 
+These are not written using a testing framework and do not require a specific 
+database or theme.
 ------------------------------------------------------------------------------*/
-class CCTMtests
-{	
+class CCTMtests {	
 	//------------------------------------------------------------------------------
 	/**
 	 * @param	array	list of names of incompatible plugins

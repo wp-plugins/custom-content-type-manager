@@ -15,13 +15,6 @@ parameter to the CCTM::$search_by array, e.g.
 
 CCTM::$search_by[] = 'post_status';
 
-
-DO NOT OVERWRITE THIS FILE DIRECTLY!  Instead, create a copy of this file inside
-wp-content/uploads/cctm/search_parameters/ -- this ensures that your
-custom modications are preserved in a place that will not be overwritten by the 
-WordPress update process.
-
-
 This file should ONLY populate the CCTM::$search_by array, e.g.
 
 	CCTM::$search_by[] = 'post_type';
@@ -33,6 +26,11 @@ The options available as "search_by" parameters include any option available to 
 GetPostsQuery::get_posts() function:
 
 http://code.google.com/p/wordpress-summarize-posts/wiki/get_posts
+
+DO NOT OVERWRITE THIS FILE DIRECTLY!  Instead, create a copy of this file inside
+wp-content/uploads/cctm/config/search_parameters/ -- this ensures that your
+custom modications are preserved in a place that will not be overwritten by the 
+WordPress update process.
 ------------------------------------------------------------------------------*/
 
 CCTM::$search_by[] = 'post_type';
