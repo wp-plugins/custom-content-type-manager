@@ -197,6 +197,25 @@ class SummarizePostsUnitTests extends UnitTestCase {
 	}    
 
 
+    // Search Terms
+	function test_search() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['search_columns'] =  array('post_title', 'post_content');
+		$args['search_term'] = 'wordpress';
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 2);
+	}    
+
+	function test_search2() {
+		$Q = new GetPostsQuery();
+		$args = array();
+		$args['search_columns'] =  array('post_title');
+		$args['search_term'] = 'Page';
+		$args['match_rule'] = 'starts_with';
+		$results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 6);
+	}    
 
 	// Order By
 	function test_order_posts1() {

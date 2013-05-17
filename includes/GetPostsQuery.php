@@ -433,7 +433,7 @@ class GetPostsQuery {
 					break;
 				case 'post_type':
 					if ( !empty($item) && !post_type_exists($item) ) {
-						$this->errors[] = __('Invalid post_type:') . $item . '<-- '. print_r($this->registered_post_types, true) . ' Line:' .__LINE__;
+						$this->errors[] = __('Invalid post_type:') . $item;
 	
 					}
 					break;
@@ -599,7 +599,7 @@ class GetPostsQuery {
 		if (isset($this->operators[$arg])) {
 			return $this->operators[$arg];
 		}
-		
+		// Override due to conceede to WP habit
 		if ('post_mime_type' == $arg) {
 			return 'starts_with';
 		}
@@ -1189,9 +1189,6 @@ class GetPostsQuery {
 		if ($this->direct_filter_flag) {
 			foreach($this->direct_filter_columns as $c) {
 				if (in_array($c, self::$wp_posts_columns)) {
-					//$hash['direct_filter'] .= $this->_sql_filter($wpdb->posts, $c, '=', $this->$c);
-					//die('direct filter on '. $c);
-					//print 'direct filter on '. $c;
 					$hash['direct_filter'] .= $this->_sql_filter_posts($c, $this->_get_operator($c), $this->$c);
 				}
 				else {
@@ -1611,6 +1608,7 @@ class GetPostsQuery {
 		
 		switch($operator) {
 			case 'starts_with': 
+
 				if ( is_array($value) ) {
 					foreach ($value as &$v) {
 						$v = $wpdb->prepare('%s', $v.'%');
@@ -1626,6 +1624,7 @@ class GetPostsQuery {
 				break;
 				
 			case 'ends_with': 
+
 				if ( is_array($value) ) {
 					foreach ($value as &$v) {
 						$v = $wpdb->prepare('%s', '%'.$v);
@@ -1771,16 +1770,16 @@ class GetPostsQuery {
 		}
 
 		$criteria = array();
-//		print_r($this->search_term); exit;
+
 		foreach ( $this->search_columns as $c ) {
 			// For standard columns in the wp_posts table
 			if ( in_array($c, self::$wp_posts_columns ) ) {
 				switch ($this->match_rule) {
 				case 'starts_with':
-					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term);
+					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", $this->search_term.'%');
 					break;
 				case 'ends_with':
-					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", $this->search_term.'%');
+					$criteria[] = $wpdb->prepare("{$wpdb->posts}.$c LIKE %s", '%'.$this->search_term);
 					break;
 				case 'contains':
 				default:
