@@ -40,7 +40,6 @@ class SP_PostUnitTests extends UnitTestCase {
 		parent::__construct('SP_Post Unit Tests');
 	}
 	
-/*
 	// Make sure we got WP loaded up
 	function testWP() {
 		$this->assertTrue(defined('CCTM_PATH'));
@@ -130,17 +129,12 @@ class SP_PostUnitTests extends UnitTestCase {
 		$post = $P->get($this->post_id);
 		$this->assertTrue(empty($post));
 	}
-*/
 
     // Another round-trip
 	function test_insert3() {
         
         global $wpdb;
         
-//        UPDATE `wpxx_postmeta` SET `meta_value` = 'Apple' WHERE `post_id` = 442 AND `meta_key` = 'a';
-//        $x = $wpdb->update($wpdb->postmeta, array('meta_value' => 'Apple'), array('post_id' => 442, 'meta_key' => 'a'));      
-//		var_dump($x); 
-//				exit;
 		$P = new SP_Post();
 		$post = array();
 		$post['post_title'] = 'Test Meta';
@@ -161,7 +155,7 @@ class SP_PostUnitTests extends UnitTestCase {
         // Nothing changed: make sure additional rows weren't created.
 		$result = $P->update($post, $this->post_id);
 		$this->assertTrue($result == $this->post_id);
-//print $P->debug(); exit;
+
         // Make sure each custom field corresponds to one row in wp_postmeta
         $sql = $wpdb->prepare("SELECT meta_key, count(*) as cnt FROM {$wpdb->postmeta} WHERE post_id=%s GROUP BY meta_key",$this->post_id); 
         $results = $wpdb->get_results($sql, ARRAY_A);
