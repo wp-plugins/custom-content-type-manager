@@ -384,6 +384,10 @@ class CCTMUnitTests extends UnitTestCase {
 		$info = CCTM::filter(array('1','2'),'userinfo');
 		$this->assertTrue($info=='<div class="cctm_userinfo" id="cctm_user_1">cctm: dev@wpcctm.com</div><div class="cctm_userinfo" id="cctm_user_2">nada: nada@nowhere.com</div>');
 	}
+	function testFilter_userinfo1() {
+		$info = CCTM::filter(1,'userinfo','[+user_nicename+]');
+		$this->assertTrue($info=='cctm');
+	}
 
 	// wrapper
 	function testFilter110() {
