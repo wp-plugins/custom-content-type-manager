@@ -5,7 +5,7 @@
  * Implements PHPs htmspecialchars
  */
 
-class CCTM_htmspecialchars extends CCTM_OutputFilter {
+class CCTM_htmlspecialchars extends CCTM_OutputFilter {
 
 	/**
 	 * Replace any empty values with the $option.
