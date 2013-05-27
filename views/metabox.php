@@ -105,6 +105,11 @@
 	
 	<input type="submit" class="button" onclick="javascript:set_continue_editing();" value="<?php _e('Save and Continue Editing', CCTM_TXTDOMAIN ); ?>" />
 
+<?php if (CCTM::get_value($_GET,'a') == 'edit_metabox'): ?>
+
+	<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm&a=delete_metabox&id=<?php print $data['id']; ?>" title="<?php _e('Delete'); ?>" class="button"><?php _e('Delete'); ?></a>
+	
+<?php	endif; ?>
 	<a href="<?php print get_admin_url(false, 'admin.php'); ?>?page=cctm" title="<?php _e('Cancel'); ?>" class="button"><?php _e('Cancel'); ?></a>
 </form>
 

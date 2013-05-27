@@ -22,7 +22,7 @@ if (!array_key_exists($field_name, self::$data['custom_field_defs'])) {
 	return;
 }
 
-// If properly submitted, Proceed with deleting the post type
+// If properly submitted, Proceed with deleting the Custom Field def
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
 	unset(self::$data['custom_field_defs'][$field_name]); 
 	// remove any references to this field from the post_type data.

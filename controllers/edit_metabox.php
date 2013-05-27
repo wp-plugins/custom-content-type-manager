@@ -25,7 +25,7 @@ if (empty($data)) {
 	}
 }
 
-$data['page_title'] = __('Create Metabox', CCTM_TXTDOMAIN);
+$data['page_title'] = __('Edit Metabox', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Metaboxes';
 $data['msg'] = '';
 

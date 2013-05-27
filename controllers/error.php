@@ -13,6 +13,10 @@ switch ($msg_id) {
 		$msg = '<p>'. __('Invalid field name.', CCTM_TXTDOMAIN)
 			. '</p><a class="button" href="?page=cctm_fields">'. __('Back', CCTM_TXTDOMAIN). '</a>';
 		break;
+	case 'invalid_metabox_id':
+		$msg = '<p>'. __('Invalid Metabox ID.', CCTM_TXTDOMAIN)
+			. '</p><a class="button" href="?page=cctm">'. __('Back', CCTM_TXTDOMAIN). '</a>';
+		break;
 	case 'no_cttm_def_available':
 		$msg = '<p>'. __('There is no definition that is ready for importing, or the definition that you are trying to import is empty.', CCTM_TXTDOMAIN)
 			. '</p><a class="button" href="?page=cctm">'. __('Import Definition', CCTM_TXTDOMAIN). '</a>';

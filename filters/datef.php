@@ -15,6 +15,9 @@ class CCTM_datef extends CCTM_OutputFilter {
 	 * @return mixed
 	 */
 	public function filter($input, $options=null) {
+        if (empty($input)) {
+            return $input;
+        }
 		$format = get_option('date_format');
 
 		if (!empty($options)) {
