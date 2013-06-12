@@ -193,7 +193,7 @@ class CCTM_relation extends CCTM_FormElement
 		$wrappertpl = '';
 		// Multi field?
 		if ($this->is_repeatable) {
-
+            $this->remove_label = __('Remove All');
 			$fieldtpl = CCTM::load_tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relation_multi.tpl'
@@ -233,7 +233,7 @@ class CCTM_relation extends CCTM_FormElement
 		}
 		// Regular old Single-selection
 		else {
-
+    		$this->remove_label = __('Remove');
 			$this->post_id    = $this->get_value($current_value,'to_string'); 
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 
@@ -312,7 +312,7 @@ class CCTM_relation extends CCTM_FormElement
 		$preview_html = '';
 		$click_label = __('Choose Relation');
 		$label = __('Default Value', CCTM_TXTDOMAIN);
-		$remove_label = __('Remove');
+		$this->remove_label = __('Remove All');
 
 
 		// Handle the display of the default value

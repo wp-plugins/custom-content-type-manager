@@ -42,7 +42,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 		wp_register_script('cctm_relation', CCTM_URL.'/js/relation.js', array('jquery', 'media-upload', 'thickbox'));
 		wp_enqueue_script('cctm_relation');
 
-		// Bit of a wormhole here: Load up the children's req's, organize into fieldtypes
+		// Bit of a wormhole here: organize into fieldtypes, then load up the children's req's (req's fieldtype)
 		$fieldtypes = array();
 		foreach ($fieldlist as $f) {
 			$metafields = CCTM::get_value(CCTM::$data['custom_field_defs'][$f], 'metafields');
@@ -63,10 +63,9 @@ class CCTM_relationmeta extends CCTM_FormElement
 	/**
 	 * Get the standard fields
 	 *
-	 * @param array   current def
-	 * @param unknown $def
-	 * @param unknown $show_repeatable (optional)
-	 * @return strin HTML
+	 * @param array $def current definition data
+	 * @param boolean $show_repeatable (optional)
+	 * @return string HTML
 	 */
 	public function format_standard_fields($def, $show_repeatable=true) {
 		$is_checked = '';

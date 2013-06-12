@@ -8,7 +8,7 @@
 	<label for="[+id+]" class="cctm_label cctm_[+type+]" id="cctm_label_[+id+]">[+label+]</label><br/>
 	
 	<span class="button" onclick="javascript:thickbox_results('[+id+]','[+type+]',true);">[+button_label+]</span>
-	<span class="button" onclick="javascript:remove_all_relations('[+id+]');">Remove All</span>
+	<span class="button" onclick="javascript:remove_all_relations('[+id+]');">[+remove_label+]</span>
 
 	<!-- target is where the thickbox will be generated -->
 	<div id="target_[+id+]"></div>

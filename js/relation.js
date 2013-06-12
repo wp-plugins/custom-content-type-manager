@@ -176,7 +176,7 @@ function change_page(page_number) {
 	    };
 
 	data.search_parameters = jQuery('#select_posts_form').serialize();
-    //console.log(data);
+
 	jQuery.post(
 	    cctm.ajax_url,
 	    data,

@@ -144,6 +144,8 @@ class CCTM_directory extends CCTM_FormElement
 				$options[] = preg_replace('#^'.$this->source_dir.'/#','',$filename);
 			}   
 		}
+		// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=504
+		sort($options,SORT_STRING);
 		$this->options = $options;
 		$opt_cnt = count($this->options);
 
