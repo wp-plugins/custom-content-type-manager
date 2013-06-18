@@ -2586,7 +2586,7 @@ class CCTM {
 			}
 		}
 		// Handle tag pages
-		elseif (isset($query['tag'])) {
+		elseif (!isset($query['post_type']) && isset($query['tag'])) {
 			$args = array( 'public' => true, '_builtin' => false );
 			$public_post_types = get_post_types( $args );
 

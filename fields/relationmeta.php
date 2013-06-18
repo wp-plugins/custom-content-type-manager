@@ -266,10 +266,12 @@ class CCTM_relationmeta extends CCTM_FormElement
                     // Warning: $metafields that is set on this post may not containt fields
                     // that were newly added to the def, so we flesh it out from the $this->metafields def.
 					$content = '';
-					foreach ($this->metafields as $mf) {
-					   if (!isset($metafields[$mf])) {
-					       $metafields[$mf] = '';
-					   }
+					if (is_array($this->metafields)) {
+    					foreach ($this->metafields as $mf) {
+    					   if (!isset($metafields[$mf])) {
+    					       $metafields[$mf] = '';
+    					   }
+    					}
 					}
 					// Look up data for each of the metafields
 					foreach ($metafields as $mf => $v) {
