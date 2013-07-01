@@ -178,6 +178,7 @@ class CCTM_user extends CCTM_FormElement {
 		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		// wrap
+        $this->set_prop('value', $current_value);
 		$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		return CCTM::parse($wrappertpl, $this->get_props());
 	}

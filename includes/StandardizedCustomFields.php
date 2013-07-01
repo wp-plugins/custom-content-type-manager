@@ -222,7 +222,8 @@ class StandardizedCustomFields {
 			}
 		}
 		
-		// Validate the custom fields: only need to do this AFTER a post-new.php has been created.
+		// Validate the custom fields when a page is first printed (e.g. the validation rule was
+		// created or updated, then the post is edited)
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		if ( in_array($file, array('post.php'))) {
 			global $post;

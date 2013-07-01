@@ -234,7 +234,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		
 			$this->content .= CCTM::parse($optiontpl, $hash);
 		}
-
+		$this->set_prop('value', $current_value);
 		return CCTM::parse($wrappertpl, $this->get_props());
 
 	}
