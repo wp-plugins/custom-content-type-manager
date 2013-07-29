@@ -1510,13 +1510,15 @@ class GetPostsQuery {
 				break;
 
 			case 'like': 
-
+                // Like's % cause sprintf errors, so we gotta join the query ugly like.
+                // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=508
 				if ( is_array($value) ) {
+				    $q = sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND ", $wpdb->prepare('%s',$column));
 					foreach ($value as &$v) {
 						$v = $wpdb->prepare('%s', '%'.$v.'%');
-						$sub_query .= sprint(" %s {$wpdb->postmeta}.meta_value LIKE %s", $line_item_join_rule, $v);
+						$v = sprintf("{$wpdb->postmeta}.meta_value LIKE %s", $v);
 					}
-					return sprintf(" {$this->join_rule} ({$wpdb->postmeta}.meta_key = %s AND $sub_query)", $wpdb->prepare('%s',$column));		
+					return $q . '('.implode(" $line_item_join_rule ", $value) .'))'; // close the sub query
 				}
 				else {
 					$value = $wpdb->prepare('%s', '%'.$value.'%');

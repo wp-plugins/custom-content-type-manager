@@ -162,7 +162,7 @@
 		</label>
 		<span class="cctm_description"><?php _e('Check this option to let CCTM generate low-quality, smaller images for use in the post-selector for relation, image, and media fields.', CCTM_TXTDOMAIN); ?>
 		<br/>
-			<font style="color:red;"><strong>WARNING:</strong> this is experimental.  The post-selector may encounter white-screens if your source images are too large (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=262">issue 262</a>).</font>
+			<font style="color:red;"><?php _e('<strong>WARNING:</strong> this is experimental.  The post-selector may encounter white-screens if your source images are too large (see <a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=262">issue 262</a>',CCTM_TXTDOMAIN); ?>.</font>
 		</span>
 	</div>
 

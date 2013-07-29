@@ -300,8 +300,17 @@ class SummarizePostsUnitTests extends UnitTestCase {
 		$args['post_title']['starts_with'] = 'L';
 		$results = $Q->get_posts($args);
 		$this->assertTrue(count($results) == 2);
-	}	
+	}
 
+    // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=508	
+	function test_get_posts_operators7() {
+        $Q = new GetPostsQuery();
+        $args = array();
+        $args['post_type'] = 'movie';
+        $args['rating']['like'] = array('PG','R');
+        $results = $Q->get_posts($args);
+		$this->assertTrue(count($results) == 4);
+    }
 
 }
  
