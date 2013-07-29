@@ -884,25 +884,24 @@ class CCTM {
 	 *
 	 */
 	public static function check_for_updates() {
-		
+
 		// If it's not a new install, we check for updates
 		if ( version_compare( self::get_stored_version(), self::get_current_version(), '<' ) ) {
 			// set the flag
 			define('CCTM_UPDATE_MODE', 1);
-			// Load up available updates in order (scandir will sort the results automatically)
-			$updates = scandir(CCTM_PATH.'/updates');
-			foreach ($updates as $file) {
+			// Load up available updates in order (Iterator will sort the results automatically)
+			$updates = new FilesystemIterator(CCTM_PATH.'/updates', FilesystemIterator::KEY_AS_PATHNAME);
+			foreach ($updates as $file => $info) {
 				// Skip hidden files and non-php files
-				if ($file === '.' || $file === '..') continue;
-				if (is_dir(CCTM_PATH.'/updates/'.$file)) continue;
+				if (is_dir($file)) continue;
 				if (substr($file, 0, 1) == '.') continue;
 				// skip non-php files
-				if (pathinfo(CCTM_PATH.'/updates/'.$file, PATHINFO_EXTENSION) != 'php') continue;
+				if ($info->getExtension() != 'php') continue;
 
 				// We don't want to re-run older updates
-				$this_update_ver = substr($file, 0, -4);
+				$this_update_ver = substr($info->getBasename(), 0, -4);
 				if ( version_compare( self::get_stored_version(), $this_update_ver, '<' ) ) {
-				    die('asdfasdfasd..');
+
 					// Run the update by including the file
 					include CCTM_PATH.'/updates/'.$file;
 					// timestamp the update
@@ -1224,14 +1223,12 @@ class CCTM {
 		$files = array();
 		
 		// Scan default directory
-		$dir = CCTM_PATH .'/'.$type;
-		$rawfiles = scandir($dir);
-		foreach ($rawfiles as $f) {
-			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
-				$shortname = basename($f);
-				$shortname = preg_replace('/\.php$/', '', $shortname);
-				$files[$shortname] = $dir.'/'.$f;
-			}
+		$rawfiles = new FilesystemIterator(CCTM_PATH .'/'.$type, FilesystemIterator::KEY_AS_PATHNAME);
+		foreach ($rawfiles as $f => $info) {
+            if ($info->getExtension() == 'php') {
+                $shortname = $info->getBasename('.php');
+                $files[$shortname] = $f;
+            }
 		}
 
 		// Scan 3rd party directory
@@ -1242,26 +1239,21 @@ class CCTM {
 		else {
 			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/'.$type;
 			if (is_dir($dir)) {
-				$rawfiles = scandir($dir);
-				foreach ($rawfiles as $f) {
-					if (preg_match('/^\./', $f)) {
-						continue; // skip the '.' and '..' dirs
-					}
+				$rawfiles2 = new FilesystemIterator($dir, FilesystemIterator::KEY_AS_PATHNAME);
+				foreach ($rawfiles2 as $f => $info) {
 					// Check the main dir
-					if (preg_match('/\.php$/', $f) ) {
-						$shortname = basename($f);
-						$shortname = preg_replace('/\.php$/', '', $shortname);
-						$files[$shortname] = $dir.'/'.$f;
-					}
+					if ($info->getExtension() == 'php') {
+                        $shortname = $info->getBasename('.php');
+                        $files[$shortname] = $f;
+                    }
 					// check subdirectories
-					elseif (is_dir($dir.'/'.$f)) {
-						$morerawfiles = scandir($dir.'/'.$f);
-						foreach ($morerawfiles as $f2) {
-							if ( !preg_match('/^\./', $f2) && preg_match('/\.class\.php$/', $f2) ) {
-								$shortname = basename($f2);
-								$shortname = preg_replace('/\.class\.php$/', '', $shortname);
-								$files[$shortname] = $dir.'/'.$subdir.'/'.$f2;
-							}
+					elseif (is_dir($f)) {
+						$morerawfiles = new FilesystemIterator($dir, FilesystemIterator::KEY_AS_PATHNAME);
+						foreach ($morerawfiles as $f2 => $info2) {
+        					if ($info2->getExtension() == 'php') {
+                                $shortname = $info->getBasename('.class.php');
+                                $files[$shortname] = $f;
+                            }
 						}
 					}
 				}
@@ -1270,7 +1262,6 @@ class CCTM {
 		
 		// write to cache
 		self::$data['cache']['helper_classes'][$type] = $files;
-//		        print '<pre>'; print_r(self::$data['cache']); print '</pre>'; 
         update_option(self::db_key, self::$data);
 		
 		return $files;

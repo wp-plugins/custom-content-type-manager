@@ -77,13 +77,11 @@ class CCTM_Ajax {
 
 		// Scan directory
 		$dir = CCTM_PATH .'/ajax-controllers';
-		$rawfiles = scandir($dir);
-		foreach ($rawfiles as $f) {
-			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
-				$shortname = basename($f);
-				$shortname = preg_replace('/\.php$/', '', $shortname);
-				$this->controllers[$shortname] = $dir.'/'.$f;
-			}
+        $files = new FilesystemIterator(CCTM_PATH .'/ajax-controllers', FilesystemIterator::KEY_AS_PATHNAME);
+		foreach ($files as $f => $info) {
+            if ($info->getExtension() != 'php') continue;
+            $shortname = $info->getBasename('.php');
+            $this->controllers[$shortname] = $f;
 		}
 
 		foreach ($this->controllers as $shortname => $path) {

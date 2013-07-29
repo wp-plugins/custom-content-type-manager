@@ -34,10 +34,8 @@ function _____sort_custom_fields($field, $sortfunc) {
 	return create_function('$var1, $var2', 'return '.$sortfunc.'($var1["'.$field.'"], $var2["'.$field.'"]);');
 }
 
-$data = get_option( 'custom_content_types_mgr_data', array() );
+$data = get_option('custom_content_types_mgr_data', array());
 
-
-//print_r($data); exit;
 
 //! 1. Update Icon Path
 foreach ($data as $post_type => &$def) {

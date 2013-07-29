@@ -6,6 +6,7 @@ if (!current_user_can('administrator')) exit('Admins only.');
  * Show all available types of Custom Fields
  *
  */
+//print '<pre>'; print_r(CCTM::$data['cache']); print '</pre>';
 $data=array();
 $data['page_title'] = __('Add Field: Choose Type of Custom Field', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/SupportedCustomFields';

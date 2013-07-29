@@ -1,9 +1,9 @@
 <?php
 /*------------------------------------------------------------------------------
-Make sure we're cleared to launch.  The tests here are meant could run on each
-page request to ensure basic functionality.
+Make sure we're cleared to launch.  The tests here could run on each
+page request to ensure basic functionality... or cache the results?
 
-These are not written using a testing framework and do not require a specific 
+These are NOT written using a testing framework and do not require a specific 
 database or theme.
 ------------------------------------------------------------------------------*/
 class CCTMtests {	
@@ -89,7 +89,15 @@ class CCTMtests {
 		}
 	}
 	
-	
+	//------------------------------------------------------------------------------
+	public static function reqd_classes() {
+	   $classes = array('FilesystemIterator');
+	   foreach ($classes as $c) {
+    	   if (!class_exists($c)) {
+    	       CCTM::$errors[] = sprintf(__('Missing required class: %s', CCTM_TXTDOMAIN), $c);
+    	   }
+	   }
+	}
 	
 	/**
 	 * List all tests to run here.
@@ -102,7 +110,7 @@ class CCTMtests {
 		self::wp_version_gt(CCTM::wp_req_ver);
 		self::php_version_gt(CCTM::php_req_ver);
 		self::mysql_version_gt(CCTM::mysql_req_ver);
-
+        self::reqd_classes();
 		self::incompatible_plugins( array('Magic Fields','Custom Post Type UI','CMS Press') );
 		
 		if (!empty(CCTM::$errors)) {
