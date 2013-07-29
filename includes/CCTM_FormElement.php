@@ -596,7 +596,7 @@ abstract class CCTM_FormElement {
 	 * If to_string is the conversion, then JSON encoded arrays return only the 1st
 	 * value stored. E.g. ["1","2"] ==> 1
 	 *
-	 * @param	string	$str
+	 * @param	mixed	$str normally JSON-encoded string, but also handles php array
 	 * @param	string	$conversion to_string|to_array
 	 * @return mixed (a string or an array, depending on the $conversion)
 	 */		
@@ -606,7 +606,12 @@ abstract class CCTM_FormElement {
 				return array();
 			}
 			
-			$out = (array) json_decode($str, true );
+			if (!is_array($str)) {
+                $out = (array) json_decode($str, true);
+			}
+			else {
+                $out = $str;
+			}
 			// the $str was not JSON encoded
 			if (empty($out)) {
 				return array($str);
@@ -626,7 +631,12 @@ abstract class CCTM_FormElement {
 			if (is_numeric($str)) {
 				return $str;
 			}
-			$out = (array) json_decode($str, true );
+			if (!is_array($str)) {			
+    			$out = (array) json_decode($str, true);
+            }
+            else {
+                $out = $str;
+            }
 			// the $str was not JSON encoded
 			if (empty($out)) {
 				return $str;

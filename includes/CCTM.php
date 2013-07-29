@@ -608,6 +608,7 @@ class CCTM {
 				}
 			}
 			// Validate fields
+//			print_r($vals); exit;
 			StandardizedCustomFields::validate_fields($post_type,$vals);
 			
 			// Add the arguments back in
