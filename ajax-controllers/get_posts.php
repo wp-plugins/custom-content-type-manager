@@ -73,6 +73,7 @@ $possible_configs[] = '/config/post_selector/_'.$def['type'].'.php'; 		// e.g. _
 $possible_configs[] = '/config/post_selector/_relation.php'; 		// default
 
 CCTM::$post_selector = array();
+CCTM::$search_by = true; // all options available if the tpl passes them
 if (!CCTM::load_file($possible_configs)) {
 	print '<p>'.__('Post Selector configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
 }
@@ -167,10 +168,7 @@ $search_form_tpl = CCTM::load_tpl(
 $Form->set_tpl($search_form_tpl);
 $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
-// $search_by = array('search_term','yearmonth','post_type'); 
-$search_by = true; // all options available if the tpl passes them
-$d['search_form'] = $Form->generate($search_by, $args);
-
+$d['search_form'] = $Form->generate(CCTM::$search_by, $args);
 
 $item_tpl = '';
 $wrapper_tpl = '';

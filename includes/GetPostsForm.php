@@ -332,8 +332,9 @@ class GetPostsForm {
 		$current_value = $this->get_value('author');
 
 		global $wpdb;
-
-		$authors = $wpdb->get_results("SELECT ID, display_name from {$wpdb->users} ORDER BY display_name");
+        // Added hard-limit
+        // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=480
+		$authors = $wpdb->get_results("SELECT ID, display_name from {$wpdb->users} ORDER BY display_name LIMIT 100");
 
 		$ph['options'] = '<option value="">'.__('All Authors', CCTM_TXTDOMAIN).'</option>';
 		foreach ($authors as $a) {
