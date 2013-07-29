@@ -327,12 +327,7 @@ class CCTM {
 			CCTM::$errors['could_not_create_img'] = sprintf(
 				__('Could not create cached image: %s.', CCTM_TXTDOMAIN)
 				, "<code>$thumbnail_path</code>");
-
-			$myFile = "/tmp/cctm.txt";
-			$fh = fopen($myFile, 'a') or die("can't open file");
-			fwrite($fh, 'Could not save the image '.$thumbnail_path."\n");
-			fclose($fh);
-			
+            CCTM::log('Could not save the image '.$thumbnail_path,__FILE__,__LINE__);			
 			return $p['guid'];
 			
 		}
@@ -608,7 +603,6 @@ class CCTM {
 				}
 			}
 			// Validate fields
-//			print_r($vals); exit;
 			StandardizedCustomFields::validate_fields($post_type,$vals);
 			
 			// Add the arguments back in
@@ -898,7 +892,7 @@ class CCTM {
 			// Load up available updates in order (scandir will sort the results automatically)
 			$updates = scandir(CCTM_PATH.'/updates');
 			foreach ($updates as $file) {
-				// Skip the gunk
+				// Skip hidden files and non-php files
 				if ($file === '.' || $file === '..') continue;
 				if (is_dir(CCTM_PATH.'/updates/'.$file)) continue;
 				if (substr($file, 0, 1) == '.') continue;
@@ -908,6 +902,7 @@ class CCTM {
 				// We don't want to re-run older updates
 				$this_update_ver = substr($file, 0, -4);
 				if ( version_compare( self::get_stored_version(), $this_update_ver, '<' ) ) {
+				    die('asdfasdfasd..');
 					// Run the update by including the file
 					include CCTM_PATH.'/updates/'.$file;
 					// timestamp the update
@@ -917,9 +912,12 @@ class CCTM {
 					update_option( self::db_key, self::$data );
 				}
 			}
-			// Clear the cache
+
+			// Clear the cache and such
 			unset(CCTM::$data['cache']);
 			unset(CCTM::$data['warnings']);
+			// Mark the update
+			self::$data['cctm_version'] = self::get_current_version();
 			update_option(self::db_key, self::$data);
 		}
 
@@ -1221,11 +1219,6 @@ class CCTM {
 	 * @return array Associative array: array('shortname' => '/full/path/to/shortname.php')
 	 */
 	public static function get_available_helper_classes($type) {
-	
-		// return from cache, if available
-		if(isset(self::$data['cache']['helper_classes'][$type])) {
-			return self::$data['cache']['helper_classes'][$type];
-		}
 		
 		// Ye olde output
 		$files = array();
@@ -1277,7 +1270,8 @@ class CCTM {
 		
 		// write to cache
 		self::$data['cache']['helper_classes'][$type] = $files;
-		update_option(self::db_key, self::$data);
+//		        print '<pre>'; print_r(self::$data['cache']); print '</pre>'; 
+        update_option(self::db_key, self::$data);
 		
 		return $files;
 	}
@@ -1436,7 +1430,7 @@ class CCTM {
 	 * @return string
 	 */
 	public static function get_stored_version() {
-		if ( isset(self::$data['cctm_version']) ) {
+		if (isset(self::$data['cctm_version'])) {
 			return self::$data['cctm_version'];
 		}
 		else {
@@ -1926,7 +1920,7 @@ class CCTM {
 	 * @return	mixed obect if found, false if not
 	 */
 	public static function load_object($shortname, $type) {
-	
+//        print '<pre>'; print_r( self::$data['cache']); print '</pre>';
 		$path = '';	
 		$object_classname = '';
 		switch ($type) {
