@@ -82,7 +82,7 @@ class CCTM_Rule_pattern extends CCTM_Validator {
 			// Did not match.
 			elseif ($result == false) {
 				if (empty($this->message)) {
-					$this->error_msg = sprintf(__('The %s field must match', CCTM_TXTDOMAIN), $this->get_subject());	
+					$this->error_msg = sprintf(__('The %s field must pass the validation rule.', CCTM_TXTDOMAIN), $this->get_subject());	
 				}
 				else {
 					$this->error_msg = sprintf(__($this->message), $this->get_subject());
@@ -124,7 +124,7 @@ class CCTM_Rule_pattern extends CCTM_Validator {
 					
 					if ($error_flag) {
 						if (empty($this->message)) {
-							$this->error_msg = sprintf(__('The %s field must match', CCTM_TXTDOMAIN), $this->get_subject());	
+							$this->error_msg = sprintf(__('The %s field must match the pattern defined for this field: '.$this->pattern, CCTM_TXTDOMAIN), $this->get_subject());	
 						}
 						else {
 							$this->error_msg = sprintf(__($this->message), $this->get_subject());

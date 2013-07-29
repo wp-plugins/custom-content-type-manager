@@ -12,5 +12,5 @@
 
 
 <span class="button" onclick="javascript:thickbox_refine_search();">[+filter+]</span>
-<br/>
+
 <span class="button" onclick="javascript:thickbox_reset_search();">[+show_all+]</span>

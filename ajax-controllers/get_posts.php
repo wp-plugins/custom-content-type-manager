@@ -80,6 +80,10 @@ if (!CCTM::load_file($possible_configs)) {
 
 // This gets subsequent search data that gets passed when the user refines the search.
 $args = array();
+// defaults
+$args['orderby'] = 'ID';
+$args['order'] = 'ASC';
+
 if (isset($_POST['search_parameters'])) {
 
 	parse_str($_POST['search_parameters'], $args);
@@ -143,13 +147,14 @@ $tpls = array (
 	'nextTpl' 		=> '&nbsp;<span class="linklike" onclick="javascript:change_page([+page_number+]);">Next &rsaquo;</span>',
 	'currentPageTpl'=> '&nbsp;<span class="post_selector_pagination_active_page">[+page_number+]</span>&nbsp;',
 	'pageTpl' 		=> '&nbsp;<span class="linklike" title="[+page_number+]" onclick="javascript:change_page([+page_number+]);">[+page_number+]</span>&nbsp;',
-	'outerTpl' 		=> '<div id="pagination">[+content+]<br/>
+	'outerTpl' 		=> '<div id="pagination">[+content+] &nbsp; &nbsp;
 		Page [+current_page+] of [+page_count+]<br/>
 	</div>',
 );
 $Q->set_tpls($tpls);
 
 // Get the results
+//$d['content'] = '<pre>'.print_r($args, true) . '</pre>';
 $results = $Q->get_posts($args);
 
 $search_form_tpl = CCTM::load_tpl(
