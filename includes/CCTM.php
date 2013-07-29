@@ -449,9 +449,6 @@ class CCTM {
 	 */
 	public static function admin_init() {
 
-		// Load up the textdomain(s) for translations
-		self::load_file('/config/lang/dictionaries.php');
-
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		$page = self::get_value($_GET, 'page');
 
@@ -1875,16 +1872,16 @@ class CCTM {
 				// Variable functions didn't seem to work here.
 				switch ($load_type) {
 					case 'include':
-						include($dir.$file);
+						include $dir.$file;
 						break;
 					case 'include_once':
-						include_once($dir.$file);
+						include_once $dir.$file;
 						break;
 					case 'require':
-						require($dir.$file);
+						require $dir.$file;
 						break;
 					case 'require_once':
-						require_once($dir.$file);
+						require_once $dir.$file;
 						break;
 				}
 				

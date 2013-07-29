@@ -28,7 +28,8 @@ require_once 'includes/functions.php';
 
 CCTM::$Ajax = new CCTM_Ajax();
 
-
+// Load up the textdomain(s) for translations
+CCTM::load_file('/config/lang/dictionaries.php');
 
 // Get admin ready, print any CCTMtests::$errors in the admin dashboard
 add_action( 'admin_notices', 'CCTM::print_notices');
