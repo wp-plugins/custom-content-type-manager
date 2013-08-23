@@ -102,6 +102,14 @@ class StandardizedCustomFields {
 				if (empty($fields) && !in_array($post_type, CCTM::get_value($m,'post_types',array()))) {
 					continue;
 				}
+				// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=511
+                // Check if the user has specified PHP conditions to control the visibility of the metabox
+                if ( isset($m['visibility_control']) && !empty($m['visibility_control']) ) {
+                    if ( eval(html_entity_decode($m['visibility_control'])) !== true ) {
+                        neat_html("continue");
+                        continue;
+                    }
+                }				
 				add_meta_box($m['id'],$m['title'],$callback,$post_type,$m['context'],$m['priority'],$callback_args);
 			}
 			// get orphaned custom fields: fields without an explicit metabox

@@ -34,7 +34,7 @@ $data['context'] = 'advanced';
 $data['priority'] = 'default';
 $data['callback'] = '';
 $data['callback_args'] = '';
-
+$data['visibility_control'] = '';
 
 $data['style'] = file_get_contents(CCTM_PATH.'/css/validation.css');
 

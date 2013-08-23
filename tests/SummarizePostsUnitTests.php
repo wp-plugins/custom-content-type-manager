@@ -63,7 +63,8 @@ class SummarizePostsUnitTests extends UnitTestCase {
 		$args['post_type'] = 'page';
 		
 		$cnt = $Q->count_posts($args);
-		$this->assertTrue($cnt == 6);
+
+		$this->assertTrue($cnt == 7);
 	}
 	
 	function test_count_posts2() {

@@ -96,6 +96,7 @@ class CCTM_Metabox {
 		$data['priority'] = CCTM::get_value($posted_data, 'priority');
 		$data['callback'] = CCTM::get_value($posted_data, 'callback');
 		$data['callback_args'] = CCTM::get_value($posted_data, 'callback_args');
+		$data['visibility_control'] = CCTM::get_value($posted_data, 'visibility_control');
 		$data['post_types'] = CCTM::get_value($posted_data, 'post_types', array());
 		
 		$data = CCTM::striptags_deep($data);

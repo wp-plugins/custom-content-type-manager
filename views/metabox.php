@@ -83,9 +83,17 @@
 					<?php _e('Callback Arguments', CCTM_TXTDOMAIN); ?>
 				</label>
 				<input type="text" name="callback_args" class="cctm_text" id="callback_args" value="<?php print htmlspecialchars($data['callback_args']); ?>"/>
-				<span class="cctm_description"><?php _e('Comma-separaated arguments to pass into your callback function. These are used only if you supply a callback function.', CCTM_TXTDOMAIN); ?></span>
+				<span class="cctm_description"><?php _e('Comma-separated arguments to pass into your callback function. These are used only if you supply a callback function.', CCTM_TXTDOMAIN); ?></span>
 			</div>
 
+            <!--!visiblity_control -->
+			<div class="cctm_element_wrapper" id="custom_field_wrapper_visibility_control">			
+				<label for="visibility_control_label" class="cctm_label cctm_text_label" id="cctm_label_visibility_control">
+					<?php _e('Visibility Control', CCTM_TXTDOMAIN); ?>
+				</label>
+				<input type="text" name="visibility_control" class="cctm_text" id="visibility_control" value="<?php print htmlspecialchars($data['visibility_control']); ?>"/>
+				<span class="cctm_description"><?php _e('Fine-tune the display of your metabox by specifying additional conditions. This field must be valid PHP which returns a boolean. Example to show only when the page template is page-about.php:<br /><code>return basename( get_page_template() ) == "page-about.php"</code><br />If nothing is displaying, see <a href="http://php.net/manual/en/function.eval.php">http://php.net/manual/en/function.eval.php</a> and check your code', CCTM_TXTDOMAIN); ?></span>
+			</div>
 
 		</div><!-- /inside -->
 	</div><!-- /postbox -->
