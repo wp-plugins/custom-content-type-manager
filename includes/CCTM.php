@@ -197,6 +197,7 @@ class CCTM {
 		'post_types' => array(),
 		'callback' => '',
 		'callback_args' => '',
+		'visibility_control' => '',
 	);
 
 	// Where are the icons for custom images stored?
