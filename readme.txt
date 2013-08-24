@@ -85,7 +85,7 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
-= 0.9.7.9 =
+= 0.9.7.10 =
 
 * Returning to the banal world of scandir after a sunburned excursion to FilesystemIterator
 
@@ -446,7 +446,7 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 == Upgrade Notice ==
 
-= 0.9.7.9 =
+= 0.9.7.10 =
 
 * All users of 0.9.7.8 and 0.9.7.9 should update.
 
