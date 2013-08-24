@@ -26,13 +26,13 @@ $data['submit'] = __('Save', CCTM_TXTDOMAIN);
 $data['action_name']  = 'custom_content_type_mgr_edit_custom_field';
 $data['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
 
-$nonce = self::get_value($_GET, '_wpnonce');
+$nonce = CCTM::get_value($_GET, '_wpnonce');
 if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 }
 
 // Get the post-types for listing associations.
-$displayable_types = self::get_post_types();
+$displayable_types = CCTM::get_post_types();
 	
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
@@ -62,8 +62,8 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		// die('All associations removed...');
 		foreach($displayable_types as $pt) {
 			$def = array();
-			if ( isset(self::$data['post_type_defs'][$pt])) {
-				$def = self::$data['post_type_defs'][$pt];
+			if ( isset(CCTM::$data['post_type_defs'][$pt])) {
+				$def = CCTM::$data['post_type_defs'][$pt];
 			}
 			
 			if (is_array($def['custom_fields']) && in_array($field_name, $def['custom_fields'])) {
@@ -73,15 +73,15 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 						$revised_custom_fields[] = $cf;
 					}
 				}
-				self::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;
+				CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;
 			}
 		}
 	}
 	else {
 		foreach($displayable_types as $pt) {
 			$def = array();
-			if ( isset(self::$data['post_type_defs'][$pt])) {
-				$def = self::$data['post_type_defs'][$pt];
+			if ( isset(CCTM::$data['post_type_defs'][$pt])) {
+				$def = CCTM::$data['post_type_defs'][$pt];
 			}
 			
 			// Add the association
@@ -90,7 +90,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 					|| !is_array($def['custom_fields'])
 					|| !in_array($field_name, $def['custom_fields'])) {
 					$def['custom_fields'][] = $field_name;
-					self::$data['post_type_defs'][$pt]['custom_fields'] = $def['custom_fields'];
+					CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $def['custom_fields'];
 				}
 			}
 			// Remove the association
@@ -103,7 +103,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 						}
 					}
 				}
-				self::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;								
+				CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;								
 			}
 		}
 	}

@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.7.8';
+	const version = '0.9.7.9';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -887,27 +887,29 @@ class CCTM {
 		if ( version_compare( self::get_stored_version(), self::get_current_version(), '<' ) ) {
 			// set the flag
 			define('CCTM_UPDATE_MODE', 1);
-			// Load up available updates in order (Iterator will sort the results automatically)
-			$updates = new FilesystemIterator(CCTM_PATH.'/updates', FilesystemIterator::KEY_AS_PATHNAME);
-			foreach ($updates as $file => $info) {
-				// Skip hidden files and non-php files
-				if (is_dir($file)) continue;
-				if (substr($file, 0, 1) == '.') continue;
-				// skip non-php files
-				if ($info->getExtension() != 'php') continue;
-
-				// We don't want to re-run older updates
-				$this_update_ver = substr($info->getBasename(), 0, -4);
-				if ( version_compare( self::get_stored_version(), $this_update_ver, '<' ) ) {
-
-					// Run the update by including the file
-					include CCTM_PATH.'/updates/'.$file;
-					// timestamp the update
-					self::$data['cctm_update_timestamp'] = time(); // req's new data structure
-					// store the new version after the update
-					self::$data['cctm_version'] = $this_update_ver; // req's new data structure
-					update_option( self::db_key, self::$data );
-				}
+			cctm_run_tests();
+			// Load up available updates in order 
+			// Older systems don't have FilesystemIterator
+			// $updates = new FilesystemIterator(CCTM_PATH.'/updates', FilesystemIterator::KEY_AS_PATHNAME);
+			$updates = scandir(CCTM_PATH.'/updates');
+			foreach ($updates as $file) {
+                // Skip the gunk
+                if ($file === '.' || $file === '..') continue;
+                if (is_dir(CCTM_PATH.'/updates/'.$file)) continue;
+                if (substr($file, 0, 1) == '.') continue;
+                // skip non-php files
+                if (pathinfo(CCTM_PATH.'/updates/'.$file, PATHINFO_EXTENSION) != 'php') continue;
+                // We don't want to re-run older updates
+                $this_update_ver = substr($file, 0, -4);
+                if ( version_compare( self::get_stored_version(), $this_update_ver, '<' ) ) {
+                        // Run the update by including the file
+                        include CCTM_PATH.'/updates/'.$file;
+                        // timestamp the update
+                        self::$data['cctm_update_timestamp'] = time(); // req's new data structure
+                        // store the new version after the update
+                        self::$data['cctm_version'] = $this_update_ver; // req's new data structure
+                        update_option( self::db_key, self::$data );
+                }
 			}
 
 			// Clear the cache and such
@@ -1375,7 +1377,7 @@ class CCTM {
 	 *
 	 * @return 	array	of post_types
 	 */
-	public function get_post_types() {
+	public static function get_post_types() {
 		$registered = get_post_types();
 		$cctm_types = array();
 

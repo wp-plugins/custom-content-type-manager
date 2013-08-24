@@ -74,19 +74,20 @@ class CCTM_Ajax {
 	 * controller has its own event (i.e. action).
 	 */
 	public function __construct() {
+        // Scan directory
+        $dir = CCTM_PATH .'/ajax-controllers';
+        $rawfiles = scandir($dir);
+        foreach ($rawfiles as $f) {
+            if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
+                $shortname = basename($f);
+                $shortname = preg_replace('/\.php$/', '', $shortname);
+                $this->controllers[$shortname] = $dir.'/'.$f;
+            }
+        }
 
-		// Scan directory
-		$dir = CCTM_PATH .'/ajax-controllers';
-        $files = new FilesystemIterator(CCTM_PATH .'/ajax-controllers', FilesystemIterator::KEY_AS_PATHNAME);
-		foreach ($files as $f => $info) {
-            if ($info->getExtension() != 'php') continue;
-            $shortname = $info->getBasename('.php');
-            $this->controllers[$shortname] = $f;
-		}
-
-		foreach ($this->controllers as $shortname => $path) {
-			add_action( 'wp_ajax_'.$shortname, array($this, $shortname) );
-		}
+        foreach ($this->controllers as $shortname => $path) {
+            add_action( 'wp_ajax_'.$shortname, array($this, $shortname) );
+        }
 	}
 }
 

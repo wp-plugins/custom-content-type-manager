@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.6
-Stable tag: 0.9.7.8
-Version: 0.9.7.8
+Stable tag: 0.9.7.9
+Version: 0.9.7.9
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -33,7 +33,7 @@ Please use the following links for support and discussion:
 = Requirements =
 
 * WordPress 3.3.0 or greater
-* PHP 5.2.6 or greater (5.3 recommended)
+* PHP 5.2.6 or greater (5.3 recommended, with scandir)
 * MySQL 4.1.2 or greater (5.x recommended)
 
 
@@ -84,6 +84,10 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.7.9 =
+
+* Returning to the banal world of scandir after a sunburned excursion to FilesystemIterator
 
 = 0.9.7.7 =
 
@@ -441,6 +445,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.7.9 =
+
+* All users of 0.9.7.8 and 0.9.7.9 should update.
 
 = 0.9.7.6 =
 

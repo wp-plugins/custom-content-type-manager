@@ -25,6 +25,7 @@ $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm
 $data['submit'] = __('Save', CCTM_TXTDOMAIN);
 $data['action_name']  = 'custom_content_type_mgr_edit_custom_field';
 $data['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
+$data['change_field_type'] = '';
 
 $nonce = self::get_value($_GET, '_wpnonce');
 if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {

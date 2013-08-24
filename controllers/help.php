@@ -13,7 +13,7 @@ $data['content'] = '<p>'.__('You can click the information icon at the top right
 
 <div style="border: 2px dotted green; width:70%; padding: 10px;">
 	<img src="'.CCTM_URL.'/images/help-large.png" width="48" height="48" style="float:left; padding:10px;"/>
-	<p>'.__('Support for this plugin is provided through the forum and bug-tracker.',CCTM_TXTDOMAIN).'</p>
+	<p>'.__('Support for this plugin is provided through the forum and bug-tracker.',CCTM_TXTDOMAIN).'<br/><br/></p>
 	</div>';
 $data['content'] .=  '<p>';
 $data['content'] .= __('This plugin is open source software freely available to WordPress users.', CCTM_TXTDOMAIN) . ' ';

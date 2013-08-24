@@ -91,10 +91,22 @@ class CCTMtests {
 	
 	//------------------------------------------------------------------------------
 	public static function reqd_classes() {
-	   $classes = array('FilesystemIterator');
+	   // $classes = array('FilesystemIterator'); // reverted to scandir
+	   $classes = array(); // 
 	   foreach ($classes as $c) {
     	   if (!class_exists($c)) {
     	       CCTM::$errors[] = sprintf(__('Missing required class: %s', CCTM_TXTDOMAIN), $c);
+    	   }
+	   }
+	}
+
+	//------------------------------------------------------------------------------
+	public static function reqd_functions() {
+	   // $classes = array('FilesystemIterator'); // reverted to scandir
+	   $functions = array('scandir'); // 
+	   foreach ($functions as $f) {
+    	   if (!function_exists($f)) {
+    	       CCTM::$errors[] = sprintf(__('Missing required function: %s', CCTM_TXTDOMAIN), $c);
     	   }
 	   }
 	}
