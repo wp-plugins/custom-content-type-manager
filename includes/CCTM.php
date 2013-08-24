@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.7.10';
+	const version = '0.9.7.11';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -1219,16 +1219,23 @@ class CCTM {
 	 */
 	public static function get_available_helper_classes($type) {
 		
+		// return from cache, if available
+		if(isset(self::$data['cache']['helper_classes'][$type])) {
+			return self::$data['cache']['helper_classes'][$type];
+		}
+		
 		// Ye olde output
 		$files = array();
 		
 		// Scan default directory
-		$rawfiles = new FilesystemIterator(CCTM_PATH .'/'.$type, FilesystemIterator::KEY_AS_PATHNAME);
-		foreach ($rawfiles as $f => $info) {
-            if ($info->getExtension() == 'php') {
-                $shortname = $info->getBasename('.php');
-                $files[$shortname] = $f;
-            }
+		$dir = CCTM_PATH .'/'.$type;
+		$rawfiles = scandir($dir);
+		foreach ($rawfiles as $f) {
+			if ( !preg_match('/^\./', $f) && preg_match('/\.php$/', $f) ) {
+				$shortname = basename($f);
+				$shortname = preg_replace('/\.php$/', '', $shortname);
+				$files[$shortname] = $dir.'/'.$f;
+			}
 		}
 
 		// Scan 3rd party directory
@@ -1239,21 +1246,26 @@ class CCTM {
 		else {
 			$dir = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir . '/'.$type;
 			if (is_dir($dir)) {
-				$rawfiles2 = new FilesystemIterator($dir, FilesystemIterator::KEY_AS_PATHNAME);
-				foreach ($rawfiles2 as $f => $info) {
+				$rawfiles = scandir($dir);
+				foreach ($rawfiles as $f) {
+					if (preg_match('/^\./', $f)) {
+						continue; // skip the '.' and '..' dirs
+					}
 					// Check the main dir
-					if ($info->getExtension() == 'php') {
-                        $shortname = $info->getBasename('.php');
-                        $files[$shortname] = $f;
-                    }
+					if (preg_match('/\.php$/', $f) ) {
+						$shortname = basename($f);
+						$shortname = preg_replace('/\.php$/', '', $shortname);
+						$files[$shortname] = $dir.'/'.$f;
+					}
 					// check subdirectories
-					elseif (is_dir($f)) {
-						$morerawfiles = new FilesystemIterator($dir, FilesystemIterator::KEY_AS_PATHNAME);
-						foreach ($morerawfiles as $f2 => $info2) {
-        					if ($info2->getExtension() == 'php') {
-                                $shortname = $info->getBasename('.class.php');
-                                $files[$shortname] = $f;
-                            }
+					elseif (is_dir($dir.'/'.$f)) {
+						$morerawfiles = scandir($dir.'/'.$f);
+						foreach ($morerawfiles as $f2) {
+							if ( !preg_match('/^\./', $f2) && preg_match('/\.class\.php$/', $f2) ) {
+								$shortname = basename($f2);
+								$shortname = preg_replace('/\.class\.php$/', '', $shortname);
+								$files[$shortname] = $dir.'/'.$subdir.'/'.$f2;
+							}
 						}
 					}
 				}
@@ -1262,9 +1274,10 @@ class CCTM {
 		
 		// write to cache
 		self::$data['cache']['helper_classes'][$type] = $files;
-        update_option(self::db_key, self::$data);
+		update_option(self::db_key, self::$data);
 		
 		return $files;
+
 	}
 
 	//------------------------------------------------------------------------------
