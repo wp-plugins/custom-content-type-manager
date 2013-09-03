@@ -458,8 +458,8 @@ class CCTM_relationmeta extends CCTM_FormElement
 		if (empty($str) || $str=='[""]') {
 			return array();
 		}
-
-		$out = (array) json_decode($str, true );
+        // See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=520
+		$out = (array) json_decode(str_replace("\\\'", "'", $str), true );
 		// the $str was not JSON encoded
 		if (empty($out)) {
 			return array($str);
@@ -476,7 +476,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 	 *
 	 * @param mixed   $posted_data $_POST data
 	 * @param string  $field_name: the unique name for this instance of the field
-	 * @return string whatever value you want to store in the wp_postmeta table where meta_key = $field_name
+	 * @return string whatever JSON to store in wp_postmeta where meta_key = $field_name
 	 */
 	public function save_post_filter($posted_data, $field_name) {
 		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
