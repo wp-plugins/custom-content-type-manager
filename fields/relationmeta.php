@@ -438,9 +438,10 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 	//------------------------------------------------------------------------------
 	/**
-	 * Options here are any search criteria
+	 * Options here are any search criteria so user can see what search criteria
+	 * are selected.
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	public function get_options_desc() {
 		return $this->_get_search_parameters_visible($this->props['search_parameters']);

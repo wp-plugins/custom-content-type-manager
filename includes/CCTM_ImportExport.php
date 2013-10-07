@@ -318,7 +318,7 @@ class CCTM_ImportExport {
 	 *
 	 * @return string
 	 */
-	public function get_subdir() {
+	public static function get_subdir() {
 			$info = parse_url(site_url());
 			if (isset($info['path'])) {
 				return $info['path'];
@@ -591,7 +591,6 @@ class CCTM_ImportExport {
 		unset($raw[ $nonce_name ]);
 		unset($raw['_wp_http_referer']);
 
-	
 		$sanitized = array();
 		// title
 		if ( empty($raw['title'])) {
@@ -600,7 +599,7 @@ class CCTM_ImportExport {
 		elseif ( preg_match('/[^a-z\s\-\._0-9]/i', $raw['title']) ) {
 			CCTM::$errors['title'] = __('Only basic text characters are allowed for the title.', CCTM_TXTDOMAIN);
 		}
-		elseif ( strlen($raw['title'] > 64) ) {
+		elseif ( strlen($raw['title']) > 64 ) {
 			CCTM::$errors['title'] = __('The title cannot exceed 64 characters.', CCTM_TXTDOMAIN);
 		}
 		
