@@ -210,7 +210,7 @@ class CCTM {
 	// Names that are off-limits for custom post types b/c they're already used by WP
 	// Re "preview" see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=321
 	public static $reserved_post_types = array('post', 'page', 'attachment', 'revision'
-		, 'nav_menu', 'nav_menu_item', 'preview');
+		, 'nav_menu', 'nav_menu_item', 'preview','portfolio');
 	
 	// Any post-types that WP registers, but which the CCTM should ignore (can't have custom fields)
 	public static $ignored_post_types = array('attachment', 'revision', 'nav_menu', 'nav_menu_item');

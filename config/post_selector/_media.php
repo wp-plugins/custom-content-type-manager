@@ -40,6 +40,8 @@ CCTM::$post_selector['paginate'] = 1;
 
 CCTM::$search_by = array();
 CCTM::$search_by[] = 'post_type';
+CCTM::$search_by[] = 'search_term';
+CCTM::$search_by[] = 'yearmonth';
 CCTM::$search_by[] = 'post_status';
 CCTM::$search_by[] = 'taxonomy';
 CCTM::$search_by[] = 'taxonomy_term';

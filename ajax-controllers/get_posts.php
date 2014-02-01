@@ -20,7 +20,7 @@ require_once CCTM_PATH.'/includes/SummarizePosts.php';
 require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 require_once CCTM_PATH.'/includes/GetPostsForm.php';
 
-
+//print '<pre>'.print_r($_POST,true).'</pre>'; exit;
 // Template Variables Initialization
 $d = array(); 
 $d['search_parameters'] = '';
@@ -37,9 +37,6 @@ $d['order'] 			= 'ASC';
 // Generate a search form
 // we do this AFTER the get_posts() function so the form can access the GetPostsQuery->args/defaults
 $Form = new GetPostsForm();
-
-
-//$d['content'] = '<pre>'.print_r($_POST, true) . '</pre>';
 
 //! Validation
 // Some Tests first to see if the request is valid...
@@ -86,9 +83,11 @@ $args['orderby'] = 'ID';
 $args['order'] = 'ASC';
 
 if (isset($_POST['search_parameters'])) {
-
+    // e.g. fieldname=movie_clip&fieldtype=media&page_number=0&orderby=ID&order=ASC
 	parse_str($_POST['search_parameters'], $args);
 
+    //print '<pre>'.print_r($args,true).'</pre>'; exit;
+    
 	// Pass the "view" parameters to the view
 	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
 	$d['orderby'] = CCTM::get_value($args, 'orderby', 'ID');
@@ -139,6 +138,7 @@ $args['offset'] = 0; // assume 0, unless we got a page number
 if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 	$args['offset'] = ($d['page_number'] - 1) * CCTM::$post_selector['limit'];
 }
+//print '<pre>'.print_r($args,true).'</pre>'; exit;
 
 // Set pagination tpls
 $tpls = array (
@@ -155,9 +155,9 @@ $tpls = array (
 $Q->set_tpls($tpls);
 
 // Get the results
-//$d['content'] = '<pre>'.print_r($args, true) . '</pre>';
+//print '<pre>'.print_r(CCTM::$search_by, true) . '</pre>';
 $results = $Q->get_posts($args);
-
+//print '<pre>'.$Q->debug().'</pre>';
 $search_form_tpl = CCTM::load_tpl(
 	array('post_selector/search_forms/'.$fieldname.'.tpl'
 		, 'post_selector/search_forms/_'.$def['type'].'.tpl'
@@ -168,6 +168,7 @@ $search_form_tpl = CCTM::load_tpl(
 $Form->set_tpl($search_form_tpl);
 $Form->set_name_prefix(''); // blank out the prefixes
 $Form->set_id_prefix('');
+
 $d['search_form'] = $Form->generate(CCTM::$search_by, $args);
 
 $item_tpl = '';
@@ -238,7 +239,6 @@ foreach ($results as $r){
 	$hash['content'] .= CCTM::parse($item_tpl, $r);
 }
 
-// die(print_r($hash,true));
 $d['content'] .= CCTM::parse($wrapper_tpl,$hash);
 
 $d['content'] .= '<div class="cctm_pagination_links">'.$Q->get_pagination_links().'</div>';

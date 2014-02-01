@@ -2,10 +2,10 @@
 /**
  * This class generates search forms that act as a graphical interface to the
  * GetPostsQuery->get_posts() function.
- * In other words, the data submitted from one of the generated forms describes
- * a search that can be performed by GetPostsQuery->get_posts().  This is not to
- * say that you NEED to use this class to front-end any queries performed by GetPostsQuery,
- * this just lets you generate such a form quickly and via configuration. This class
+ * The data submitted from one of the generated forms describes a search that 
+ * can be performed by GetPostsQuery->get_posts().  This is not to say that you 
+ * NEED to use this class to act as a front-end any queries performed by GetPostsQuery,
+ * this just lets you generate such a form quickly via configuration. This class
  * also dynamically creates form elements based on what's in the database (e.g. it
  * lists Year/Months for filtering only if posts were created in those months).
  *
@@ -14,8 +14,8 @@
  * $args is an array of valid keys from the GetPostsQuery $defaults: each string
  * in the array defines a filter used by the GetPostsQuery::get_posts() function.
  * Including an item in the $args will cause the generate() function to generate
- * the HTML form elements to allow the user to control that filter on the search
- * form. I.e. the more $args supplied, the longer and more complex the search
+ * the corresponding HTML form elements so the user can see/use that filter on the 
+ * search form. The more $args supplied, the longer and more complex the search
  * form will be.
  *
  * Form element names will correspond exactly to the arguments accepted by the
