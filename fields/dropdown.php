@@ -459,8 +459,6 @@ class CCTM_dropdown extends CCTM_FormElement
 		}
 		return $posted_data; // filtered data
 	}
-
-
 }
 
 

@@ -319,7 +319,10 @@ class SP_Post {
 				if (is_array($v)) {
 					$v = json_encode($v);
 				}
-				$meta_rows[] = $wpdb->prepare('(%d, %s, %s)', $post_id, $k, $v);
+				else {
+				    $v = stripslashes($v);
+				}
+                $meta_rows[] = $wpdb->prepare('(%d, %s, %s)', $post_id, $k, $v);
 			}
 			
 			$meta_str = implode(', ', $meta_rows);

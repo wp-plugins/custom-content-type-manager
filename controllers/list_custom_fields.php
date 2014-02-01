@@ -13,6 +13,7 @@ $data['page_title'] = __('Manage Custom Fields', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/DefinedCustomFields';
 $data['msg'] = self::get_flash();
 $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=list_custom_field_types" class="button">%s</a>', __('Create Custom Field', CCTM_TXTDOMAIN) );
+$data['menu'] .= ' ' . sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=bulk_add_fields" class="button">%s</a>', __('Bulk Add Fields', CCTM_TXTDOMAIN) );
 
 // Load 'em up
 $defs = CCTM::get_custom_field_defs();

@@ -30,7 +30,7 @@ if (!$FieldObj = CCTM::load_object($field_type,'fields')) {
 // Get the post-types for listing associations.
 $displayable_types = self::get_post_types();
 
-$field_type_name = self::filter_prefix.$field_type;
+$field_type_name = self::field_prefix.$field_type;
 $FieldObj = new $field_type_name(); // Instantiate the field element
 
 
@@ -50,7 +50,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	unset($_POST['post_types']);
 
 	// Validate and sanitize any submitted data
-	$field_data   = $FieldObj->save_definition_filter($_POST, $post_type);
+	$field_data   = $FieldObj->save_definition_filter($_POST);
 	$FieldObj->set_props($field_data);  // This is how we repopulate data in the create forms
 	
 	// Any errors?

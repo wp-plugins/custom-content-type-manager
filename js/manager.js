@@ -27,6 +27,29 @@ function add_field_instance(fieldname) {
 }
 
 /*------------------------------------------------------------------------------
+Used to add fields in bulk
+@param	string field_type
+------------------------------------------------------------------------------*/
+function add_bulk_field(field_type) {
+	var data = {
+	        "action" : 'bulk_add',
+	        "field_type" : field_type,
+	        "bulk_add_nonce" : cctm.ajax_nonce
+	    };
+
+	jQuery.post(
+	    cctm.ajax_url,
+	    data,
+	    function( response ) {
+	    	// Write the response to the div
+			jQuery('#custom-field-list').append(response);
+	    }
+	);
+	
+	return false;
+}
+
+/*------------------------------------------------------------------------------
 Pastes the shortcode back into WP.
 Copied from wp-admin/media-upload.js send_to_editor() function -- I couldn't 
 find where that JS is queued up, so I just copied this one function.
