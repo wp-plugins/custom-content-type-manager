@@ -1299,6 +1299,7 @@ class CCTM {
 	 */
 	public static function get_custom_field_defs() {
 		if ( isset(self::$data['custom_field_defs']) ) {
+//		      print '<pre>'.print_r(self::$data['custom_field_defs'],true).'</pre>';
 			// sort them
 			$defs = self::$data['custom_field_defs'];
 			usort($defs, CCTM::sort_custom_fields('name', 'strnatcasecmp'));

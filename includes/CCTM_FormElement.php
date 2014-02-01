@@ -54,6 +54,8 @@ abstract class CCTM_FormElement {
 	// Stores any errors with fields.  The structure is array( 'field_name' => array('Error msg1','Error msg2') )
 	public $errors = array();
 
+    public static $e = array(); //errors...
+    
 	// tracks field instances
 	//public $i = 0;
 
@@ -230,6 +232,42 @@ abstract class CCTM_FormElement {
 		parse_str($search_parameters_str, $args);
 		$Q = new GetPostsQuery($args);
 		return $Q->get_args();
+    }
+    
+    /**
+     * This should replace the awkward save_definition_filter() function...
+     *
+     * @param string $name for field
+     * @return boolean
+     */
+    public static function valid_name($name) {
+        self::$e = array();
+		if ( empty($name) ) {
+            self::$e[] = __('Name is required.', CCTM_TXTDOMAIN);
+            return false;
+		}
+
+		// Are there any invalid characters? 1st char. must be a letter (req'd for valid prop/func names)
+		if ( !preg_match('/^[a-z]{1}[a-z_0-9]*$/i', $name)) {
+			self::$e[] = sprintf(
+				__('%s contains invalid characters. The name may only contain letters, numbers, and underscores, and it must begin with a letter.', CCTM_TXTDOMAIN)
+				, '<strong>'.$name.'</strong>');
+		}
+		// Is the name too long?
+		if ( strlen($name) > 255 ) {
+			self::$e[] = __('The name is too long. Names must not exceed 255 characters.', CCTM_TXTDOMAIN);
+		}
+		// Run into any reserved words?
+		if ( in_array($name, CCTM::$reserved_field_names ) ) {
+			self::$e[] = sprintf(
+				__('%s is a reserved name.', CCTM_TXTDOMAIN)
+				, '<strong>'.$name.'</strong>');
+		}
+        
+        if (empty(self::$e)) {
+            return true;
+        }
+        return false;
     }
     
 	//------------------------------------------------------------------------------

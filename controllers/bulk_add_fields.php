@@ -137,9 +137,21 @@ if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_nam
         }
         // Save it
         else {
-            print 'Saving...';
-            print '<pre>'.print_r($_POST,true).'</pre>';
-            exit;
+            //print '<pre>'.print_r($_POST['fields'],true).'</pre>'; exit;
+            foreach ($_POST['fields'] as $tmp => $def) {
+                $field_name = $def['name'];
+                if (!isset(self::$data['custom_field_defs'][$field_name])) {
+                    self::$data['custom_field_defs'][$field_name] = $def;                
+                }
+            }
+            
+            $success_msg = sprintf('<div class="updated"><p>%s</p></div>'
+                , __('Your custom fields have been created.', CCTM_TXTDOMAIN));
+    		update_option( self::db_key, self::$data );
+    		unset($_POST);
+    		self::set_flash($success_msg);
+            include CCTM_PATH.'/controllers/list_custom_fields.php';
+            return;
         }
     }
     else {

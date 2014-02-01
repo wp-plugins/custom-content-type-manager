@@ -17,6 +17,7 @@ $data['fields']   = '';
 
 // Make sure the field exists
 if (!array_key_exists($field_name, self::$data['custom_field_defs'])) {
+    //print '<pre>'.print_r(self::$data['custom_field_defs'],true).'</pre>'; exit;
 	$msg_id = 'invalid_field_name';
 	include(CCTM_PATH.'/controllers/error.php');
 	return;
