@@ -106,7 +106,8 @@ class CCTM {
 	// CSS and $_POST variables
 	public static $def_i = 0;
 
-
+    public static $hide_url_tab = false;
+    
 	// Optionally used for shortcodes
 	public static $post_id = null;
 	
@@ -549,14 +550,21 @@ class CCTM {
 			'_tpl' => '_default',
 			'_id_prefix' => 'cctm_',
 			'_name_prefix' => 'cctm_',
-			'_css' => CCTM_URL . '/css/manager.css,'.CCTM_URL.'/css/validation.css'
+			'_css' => CCTM_URL . '/css/manager.css,'.CCTM_URL.'/css/validation.css',
+			'_fields' =>'',
+			'_debug' => 0,
 		);
 
 		$args = array_merge($defaults, $raw_args );
 
 		// Call the _callback_pre function (if present).
 		if ($args['_callback_pre']) {
-			$output['content'] .= call_user_func($args['_callback_pre'], $args);
+            if (function_exists($args['_callback_pre'])) {
+                $output['content'] .= call_user_func($args['_callback_pre'], $args);
+			}
+			else {
+                return '_callback_pre function does not exist: '.$args['_callback_pre'];
+			}
 		}
 	
 		// Load CSS
@@ -566,7 +574,7 @@ class CCTM {
 			wp_register_style($css_id, $c);
 			wp_enqueue_style($css_id);
 		}
-		
+
 		// Hard error
 		if (empty($post_type)) {
 			return __('cctm_post_form shortcode requires the "post_type" parameter.', CCTM_TXTDOMAIN);
@@ -587,6 +595,7 @@ class CCTM {
         //------------------------------		
 		$nonce = CCTM::get_value($_POST, '_cctm_nonce');
 		if ( !empty($_POST)) {
+
 			// Bogus submission
 			if (!wp_verify_nonce($nonce, 'cctm_post_form_nonce')) {
 				die('Your form could not be submitted.  Please reload the page and try again.');
@@ -600,11 +609,18 @@ class CCTM {
 					$vals[$k] = wp_kses($v, array()); // TODO: options for this?
 				}
 			}
+
 			// Validate fields
 			StandardizedCustomFields::validate_fields($post_type,$vals);
 			
-			// Add the arguments back in
 			$vals = array_merge($vals,$args);
+			
+    		if ($args['_debug']) {
+                print '<div style="background-color:orange; padding:10px;"><h3>[cctm_post_form] DEBUG MODE</h3>'
+                    .'<h4>Posted Data</h4><pre>'.print_r($vals,true).'</pre>'
+                    .'</div>';
+                return;
+    		}			
 			
 			// Save data if it was properly submitted	
 			if (empty(CCTM::$post_validation_errors)) {
@@ -630,8 +646,28 @@ class CCTM {
         //------------------------------
 		$output['_action'] = $args['_action'];
 
+		// Custom fields	
+		$explicit_fields = false;	
+		$custom_fields = array();		
+		if ($args['_fields']) {
+            $explicit_fields = true;
+            $tmp = explode(',', $args['_fields']);
+            foreach ($tmp as $t) {
+                $custom_fields[] = trim($t);
+            }
+            $args['_fields'] = $custom_fields;
+		}
+		elseif (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
+		  $custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
+		}
+
+
 		// Post Title
-		if (post_type_supports($args['post_type'],'title') && !isset($args['post_title'])) {
+		if ( 
+		  !$explicit_fields && post_type_supports($args['post_type'],'title') && !isset($args['post_title']) 
+		  || ($explicit_fields && in_array('post_title', $custom_fields)) 
+        ) {
+            
         	$FieldObj = CCTM::load_object('text','fields');
 			$post_title_def = array(
 				'label' => $args['_label_title'],
@@ -646,13 +682,16 @@ class CCTM {
 				'type' => 'text'
 			);
 			$FieldObj->set_props($post_title_def);
-			    $output_this_field = $FieldObj->get_create_field_instance();
+            $output_this_field = $FieldObj->get_create_field_instance();
 			$output['post_title'] = $output_this_field;
 			$output['content'] .= $output_this_field;
 		}
 		
 		// Post Content (editor)
-		if (post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])) {
+		if (
+            !$explicit_fields && post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])
+            || ($explicit_fields && in_array('post_content', $custom_fields)) 
+        ) {
         	$FieldObj = CCTM::load_object('textarea','fields'); // TODO: change to wysiwyg
 			$post_title_def = array(
 				'label' => $args['_label_content'],
@@ -672,7 +711,10 @@ class CCTM {
 			$output['content'] .= $output_this_field;
 		}
 		// Post Excerpt
-		if (post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])) {
+		if (
+            !$explicit_fields && post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])
+            || ($explicit_fields && in_array('post_excerpt', $custom_fields)) 
+        ) {
         	$FieldObj = CCTM::load_object('textarea','fields');
 			$post_title_def = array(
 				'label' => $args['_label_excerpt'],
@@ -692,18 +734,13 @@ class CCTM {
 			$output['content'] .= $output_this_field;
 		}
 		
-		// Custom fields		
-		$custom_fields = array();
-		
-		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
-		  $custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
-		}
 		foreach ( $custom_fields as $cf ) {
 			// skip the field if its value is hard-coded
 			if (!isset(CCTM::$data['custom_field_defs'][$cf]) || isset($args[$cf])) {
 				continue;
 			}
 			$def = CCTM::$data['custom_field_defs'][$cf];
+
 			if (isset($def['required']) && $def['required'] == 1) {
 				$def['label'] = $def['label'] . '*'; // Add asterisk
 			}
@@ -764,7 +801,12 @@ class CCTM {
 				, 'forms/_default.tpl'
 			)
 		);
-		
+		if ($args['_debug']) {
+		  $formtpl = '<div style="background-color:orange; padding:10px;"><h3>[cctm_post_form] DEBUG MODE</h3>'
+		      .'<h4>Arguments</h4><pre>'.print_r($args,true).'</pre>'
+		      .'</div>'
+		      .$formtpl;
+		}
 		return CCTM::parse($formtpl, $output);
 		
 	}
@@ -781,9 +823,7 @@ class CCTM {
 		// Strip out the control stuff (keys begin with underscore)
 		$vals = array();
 		foreach ($args as $k => $v) {
-			if (preg_match('/^_/',$k)) {
-				continue;
-			}
+			if ($k[0] == '_') continue;
 			$vals[$k] = $v;
 		}
 		
@@ -988,6 +1028,15 @@ class CCTM {
 		}
 	}
 
+    /**
+     * Used to customize the tabs shown in the Media Uploader thickbox
+     * shown for relation fields.  See the media-upload.php
+     *
+     */
+    public static function customize_upload_tabs($tabs) {
+        unset($tabs['type_url']);
+        return $tabs;
+    }
 	/**
 	 * Delete a directoroy and its contents.
 	 * @param	string $dirPath

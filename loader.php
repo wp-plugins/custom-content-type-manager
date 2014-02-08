@@ -111,8 +111,11 @@ if (empty(CCTM::$errors)) {
 				// Forces custom post types to sort correctly
 				add_filter('posts_orderby', 'CCTM::order_posts');
 				add_filter('posts_join', 'CCTM::posts_join');
+				
 			}
 		}
+		
+        add_filter('media_upload_tabs', 'CCTM::customize_upload_tabs');
 	}
 
 	// Enable archives for custom post types
@@ -127,7 +130,7 @@ if (empty(CCTM::$errors)) {
 
 	// Needs to be first in priority (before WP) so we can look for any slashes indicating hierarchical post-types
 	add_filter('sanitize_title', 'CCTM::filter_sanitize_title', 1, 3);
-
 }
+
 
 /*EOF*/
