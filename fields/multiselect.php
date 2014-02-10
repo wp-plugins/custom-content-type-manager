@@ -155,6 +155,7 @@ class CCTM_multiselect extends CCTM_FormElement
 						$values[$r_i] = $r[0];
 					}
 				}
+                $this->use_key_values = 1; // see https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=541
 				$this->set_prop('options', $options);
 				$this->set_prop('values', $values);
 			}
@@ -401,7 +402,7 @@ class CCTM_multiselect extends CCTM_FormElement
 		$out .= '<div class="'.self::wrapper_css_class .'" id="is_sql_wrapper">
 				<input type="hidden" name="is_sql" value="0"/>
 				 <input type="checkbox" name="is_sql" class="cctm_checkbox" id="is_sql" value="1"'. $is_sql_checked.'/> 				 <label for="is_sql" class="cctm_label cctm_checkbox_label" id="is_sql_label">'
-				 .__('Execute as a MySQL query?', CCTM_TXTDOMAIN).'</label> <span>'.__('Select up to 2 columns: the 1st column will be the visible label and the 2nd column (if present) will represent the value stored in the database.
+				 .__('Execute as a MySQL query?', CCTM_TXTDOMAIN).'</label> <span>'.__('Select up to 2 columns: the 1st column will be the visible label and the 2nd column (if present) will represent the value stored in the database. 
 				 	Use [+table_prefix+] instead of hard-coding your WordPress database table prefix.',CCTM_TXTDOMAIN).'</span>
 			 	</div>';
 

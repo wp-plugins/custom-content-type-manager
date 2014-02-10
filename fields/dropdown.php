@@ -173,6 +173,7 @@ class CCTM_dropdown extends CCTM_FormElement
 						$values[$r_i] = $r[0];
 					}
 				}
+				$this->use_key_values = 1; // see https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=541
 				$this->set_prop('options', $options);
 				$this->set_prop('values', $values);
 			}
