@@ -34,7 +34,6 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	self::$data['settings']['save_empty_fields'] 		= (int) CCTM::get_value($_POST, 'save_empty_fields', 0);
 	self::$data['settings']['summarizeposts_tinymce'] 	= (int) CCTM::get_value($_POST, 'summarizeposts_tinymce', 0);
 	self::$data['settings']['custom_fields_tinymce'] 	= (int) CCTM::get_value($_POST, 'custom_fields_tinymce', 0);
-	self::$data['settings']['flush_permalink_rules'] 	= (int) CCTM::get_value($_POST, 'flush_permalink_rules', 0);
 	self::$data['settings']['pages_in_rss_feed'] 		= (int) CCTM::get_value($_POST, 'pages_in_rss_feed', 0);	
 	self::$data['settings']['enable_right_now'] 		= (int) CCTM::get_value($_POST, 'enable_right_now', 0);	
  	
@@ -69,7 +68,6 @@ $checkboxes = array(
  	, 'save_empty_fields'
  	, 'summarizeposts_tinymce'
  	, 'custom_fields_tinymce'
- 	, 'flush_permalink_rules'
  	, 'pages_in_rss_feed'
  	, 'enable_right_now'
  	, 'hide_posts'

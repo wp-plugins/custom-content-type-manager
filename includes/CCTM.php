@@ -180,7 +180,6 @@ class CCTM {
 		, 'save_empty_fields' => 1
 		, 'summarizeposts_tinymce' => 1
 		, 'custom_fields_tinymce' => 1
-		, 'flush_permalink_rules' => 1
 		, 'pages_in_rss_feed'	=> 0
 		, 'enable_right_now'	=> 1
 		, 'hide_posts'	=> 0
@@ -2504,7 +2503,7 @@ class CCTM {
 	 * ) );
 	 */
 	public static function register_custom_post_types() {
-//return;
+
 		$post_type_defs = self::get_post_type_defs();
 
 		foreach ($post_type_defs as $post_type => $def) {
@@ -2518,12 +2517,7 @@ class CCTM {
 				register_post_type( $post_type, $def );
 			}
 		}
-		// Added per issue 50
-		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=50
-		if (self::get_setting('flush_permalink_rules')){
-			global $wp_rewrite;
-			$wp_rewrite->flush_rules();		
-		}
+		// flush_rules moved to CCTM_PostTypeDef
 	}
 
 

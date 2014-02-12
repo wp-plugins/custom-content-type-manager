@@ -567,6 +567,11 @@ class CCTM_PostTypeDef {
 		}
 
 		update_option( CCTM::db_key, CCTM::$data );
+		
+        // http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=50
+		// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=540
+        global $wp_rewrite;
+		$wp_rewrite->flush_rules();
 	}
 }
 /*EOF*/

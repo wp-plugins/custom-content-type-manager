@@ -37,8 +37,11 @@ function get_custom_field($raw_fieldname, $options=null) {
 	if (!empty(CCTM::$post_id)) {
 		$post_id = CCTM::$post_id;
 	}
-	else {
+	elseif (is_object($post) && isset($post->ID)) {
 		$post_id = $post->ID;
+	}
+	else {
+	   return '$post not defined.';
 	}
 	
 	$options_array = func_get_args();

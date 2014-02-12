@@ -135,15 +135,6 @@
 
 	<h2><?php _e('Advanced', CCTM_TXTDOMAIN); ?></h2>
 
-	<!--!Flush Permalink Rules -->
-	<div class="cctm_element_wrapper" id="custom_field_wrapper_flush_permalink_rules">
-		<input type="checkbox" name="flush_permalink_rules" class="cctm_checkbox" id="flush_permalink_rules" value="1" <?php print $data['settings']['flush_permalink_rules']; ?>/>
-		<label for="flush_permalink_rules" class="cctm_label cctm_checkbox_label" id="cctm_label_flush_permalink_rules">
-			<?php _e('Flush Permalink Rules', CCTM_TXTDOMAIN); ?>
-		</label>
-		<span class="cctm_description"><?php _e("Usually, you need the CCTM to flush the WordPress permalink rules in order to support URL mappings to your custom posts.  Other plugins may also do this, so you can save on the overhead by disabling this.", CCTM_TXTDOMAIN); ?></span>
-	</div>
-
 	<!--!Show Pages in RSS feed -->
 	<div class="cctm_element_wrapper" id="custom_field_wrapper_pages_in_rss_feed">
 		<input type="checkbox" name="pages_in_rss_feed" class="cctm_checkbox" id="pages_in_rss_feed" value="1" <?php print $data['settings']['pages_in_rss_feed']; ?>/>
