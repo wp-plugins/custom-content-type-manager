@@ -216,12 +216,14 @@ class CCTM_dropdown extends CCTM_FormElement
 			}
 			// Simplistic behavior if we don't use key=>value pairs
 			if ( !$this->use_key_values ) {
+
 				$hash['value'] = $hash['option'];
 			}
 
 			$hash['is_selected'] = '';
 			$hash['is_checked'] = '';
-			if ( trim($current_value) == trim($hash['value']) ) {
+
+			if ( trim($current_value) == trim($this->values[$i]) ) {
 				$hash['is_checked'] = 'checked="checked"';
 				$hash['is_selected'] = 'selected="selected"';
 			}
