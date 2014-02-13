@@ -82,6 +82,7 @@ class StandardizedCustomFields {
 			if (isset(CCTM::$data['metabox_defs']) && is_array(CCTM::$data['metabox_defs'])) {
 				$mb_ids = array_keys(CCTM::$data['metabox_defs']);
 			}
+
 			$all_fields = self::_get_custom_fields($post_type);
 			foreach ($mb_ids as $m_id) {
 				$fields = self::_get_custom_fields($post_type, $m_id);
@@ -90,6 +91,7 @@ class StandardizedCustomFields {
 				if (isset(CCTM::$data['metabox_defs'][$m_id])) {
 					$m = CCTM::$data['metabox_defs'][$m_id];
 				}
+
 				$callback = 'StandardizedCustomFields::print_custom_fields';
 				$callback_args = array('metabox_id'=>$m_id,'fields'=>$fields);
 				if (isset($m['callback']) && !empty($m['callback'])) {
@@ -102,12 +104,13 @@ class StandardizedCustomFields {
 				if (empty($fields) && !in_array($post_type, CCTM::get_value($m,'post_types',array()))) {
 					continue;
 				}
+
+
 				// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=511
                 // Check if the user has specified PHP conditions to control the visibility of the metabox
                 if ( isset($m['visibility_control']) && !empty($m['visibility_control']) ) {
-                    if ( eval(html_entity_decode($m['visibility_control'])) !== true ) {
-                        neat_html("continue");
-                        continue;
+                    if ( eval($m['visibility_control'].';') !== true ) {
+                        continue; // Skip this metabox if the code doesn't eval to true.
                     }
                 }				
 				add_meta_box($m['id'],$m['title'],$callback,$post_type,$m['context'],$m['priority'],$callback_args);

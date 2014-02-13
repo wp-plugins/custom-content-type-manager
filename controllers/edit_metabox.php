@@ -14,6 +14,7 @@ if (!$id) {
 	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 }
 $data = CCTM::get_value(CCTM::$data['metabox_defs'], $id);
+
 if (empty($data)) {
 	// We automagically create the default metabox def
 	if ($id == 'cctm_default') {
@@ -49,7 +50,9 @@ $data['style'] = file_get_contents(CCTM_PATH.'/css/validation.css');
 
 // Save if submitted...
 if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
+//print_r($_POST); exit;
 	$def = CCTM_Metabox::sanitize($_POST);
+//print_r($def); exit;	
 	if (CCTM_Metabox::is_valid_def($_POST, true)) {
 		$data['msg'] = CCTM::format_msg(__('Metabox updated.',CCTM_TXTDOMAIN));
 		// Find any refs to the old id and update them

@@ -173,11 +173,12 @@ if (isset($metaboxes['side'])) {
 		$data['side_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
 	}
 }
-
+//print_r($data); exit;
 
 
 // List the unused custom fields
 $remaining_custom_fields = array_diff($all_custom_fields, $active_custom_fields);
+
 foreach ($remaining_custom_fields as $cf) {
 	$d = self::$data['custom_field_defs'][$cf];
 
