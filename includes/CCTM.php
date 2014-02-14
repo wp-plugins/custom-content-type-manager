@@ -832,7 +832,7 @@ class CCTM {
 		if (!$email_only) {
 			require_once(CCTM_PATH.'/includes/SP_Post.php');
 			$P = new SP_Post();
-			$post_id = $P->insert($vals);
+			CCTM::$post_id = $P->insert($vals);
 		}
 		
 		// Email stuff
