@@ -32,6 +32,7 @@ $d['content']			= '';
 $d['page_number']		= '0'; 
 $d['orderby'] 			= 'ID';
 $d['order'] 			= 'ASC';
+$d['exclude'] = CCTM::get_value($_POST, 'exclude');
 
 
 // Generate a search form
@@ -68,7 +69,7 @@ $possible_configs = array();
 $possible_configs[] = '/config/post_selector/'.$fieldname.'.php'; 	// e.g. my_field.php
 $possible_configs[] = '/config/post_selector/_'.$def['type'].'.php'; 		// e.g. _image.php
 $possible_configs[] = '/config/post_selector/_relation.php'; 		// default
-
+//print '<pre>'.print_r($possible_configs,true).'</pre>'; exit;
 CCTM::$post_selector = array();
 CCTM::$search_by = true; // all options available if the tpl passes them
 if (!CCTM::load_file($possible_configs)) {
@@ -78,9 +79,10 @@ if (!CCTM::load_file($possible_configs)) {
 
 // This gets subsequent search data that gets passed when the user refines the search.
 $args = array();
-// defaults
-$args['orderby'] = 'ID';
-$args['order'] = 'ASC';
+// Do not set defaults here! It causes any values set in the config/post_selector/ files
+// to be ignored. See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=537
+//$args['orderby'] = 'ID';
+//$args['order'] = 'ASC';
 
 if (isset($_POST['search_parameters'])) {
     // e.g. fieldname=movie_clip&fieldtype=media&page_number=0&orderby=ID&order=ASC
@@ -119,7 +121,7 @@ foreach($additional_defaults as $k => $v) {
 		CCTM::$post_selector[$k] = $v;
 	}
 }
-
+//print '<pre>'.print_r(CCTM::$post_selector,true).'</pre>'; exit;
 
 //------------------------------------------------------------------------------
 // Begin!
