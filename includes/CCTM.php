@@ -1540,7 +1540,7 @@ class CCTM {
 	 * @return	string	url of the thumbnail
 	 */
 	public static function get_thumbnail($id) {
-		
+
 		// Default output
 		$thumbnail_url = CCTM_URL .'/images/custom-fields/default.png';
 
@@ -1554,8 +1554,6 @@ class CCTM {
 		$post_mime_type = $post['post_mime_type'];
 		$thumbnail_url = $post['guid'];
 		
-		// return $thumbnail_url; // Bypass for now
-		
 		// Some translated labels and stuff
 		$r['preview'] = __('Preview', CCTM_TXTDOMAIN);
 		$r['remove'] = __('Remove', CCTM_TXTDOMAIN);
@@ -1568,28 +1566,28 @@ class CCTM {
 		if ($post_type == 'attachment' && preg_match('/^image/',$post_mime_type) && self::get_setting('cache_thumbnail_images')) {
 			$thumbnail_url = self::_get_create_thumbnail($post);
 		}
+		// Try to display the featured thumbnail if possible
+		elseif ($thumbnail_id = get_post_thumbnail_id($id)) {
+			list($src, $w, $h) = wp_get_attachment_image_src( $thumbnail_id, 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
+			$thumbnail_url = $src;            
+        }
+		elseif (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
+			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+			$thumbnail_url = CCTM_URL . '/images/icons/32x32/'. $baseimg;	
+		}
 		elseif ($post_type == 'post') {
 			$thumbnail_url = CCTM_URL . '/images/wp-post.png';
 		}
 		elseif ($post_type == 'page') {
 			$thumbnail_url = CCTM_URL . '/images/wp-page.png';	
 		}
-		// Other Attachments and other post-types: we go for the custom icon
-		else
-		{	
-			if (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
-					&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
-				$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
-				$thumbnail_url = CCTM_URL . '/images/icons/32x32/'. $baseimg;
-				
-			}
-			// Built-in WP types: we go for the default icon.
-			else {
-				list($src, $w, $h) = wp_get_attachment_image_src( $id, 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
-				$thumbnail_url = $src;
-			}
+		// Other built-in WP types: we go for the default icon.
+		else {
+			list($src, $w, $h) = wp_get_attachment_image_src( $id, 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
+			$thumbnail_url = $src;
 		}
-		//die(print_r($r,true));
+
 		return $thumbnail_url;	
 	}
 
