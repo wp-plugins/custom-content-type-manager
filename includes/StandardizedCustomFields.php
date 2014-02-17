@@ -193,7 +193,9 @@ class StandardizedCustomFields {
 	//------------------------------------------------------------------------------
 	/**
 	 * We use this to print out the large icon at the top of the page when editing a post/page
+	 * and to enforce field validation (including required fields).
 	 * http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=188
+	 * https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=544
 	 */
 	public static function print_admin_header() {
 
@@ -271,9 +273,10 @@ class StandardizedCustomFields {
 					print $output;
 				
 				// Override!! set post to draft status if there were validation errors.
+				// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=544
 				global $wpdb;
-				$post_id = (int) CCTM::get_value($_POST, 'ID');
-				$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id));
+				$post_id = (int) CCTM::get_value($_GET, 'post');
+				$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id),array('%s'),array('%d'));
 			}
 		}
 	}
