@@ -1102,7 +1102,7 @@ class CCTM {
 	 * @return string
 	 */
 	public static function filter_sanitize_title($title, $raw_title, $context) {
-		
+
 		// This isn't always called on the public-side... it gets called in the manager too.
 		if ('query' == $context) {
 			global $wp_query;

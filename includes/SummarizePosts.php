@@ -40,7 +40,6 @@ class SummarizePosts {
 	public static $formatting_defaults = array(
 		'before'   => '<ul class="summarize-posts">',
 		'after'   => '</ul>',
-		'paginate'   => false,
 		'tpl'   => null,
 		'help'   => false,
 	);
@@ -288,6 +287,12 @@ class SummarizePosts {
 		$formatting_args = shortcode_atts(self::$formatting_defaults, $raw_args);
 		$formatting_args['tpl_str'] = self::_get_tpl($content_str, $formatting_args);
 
+		$help_flag = false;
+		if (isset($raw_args['help']) ) {
+			$help_flag = true;
+			unset($raw_args['help']);
+		}
+		
 		// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=427
         // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=483
         foreach (self::$formatting_defaults as $k => $v) {
@@ -296,15 +301,16 @@ class SummarizePosts {
         
 		$output = '';
 
-		$help_flag = false;
-		if (isset($raw_args['help']) ) {
-			$help_flag = true;
-			unset($raw_args['help']);
-		}
-
-
 		$Q = new GetPostsQuery();
 		$args = array_merge($Q->defaults, $raw_args);
+
+        if ($args['paginate']) {
+            require_once dirname(__FILE__).'/CCTM_Pagination.conf.php';
+            $C = new CCTM_Pagination_Configuration();
+            $tpls = $C->tpls['default'];
+            $args['offset'] = (int) (isset($_GET['offset'])) ? $_GET['offset'] : '';
+            $Q->set_tpls($tpls);
+        }
 
 		$results = $Q->get_posts($args);
 
@@ -312,21 +318,21 @@ class SummarizePosts {
 		if ($help_flag) {
 			return $Q->debug(); // this prints the results
 		}
-		else {
-			if (empty($results)) {
-				return '';
-			}
-			
-			$output = $formatting_args['before'];
-			foreach ( $results as $r ) {
-				$output .= CCTM::parse($formatting_args['tpl_str'], $r);
-			}
-			$output .= $formatting_args['after'];
 
-			if ( $Q->paginate ) {
-				$output .= '<div class="summarize-posts-pagination-links">'.$Q->get_pagination_links().'</div>';
-			}
+		if (empty($results)) {
+			return '';
 		}
+		
+		$output = $formatting_args['before'];
+		foreach ( $results as $r ) {
+			$output .= CCTM::parse($formatting_args['tpl_str'], $r);
+		}
+		$output .= $formatting_args['after'];
+
+		if ( $args['paginate'] ) {
+			$output .= '<div class="summarize-posts-pagination-links">'.$Q->get_pagination_links().'</div>';
+		}
+
 
 		return $output;
 	}

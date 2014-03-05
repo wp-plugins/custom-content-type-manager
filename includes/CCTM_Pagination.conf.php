@@ -68,7 +68,7 @@ class CCTM_Pagination_Configuration {
 	
 	Global (available to all Tpls):
 	[+base_url+] -- (string) URL used to construct the links.  Make sure you've filtered any GET values!
-	[+offset_key+] -- (string) references the $offset_key above.
+	offset -- (string) references the $offset_key above.
 	[+page_count+] -- (int) total number of pages available. 
 	[+record_count+] -- (int) total number of records. 
 	[+offset_last+] -- (int) offest + records per page.
@@ -87,12 +87,12 @@ class CCTM_Pagination_Configuration {
 	
 	public $tpls = array(
 		'default' => array (
-			'firstTpl'		=> '<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>&laquo; First</a> &nbsp;',
-			'lastTpl' 		=> '&nbsp;<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>Last &raquo;</a>',
-			'prevTpl' 		=> '<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>&lsaquo; Prev.</a>&nbsp;',
-			'nextTpl' 		=> '&nbsp;<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>Next &rsaquo;</a>',
+			'firstTpl'		=> '<a href="[+base_url+]&offset=[+offset+]" [+extra+]>&laquo; First</a> &nbsp;',
+			'lastTpl' 		=> '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>Last &raquo;</a>',
+			'prevTpl' 		=> '<a href="[+base_url+]&offset=[+offset+]" [+extra+]>&lsaquo; Prev.</a>&nbsp;',
+			'nextTpl' 		=> '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>Next &rsaquo;</a>',
 			'currentPageTpl'=> '&nbsp;<span>[+page_number+]</span>&nbsp;',
-			'pageTpl' 		=> '&nbsp;<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>[+page_number+]</a>&nbsp;',
+			'pageTpl' 		=> '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>[+page_number+]</a>&nbsp;',
 			'outerTpl' 		=> '<div id="pagination">[+content+]<br/>
 				Page [+current_page+] of [+page_count+]<br/>
 				Displaying records [+first_record+] thru [+last_record+] of [+record_count+]
@@ -115,10 +115,10 @@ class CCTM_Pagination_Configuration {
 		'blue' => array (
 			'firstTpl'		=> '',
 			'lastTpl' 		=> '',
-			'prevTpl' 		=> '<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>&laquo; Prev.</a>&nbsp;',
-			'nextTpl' 		=> '&nbsp;<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>Next &raquo;</a>',
+			'prevTpl' 		=> '<a href="[+base_url+]&offset=[+offset+]" [+extra+]>&laquo; Prev.</a>&nbsp;',
+			'nextTpl' 		=> '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>Next &raquo;</a>',
 			'currentPageTpl'=> '&nbsp;<span>[+page_number+]</span>&nbsp;',
-			'pageTpl' 		=> '&nbsp;<a href="[+base_url+]&[+offset_key+]=[+offset+]" [+extra+]>[+page_number+]</a>&nbsp;',
+			'pageTpl' 		=> '&nbsp;<a href="[+base_url+]&offset=[+offset+]" [+extra+]>[+page_number+]</a>&nbsp;',
 			'outerTpl' 		=> '
 			<style type="text/css">
 				#pagination {
@@ -177,7 +177,7 @@ class CCTM_Pagination_Configuration {
 	public $default = array('firstTpl' => 'nothing');  // What is this?
 	
 	// TODO:
-	// Scroll-lock on/off.  
+	// "Scroll-lock" on/off.  
 	// ON: Current page appears in the middle of the links e.g. 1 2 (3) 4 5
 	// OFF: (3) 4 5 6 7
 	

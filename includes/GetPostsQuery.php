@@ -51,6 +51,8 @@ class GetPostsQuery {
 	// Should the query retrieve "private" custom fields?  I.e. those whose names begin with an underscore
 	public $include_hidden_fields = false;
 	
+	public $paginate = false;
+	
 	// Set in the controller. If set to true, some helpful debugging msgs are printed.
 	public $debug = false;
 
@@ -2188,6 +2190,7 @@ class GetPostsQuery {
 		}
 
 		if ( $this->paginate ) {
+
 			$this->found_rows = $this->_count_posts();
 			require_once 'CCTM_Pagination.php';
 			$this->P = new CCTM_Pagination();
