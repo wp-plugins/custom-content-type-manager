@@ -20,7 +20,7 @@ class CCTM {
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
 	const version = '0.9.7.12';
-	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
+	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
