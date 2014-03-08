@@ -1,6 +1,6 @@
 <?php
 /**
- * CCTM = Custom Content Type Manager
+ * CCTM  Custom Content Type Manager
  * 
  * This is the main class for the Custom Content Type Manager plugin.
  * It holds its functions hooked to WP events and utilty functions and configuration
@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.7.12';
+	const version = '0.9.7.13';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).

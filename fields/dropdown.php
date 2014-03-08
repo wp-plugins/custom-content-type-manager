@@ -200,7 +200,6 @@ class CCTM_dropdown extends CCTM_FormElement
 		
 		$opt_cnt = count($this->options);
 
-
 		// Populate the options
 		for ( $i = 0; $i < $opt_cnt; $i++ ) {
 			$hash = $this->get_props();
@@ -216,14 +215,13 @@ class CCTM_dropdown extends CCTM_FormElement
 			}
 			// Simplistic behavior if we don't use key=>value pairs
 			if ( !$this->use_key_values ) {
-
 				$hash['value'] = $hash['option'];
 			}
 
 			$hash['is_selected'] = '';
 			$hash['is_checked'] = '';
 
-			if ( trim($current_value) == trim($this->values[$i]) ) {
+			if ( trim($current_value) == trim($hash['value']) ) {
 				$hash['is_checked'] = 'checked="checked"';
 				$hash['is_selected'] = 'selected="selected"';
 			}

@@ -85,6 +85,14 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.7.13 =
+
+* Fix for dropdown/radio buttons
+
+= 0.9.7.12 =
+
+* Various fixes.
+
 = 0.9.7.11 =
 
 * Returning to the banal world of scandir after a sunburned excursion to FilesystemIterator
@@ -445,6 +453,10 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.7.13 =
+
+* All users should update: contains a fix for dropdown and radio fields.
 
 = 0.9.7.11 =
 
