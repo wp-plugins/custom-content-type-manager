@@ -32,9 +32,9 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']))
 	}
 	// Merge
 	else {
-	//	die('merging...');
+
 		global $wpdb;
-		$query = $wpdb->prepare("UPDATE {$wpdb->postmeta} SET meta_key='target_value' WHERE meta_key=%s;"
+		$query = $wpdb->prepare("UPDATE {$wpdb->postmeta} SET meta_key=%s WHERE meta_key=%s;"
 			, $_POST['merge_target']
 			, $field_name);
 		$wpdb->query($query);

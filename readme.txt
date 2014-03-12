@@ -1,4 +1,4 @@
-=== Custom Content Type Manager ===
+=== Custom Content Type Manager : Advanced Custom Post Types ===
 Contributors: fireproofsocks
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
