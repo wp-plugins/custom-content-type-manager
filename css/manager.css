@@ -187,14 +187,14 @@ span.custom_field_icon {
 	margin-top: -21px;
 	margin-bottom: 10px;
 	padding-left: 200px;
-	line-height: 210%;
+	line-height: 215%;
 }
 
 #cctm_mainmenu a {
 	padding-left: 15px;
 	padding-right: 15px;
 	padding-bottom: 5px;
-	padding-top: 3px;
+	padding-top: 5px;
 	text-decoration: none;
 }
 
@@ -307,4 +307,8 @@ span.cctm_close_rollover:hover {
 
 .cctm_taxonomy_column td {
 	background-color: #C2DDEA;
+}
+
+#cctm-warning {
+	margin-top: 20px;
 }

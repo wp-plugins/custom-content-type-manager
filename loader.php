@@ -25,6 +25,8 @@ require_once 'includes/StandardizedCustomFields.php';
 require_once 'includes/CCTM_FormElement.php';
 require_once 'includes/CCTM_Ajax.php';
 require_once 'includes/functions.php';
+require_once 'includes/CCTM_license.php';
+
 
 
 
