@@ -26,6 +26,8 @@ require_once 'includes/CCTM_FormElement.php';
 require_once 'includes/CCTM_Ajax.php';
 require_once 'includes/functions.php';
 
+
+
 CCTM::$Ajax = new CCTM_Ajax();
 
 // Load up the textdomain(s) for translations

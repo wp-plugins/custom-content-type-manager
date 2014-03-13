@@ -200,12 +200,12 @@ span.custom_field_icon {
 
 a.cctm_tab {
 	border: 1px solid gray;
-	background-color: #ededed;
+	background-color: #e1e1e1;
 }
 
 a.cctm_active {
-	border-bottom: 1px solid white;
-	background-color: white;
+	border-bottom: 1px solid #f1f1f1;
+	background-color: #f1f1f1;
 }
 
 /* Formats rows of data, e.g. in the import definition */

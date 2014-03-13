@@ -33,6 +33,15 @@ add_menu_page(
 
 add_submenu_page(
 	'cctm',          // parent slug (menu-slug from add_menu_page call)
+	__('Activate CCTM License', CCTM_TXTDOMAIN),  // page title
+	__('Activate CCTM License', CCTM_TXTDOMAIN),   // menu title
+	$capability,						// capability
+	'cctm_fields',						// menu_slug: cf = custom fields
+	'CCTM::page_main_controller'		// callback function
+);
+
+add_submenu_page(
+	'cctm',          // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Custom Fields', CCTM_TXTDOMAIN),  // page title
 	__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability
