@@ -10,6 +10,10 @@ class CCTM_License {
 
 	public function __construct() 
 	{	
+		/*delete_option( 'cctm_edd_license_key' );
+		delete_option( 'cctm_edd_license_status' );
+		delete_transient(strtolower(str_replace(' ', '_', self::$plugin)) );
+		die();*/
 		$this->edd_register_option();
 		$this->edd_activate_license();
 	}
@@ -36,7 +40,8 @@ class CCTM_License {
 							</th>
 							<td>
 								<input id="cctm_edd_license_key" name="cctm_edd_license_key" type="text" class="regular-text" value="<?php esc_attr_e( $license ); ?>" />
-								<label class="description" for="cctm_edd_license_key"><?php _e('Enter your license key'); ?></label>
+								<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
+
 							</td>
 						</tr>
 						<?php if( false !== $license ) { ?>
@@ -55,8 +60,7 @@ class CCTM_License {
 							</tr>
 						<?php } ?>
 					</tbody>
-				</table>	
-				<?php submit_button(); ?>
+				</table>
 			
 			</form>
 		<?php
@@ -73,6 +77,7 @@ class CCTM_License {
 	**/
 	public static function edd_register_option() {
 		// creates our settings in the options table
+
 		register_setting('cctm_license', 'cctm_edd_license_key', array('CCTM_License','edd_sanitize_license'));
 	}
 
@@ -107,7 +112,6 @@ class CCTM_License {
 		// listen for our activate button to be clicked
 		if( isset( $_POST['edd_license_activate'] ) ) {
 
-	 
 			// run a quick security check 
 		 	if( ! check_admin_referer( 'edd_nonce', 'edd_nonce' ) ) 	
 				return; // get out if we didn't click the Activate button
@@ -146,43 +150,40 @@ class CCTM_License {
 	* cache the result using set_transient
 	**/
 	public static function edd_check_license() {	
-		$cache_key = 'edd_license-'.strtolower(str_replace(' ', '_', self::$plugin));
+		$license = trim( get_option( 'cctm_edd_license_key' ) );
+		$status 	= get_option( 'cctm_edd_license_status' );
+		$cache_key = strtolower(str_replace(' ', '_', self::$plugin));
 		$data = get_transient( $cache_key );
 		$key_old = trim( get_option( 'cctm_edd_license_key' ) );
-
-		if ($data && $key_old == $data->key) {
-			return $data;
-			exit;
-		}
-		// retrieve the license from the database
-		$license = trim( get_option( 'cctm_edd_license_key' ) );
-			
-		// data to send in our API request
-		$api_params = array( 
-			'edd_action'=> 'check_license', 
-			'license' 	=> $license, 
-			'item_name' => urlencode( self::$plugin ), // the name of our product in EDD,
-			'url'       => home_url()
-		);
 	
-		// Call the custom API.
-		$response = wp_remote_get( add_query_arg( $api_params, self::$edd_store ) );
- 
-		// make sure the response came back okay
-		if ( is_wp_error( $response ) )
-			return false;
-		$data = json_decode( wp_remote_retrieve_body( $response ) );
-		$data->key = trim( get_option( 'cctm_edd_license_key' ) );
+		if ($data && $key_old == $data->key) {
+			return $status;
+		} else {
+			// data to send in our API request
+			$api_params = array( 
+				'edd_action'=> 'check_license', 
+				'license' 	=> $license, 
+				'item_name' => urlencode( self::$plugin ), // the name of our product in EDD,
+				'url'       => home_url()
+			);
+		
+			// Call the custom API.
+			$response = wp_remote_get( add_query_arg( $api_params, self::$edd_store ) );
+	 
+			// make sure the response came back okay
+			if ( is_wp_error( $response ) )
+				return false;
+			$data = json_decode( wp_remote_retrieve_body( $response ) );
+			$data->key = trim( get_option( 'cctm_edd_license_key' ) );
 
- 		set_transient( $cache_key, $data, 60*60 );
-		return $data;			
-	}
-
-	public static function test() {
-		echo 'test';die();
+	 		set_transient( $cache_key, $data, 60*60 );
+			return $status;	
+		}
+				
 	}
 
 }
+
 //register setting
 add_action('admin_init', function(){
 	new CCTM_License();

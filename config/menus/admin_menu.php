@@ -19,7 +19,7 @@ if (defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE == true && is_super_admi
 }
 
 $active_post_types = self::get_active_post_types();
-$cctm_license = CCTM_License::edd_check_license();
+$cctm_status = CCTM_License::edd_check_license();
 
 // Main menu item
 add_menu_page(
@@ -27,12 +27,12 @@ add_menu_page(
 	__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
 	$capability,						// capability
 	'cctm',								// menu-slug (should be unique)
-	($cctm_license->license == 'valid') ? 'CCTM::page_main_controller' :'CCTM_License::inactive_page' ,       // callback function
+	($cctm_status == 'valid') ? 'CCTM::page_main_controller' :'CCTM_License::inactive_page' ,       // callback function
 	CCTM_URL .'/images/gear.png',       // Icon
 	self::menu_position					// menu position
 );
 
-if($cctm_license->license == 'valid') {
+if($cctm_status == 'valid') {
 
 	add_submenu_page(
 		'cctm',          // parent slug (menu-slug from add_menu_page call)
