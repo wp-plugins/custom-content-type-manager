@@ -32,6 +32,16 @@ if (!isset($data['help']) || empty($data['help'])) {
 	$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/';
 }
 ?>
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=436889603042486";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
 <div class="wrap">
 
 	<?php /*---------------- HEADER and TABS --------------------------- */ ?>
@@ -72,8 +82,11 @@ if (!isset($data['help']) || empty($data['help'])) {
 	<div id="cctm_footer">
 		<p style="margin:10px;">
 			<span class="cctm-link">
-				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/heart.png" height="32" width="32" alt="heart"/></a>
-				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><?php _e('Support this Plugin', CCTM_TXTDOMAIN); ?></a>
+				<!-- <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><img class="cctm-img" src="<?php //print CCTM_URL; ?>/images/heart.png" height="32" width="32" alt="heart"/></a>
+				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FABHDKPU7P6LN" target="_blank"><?php // _e('Support this Plugin', CCTM_TXTDOMAIN); ?></a> -->
+			</span>
+			<span class="cctm-link">
+				<div class="fb-like" data-href="https://www.facebook.com/CustomContentTypeManager" data-layout="button_count" data-action="like" data-show-faces="true" data-share="false"></div>
 			</span>
 			<span class="cctm-link">
 				<a href="?page=cctm&a=help"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/help.png" height="32" width="32" alt="help"/></a>
