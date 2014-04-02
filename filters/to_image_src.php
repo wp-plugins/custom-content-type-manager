@@ -22,6 +22,7 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 		$input = $this->to_array($input);
 
 		if ($this->is_array_input) {
+            if (empty($input)) return array($options);
 			foreach($input as &$item) {
 				if (!is_numeric($item)) {
 					$item = sprintf(__('Invalid input. %s operates on post IDs only.', CCTM_TXTDOMAIN), 'to_image_src');
@@ -59,7 +60,7 @@ class CCTM_to_image_src extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __('The <em>to_image_src</em> filter converts a JSON encoded string to a PHP array. It should be used on any multi-select field or any other field that stores multiple values. You can optionally supply a default image src that will be used if there is no valid input.', CCTM_TXTDOMAIN);
+		return __("The <em>to_image_src</em> filter converts an image id into the full URL to the image. Use the this filter if you want to return the full path to the image, for example for use in your own image tag or link.", CCTM_TXTDOMAIN);
 	}
 
 

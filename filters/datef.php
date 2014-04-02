@@ -53,7 +53,7 @@ class CCTM_datef extends CCTM_OutputFilter {
 	 * @return string 	a code sample 
 	 */
 	public function get_example($fieldname='my_field',$fieldtype,$is_repeatable=false) {
-		return '<?php print_custom_field("'.$fieldname.':datef", ""); ?>';
+		return '<?php print_custom_field("'.$fieldname.':datef", "F j, Y, g:i a"); ?>';
 	}
 
 
@@ -68,7 +68,7 @@ class CCTM_datef extends CCTM_OutputFilter {
 	 * @return string	the URL where the user can read more about the filter
 	 */
 	public function get_url() {
-		return __('http://code.google.com/p/wordpress-custom-content-type-manager/wiki/money_OutputFilter', CCTM_TXTDOMAIN);
+		return __('https://code.google.com/p/wordpress-custom-content-type-manager/wiki/datef_OutputFilter', CCTM_TXTDOMAIN);
 	}
 		
 }

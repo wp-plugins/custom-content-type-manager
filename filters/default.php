@@ -44,7 +44,7 @@ class CCTM_default extends CCTM_OutputFilter {
 	 * @return string	a description of what the filter is and does.
 	 */
 	public function get_description() {
-		return __('The <em>default</em> filter kicks in only if the input is empty: whatever you specify as an option will be returned only if the input is empty.  This is one way to establish default values for your fields.', CCTM_TXTDOMAIN);
+		return __('The <em>default</em> filter kicks in only if the input is empty: whatever you specify as an option will be returned when the input is empty.  This is a convenient way to establish default values for your fields.', CCTM_TXTDOMAIN);
 	}
 
 
