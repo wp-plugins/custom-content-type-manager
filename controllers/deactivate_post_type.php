@@ -40,6 +40,7 @@ if (!isset(self::$data['post_type_defs'][$post_type]['post_type'])) {
 	$is_foreign = true;
 }
 if ( ($is_foreign || $is_built_in) || !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_name']) ) {
+
 	// get current values from database
 	self::$data['post_type_defs'][$post_type]['is_active'] = 0;
 	update_option( self::db_key, self::$data );

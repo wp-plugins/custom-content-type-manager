@@ -24,7 +24,7 @@ class CCTM {
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
-	const php_req_ver  = '5.2.6';
+	const php_req_ver  = '5.3.0';
 	const mysql_req_ver = '4.1.2';
 
 	/**
@@ -241,7 +241,7 @@ class CCTM {
 	 * self::$errors['field_name'] = 'Description of error';
 	 */
 	public static $errors;
-
+    public static $license;
 	/**
 	 * Used by the "required" fields and any custom validations on post/page fields.
 	 */
@@ -1102,10 +1102,17 @@ class CCTM {
 	 * @return string
 	 */
 	public static function filter_sanitize_title($title, $raw_title, $context) {
+	       global $wp_query;	
+	       global $wp_the_query;
+	       global $wp;
+//        print $title; exit;
+//        print $raw_title; exit;
+//        print $context; exit;
+//print __CLASS__.'::'.__FUNCTION__.'<pre>'; print_r($wp_query); exit;
 
 		// This isn't always called on the public-side... it gets called in the manager too.
 		if ('query' == $context) {
-			global $wp_query;
+
 			if (!is_object($wp_query)) {
 				return $title;
 			}
@@ -2183,7 +2190,11 @@ class CCTM {
 	 *
 	 */
 	public static function page_main_controller() {
-
+        if (CCTM::$license != 'valid') {
+            CCTM\License::activate_license_page();
+            return;    
+        }
+        
 		// TODO: this should be specific to the request
 		if (!current_user_can('manage_options')) {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
@@ -2371,6 +2382,7 @@ class CCTM {
 	 * @return none  But errors are printed if present.
 	 */
 	public static function print_notices() {
+
 		if ( !empty(CCTM::$errors) ) {
 			$error_items = '';
 			foreach ( CCTM::$errors as $e ) {
@@ -2389,6 +2401,10 @@ class CCTM {
 				, $msg
 				, $error_items);
 		}
+
+        if(CCTM::$license != 'valid') {
+            print CCTM\License::get_error_msg();
+        }
 	}
 
 
@@ -2515,6 +2531,14 @@ class CCTM {
 				register_post_type( $post_type, $def );
 			}
 		}
+		// This works:
+//		add_rewrite_rule('^house/123-main-street/living-room/?','index.php?post_type=room&p=30','top');
+//123-main-street
+//		add_rewrite_rule('^house/123-main-street/([^/]*)/?','index.php?post_type=room&name=$matches[1]','top');
+		add_rewrite_rule('^house/([^/]*)/([^/]*)/?','index.php?post_type=room&name=$matches[2]','top');
+//		add_rewrite_rule();
+        flush_rewrite_rules();
+        // 
 		// flush_rules moved to CCTM_PostTypeDef
 	}
 

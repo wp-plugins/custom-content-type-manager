@@ -90,7 +90,7 @@ if (!isset($data['help']) || empty($data['help'])) {
 			</span>
 			<span class="cctm-link">
 				<a href="?page=cctm&a=help"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/help.png" height="32" width="32" alt="help"/></a>
-				<a href="?page=cctm&a=help"><?php _e('Help', CCTM_TXTDOMAIN); ?></a>
+				<a href="http://craftsmancoding.com/products/downloads/support/"><?php _e('Get Professional Help!', CCTM_TXTDOMAIN); ?></a>
 			</span>
 			<span class="cctm-link">
 				<a href="?page=cctm&a=bug_report"><img class="cctm-img" src="<?php print CCTM_URL; ?>/images/space-invader.png" height="32" width="32" alt="bug"/></a>

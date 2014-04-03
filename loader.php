@@ -25,7 +25,7 @@ require_once 'includes/StandardizedCustomFields.php';
 require_once 'includes/CCTM_FormElement.php';
 require_once 'includes/CCTM_Ajax.php';
 require_once 'includes/functions.php';
-require_once 'includes/CCTM_license.php';
+require_once 'includes/License.php';
 
 
 
@@ -34,11 +34,21 @@ CCTM::$Ajax = new CCTM_Ajax();
 
 // Load up the textdomain(s) for translations
 CCTM::load_file('/config/lang/dictionaries.php');
+CCTM::$license = CCTM\License::check();
 
 // Get admin ready, print any CCTMtests::$errors in the admin dashboard
 add_action( 'admin_notices', 'CCTM::print_notices');
 
-if (empty(CCTM::$errors)) {
+if ( is_admin()) {
+	// Generate admin menu, bootstrap CSS/JS
+//	add_action('admin_init', 'CCTM::admin_init');
+
+	// Create custom plugin settings menu
+	add_action('admin_menu', 'CCTM::create_admin_menu');
+	add_filter('plugin_action_links', 'CCTM::add_plugin_settings_link', 10, 2 );
+}
+
+if (empty(CCTM::$errors) && CCTM::$license=='valid') {
 	// Load up the CCTM data from wp_options, populates CCTM::$data
 	CCTM::load_data();
 
@@ -73,8 +83,8 @@ if (empty(CCTM::$errors)) {
 		add_action('admin_init', 'CCTM::admin_init');
 
 		// Create custom plugin settings menu
-		add_action('admin_menu', 'CCTM::create_admin_menu');
-		add_filter('plugin_action_links', 'CCTM::add_plugin_settings_link', 10, 2 );
+		//add_action('admin_menu', 'CCTM::create_admin_menu');
+		//add_filter('plugin_action_links', 'CCTM::add_plugin_settings_link', 10, 2 );
 
 		// Standardize Fields
 		add_action('do_meta_boxes', 'StandardizedCustomFields::remove_default_custom_fields', 10, 3 );

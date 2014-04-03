@@ -540,6 +540,19 @@ class CCTM_PostTypeDef {
 		return $sanitized;
 	}
 
+    /**
+     * This needs to be called when we activate or deactivate a post-type.
+     *
+     */
+    public static function rewrite_rules() {
+
+        // http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=50
+		// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=540
+		// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=534
+        global $wp_rewrite;
+		$wp_rewrite->flush_rules();
+    
+    }
 
 	//------------------------------------------------------------------------------
 	/**
@@ -567,11 +580,7 @@ class CCTM_PostTypeDef {
 		}
 
 		update_option( CCTM::db_key, CCTM::$data );
-		
-        // http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=50
-		// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=540
-        global $wp_rewrite;
-		$wp_rewrite->flush_rules();
+		self::rewrite_rules();
 	}
 }
 /*EOF*/

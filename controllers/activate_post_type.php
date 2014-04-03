@@ -20,6 +20,9 @@ if ($is_foreign) {
 else {
 	self::$data['post_type_defs'][$post_type]['is_active'] = 1;
 }
+// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=534
+//add_rewrite_rule('^house/123-main-street/living-room/?','index.php?post_type=room&p=30','top');
+//flush_rewrite_rules();
 
 update_option( self::db_key, self::$data );
 $msg = '

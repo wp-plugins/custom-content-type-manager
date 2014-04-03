@@ -19,7 +19,6 @@ if (defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE == true && is_super_admi
 }
 
 $active_post_types = self::get_active_post_types();
-$cctm_status = CCTM_License::edd_check_license();
 
 // Main menu item
 add_menu_page(
@@ -27,57 +26,54 @@ add_menu_page(
 	__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
 	$capability,						// capability
 	'cctm',								// menu-slug (should be unique)
-	($cctm_status == 'valid') ? 'CCTM::page_main_controller' :'CCTM_License::inactive_page' ,       // callback function
+	'CCTM::page_main_controller',       // callback function
 	CCTM_URL .'/images/gear.png',       // Icon
 	self::menu_position					// menu position
 );
 
-if($cctm_status == 'valid') {
+add_submenu_page(
+	'cctm',          // parent slug (menu-slug from add_menu_page call)
+	__('CCTM Custom Fields', CCTM_TXTDOMAIN),  // page title
+	__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
+	$capability,						// capability
+	'cctm_fields',						// menu_slug: cf = custom fields
+	'CCTM::page_main_controller'		// callback function
+);
 
-	add_submenu_page(
-		'cctm',          // parent slug (menu-slug from add_menu_page call)
-		__('CCTM Custom Fields', CCTM_TXTDOMAIN),  // page title
-		__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
-		$capability,						// capability
-		'cctm_fields',						// menu_slug: cf = custom fields
-		'CCTM::page_main_controller'		// callback function
-	);
+add_submenu_page(
+	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	__('CCTM Global Settings', CCTM_TXTDOMAIN),  // page title
+	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
+	$capability,							// capability
+	'cctm_settings',						// menu_slug
+	'CCTM::page_main_controller'			// callback function
+);
 
-	add_submenu_page(
-		'cctm',         // parent slug (menu-slug from add_menu_page call)
-		__('CCTM Global Settings', CCTM_TXTDOMAIN),  // page title
-		__('Global Settings', CCTM_TXTDOMAIN),	// menu title
-		$capability,							// capability
-		'cctm_settings',						// menu_slug
-		'CCTM::page_main_controller'			// callback function
-	);
+add_submenu_page(
+	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	__('CCTM Tools', CCTM_TXTDOMAIN),   // page title
+	__('Tools', CCTM_TXTDOMAIN),    // menu title
+	$capability,					// capability
+	'cctm_tools',					// menu_slug
+	'CCTM::page_main_controller'	// callback function
+);
 
-	add_submenu_page(
-		'cctm',         // parent slug (menu-slug from add_menu_page call)
-		__('CCTM Tools', CCTM_TXTDOMAIN),   // page title
-		__('Tools', CCTM_TXTDOMAIN),    // menu title
-		$capability,					// capability
-		'cctm_tools',					// menu_slug
-		'CCTM::page_main_controller'	// callback function
-	);
-
-	add_submenu_page(
-		'cctm',         // parent slug (menu-slug from add_menu_page call)
-		__('CCTM Clear Cache', CCTM_TXTDOMAIN),   // page title
-		__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
-		$capability,					// capability
-		'cctm_cache',					// menu_slug
-		'CCTM::page_main_controller'	// callback function
-	);
-}
+add_submenu_page(
+	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	__('CCTM Clear Cache', CCTM_TXTDOMAIN),   // page title
+	__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
+	$capability,					// capability
+	'cctm_cache',					// menu_slug
+	'CCTM::page_main_controller'	// callback function
+);
 
 add_submenu_page(
 	'cctm',          // parent slug (menu-slug from add_menu_page call)
-	__('Activate CCTM License', CCTM_TXTDOMAIN),  // page title
-	__('Activate CCTM License', CCTM_TXTDOMAIN),   // menu title
+	__('License', CCTM_TXTDOMAIN),  // page title
+	__('License', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability
-	'cctm_fields-activate',						// menu_slug: cf = custom fields
-	'CCTM_License::activate_license_page'		// callback function
+	'cctm_license',						// menu_slug: cf = custom fields
+	'CCTM\License::activate_license_page'		// callback function
 );
 
 // Add Custom Fields links to each post type
