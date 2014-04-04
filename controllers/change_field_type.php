@@ -39,7 +39,9 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	$new_field_type = CCTM::get_value($_POST,'new_field_type');
 	$old_field_type = CCTM::get_value($_POST,'old_field_type');
 	
-	if ($FieldObj = CCTM\Load::object($new_field_type,'fields') ) {
+	$classname = 'CCTM\\Fields\\'.$new_field_type;
+    $FieldObj = new $classname();
+
 		$field_type_str = $FieldObj->get_name();
 		$field_type_url = $FieldObj->get_url();
 		
@@ -52,20 +54,24 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		self::set_flash($data['msg']);
 		include(CCTM_PATH.'/controllers/list_custom_fields.php');
 		return;
+/*
 	}
 	else {
 		die(__('There was a problem converting the field type.', CCTM_TXTDOMAIN));
 	}
+*/
 }
 
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
 $field_type_str = '';
-if ($FieldObj = CCTM\Load::object($field_type,'fields')) {
-	$field_type_str = $FieldObj->get_name();
-	$field_type_url = $FieldObj->get_url();
-}
+
+$classname = 'CCTM\\Fields\\'.$field_type;
+$FieldObj = new $classname();
+$field_type_str = $FieldObj->get_name();
+$field_type_url = $FieldObj->get_url();
+
 
 $data['content'] = '<p>'.sprintf(__('Change the %s field from a %s field into the following type of field:', CCTM_TXTDOMAIN), '<code>'.$field_data['name'].'</code>', sprintf('<a href="%s">%s</a>', $field_type_url, $field_type_str) ) . '</p>';
 
@@ -76,14 +82,18 @@ foreach ( $elements as $ft => $file ) {
 	if ($field_type == $ft) {
 		continue; //  can't  change a field to itself
 	}
-	if ($FieldObj = CCTM\Load::object($ft,'fields')) {
+	$classname = 'CCTM\\Fields\\'.$ft;
+    $FieldObj = new $classname();
+
 		$d = array();		
 		$data['content'] .= sprintf('<option value="%s">%s</option>', $ft, $FieldObj->get_name());
+/*
 	}
 	else {
 		die( sprintf(__('Form element not found: %s', CCTM_TXTDOMAIN)
 			, "<code>$field_type</code>") );
 	}
+*/
 
 }
 $data['content'] .= '</select>';

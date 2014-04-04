@@ -61,10 +61,9 @@ if (empty($tpl)) {
 
 }
 
-$FieldObj = CCTM\Load::object($def['type'], 'fields');
-if (!$FieldObj) {
-	return;
-}
+$classname = 'CCTM\\Fields\\'.$def['type'];
+$FieldObj = new $classname();
+
 $def['id'] = $fieldname;
 $def['i'] = $instance;
 $FieldObj->set_props($def);

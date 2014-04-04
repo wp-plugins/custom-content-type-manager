@@ -39,10 +39,9 @@ foreach ($defs as $field_name => $d) {
 	if (isset($d['required']) && $d['required']) {
 		$d['label'] = $d['label'] . ' *'; // Asterix for req'd fields
 	}
-
-	if (!$FieldObj = CCTM\Load::object($d['type'],'fields') ) {
-		continue;
-	}
+	
+    $classname = 'CCTM\\Fields\\'.$d['type'];
+    $FieldObj = new $classname();
 
 	$FieldObj->set_props($d);
 	$d['icon'] 	= $FieldObj->get_icon();

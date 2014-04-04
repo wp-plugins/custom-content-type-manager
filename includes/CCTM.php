@@ -83,12 +83,9 @@ class CCTM {
 	const new_file_perms = 0644;
 
 	//------------------------------------------------------------------------------
+
 	/**
-	 * This contains the CCTM_Ajax object, stashed here for easy reference.
-	 */
-	public static $Ajax;
-	/**
-	 * Contains the CCTM_Columns object, used for custom columns.
+	 * Contains the CCTM\Columns object, used for custom columns.
 	 */
 	public static $Columns;
 
@@ -667,7 +664,7 @@ class CCTM {
 		  || ($explicit_fields && in_array('post_title', $custom_fields)) 
         ) {
             
-        	$FieldObj = CCTM\Load::object('text','fields');
+        	$FieldObj = new CCTM\Fields\text();
 			$post_title_def = array(
 				'label' => $args['_label_title'],
 				'name' => 'post_title',
@@ -691,7 +688,7 @@ class CCTM {
             !$explicit_fields && post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])
             || ($explicit_fields && in_array('post_content', $custom_fields)) 
         ) {
-        	$FieldObj = CCTM\Load::object('textarea','fields'); // TODO: change to wysiwyg
+        	$FieldObj = CCTM\Fields\textarea(); // TODO: change to wysiwyg
 			$post_title_def = array(
 				'label' => $args['_label_content'],
 				'name' => 'post_content',
@@ -714,7 +711,7 @@ class CCTM {
             !$explicit_fields && post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])
             || ($explicit_fields && in_array('post_excerpt', $custom_fields)) 
         ) {
-        	$FieldObj = CCTM\Load::object('textarea','fields');
+        	$FieldObj = CCTM\Fields\textarea();
 			$post_title_def = array(
 				'label' => $args['_label_excerpt'],
 				'name' => 'post_excerpt',
@@ -753,9 +750,9 @@ class CCTM {
 				continue;
 			}
 			$output_this_field = '';
-			if (!$FieldObj = CCTM\Load::object($def['type'],'fields')) {
-				continue;
-			}
+			$classname = 'CCTM\\Fields\\'.$def['type'];
+            $FieldObj = new $classname(); 
+
 			// Repopulate
 			if (isset($_POST[ $args['_name_prefix'].$def['name'] ])) {
 				$def['default_value'] = wp_kses(
@@ -1075,12 +1072,15 @@ class CCTM {
 
 		require_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
 		
-		if ($OutputFilter = CCTM\Load::object($outputfilter,'filters')) {
-			return $OutputFilter->filter($value, $options);		
-		}
-		else {
-			return $value;
-		}
+		$classname = 'CCTM\\Filters\\'.$outputfilter;
+        try {
+            $OutputFilter = new $classname();
+            return $OutputFilter->filter($value, $options);		
+        }
+        catch (Exception $e) {
+            // Log this
+            return;
+        }
 	}
 
 	/**
@@ -1721,9 +1721,9 @@ class CCTM {
 
 		// We only get here if we survived the gauntlet above
 		foreach ($field_types as $ft => $fieldlist) {
-			if ($FieldObj = CCTM\Load::object($ft, 'fields')) {			
-				$FieldObj->admin_init($fieldlist);
-			}
+            $classname = 'CCTM\\Fields\\'.$ft;
+            $FieldObj = new $classname();
+            $FieldObj->admin_init($fieldlist);
 		}
 
 		if (!empty(CCTM::$errors)) {

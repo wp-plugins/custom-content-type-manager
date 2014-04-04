@@ -111,9 +111,9 @@ foreach ($active_custom_fields as $cf) {
 	}
 	$d = self::$data['custom_field_defs'][$cf];
 
-	if (!$FieldObj = CCTM\Load::object($d['type'], 'fields')) {
-		continue;
-	}
+    $classname = 'CCTM\\Fields\\'.$d['type'];
+    $FieldObj = new $classname();
+
 	$metabox = 'cctm_default';
 	if (isset(self::$data['post_type_defs'][$post_type]['map_field_metabox'][$cf])) {
 		$metabox = self::$data['post_type_defs'][$post_type]['map_field_metabox'][$cf];
@@ -181,10 +181,13 @@ $remaining_custom_fields = array_diff($all_custom_fields, $active_custom_fields)
 
 foreach ($remaining_custom_fields as $cf) {
 	$d = self::$data['custom_field_defs'][$cf];
-
-	if(!$FieldObj = CCTM\Load::object($d['type'],'fields')) {
-		continue;
-	}
+    $classname = 'CCTM\\Fields\\'.$d['type'];
+    try {
+        $FieldObj = new $classname();
+    }
+    catch (Exception $e) {
+        continue;
+    }
 	
 	$d['icon'] = $FieldObj->get_icon();
 

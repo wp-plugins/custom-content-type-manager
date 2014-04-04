@@ -99,7 +99,9 @@ function get_custom_field($raw_fieldname, $options=null) {
 	}
 	// Sigh... this is obnoxious: it's impossible to tell if output filters are operating on a "repeatable" field
 	// so sometimes they return an empty string.
-    if (empty($value) && CCTM::$data['custom_field_defs'][$fieldname]['is_repeatable']) {
+    if (empty($value) 
+        && isset(CCTM::$data['custom_field_defs'][$fieldname]['is_repeatable'])
+        && CCTM::$data['custom_field_defs'][$fieldname]['is_repeatable']) {
         $value = array();
     }
 	// Store in the request cache

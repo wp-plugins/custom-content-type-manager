@@ -24,7 +24,9 @@ if(!empty($post_type)) {
 $elements = CCTM::get_available_helper_classes('fields');
 //print_r($elements); exit; // EHG 
 foreach ( $elements as $field_type => $file ) {
-	if ($FieldObj = CCTM\Load::object($field_type,'fields') ) {
+    $classname = 'CCTM\\Fields\\'.$field_type;
+    $FieldObj = new $classname();
+
 		$d = array();		
 		$d['name'] 			= $FieldObj->get_name();
 		$d['icon'] 			= $FieldObj->get_icon();
@@ -34,6 +36,7 @@ foreach ( $elements as $field_type => $file ) {
 		$d['post_type']		= $post_type;
 		
 		$data['fields'] .= CCTM\Load::view('tr_custom_field_type.php',$d);	
+/*
 	}
 	else {
 		$data['fields'] .= sprintf(
@@ -41,6 +44,7 @@ foreach ( $elements as $field_type => $file ) {
 			, "<code>$field_type</code>"
 		);
 	}
+*/
 
 }
 

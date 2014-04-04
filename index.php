@@ -34,8 +34,13 @@ spl_autoload_register(function($class) {
     if (substr($class, 0, strlen($prefix)) == $prefix) {
         $class = substr($class, strlen($prefix));
     }
+    // So our namespaces correspond to our folder structure
+    $class = str_replace('\\', '/', $class);
+    // First, check the user directory for overrides
+    if (false) {
     
-    if (file_exists(dirname(__FILE__).'/includes/' . $class . '.php')) {
+    }
+    elseif (file_exists(dirname(__FILE__).'/includes/' . $class . '.php')) {
         require_once dirname(__FILE__).'/includes/' . $class . '.php';
     }
 });

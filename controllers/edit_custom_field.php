@@ -37,9 +37,8 @@ $displayable_types = CCTM::get_post_types();
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
-if(!$FieldObj = CCTM\Load::object($field_type, 'fields')) {
-	die('Field not found.');
-}
+$classname = 'CCTM\\Fields\\'.$field_type;
+$FieldObj = new $classname();
 
 $field_data['original_name'] = $field_name;
 $FieldObj->set_props($field_data);  

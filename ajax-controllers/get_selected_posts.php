@@ -27,12 +27,6 @@ if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
 }
 if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 
-/*
-require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
-require_once(CCTM_PATH.'/includes/SummarizePosts.php');
-require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
-*/
-
 $d = array(); // <-- Template Variables
 
 // Some Tests first to see if the request is valid...
@@ -162,9 +156,8 @@ foreach($results as $r) {
         	}
 
         	$output_this_field = '';
-        	if (!$FieldObj = CCTM\Load::object($d['type'],'fields')) {
-        		continue;
-        	}
+            $classname = 'CCTM\\Fields\\'.$d['type'];
+            $FieldObj = new $classname();
         
             $d['name'] = $fieldname.'['.$r['ID'].']['.$d['name'].']';
             $d['is_repeatable'] = false; // override

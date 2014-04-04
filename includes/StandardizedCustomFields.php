@@ -3,6 +3,8 @@
 This plugin standardizes the custom fields for specified content types, e.g.
 post, page, and any other custom post-type you register via a plugin.
 ------------------------------------------------------------------------------*/
+namespace CCTM;
+use CCTM as CCTM;
 class StandardizedCustomFields {
 	//------------------------------------------------------------------------------
 	//! Private Functions
@@ -92,7 +94,7 @@ class StandardizedCustomFields {
 					$m = CCTM::$data['metabox_defs'][$m_id];
 				}
 
-				$callback = 'StandardizedCustomFields::print_custom_fields';
+				$callback = 'CCTM\StandardizedCustomFields::print_custom_fields';
 				$callback_args = array('metabox_id'=>$m_id,'fields'=>$fields);
 				if (isset($m['callback']) && !empty($m['callback'])) {
 					$callback = $m['callback'];
@@ -118,7 +120,7 @@ class StandardizedCustomFields {
 			// get orphaned custom fields: fields without an explicit metabox
 			if (!empty($all_fields)) {
 				$m = CCTM::$metabox_def; // default
-				$callback = 'StandardizedCustomFields::print_custom_fields';
+				$callback = 'CCTM\StandardizedCustomFields::print_custom_fields';
 				$callback_args = array('metabox_id'=>'cctm_default','fields'=>$all_fields);
 				add_meta_box($m['id'],$m['title'],$callback,$post_type,$m['context'],$m['priority'],$callback_args);
 			}
@@ -241,7 +243,7 @@ class StandardizedCustomFields {
 		if ( in_array($file, array('post.php'))) {
 			global $post;
 		
-			$Q = new GetPostsQuery();
+			$Q = new \GetPostsQuery();
 			$full_post = $Q->get_post($post->ID);
 			
 			if(!self::validate_fields($post_type, $full_post)) {
@@ -312,7 +314,11 @@ class StandardizedCustomFields {
 			}
 			
 			$output_this_field = '';
-			if (!$FieldObj = CCTM\Load::object($def['type'],'fields')) {
+            $classname = 'CCTM\\Fields\\'.$def['type'];
+            try {
+                $FieldObj = new $classname();
+            }
+			catch (Exception $e) {
 				continue;
 			}			
 			if ( self::_is_new_post() ) {	
@@ -414,7 +420,11 @@ class StandardizedCustomFields {
 				}
 				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 
-				if ($FieldObj = CCTM\Load::object($field_type,'fields')) {
+                $classname = 'CCTM\\Fields\\'.$field_type;
+
+                try {
+                    $FieldObj = new $classname();
+
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 
@@ -451,7 +461,8 @@ class StandardizedCustomFields {
 					}					
 					
 				}
-				else {
+				catch (Exception $e) {
+				    // Log this
 					// error!  Can't include the field class.  WTF did you do?
 				}
 			}
@@ -481,8 +492,11 @@ class StandardizedCustomFields {
 				continue;
 			}
 			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
-			
-			if ($FieldObj = CCTM\Load::object($field_type,'fields')) {
+
+            $classname = 'CCTM\\Fields\\'.$field_type;
+            
+            try {
+                $FieldObj = new $classname();
 				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 				$value = '';
 				if (isset($full_post[$field_name])) {
@@ -519,7 +533,9 @@ class StandardizedCustomFields {
 				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
 				// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=374
 				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
-					$Validator = CCTM\Load::object($FieldObj->validator, 'validators');
+				    $classname = 'CCTM\\Validators\\'.$FieldObj->validator;
+                    $Validator = new $classname();
+                    // TODO: try/catch
 					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
 						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
 					}
@@ -539,7 +555,8 @@ class StandardizedCustomFields {
 				}
 				
 			}
-			else {
+			catch (Exception $e) {
+    			 // TODO: Log 
 				// error!  Can't include the field class.  WTF did you do to get here?
 			}
 		}

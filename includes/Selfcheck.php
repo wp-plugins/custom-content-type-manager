@@ -144,6 +144,13 @@ class Selfcheck {
 	   }
 	}
 	
+	public static function test_upload_dir() {
+        $upload_dir = wp_upload_dir();
+		if (isset($upload_dir['error']) && !empty($upload_dir['error'])) {
+			self::$errors[] = 'There was a problem with your upload directory: ' .$upload_dir['error'];
+		}	
+	}
+	
 	/**
 	 * This only prints a message if there are errors.
 	 * This should be the last function in the class due to how ReflectionClass

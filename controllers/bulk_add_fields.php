@@ -25,7 +25,10 @@ global $wpdb;
 // Get all avail. field types: used for icons and for dropdowns.
 $elements = CCTM::get_available_helper_classes('fields');
 foreach ( $elements as $field_type => $file ) {
-	if ($FieldObj = CCTM\Load::object($field_type,'fields') ) {
+    $classname = 'CCTM\\Fields\\'.$field_type;
+
+    try {
+        $FieldObj = new $classname();
 		$d = array();		
 		$d['name'] 			= $FieldObj->get_name();
 		$d['icon'] 			= $FieldObj->get_icon();
@@ -37,8 +40,10 @@ foreach ( $elements as $field_type => $file ) {
         }		
         $data['field_types'] .= '<option value="'.$field_type.'"'.$is_selected.'>'.$FieldObj->get_name().'</option>';				
 		$data['fields'] .= CCTM\Load::view('bulk_icon.php',$d);	
+    
 	}
-	else {
+	catch (Exception $e) {
+        //$e->getMessage()
 		$data['field_types'] .= sprintf(
 			__('Form element not found: %s', CCTM_TXTDOMAIN)
 			, "<code>$field_type</code>"

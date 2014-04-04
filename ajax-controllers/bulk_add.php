@@ -28,16 +28,13 @@ $data['name_class'] = ''; // 'cctm_validation_error';
 if ($desired_field_type) {
     $elements = CCTM::get_available_helper_classes('fields');
     foreach ( $elements as $field_type => $file ) {
-    	if ($FieldObj = CCTM\Load::object($field_type,'fields') ) {
-    	   $is_selected = '';
-    	   if ($desired_field_type == $field_type) {
-        	   $is_selected = ' selected="selected"';    
-    	   }
-            $data['field_types'] .= '<option value="'.$field_type.'"'.$is_selected.'>'.$FieldObj->get_name().'</option>';		
-    	}
-    	else {
-            // Form element not found.  Did someone move a custom class file?
-    	}
+        $classname = 'CCTM\\Fields\\'.$field_type;
+    	$FieldObj = new $classname();
+        $is_selected = '';
+        if ($desired_field_type == $field_type) {
+           $is_selected = ' selected="selected"';    
+        }
+        $data['field_types'] .= '<option value="'.$field_type.'"'.$is_selected.'>'.$FieldObj->get_name().'</option>';		
     }
     
     print CCTM\Load::view('tr_bulk.php', $data);

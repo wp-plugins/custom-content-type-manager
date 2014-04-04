@@ -85,6 +85,13 @@ or by going to your wp-content/plugins directory and executing the following com
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
 
+= 0.9.8.0 =
+
+* This is the biggest update to date, leaving almost no file untouched: a huge amount of structural cleanup was undertaken to make the code cleaner, more efficient, and more testable in the hopes of making it more stable and preserving your sites and my sanity.
+* PHP 5.3 is now required because code is now using namespaces, anonymous functions (i.e. closures), and dynamic handling of static methods.
+* With this version, the CCTM becomes a "pay-what-you-want" plugin.  You can contribute whatever you feel is fair (including free) given the plugin's usefulness and your own economic situation.  You must obtain a license from http://craftsmancoding.com/products/downloads/cctm/
+* The problematic permalink problem has been solved with a vengeance: you can now specify 
+
 = 0.9.7.13 =
 
 * Fix for dropdown/radio buttons

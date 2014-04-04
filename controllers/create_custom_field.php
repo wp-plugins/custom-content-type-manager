@@ -19,20 +19,12 @@ $data['change_field_type'] = '<br/>';
 
 $field_data = array(); // Data object we will save
 
-// Fail if there's a that field type does not exist
-if (!$FieldObj = CCTM\Load::object($field_type,'fields')) {
-	$data['msg'] = '<div class="error"><p>'.__('Invalid field type.',CCTM_TXTDOMAIN).'</p></div>';
-	$data['content'] = '';
-	print CCTM\Load::view('templates/default.php', $data);
-	return;
-}
+// Fail if that field type does not exist
+$classname = 'CCTM\\Fields\\'.$field_type;
+$FieldObj = new $classname();
 
 // Get the post-types for listing associations.
-$displayable_types = self::get_post_types();
-
-$field_type_name = self::field_prefix.$field_type;
-$FieldObj = new $field_type_name(); // Instantiate the field element
-
+$displayable_types = CCTM::get_post_types();
 
 
 // Save if submitted...

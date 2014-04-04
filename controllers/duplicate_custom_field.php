@@ -36,10 +36,8 @@ if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
-if(!$FieldObj = CCTM\Load::object($field_type, 'fields')) {
-	die('Field not found.');
-}
-
+$classname = 'CCTM\\Fields\\'.$field_type;
+$FieldObj = new $classname();
 
 $field_data['name'] = $field_data['name'] . '_copy';
 $field_data['label'] = $field_data['label'] . ' Copy';
