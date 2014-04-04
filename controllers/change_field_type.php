@@ -39,7 +39,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 	$new_field_type = CCTM::get_value($_POST,'new_field_type');
 	$old_field_type = CCTM::get_value($_POST,'old_field_type');
 	
-	if ($FieldObj = CCTM::load_object($new_field_type,'fields') ) {
+	if ($FieldObj = CCTM\Load::object($new_field_type,'fields') ) {
 		$field_type_str = $FieldObj->get_name();
 		$field_type_url = $FieldObj->get_url();
 		
@@ -62,7 +62,7 @@ $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
 $field_type_str = '';
-if ($FieldObj = CCTM::load_object($field_type,'fields')) {
+if ($FieldObj = CCTM\Load::object($field_type,'fields')) {
 	$field_type_str = $FieldObj->get_name();
 	$field_type_url = $FieldObj->get_url();
 }
@@ -76,7 +76,7 @@ foreach ( $elements as $ft => $file ) {
 	if ($field_type == $ft) {
 		continue; //  can't  change a field to itself
 	}
-	if ($FieldObj = CCTM::load_object($ft,'fields')) {
+	if ($FieldObj = CCTM\Load::object($ft,'fields')) {
 		$d = array();		
 		$data['content'] .= sprintf('<option value="%s">%s</option>', $ft, $FieldObj->get_name());
 	}
@@ -93,8 +93,8 @@ $data['content'] .= '<p style="color:red;">'.__('WARNING: different fields have 
 $data['content'] .= '<p style="color:red;">'.sprintf('<a href="%s">%s</a>', '?page=cctm_tools&a=export_def' ,__('Export a copy of your field definitions before continuing.', CCTM_TXTDOMAIN)). '</p>';
 
 
-$data['content'] = CCTM::load_view('basic_form.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('basic_form.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 
 /*EOF*/

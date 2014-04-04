@@ -28,7 +28,7 @@ $data['name_class'] = ''; // 'cctm_validation_error';
 if ($desired_field_type) {
     $elements = CCTM::get_available_helper_classes('fields');
     foreach ( $elements as $field_type => $file ) {
-    	if ($FieldObj = CCTM::load_object($field_type,'fields') ) {
+    	if ($FieldObj = CCTM\Load::object($field_type,'fields') ) {
     	   $is_selected = '';
     	   if ($desired_field_type == $field_type) {
         	   $is_selected = ' selected="selected"';    
@@ -40,7 +40,7 @@ if ($desired_field_type) {
     	}
     }
     
-    print CCTM::load_view('tr_bulk.php', $data);
+    print CCTM\Load::view('tr_bulk.php', $data);
 }
 // 2. User wants to query the database
 elseif ($post_type || $post_ids) {

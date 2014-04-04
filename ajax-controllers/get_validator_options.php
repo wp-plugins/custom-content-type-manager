@@ -6,7 +6,7 @@ Load up the validator and return the validator's options.
 ------------------------------------------------------------------------------*/
 $validator = CCTM::get_value($_POST,'validator');
 
-$V = CCTM::load_object($validator,'validators');
+$V = CCTM\Load::object($validator,'validators');
 
 if ($V){
 	print $V->draw_options();

@@ -186,14 +186,14 @@ class CCTM_media extends CCTM_FormElement
 		// Multi field?
 		if ($this->is_repeatable) {
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_media_multi.tpl'
 					, 'fields/elements/_relation_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_media_multi.tpl'
 					, 'fields/wrappers/_relation.tpl'
@@ -234,14 +234,14 @@ class CCTM_media extends CCTM_FormElement
 			$this->post_id    = (int) $this->get_value($current_value,'to_string'); 
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_media.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_media.tpl'
 					, 'fields/wrappers/_relation.tpl'
@@ -321,7 +321,7 @@ class CCTM_media extends CCTM_FormElement
 
 			$hash = CCTM::get_thumbnail($def['default_value']);
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_media.tpl'
 					, 'fields/elements/_relation.tpl'

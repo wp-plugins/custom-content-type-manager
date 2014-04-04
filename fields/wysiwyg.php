@@ -72,7 +72,7 @@ class CCTM_wysiwyg extends CCTM_FormElement
 
 		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
-		$wrappertpl = CCTM::load_tpl(
+		$wrappertpl = CCTM\Load::tpl(
 			array('fields/wrappers/'.$this->name.'.tpl'
 				, 'fields/wrappers/_'.$this->type.'.tpl'
 				, 'fields/wrappers/_default.tpl'

@@ -25,7 +25,7 @@ global $wpdb;
 // Get all avail. field types: used for icons and for dropdowns.
 $elements = CCTM::get_available_helper_classes('fields');
 foreach ( $elements as $field_type => $file ) {
-	if ($FieldObj = CCTM::load_object($field_type,'fields') ) {
+	if ($FieldObj = CCTM\Load::object($field_type,'fields') ) {
 		$d = array();		
 		$d['name'] 			= $FieldObj->get_name();
 		$d['icon'] 			= $FieldObj->get_icon();
@@ -36,7 +36,7 @@ foreach ( $elements as $field_type => $file ) {
            $is_selected = ' selected="selected"';    
         }		
         $data['field_types'] .= '<option value="'.$field_type.'"'.$is_selected.'>'.$FieldObj->get_name().'</option>';				
-		$data['fields'] .= CCTM::load_view('bulk_icon.php',$d);	
+		$data['fields'] .= CCTM\Load::view('bulk_icon.php',$d);	
 	}
 	else {
 		$data['field_types'] .= sprintf(
@@ -97,7 +97,7 @@ if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_nam
             $d['type'] = 'text';
             $d['field_types'] = $data['field_types'];
             $d['name_class'] = '';
-            $data['fields'] .= CCTM::load_view($tpl, $d);        
+            $data['fields'] .= CCTM\Load::view($tpl, $d);        
         }
 
     }
@@ -132,7 +132,7 @@ if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_nam
                 if (isset($errors[ $def['name'] ])) {
                     $d['name_class'] = 'cctm_validation_error';
                 }
-                $data['fields'] .= CCTM::load_view('tr_bulk.php', $d);
+                $data['fields'] .= CCTM\Load::view('tr_bulk.php', $d);
             }
         }
         // Save it
@@ -160,7 +160,7 @@ if (!empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_nam
 
 }
 
-$data['content'] .= CCTM::load_view('bulk_fields.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] .= CCTM\Load::view('bulk_fields.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

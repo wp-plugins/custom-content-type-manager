@@ -133,7 +133,7 @@ if ( isset(self::$data['post_type_defs'][$post_type]['custom_fields'])
 			
 				$filter_class = CCTM::filter_prefix.$filter;
 				if (!class_exists($filter_class)) {
-					$filter_included = CCTM::load_file("/filters/$filter.php");
+					$filter_included = CCTM\Load::file("/filters/$filter.php");
 				}
 			}
 			
@@ -172,5 +172,5 @@ $hash['comments'] = $comments_str;
 $data['single_page_sample_code'] = CCTM::parse($tpl, $hash, true);
 //die('d.x.x.');
 // include CCTM_PATH.'/views/sample_template.php';
-$data['content'] = CCTM::load_view('sample_template.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('sample_template.php', $data);
+print CCTM\Load::view('templates/default.php', $data);

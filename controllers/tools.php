@@ -14,7 +14,7 @@ $data['nonce_name']  = 'custom_content_type_mgr_theme';
 $data['submit']   = __('Save', CCTM_TXTDOMAIN);
 
 
-$data['content'] = CCTM::load_view('tools.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('tools.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

@@ -135,13 +135,13 @@ class CCTM_date extends CCTM_FormElement
 
 		// Multi-version of the field
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->datetype.'_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->datetype.'_multi.tpl'
 					, 'fields/wrappers/_text_multi.tpl'
@@ -162,14 +162,14 @@ class CCTM_date extends CCTM_FormElement
 		// Singular
 		else {
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->datetype.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->datetype.'.tpl'
 					, 'fields/wrappers/_default.tpl'

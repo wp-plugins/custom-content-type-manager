@@ -22,7 +22,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 $data['content'] = 'Theme stuff goes here......';
 
-$data['content'] = CCTM::load_view('basic_form.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('basic_form.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

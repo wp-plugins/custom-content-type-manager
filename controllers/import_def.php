@@ -56,8 +56,8 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 					, CCTM::max_def_file_size 
 				); 
 				$data['msg'] = self::format_errors();
-				$data['content'] = CCTM::load_view('import.php', $data);
-				print CCTM::load_view('templates/default.php', $data);
+				$data['content'] = CCTM\Load::view('import.php', $data);
+				print CCTM\Load::view('templates/default.php', $data);
 				return;
 			}
 			// Big no-no #2: file is too  big
@@ -67,8 +67,8 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 					, CCTM::max_def_file_size 
 				); 
 				$data['msg'] = self::format_errors();
-				$data['content'] = CCTM::load_view('import.php', $data);
-				print CCTM::load_view('templates/default.php', $data);
+				$data['content'] = CCTM\Load::view('import.php', $data);
+				print CCTM\Load::view('templates/default.php', $data);
 				return;
 			}
 			
@@ -80,8 +80,8 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 			if ( !CCTM_ImportExport::is_valid_def_structure($data_from_file) ) {
 				self::$errors['format'] = __('The uploaded file is not in the correct format.', CCTM_TXTDOMAIN);
 				$data['msg'] = self::format_errors();
-				$data['content'] = CCTM::load_view('import.php', $data);
-				print CCTM::load_view('templates/default.php', $data);
+				$data['content'] = CCTM\Load::view('import.php', $data);
+				print CCTM\Load::view('templates/default.php', $data);
 				return;	
 			}
 			
@@ -148,7 +148,7 @@ if ( !empty($_POST) ) { // && check_admin_referer($data['action_name'], $data['n
 
 }
 
-$data['content'] = CCTM::load_view('import.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('import.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

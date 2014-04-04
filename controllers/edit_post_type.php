@@ -29,7 +29,7 @@ else {
 	$data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/CreatePostType';
 	$data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm" title="%s" class="button">%s</a>', __('Back'), __('Back'));
 	$data['content'] = '';
-	print CCTM::load_view('templates/default.php', $data);
+	print CCTM\Load::view('templates/default.php', $data);
 	return;
 }
 
@@ -126,7 +126,7 @@ if ( !empty($_POST) && check_admin_referer($d['action_name'], $d['nonce_name']) 
 $d['icons'] = CCTM_PostTypeDef::get_post_type_icons();
 $d['orderby_options'] = CCTM_PostTypeDef::get_orderby_options($post_type);
 $d['columns'] = CCTM_PostTypeDef::get_columns($post_type);
-$data['content'] = CCTM::load_view('post_type.php', $d);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('post_type.php', $d);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

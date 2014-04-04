@@ -118,7 +118,7 @@ else {
 	$data['content'] .= '</div>';
 }
 
-$data['content'] = CCTM::load_view('purge.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('purge.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

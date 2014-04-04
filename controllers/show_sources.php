@@ -34,7 +34,7 @@ $data['fields']   = '';
 $data['filters'] = '';
 
 
-$data['content'] = CCTM::load_view('sources.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('sources.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

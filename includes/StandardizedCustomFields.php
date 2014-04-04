@@ -312,7 +312,7 @@ class StandardizedCustomFields {
 			}
 			
 			$output_this_field = '';
-			if (!$FieldObj = CCTM::load_object($def['type'],'fields')) {
+			if (!$FieldObj = CCTM\Load::object($def['type'],'fields')) {
 				continue;
 			}			
 			if ( self::_is_new_post() ) {	
@@ -344,7 +344,7 @@ class StandardizedCustomFields {
 		$output['content'] .= $output['nonce'];
 
  		// Print the form
- 		$metaboxtpl = CCTM::load_tpl(array('metaboxes/'.$metabox_id.'.tpl', 'metaboxes/_default.tpl'));
+ 		$metaboxtpl = CCTM\Load::tpl(array('metaboxes/'.$metabox_id.'.tpl', 'metaboxes/_default.tpl'));
 
  		print CCTM::parse($metaboxtpl, $output); 
 	}
@@ -414,7 +414,7 @@ class StandardizedCustomFields {
 				}
 				$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 
-				if ($FieldObj = CCTM::load_object($field_type,'fields')) {
+				if ($FieldObj = CCTM\Load::object($field_type,'fields')) {
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 
@@ -482,7 +482,7 @@ class StandardizedCustomFields {
 			}
 			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
 			
-			if ($FieldObj = CCTM::load_object($field_type,'fields')) {
+			if ($FieldObj = CCTM\Load::object($field_type,'fields')) {
 				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 				$value = '';
 				if (isset($full_post[$field_name])) {
@@ -519,7 +519,7 @@ class StandardizedCustomFields {
 				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
 				// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=374
 				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
-					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
+					$Validator = CCTM\Load::object($FieldObj->validator, 'validators');
 					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
 						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
 					}

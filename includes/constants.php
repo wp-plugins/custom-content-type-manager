@@ -1,7 +1,8 @@
 <?php
 /*------------------------------------------------------------------------------
-These are defined in here because they have to be referenced by the AJAX
-controllers as well as the main plugin. Sorry for the weirdness.
+These are defined in here because they have to be referenced by the main plugin,
+some ajax controllers, and by the uninstall.php script. 
+Sorry for the weirdness.
 
 CCTM_PATH:does not contain a trailing slash, e.g.:
 	/path/to/wp/html/wp-content/plugins/custom-content-type-manager

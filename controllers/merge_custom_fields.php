@@ -108,7 +108,7 @@ foreach ( self::$data['custom_field_defs'] as $fieldname => $def) {
 }
 $d['content'] .= '</select><br />';
 
-$data['content'] = CCTM::load_view('basic_form.php', $d);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('basic_form.php', $d);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

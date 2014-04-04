@@ -1,6 +1,6 @@
 <?php
 /*------------------------------------------------------------------------------
-Plugin Name: Custom Content Type Manager : Advanced Custom Post Types
+Plugin Name: CCTM : Advanced Custom Post Types
 Description: Allows users to create custom post types and custom fields, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality making it easier to use WP for eCommerce or content-driven sites.
 Author: Everett Griffiths
 Version: 0.9.7.13
@@ -22,92 +22,70 @@ $class_names_used -- add any class names that are declared by this plugin.
 
 Warning: the text-domain for the __() localization functions is hardcoded.
 ------------------------------------------------------------------------------*/
-$function_names_used = array('get_custom_field','get_custom_field_meta','get_custom_field_def'
-	,'get_post_complete','get_posts_sharing_custom_field_value'
-	,'get_relation','get_unique_values_this_custom_field','print_custom_field','print_custom_field_meta'
-	,'uninstall_cctm');
-$class_names_used = array('CCTM','StandardizedCustomFields'
-	,'CCTMtests','CCTM_FormElement','CCTM_Ajax', 'CCTM_OutputFilter', 'CCTM_Pagination'
-	, 'SummarizePosts', 'GetPostsQuery', 'GetPostsForm','SP_Post', 'CCTM_PostTypeDef', 'CCTM_ImportExport');
-	
-// Not class constants: constants declared via define():
-$constants_used = array('CCTM_PATH','CCTM_URL','CCTM_3P_PATH','CCTM_3P_URL');
-
-// Used to store errors
-$error_items = '';
-
-// No point in localizing this, because we haven't loaded the textdomain yet.
-function custom_content_type_manager_cannot_load()
-{
-	global $error_items;
-	print '<div id="custom-post-type-manager-warning" class="error fade"><p><strong>'
-	.'The Custom Post Type Manager plugin cannot load correctly!'
-	.'</strong> '
-	.'Another plugin has declared conflicting class, function, or constant names:'
-	.'<ul style="margin-left:30px;">'.$error_items.'</ul>'
-	.'</p>'
-	.'<p>You must deactivate the plugins that are using these conflicting names.</p>'
-	.'<p>If you have the SummarizePosts plugin installed, deactivate it now: it is already included in the CCTM.</p>'
-	.'</div>';
-	
-}
 
 /**
- * Run on plugin activation or on demand.  This will populate CCTM::$errors if errors are encountered.
- */ 
-function cctm_run_tests() {
-	require_once('includes/CCTM.php');
-	require_once('includes/constants.php');
-	require_once('tests/CCTMtests.php');
-	CCTMtests::run_tests();
-}
+ * Warning: this can interfere with WordPress's behavior. 
+ * So we should only get involved if it's one of our classes.
+ * See http://stackoverflow.com/questions/11833034/non-destructive-spl-autoload-register
+ */
+spl_autoload_register(function($class) {
+    // Strip the 'CCTM\' namespace identifier if present
+    $prefix = 'CCTM\\';
+    if (substr($class, 0, strlen($prefix)) == $prefix) {
+        $class = substr($class, strlen($prefix));
+    }
+    
+    if (file_exists(dirname(__FILE__).'/includes/' . $class . '.php')) {
+        require_once dirname(__FILE__).'/includes/' . $class . '.php';
+    }
+});
 
-/*------------------------------------------------------------------------------
-The following code tests whether or not this plugin can be safely loaded.
-If there are no conflicts, the loader.php is included and the plugin is loaded,
-otherwise, an error is displayed in the manager.
-------------------------------------------------------------------------------*/
-// Check for conflicting function names
-foreach ($function_names_used as $f_name )
-{
-	if ( function_exists($f_name) )
-	{
-		/* translators: This refers to a PHP function e.g. my_function() { ... } */
-		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Function', 'custom-content-type-mgr'), $f_name );
-	}
-}
-// Check for conflicting Class names
-foreach ($class_names_used as $cl_name )
-{
-	if ( class_exists($cl_name) )
-	{
-		/* translators: This refers to a PHP class e.g. class MyClass { ... } */
-		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Class', 'custom-content-type-mgr'), $f_name );
-	}
-}
-// Check for conflicting Constants
-foreach ($constants_used as $c_name )
-{
-	if ( defined($c_name) )
-	{
-		/* translators: This refers to a PHP constant as defined by the define() function */
-		$error_items .= sprintf('<li>%1$s: %2$s</li>', __('Constant', 'custom-content-type-mgr'), $f_name );
-	}
-}
 
-// Check stuff when the plugin is activated.
-register_activation_hook(__FILE__, 'cctm_run_tests');
+// Run tests when the plugin is activated.
+register_activation_hook(__FILE__, 'CCTM\Selfcheck::run');
 
-// Fire the error, or load the plugin.
-if ($error_items)
-{
-	$error_items = '<ul>'.$error_items.'</ul>';
-	add_action('admin_notices', 'custom_content_type_manager_cannot_load');
-}
-// CLEARED FOR LAUNCH!!! ---> Load the plugin
-else
-{
-	require_once('loader.php');
-}
+//register setting
+add_action('admin_init', function(){ 
+    CCTM\License::register_option();
+    CCTM\License::activate();
+});
+
+require_once 'includes/constants.php';
+require_once 'includes/functions.php';
+
+// Register Ajax Controllers (easier to hard-code than do scan dirs)
+// pattern is: 'wp_ajax_{filename}', CCTM\Ajax::{filename}
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::bulk_add');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::download_def');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::format_getpostsquery_args');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_posts');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_search_form');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_selected_posts');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_shortcode');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_tpl');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_validator_options');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::get_widget_post_tpl');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::list_custom_fields');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::post_content_widget');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::post_content_widget');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::preview_def');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::summarize_posts_form');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::summarize_posts_get_args');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::summarize_posts_widget');
+add_action('wp_ajax_bulk_add', 'CCTM\Ajax::upload_image');
+
+// Load up the textdomain(s) for translations
+CCTM\Load::file('/config/lang/dictionaries.php');
+CCTM::$license = CCTM\License::check();
+
+// Generate admin menu, bootstrap CSS/JS
+add_action('admin_init', 'CCTM::admin_init');
+
+// Create custom plugin settings menu
+add_action('admin_menu', 'CCTM::create_admin_menu');
+add_filter('plugin_action_links', 'CCTM::add_plugin_settings_link', 10, 2 );
+
+require_once 'loader.php';
+
 
 /*EOF*/

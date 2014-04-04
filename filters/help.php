@@ -58,7 +58,7 @@ class CCTM_help extends CCTM_OutputFilter {
 //		print_r($filters); exit;
 		foreach ($filters as $filter => $file) {
 			//if( CCTM::include_output_filter_class($filter) ) {
-			if($Obj = CCTM::load_object($filter,'filters')) {
+			if($Obj = CCTM\Load::object($filter,'filters')) {
 /*
 				$filter_name = CCTM::filter_prefix . $filter;
 				$Obj = new $filter_name();

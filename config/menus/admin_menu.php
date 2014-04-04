@@ -18,7 +18,7 @@ if (defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE == true && is_super_admi
 	$capability = 'manage_options';
 }
 
-$active_post_types = self::get_active_post_types();
+$active_post_types = CCTM::get_active_post_types();
 
 // Main menu item
 add_menu_page(
@@ -28,7 +28,7 @@ add_menu_page(
 	'cctm',								// menu-slug (should be unique)
 	'CCTM::page_main_controller',       // callback function
 	CCTM_URL .'/images/gear.png',       // Icon
-	self::menu_position					// menu position
+	CCTM::menu_position					// menu position
 );
 
 add_submenu_page(
@@ -77,7 +77,7 @@ add_submenu_page(
 );
 
 // Add Custom Fields links to each post type
-if (self::get_setting('show_custom_fields_menu')) {
+if (CCTM::get_setting('show_custom_fields_menu')) {
 	foreach ($active_post_types as $post_type) {
 		$parent_slug = 'edit.php?post_type='.$post_type;
 		if ($post_type == 'post') {
@@ -95,10 +95,10 @@ if (self::get_setting('show_custom_fields_menu')) {
 }
 
 // Add Settings links to each post type
-if (self::get_setting('show_settings_menu')) {
+if (CCTM::get_setting('show_settings_menu')) {
 	foreach ($active_post_types as $post_type) {
 		$parent_slug = 'edit.php?post_type='.$post_type;
-		if ( in_array($post_type, self::$reserved_post_types) ) {
+		if ( in_array($post_type, CCTM::$reserved_post_types) ) {
 			continue;
 		}
 		add_submenu_page(
@@ -116,16 +116,16 @@ if (self::get_setting('show_settings_menu')) {
 global $menu;
 
 $remove_me = array();
-if(self::get_setting('hide_posts')) {
+if(CCTM::get_setting('hide_posts')) {
 	$remove_me[] = __('Posts');
 }
-if(self::get_setting('hide_pages')) {
+if(CCTM::get_setting('hide_pages')) {
 	$remove_me[] = __('Pages');
 }
-if(self::get_setting('hide_links')) {
+if(CCTM::get_setting('hide_links')) {
 	$remove_me[] = __('Links');
 }
-if(self::get_setting('hide_comments')) {
+if(CCTM::get_setting('hide_comments')) {
 	$remove_me[] = __('Comments');
 }
 if (!empty($remove_me)) {

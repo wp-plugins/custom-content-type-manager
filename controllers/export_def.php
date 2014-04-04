@@ -71,7 +71,7 @@ $data['url'] = CCTM::get_value(self::$data['export_info'], 'url');
 $data['description'] = CCTM::get_value(self::$data['export_info'], 'description');
 $data['template_url'] = CCTM::get_value(self::$data['export_info'], 'template_url');
 
-$data['content'] = CCTM::load_view('export.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('export.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

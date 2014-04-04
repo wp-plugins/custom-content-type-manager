@@ -20,10 +20,10 @@ $data['change_field_type'] = '<br/>';
 $field_data = array(); // Data object we will save
 
 // Fail if there's a that field type does not exist
-if (!$FieldObj = CCTM::load_object($field_type,'fields')) {
+if (!$FieldObj = CCTM\Load::object($field_type,'fields')) {
 	$data['msg'] = '<div class="error"><p>'.__('Invalid field type.',CCTM_TXTDOMAIN).'</p></div>';
 	$data['content'] = '';
-	print CCTM::load_view('templates/default.php', $data);
+	print CCTM\Load::view('templates/default.php', $data);
 	return;
 }
 
@@ -237,8 +237,8 @@ foreach ($displayable_types as $post_type) {
 $data['associations'] .= '</table>';
 
 
-$data['content'] = CCTM::load_view('custom_field.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('custom_field.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 
 /*EOF*/

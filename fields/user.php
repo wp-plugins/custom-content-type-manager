@@ -83,19 +83,19 @@ class CCTM_user extends CCTM_FormElement {
 		// Format for multi-select
 		if ($this->is_repeatable) {
 			$current_value = $this->get_value($current_value, 'to_array');
-			$optiontpl = CCTM::load_tpl(
+			$optiontpl = CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user_multi.tpl'
 					, 'fields/options/_user.tpl'
 				)
 			);
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_user_multi.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_user_multi.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -106,18 +106,18 @@ class CCTM_user extends CCTM_FormElement {
 		else {
 			$current_value = $this->get_value($current_value, 'to_string');
 
-			$optiontpl = CCTM::load_tpl(
+			$optiontpl = CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user.tpl'
 				)
 			);
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_user.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_user.tpl'
 					, 'fields/wrappers/_default.tpl'

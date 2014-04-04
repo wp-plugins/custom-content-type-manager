@@ -11,10 +11,12 @@ if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
 }
 if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 
+/*
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
 require_once(CCTM_PATH.'/includes/GetPostsForm.php');
+*/
 
 
 // Template Variables Initialization
@@ -77,7 +79,7 @@ $possible_configs = array();
 $possible_configs[] = '/config/post_selector/_post_content_widget.php'; 
 
 CCTM::$post_selector = array();
-if (!CCTM::load_file($possible_configs)) {
+if (!CCTM\Load::file($possible_configs)) {
 	print '<p>'.__('Post Selector configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
 }
 
@@ -120,7 +122,7 @@ if (is_numeric($d['page_number']) && $d['page_number'] > 1) {
 $results = $Q->get_posts($args);
 
 
-$search_form_tpl = CCTM::load_tpl(
+$search_form_tpl = CCTM\Load::tpl(
 	array('post_selector/search_forms/_post_content_widget.tpl')
 );
 
@@ -140,10 +142,10 @@ $d['search_form'] = $Form->generate($search_by, $args);
 $item_tpl = '';
 $wrapper_tpl = '';
 
-$item_tpl = CCTM::load_tpl(
+$item_tpl = CCTM\Load::tpl(
 	array('post_selector/items/_widget.tpl')
 );
-$wrapper_tpl = CCTM::load_tpl(
+$wrapper_tpl = CCTM\Load::tpl(
 	array('post_selector/wrappers/_default.tpl')
 );
 
@@ -178,10 +180,10 @@ $d['content'] .= CCTM::parse($wrapper_tpl,$hash);
 $d['content'] .= '<div class="cctm_pagination_links">'.$Q->get_pagination_links().'</div>';
 
 if (isset($_POST['wrap_thickbox'])){
-	print CCTM::load_view('templates/thickbox.php', $d);
+	print CCTM\Load::view('templates/thickbox.php', $d);
 }
 else {
-	//print CCTM::load_view('templates/thickbox_inner.php', $d);
+	//print CCTM\Load::view('templates/thickbox_inner.php', $d);
 //	print '<pre>'. $Q->debug() . '</pre>';
 //	print '<pre>'. print_r($d, true) . '</pre>';
 	print $d['content'];

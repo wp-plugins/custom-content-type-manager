@@ -38,7 +38,7 @@ foreach ($data['results'] as &$r) {
 	}
 }
 
-$data['content'] = CCTM::load_view('info.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('info.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 /*EOF*/
 

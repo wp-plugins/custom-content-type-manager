@@ -92,7 +92,7 @@ class CCTM_hidden extends CCTM_FormElement {
 			$this->value  = $this->default_value;
 		}
 
-		$fieldtpl = CCTM::load_tpl(
+		$fieldtpl = CCTM\Load::tpl(
 			array('fields/elements/'.$this->name.'.tpl'
 				, 'fields/elements/_hidden.tpl'
 				, 'fields/elements/_default.tpl'
@@ -128,7 +128,7 @@ class CCTM_hidden extends CCTM_FormElement {
 		}
 		
 
-		$fieldtpl = CCTM::load_tpl(
+		$fieldtpl = CCTM\Load::tpl(
 			array('fields/elements/'.$this->name.'.tpl'
 				, 'fields/elements/_hidden.tpl'
 				, 'fields/elements/_default.tpl'

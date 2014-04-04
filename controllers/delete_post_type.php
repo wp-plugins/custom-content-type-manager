@@ -59,7 +59,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		. '</p></div>';
 	self::set_flash($msg);
 	include( CCTM_PATH . '/controllers/list_post_types.php');
-//	print CCTM::load_view('list_post_types.php', $data);
+//	print CCTM\Load::view('list_post_types.php', $data);
 	return;
 }
 
@@ -91,7 +91,7 @@ else {
 		. '<p>'.__('Are you sure you want to do this?', CCTM_TXTDOMAIN).'
 		</p></div>';
 }
-$data['content'] = CCTM::load_view('basic_form.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('basic_form.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

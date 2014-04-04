@@ -79,13 +79,13 @@ class CCTM_textarea extends CCTM_FormElement
 
 		// Multi-versions
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
 				)
@@ -103,14 +103,14 @@ class CCTM_textarea extends CCTM_FormElement
 		}
 		// Simple stuff
 		else {
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'

@@ -52,7 +52,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 			}
 		}
 		foreach ($fieldtypes as $ft => $list) {
-			if ($FieldObj = CCTM::load_object($ft, 'fields')) {
+			if ($FieldObj = CCTM\Load::object($ft, 'fields')) {
 				$FieldObj->admin_init($list);
 			}
 		}
@@ -210,7 +210,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 		$fieldtpl = '';
 		$wrappertpl = '';
-        $relationmeta_tpl = CCTM::load_tpl(
+        $relationmeta_tpl = CCTM\Load::tpl(
             array('fields/options/'.$this->name.'.tpl'
                 , 'fields/options/_relationmeta.tpl'
             )
@@ -218,13 +218,13 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 		// Multi field?
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relationmeta_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_relationmeta_multi.tpl'
 					, 'fields/wrappers/_relation_multi.tpl' // yes, we can default to the relation_multi
@@ -234,13 +234,13 @@ class CCTM_relationmeta extends CCTM_FormElement
 		// Regular old Single-selection
 		else {
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relationmeta.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_relation.tpl'
 				)
@@ -279,7 +279,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 							continue;
 						}
 						$d = CCTM::$data['custom_field_defs'][$mf];
-						if (!$FieldObj = CCTM::load_object($d['type'], 'fields')) {
+						if (!$FieldObj = CCTM\Load::object($d['type'], 'fields')) {
 							continue;
 						}
 						$d['name'] = $this->name.'['.$post_id.']['.$d['name'].']';
@@ -355,7 +355,7 @@ class CCTM_relationmeta extends CCTM_FormElement
 
 			$hash = CCTM::get_thumbnail($def['default_value']);
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_relation.tpl'

@@ -36,7 +36,7 @@ if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
-if(!$FieldObj = CCTM::load_object($field_type, 'fields')) {
+if(!$FieldObj = CCTM\Load::object($field_type, 'fields')) {
 	die('Field not found.');
 }
 
@@ -213,6 +213,6 @@ foreach ($displayable_types as $post_type) {
 $data['associations'] .= '</table>';
 
 
-$data['content'] = CCTM::load_view('custom_field.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('custom_field.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 /*EOF*/

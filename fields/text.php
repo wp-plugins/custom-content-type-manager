@@ -80,13 +80,13 @@ class CCTM_text extends CCTM_FormElement
 		$wrappertpl = '';
 
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -106,13 +106,13 @@ class CCTM_text extends CCTM_FormElement
 		else {
 			$this->value  = htmlspecialchars( html_entity_decode($this->get_value($current_value,'to_string') ));
 
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -155,7 +155,7 @@ class CCTM_text extends CCTM_FormElement
     public function get_options_desc() {        
         $out = '';
         if (!empty($this->props['validator'])) {
-            $Vobj = CCTM::load_object($this->props['validator'], 'validators');
+            $Vobj = CCTM\Load::object($this->props['validator'], 'validators');
 				if ($Vobj) {
                     $out .= $Vobj->get_name() .'<br/>';
 				}

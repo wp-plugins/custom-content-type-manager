@@ -37,7 +37,7 @@ $displayable_types = CCTM::get_post_types();
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
 
-if(!$FieldObj = CCTM::load_object($field_type, 'fields')) {
+if(!$FieldObj = CCTM\Load::object($field_type, 'fields')) {
 	die('Field not found.');
 }
 
@@ -262,6 +262,6 @@ $data['field_name'] = $field_name;
 $data['field_type'] = $FieldObj->get_name();
 
 
-$data['content'] = CCTM::load_view('custom_field.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('custom_field.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 /*EOF*/

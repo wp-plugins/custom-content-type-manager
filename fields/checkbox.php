@@ -98,14 +98,14 @@ class CCTM_checkbox extends CCTM_FormElement
 			$this->is_checked = 'checked="checked"';
 		}
 
-		$fieldtpl = CCTM::load_tpl(
+		$fieldtpl = CCTM\Load::tpl(
 			array('fields/elements/'.$this->name.'.tpl'
 				, 'fields/elements/_'.$this->type.'.tpl'
 				, 'fields/elements/_default.tpl'
 			)
 		);
 
-		$wrappertpl = CCTM::load_tpl(
+		$wrappertpl = CCTM\Load::tpl(
 			array('fields/wrappers/'.$this->name.'.tpl'
 				, 'fields/wrappers/_'.$this->type.'.tpl'
 				, 'fields/wrappers/_default.tpl'

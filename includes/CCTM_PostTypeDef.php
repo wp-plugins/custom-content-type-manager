@@ -71,7 +71,7 @@ class CCTM_PostTypeDef {
 				continue;
 			}
 			$d['is_checked'] = 'checked="checked"';		
-			$output .= CCTM::load_view('tr_column.php', $d);		
+			$output .= CCTM\Load::view('tr_column.php', $d);		
 		}
 		
 		// Separator
@@ -90,7 +90,7 @@ class CCTM_PostTypeDef {
 			$d['description'] = __('Built-in WordPress column.', CCTM_TXTDOMAIN);
 			$d['is_checked'] = '';
 		
-			$output .= CCTM::load_view('tr_column.php', $d);
+			$output .= CCTM\Load::view('tr_column.php', $d);
 		}
 
 		
@@ -107,7 +107,7 @@ class CCTM_PostTypeDef {
 				$d['description'] = CCTM::$data['custom_field_defs'][$c]['description'];			
 				$d['is_checked'] = '';
 
-				$output .= CCTM::load_view('tr_column.php', $d);
+				$output .= CCTM\Load::view('tr_column.php', $d);
 					
 			}
 		}
@@ -126,7 +126,7 @@ class CCTM_PostTypeDef {
 				$d['description'] = __('WordPress Taxonomy', CCTM_TXTDOMAIN);
 				$d['is_checked'] = '';
 
-				$output .= CCTM::load_view('tr_column.php', $d);		
+				$output .= CCTM\Load::view('tr_column.php', $d);		
 			}
 		}		
 

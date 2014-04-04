@@ -40,7 +40,7 @@ foreach ($defs as $field_name => $d) {
 		$d['label'] = $d['label'] . ' *'; // Asterix for req'd fields
 	}
 
-	if (!$FieldObj = CCTM::load_object($d['type'],'fields') ) {
+	if (!$FieldObj = CCTM\Load::object($d['type'],'fields') ) {
 		continue;
 	}
 
@@ -109,10 +109,10 @@ foreach ($defs as $field_name => $d) {
 	}
 	
 
-	$data['fields'] .= CCTM::load_view('tr_custom_field.php',$d);
+	$data['fields'] .= CCTM\Load::view('tr_custom_field.php',$d);
 }
 
-$data['content'] = CCTM::load_view('list_custom_fields.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('list_custom_fields.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

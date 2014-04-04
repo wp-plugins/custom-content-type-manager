@@ -111,7 +111,7 @@ foreach ($active_custom_fields as $cf) {
 	}
 	$d = self::$data['custom_field_defs'][$cf];
 
-	if (!$FieldObj = CCTM::load_object($d['type'], 'fields')) {
+	if (!$FieldObj = CCTM\Load::object($d['type'], 'fields')) {
 		continue;
 	}
 	$metabox = 'cctm_default';
@@ -143,7 +143,7 @@ foreach ($active_custom_fields as $cf) {
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
 
-	$metaboxes[$context][$metabox][] = CCTM::load_view('li_field.php', $d);
+	$metaboxes[$context][$metabox][] = CCTM\Load::view('li_field.php', $d);
 
 }
 //print_r(self::$data['metabox_defs']); exit;
@@ -182,7 +182,7 @@ $remaining_custom_fields = array_diff($all_custom_fields, $active_custom_fields)
 foreach ($remaining_custom_fields as $cf) {
 	$d = self::$data['custom_field_defs'][$cf];
 
-	if(!$FieldObj = CCTM::load_object($d['type'],'fields')) {
+	if(!$FieldObj = CCTM\Load::object($d['type'],'fields')) {
 		continue;
 	}
 	
@@ -204,11 +204,11 @@ foreach ($remaining_custom_fields as $cf) {
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
 
-	$data['unused'] .= CCTM::load_view('li_field.php', $d);
+	$data['unused'] .= CCTM\Load::view('li_field.php', $d);
 }
 
-$data['content'] = CCTM::load_view('metaboxes.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('metaboxes.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 
 /*EOF*/

@@ -101,7 +101,7 @@ foreach ( $all_types as $post_type ) {
 			$hash['icon'] = '<img src="'. CCTM_URL . '/images/icons/post.png' . '" width="15" height="15"/>';
 		}
 		
-		$data['row_data'] .= CCTM::load_view('tr_post_type.php', $hash);
+		$data['row_data'] .= CCTM\Load::view('tr_post_type.php', $hash);
 	}
 	//------------------------------------------------------------------------------
 	// Full fledged CCTM post-types
@@ -137,7 +137,7 @@ foreach ( $all_types as $post_type ) {
 			$hash['icon'] = '<img src="'. CCTM::$data['post_type_defs'][$post_type]['menu_icon'] . '" />';
 		}
 		
-		$data['row_data'] .= CCTM::load_view('tr_post_type.php', $hash);	
+		$data['row_data'] .= CCTM\Load::view('tr_post_type.php', $hash);	
 	}
 	//------------------------------------------------------------------------------
 	// Foreign post-types
@@ -168,10 +168,10 @@ foreach ( $all_types as $post_type ) {
 		}
 		$hash['icon'] = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
 		
-		$data['row_data'] .= CCTM::load_view('tr_post_type.php', $hash);
+		$data['row_data'] .= CCTM\Load::view('tr_post_type.php', $hash);
 	}
 }
 
 
-$data['content'] = CCTM::load_view('list_post_types.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('list_post_types.php', $data);
+print CCTM\Load::view('templates/default.php', $data);

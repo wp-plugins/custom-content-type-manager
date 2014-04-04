@@ -22,7 +22,7 @@ class CCTM_Metabox {
 		}
 		$d['metabox'] = $metabox_name;
 		$d['edit_metabox_link'] = get_site_url(). '/wp-admin/admin.php?page=cctm&a=edit_metabox&id='.$metabox_name;	
-		return CCTM::load_view('metabox-holder.php', $d);
+		return CCTM\Load::view('metabox-holder.php', $d);
 	}
 	
 	/**

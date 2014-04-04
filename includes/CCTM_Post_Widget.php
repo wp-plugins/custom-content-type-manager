@@ -48,7 +48,7 @@ class CCTM_Post_Widget extends WP_Widget {
 		if (isset($instance['post_id']) && !empty($instance['post_id'])) {
 			$Q = new GetPostsQuery();
 			$post = $Q->get_post($instance['post_id']);
-			$tpl = CCTM::load_tpl('widgets/post_item.tpl');
+			$tpl = CCTM\Load::tpl('widgets/post_item.tpl');
 			$post['edit_selected_post_label'] = __('Edit Selected Post', CCTM_TXTDOMAIN);
 			$post['post_icon'] = CCTM::get_thumbnail($instance['post_id']);
 			if ($post['post_type'] == 'attachment') {

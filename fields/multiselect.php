@@ -98,13 +98,13 @@ class CCTM_multiselect extends CCTM_FormElement
 		// Multi-select
 		if (isset($this->display) && $this->display == 'multiselect') {
 
-			$optiontpl = CCTM::load_tpl(
+			$optiontpl = CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_option.tpl'
 				)
 			);		
 
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_multiselect.tpl'
 				)
@@ -114,14 +114,14 @@ class CCTM_multiselect extends CCTM_FormElement
 		// Multi-checkboxes
 		else {
 		
-			$optiontpl = CCTM::load_tpl(
+			$optiontpl = CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_'.$this->type.'.tpl'
 					, 'fields/options/_checkbox.tpl'
 				)
 			);
 			
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_multi_checkboxes.tpl'
 					, 'fields/wrappers/_default.tpl'

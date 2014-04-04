@@ -55,6 +55,6 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 $data['icons'] = CCTM_PostTypeDef::get_post_type_icons();
 $data['columns'] = CCTM_PostTypeDef::get_columns($post_type);
 $data['orderby_options'] = CCTM_PostTypeDef::get_orderby_options($post_type);
-$data['content'] = CCTM::load_view('post_type.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] = CCTM\Load::view('post_type.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 /*EOF*/

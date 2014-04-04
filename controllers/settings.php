@@ -113,7 +113,7 @@ if ($flag) {
 		<ul>'. $data['custom_fields_settings_links'] . '</ul>';
 }
 
-$data['content'] .= CCTM::load_view('settings.php', $data);
-print CCTM::load_view('templates/default.php', $data);
+$data['content'] .= CCTM\Load::view('settings.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

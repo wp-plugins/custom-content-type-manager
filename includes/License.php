@@ -1,8 +1,7 @@
 <?php
 /**
-* EDD Licence Class
-* Activate And Check License key
-**/
+ * Activate And Check License key
+ */
 namespace CCTM;
 use CCTM as CCTM;
 
@@ -14,16 +13,11 @@ class License {
     public static $key_option_name = 'cctm_license_key';
     public static $status_option_name = 'cctm_license_status';
     
-	public function __construct() 
-	{	
-		$this->register_option();
-		$this->activate();
-	}
 
 	/**
-	* Activate License Page
-	* Display License Filed and Activate button
-	**/
+	 * Activate License Page
+	 * Display License Filed and Activate button
+	 */
 	public static function activate_license_page() {
         $data 				= array();
         $data['license'] = get_option(self::$key_option_name);
@@ -31,8 +25,8 @@ class License {
         $data['page_title']	= __('License Options', CCTM_TXTDOMAIN);
         $data['menu'] 		= '';
         $data['msg']		= '';
-        $data['content'] = CCTM::load_view('license.php',$data);
-        print CCTM::load_view('templates/default.php', $data);
+        $data['content'] = CCTM\Load::view('license.php',$data);
+        print CCTM\Load::view('templates/default.php', $data);
         return;
 	}
 
@@ -84,13 +78,11 @@ class License {
 		if( isset( $_POST['edd_license_activate'] ) ) {
 
 			// run a quick security check 
-		 	if( ! check_admin_referer( 'edd_nonce', 'edd_nonce' ) ) 	
-				return; // get out if we didn't click the Activate button
-	 
+		 	if(!check_admin_referer( 'edd_nonce', 'edd_nonce')) return; 
+		 		 
 			// retrieve the license from the database
 			$license = trim( get_option( self::$key_option_name ) );
 				
-	 
 			// data to send in our API request
 			$api_params = array( 
 				'edd_action'=> 'activate_license', 
@@ -102,19 +94,15 @@ class License {
 		
 			// Call the custom API.
 			$endpoint = add_query_arg($api_params, self::$store_url);
-			//print $endpoint; exit;
+
 			$response = wp_remote_get($endpoint);
 	 
 			// make sure the response came back okay
 			if (empty($response) || is_wp_error($response)) return false;
-	 
 			// decode the license data
 			$license_data = json_decode(wp_remote_retrieve_body($response));
-			
 			if(empty($license_data)) return false;
-			
-			update_option( self::$status_option_name, $license_data->license );
-	 
+			update_option( self::$status_option_name, $license_data->license );	 
 		}
 	}
 
@@ -155,13 +143,6 @@ class License {
 			$data->key = trim( get_option( self::$key_option_name ) );
 	 		set_transient( $cache_key, $data, 60*60 );
 			return $status;	
-		}
-				
+		}			
 	}
-
 }
-
-//register setting
-add_action('admin_init', function(){
-	new License();
-});

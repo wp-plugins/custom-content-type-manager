@@ -27,5 +27,5 @@ $data['content'] .= '</ul></p>';
 
 
 
-print CCTM::load_view('templates/default.php', $data);
+print CCTM\Load::view('templates/default.php', $data);
 /*EOF*/

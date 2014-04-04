@@ -19,8 +19,8 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.7.13';
-	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
+	const version = '0.9.8.0';
+	const version_meta = 'dev'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
 	const wp_req_ver  = '3.3';
@@ -627,7 +627,7 @@ class CCTM {
 			}
 			// Populate the main error block
 			else {
-				$error_item_tpl = CCTM::load_tpl(array('forms/_error_item.tpl'));
+				$error_item_tpl = CCTM\Load::tpl(array('forms/_error_item.tpl'));
 				$hash = array();
 				$hash['errors'] = '';
 				$hash['error_msg'] = __('This form has validation errors.', CCTM_TXTDOMAIN);
@@ -635,7 +635,7 @@ class CCTM {
 				foreach (CCTM::$post_validation_errors as $k => $v) {
 					$hash['errors'] .= CCTM::parse($error_item_tpl, array('error'=>$v));				
 				}
-				$error_wrapper_tpl = CCTM::load_tpl(array('forms/_error_wrapper.tpl'));
+				$error_wrapper_tpl = CCTM\Load::tpl(array('forms/_error_wrapper.tpl'));
 				$output['errors'] = CCTM::parse($error_wrapper_tpl, $hash);
 			}
         }
@@ -667,7 +667,7 @@ class CCTM {
 		  || ($explicit_fields && in_array('post_title', $custom_fields)) 
         ) {
             
-        	$FieldObj = CCTM::load_object('text','fields');
+        	$FieldObj = CCTM\Load::object('text','fields');
 			$post_title_def = array(
 				'label' => $args['_label_title'],
 				'name' => 'post_title',
@@ -691,7 +691,7 @@ class CCTM {
             !$explicit_fields && post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])
             || ($explicit_fields && in_array('post_content', $custom_fields)) 
         ) {
-        	$FieldObj = CCTM::load_object('textarea','fields'); // TODO: change to wysiwyg
+        	$FieldObj = CCTM\Load::object('textarea','fields'); // TODO: change to wysiwyg
 			$post_title_def = array(
 				'label' => $args['_label_content'],
 				'name' => 'post_content',
@@ -714,7 +714,7 @@ class CCTM {
             !$explicit_fields && post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])
             || ($explicit_fields && in_array('post_excerpt', $custom_fields)) 
         ) {
-        	$FieldObj = CCTM::load_object('textarea','fields');
+        	$FieldObj = CCTM\Load::object('textarea','fields');
 			$post_title_def = array(
 				'label' => $args['_label_excerpt'],
 				'name' => 'post_excerpt',
@@ -753,7 +753,7 @@ class CCTM {
 				continue;
 			}
 			$output_this_field = '';
-			if (!$FieldObj = CCTM::load_object($def['type'],'fields')) {
+			if (!$FieldObj = CCTM\Load::object($def['type'],'fields')) {
 				continue;
 			}
 			// Repopulate
@@ -794,7 +794,7 @@ class CCTM {
 		$output['submit'] = '<input type="submit" value="'.__('Submit', CCTM_TXTDOMAIN).'" />';
         $output['content'] .= $output['submit'];
 		
-		$formtpl = CCTM::load_tpl(
+		$formtpl = CCTM\Load::tpl(
 			array('forms/'.$args['_tpl'].'.tpl'
 				, 'forms/_'.$post_type.'.tpl'
 				, 'forms/_default.tpl'
@@ -926,7 +926,7 @@ class CCTM {
 		if ( version_compare( self::get_stored_version(), self::get_current_version(), '<' ) ) {
 			// set the flag
 			define('CCTM_UPDATE_MODE', 1);
-			cctm_run_tests();
+			CCTM\Selfcheck::run();
 			// Load up available updates in order 
 			// Older systems don't have FilesystemIterator
 			// $updates = new FilesystemIterator(CCTM_PATH.'/updates', FilesystemIterator::KEY_AS_PATHNAME);
@@ -985,7 +985,7 @@ class CCTM {
 	 * http://wordpress.org/support/topic/plugin-custom-content-type-manager-multisite?replies=18#post-2501711
 	 */
 	public static function create_admin_menu() {
-		self::load_file('/config/menus/admin_menu.php');
+		CCTM\Load::file('/config/menus/admin_menu.php');
 	}
 
 
@@ -1075,7 +1075,7 @@ class CCTM {
 
 		require_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
 		
-		if ($OutputFilter = CCTM::load_object($outputfilter,'filters')) {
+		if ($OutputFilter = CCTM\Load::object($outputfilter,'filters')) {
 			return $OutputFilter->filter($value, $options);		
 		}
 		else {
@@ -1721,7 +1721,7 @@ class CCTM {
 
 		// We only get here if we survived the gauntlet above
 		foreach ($field_types as $ft => $fieldlist) {
-			if ($FieldObj = CCTM::load_object($ft, 'fields')) {			
+			if ($FieldObj = CCTM\Load::object($ft, 'fields')) {			
 				$FieldObj->admin_init($fieldlist);
 			}
 		}
@@ -1884,247 +1884,6 @@ class CCTM {
 		self::$data = get_option( CCTM::db_key, array() );
 	}
 
-	//------------------------------------------------------------------------------
-	/**
-	 * When given a PHP file name relative to the CCTM_PATH, e.g. '/config/image_search_parameters.php',
-	 * this function will include (or require) that file. However, if the same file exists
-	 * in the same location relative to the wp-content/uploads/cctm directory, THAT version of 
-	 * the file will be used. E.g. calling load_file('test.php') will include 
-	 * wp-content/uploads/cctm/test.php (if it exists); if the file doesn't exist in the uploads
-	 * directory, then we'll look for the file inside the CCTM_PATH, e.g.
-	 * wp-content/plugins/custom-content-type-manager/test.php 
-	 *
-	 * The purpose of this is to let users use their own version of files by placing them in a 
-	 * location *outside* of this plugin's directory so that the user-created files will be safe
-	 * from any overriting or deleting that may occur if the plugin is updated.
-	 *
-	 * Developers of 3rd party components can supply $additional_paths if they wish to load files
-	 * in their components: if the $additional_path is supplied, this directory will be searched for tpl in question.
-	 *
-	 * To prevent directory transversing, file names may not contain '..'!
-	 *
-	 * @param	array|string	$files: filename relative to the path, e.g. '/config/x.php'. Should begin with "/"
-	 * @param	array|string	(optional) $additional_paths: this adds one more paths to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
-	 * @param	string			$load_type (optional) include|include_once|require|require_once -- default is 'include'
-	 * @param	mixed	file name used on success, false on fail.
-	 */
-	public static function load_file($files, $additional_paths=array(), $load_type='include') {
-
-		if (!is_array($files)){
-			$files = array($files);
-		}
-
-		if (!is_array($additional_paths)){
-			$additional_paths = array($additional_paths);
-		}
-		
-		// Populate the list of directories we will search in order. 
-		$upload_dir = wp_upload_dir();
-		$paths = array();
-		$paths[] = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir;
-		$paths[] = CCTM_PATH;
-		$paths = array_merge($paths, $additional_paths);
-
-		// pull a file off the stack, then look for it
-		$file = array_shift($files);
-		
-		if (preg_match('/\.\./', $file)) {
-			die( sprintf(__('Invaid file name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($file).'</em>'));
-		}
-		
-		if (!preg_match('/\.php$/', $file)) {
-			die( sprintf(__('Invaid file name! %s  Name must end with .php!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($file).'</em>'));
-		}		
-		
-		// Look through the directories in order.
-		foreach ($paths as $dir) {
-			if (file_exists($dir.$file)) {
-				// Variable functions didn't seem to work here.
-				switch ($load_type) {
-					case 'include':
-						include $dir.$file;
-						break;
-					case 'include_once':
-						include_once $dir.$file;
-						break;
-					case 'require':
-						require $dir.$file;
-						break;
-					case 'require_once':
-						require_once $dir.$file;
-						break;
-				}
-				
-				return $dir.$file;
-			}
-		}
-		
-		// Try again with the remaining files... or fail.
-		if (!empty($files)) {
-			return self::load_file($files, $additional_paths, $load_type);
-		}
-		else {
-			return false;
-		}
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Load up an object: this handles finding and including the object file, instantiating
-	 * it, and returning the object.
-	 *
-	 * @param	string $shortname
-	 * @param	string $type: fields|filters|validators
-	 * @return	mixed obect if found, false if not
-	 */
-	public static function load_object($shortname, $type) {
-//        print '<pre>'; print_r( self::$data['cache']); print '</pre>';
-		$path = '';	
-		$object_classname = '';
-		switch ($type) {
-			case 'fields':
-				$object_classname = self::field_prefix . $shortname;
-				break;
-			case 'filters':
-				$object_classname = self::filter_prefix . $shortname;
-				break;
-			case 'validators':
-				$object_classname = self::validator_prefix . $shortname;
-				break;
-		}
-		
-
-		// Already included?
-		if (class_exists($object_classname)) {
-			return new $object_classname();
-		}
-
-		// The path to the file is cached?  See get_available_helper_classes()
-		if(isset(self::$data['cache']['helper_classes'][$type][$shortname])) {
-			$path = self::$data['cache']['helper_classes'][$type][$shortname];
-		}
-		// populate the cache and try again
-		else {
-			$classes = self::get_available_helper_classes($type);
-			if(isset($classes[$shortname])) {
-				$path = $classes[$shortname];
-			}
-			else {
-				return false;
-			}
-		}
-		
-		switch ($type) {
-			case 'fields':				
-				require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
-				break;
-			case 'filters':
-				require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
-				break;
-			case 'validators':
-				require_once(CCTM_PATH.'/includes/CCTM_Validator.php');
-				break;
-		}
-		// Include the file whose path was cached
-		require_once($path);
-		
-		if (class_exists($object_classname)) {
-			return new $object_classname();
-		}
-		else {
-			self::$errors['incorrect_classname'] = sprintf( __('Incorrect class name in %s. Expected class name: %s', CCTM_TXTDOMAIN)
-					, "<strong>$path</strong>"
-					, "<strong>$object_classname</strong>"
-				);
-			return false; // bogus file that did not declare the correct class
-		}		
-
-	}
-	
-	//------------------------------------------------------------------------------
-	/**
-	 * Similar to the load_view function, this retrieves a tpl.  It allows users to
-	 * override the built-in tpls (stored in the plugin's directory) with tpls stored
-	 * in the wp uploads directory.
-	 *
-	 * If you supply an array of arguments to $name, the first tpl (in the array[0] position)
-	 * will be looked for first in the customized directories, then in the built-ins.  If nothing
-	 * is found, the array is shifted and the next item in the array is looked for, first in the 
-	 * customized locations, then in the built-in locations.  By shifting the array, you can specify
-	 * a hierarchy of "fallbacks" to look for with any tpl.
-	 *
-	 * Developers of 3rd party components can supply additional paths $path if they wish to use tpls
-	 * in their components: if the $additional_path is supplied, this directory will be searched for tpl in question.
-	 *
-	 * To prevent directory transversing, tpl names may not contain '..'!
-	 *
-	 * @param	array|string	$name: single name or array of tpl names, each relative to the path, e.g. 'fields/date.tpl'. The first one in the list found will be used.
-	 * @param	array|string	(optional) $additional_paths: this adds one more path to the default locations. OMIT trailing /, e.g. called via dirname(__FILE__)
-	 * @return	string	the file contents (not parsed) OR a boolean false if nothing was found.
-	 */
-	public static function load_tpl($tpls, $additional_paths=array()) {
-
-		if (!is_array($tpls)){
-			$tpls = array($tpls);
-		}
-		if (!is_array($additional_paths)){
-			$additional_paths = array($additional_paths);
-		}
-		
-		// Populate the list of directories we will search in order. 
-		$upload_dir = wp_upload_dir();
-		$paths = array();
-		$paths[] = $upload_dir['basedir'] .'/'.CCTM::base_storage_dir.'/tpls';
-		$paths[] = CCTM_PATH.'/tpls';
-		$paths = array_merge($paths, $additional_paths);
-
-		// Pull the tpl off the stack
-		$tpl = array_shift($tpls);
-
-		if (preg_match('/\.\./', $tpl)) {
-			die( sprintf(__('Invaid tpl name! %s  No directory traversing allowed!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($tpl).'</em>'));
-		}
-		
-		if (!preg_match('/\.tpl$/', $tpl)) {
-			die( sprintf(__('Invaid tpl name! %s  Name must end with .tpl!', CCTM_TXTDOMAIN), '<em>'.htmlspecialchars($tpl).'</em>'));
-		}		
-		
-		// Look through the directories in order.
-		foreach ($paths as $dir) {
-			if (file_exists($dir.'/'.$tpl)) { 
-				return file_get_contents($dir.'/'.$tpl);
-			}
-		}
-
-		// Try again with the remaining tpls... or fail.
-		if (!empty($tpls)) {
-			return self::load_tpl($tpls, $additional_paths);
-		}
-		else {
-			return false;
-		}
-	}
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Load up a PHP file into a string via an include statement. MVC type usage here.
-	 *
-	 * @param string  $filename (relative to the views/ directory)
-	 * @param array   $data (optional) associative array of data
-	 * @param string  $path (optional) pathname. Can be overridden for 3rd party fields
-	 * @return string the parsed contents of that file
-	 */
-	public static function load_view($filename, $data=array(), $path=null) {
-		if (empty($path)) {
-			$path = CCTM_PATH . '/views/';
-		}
-		if (is_file($path.$filename)) {
-			ob_start();
-			include $path.$filename;
-			return ob_get_clean();
-		}
-		die('View file does not exist: ' .$path.$filename);
-	}
 
     //------------------------------------------------------------------------------
     /**
@@ -2856,6 +2615,5 @@ class CCTM {
 	    return $plugin_array;
 	}
 }
-
 
 /*EOF CCTM.php*/

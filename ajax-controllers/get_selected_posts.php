@@ -27,9 +27,11 @@ if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
 }
 if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 
+/*
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
+*/
 
 $d = array(); // <-- Template Variables
 
@@ -73,7 +75,7 @@ if (empty($post_ids) && empty($guid)) {
 // Multi
 if (is_array($post_ids)) {
 	// name should go to name[]
-	$tpl = CCTM::load_tpl(
+	$tpl = CCTM\Load::tpl(
 		array('fields/elements/'.$def['name'].'.tpl'
 			, 'fields/elements/_'.$def['type'].'_multi.tpl'
 			, 'fields/elements/_relation_multi.tpl'
@@ -82,7 +84,7 @@ if (is_array($post_ids)) {
 }
 // Single Post
 else {
-	$tpl = CCTM::load_tpl(
+	$tpl = CCTM\Load::tpl(
 		array('fields/elements/'.$def['name'].'.tpl'
 			, 'fields/elements/_'.$def['type'].'.tpl'
 			, 'fields/elements/_relation.tpl'
@@ -144,7 +146,7 @@ foreach($results as $r) {
 	   
         // Custom fields		
         $custom_fields = CCTM::get_value($def, 'metafields', array());
-        $relationmeta_tpl = CCTM::load_tpl(
+        $relationmeta_tpl = CCTM\Load::tpl(
     		array('fields/options/'.$def['name'].'.tpl'
     			, 'fields/options/_relationmeta.tpl'
     		)
@@ -160,7 +162,7 @@ foreach($results as $r) {
         	}
 
         	$output_this_field = '';
-        	if (!$FieldObj = CCTM::load_object($d['type'],'fields')) {
+        	if (!$FieldObj = CCTM\Load::object($d['type'],'fields')) {
         		continue;
         	}
         

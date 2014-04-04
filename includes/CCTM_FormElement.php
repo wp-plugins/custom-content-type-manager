@@ -445,7 +445,7 @@ abstract class CCTM_FormElement {
 			$validators = CCTM::get_available_helper_classes('validators');
 			foreach ($validators as $shortname => $path) {
 			
-				$Vobj = CCTM::load_object($shortname, 'validators');
+				$Vobj = CCTM\Load::object($shortname, 'validators');
 				if (!$Vobj) {
 					continue;  // skip  bogus validators
 				}

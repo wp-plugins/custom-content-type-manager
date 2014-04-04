@@ -87,18 +87,18 @@ class CCTM_dropdown extends CCTM_FormElement
 		// Format for Radio buttons
 		if ( $this->display_type == 'radio' ) {
 
-			$optiontpl = CCTM::load_tpl(
+			$optiontpl = CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_radio.tpl'
 				)
 			);
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_radio.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_radio.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -107,18 +107,18 @@ class CCTM_dropdown extends CCTM_FormElement
 		}
 		// For regular selects / dropdowns
 		else {
-			$optiontpl = CCTM::load_tpl(
+			$optiontpl = CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_option.tpl'
 				)
 			);
-			$fieldtpl = CCTM::load_tpl(
+			$fieldtpl = CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_dropdown.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM::load_tpl(
+			$wrappertpl = CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
