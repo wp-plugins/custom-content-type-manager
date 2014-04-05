@@ -94,6 +94,4 @@ add_action('admin_menu', '\CCTM\CCTM::create_admin_menu');
 add_filter('plugin_action_links', '\CCTM\CCTM::add_plugin_settings_link', 10, 2 );
 
 require_once 'loader.php';
-
-
 /*EOF*/

@@ -76,10 +76,10 @@ class Post {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * Depenency injection here
+	 * 
 	 */
-	public function __construct($GetPostsQuery) {
-        $this->Q = $GetPostsQuery;
+	public function __construct() {
+
 	}
 	
 	//------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ class Post {
 	 * @return	mixed -- a single associative array if an integer was supplied, or false on no results.
 	 */
 	public function get($args) {
-	
+		$this->Q = new GetPostsQuery();
 		if (is_array($args)) {
 			$args['limit'] = 1; // for database efficiency
 			$posts = $this->Q->get_posts($args);
