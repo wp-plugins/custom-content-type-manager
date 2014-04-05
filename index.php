@@ -35,7 +35,7 @@ spl_autoload_register(function($class) {
         $class = substr($class, strlen($prefix));
     }
     // So our namespaces correspond to our folder structure
-    $file = dirname(__FILE__).'/includes/'.str_replace('\\', '/', $class).'.php';
+    $file = dirname(__FILE__).'/src/'.str_replace('\\', '/', $class).'.php';
 
     // First, check the user directory for overrides
     if (false) {
