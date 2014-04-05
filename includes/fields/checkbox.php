@@ -1,14 +1,11 @@
 <?php
 /**
- * CCTM_checkbox
  *
  * Implements an HTML text input.
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
 class checkbox extends FormElement
 {
 	public $props = array(
@@ -25,7 +22,7 @@ class checkbox extends FormElement
 		'class' => '',
 		'extra' => '',
 		'is_checked' => '',
-		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
+		// 'type' => '', // auto-populated: the name of the class
 	);
 
 	//------------------------------------------------------------------------------
@@ -99,14 +96,14 @@ class checkbox extends FormElement
 			$this->is_checked = 'checked="checked"';
 		}
 
-		$fieldtpl = CCTM\Load::tpl(
+		$fieldtpl = \CCTM\Load::tpl(
 			array('fields/elements/'.$this->name.'.tpl'
 				, 'fields/elements/_'.$this->type.'.tpl'
 				, 'fields/elements/_default.tpl'
 			)
 		);
 
-		$wrappertpl = CCTM\Load::tpl(
+		$wrappertpl = \CCTM\Load::tpl(
 			array('fields/wrappers/'.$this->name.'.tpl'
 				, 'fields/wrappers/_'.$this->type.'.tpl'
 				, 'fields/wrappers/_default.tpl'
@@ -115,8 +112,8 @@ class checkbox extends FormElement
 
 		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 		$this->value    = htmlspecialchars($this->checked_value);
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
-		return CCTM::parse($wrappertpl, $this->get_props());
+		$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 
 	}
 
@@ -235,7 +232,7 @@ class checkbox extends FormElement
 	 * @return string whatever value you want to store in the wp_postmeta table where meta_key = $field_name
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+		if ( isset($posted_data[ FormElement::post_name_prefix . $field_name ]) ) {
 			return $this->checked_value;
 		}
 		else {

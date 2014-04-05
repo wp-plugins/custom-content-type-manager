@@ -16,7 +16,7 @@ $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm
 $data['menu'] .= ' ' . sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_fields&a=bulk_add_fields" class="button">%s</a>', __('Bulk Add Fields', CCTM_TXTDOMAIN) );
 
 // Load 'em up
-$defs = CCTM::get_custom_field_defs();
+$defs = \CCTM\CCTM::get_custom_field_defs();
 /*
 unset($defs['status']);
 self::$data['custom_field_defs'] = $defs;
@@ -46,7 +46,7 @@ foreach ($defs as $field_name => $d) {
 	$FieldObj->set_props($d);
 	$d['icon'] 	= $FieldObj->get_icon();
 
-	if ( !CCTM::is_valid_img($d['icon']) ) {
+	if ( !self::is_valid_img($d['icon']) ) {
 		$icon_src = self::get_custom_icons_src_dir() . 'default.png';
 	}
 
@@ -86,8 +86,8 @@ foreach ($defs as $field_name => $d) {
 	// Show associated post-types
 	$d['post_types'] = array();
 
-	if (isset(CCTM::$data['post_type_defs']) && is_array(CCTM::$data['post_type_defs'])) {
-		foreach (CCTM::$data['post_type_defs'] as $pt => $pdef) {
+	if (isset(\CCTM\CCTM::$data['post_type_defs']) && is_array(\CCTM\CCTM::$data['post_type_defs'])) {
+		foreach (\CCTM\CCTM::$data['post_type_defs'] as $pt => $pdef) {
 			if (isset($pdef['custom_fields']) && is_array($pdef['custom_fields']) 
 				&& in_array($field_name, $pdef['custom_fields'])) {
 				$d['post_types'][] = $pt;
@@ -108,10 +108,10 @@ foreach ($defs as $field_name => $d) {
 	}
 	
 
-	$data['fields'] .= CCTM\Load::view('tr_custom_field.php',$d);
+	$data['fields'] .= \CCTM\Load::view('tr_custom_field.php',$d);
 }
 
-$data['content'] = CCTM\Load::view('list_custom_fields.php', $data);
-print CCTM\Load::view('templates/default.php', $data);
+$data['content'] = \CCTM\Load::view('list_custom_fields.php', $data);
+print \CCTM\Load::view('templates/default.php', $data);
 
 /*EOF*/

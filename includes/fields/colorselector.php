@@ -1,14 +1,11 @@
 <?php
 /**
- * CCTM_wysiwyg
  *
  * Implements a color selector input (a text field with special javascript attached).
  * http://blog.meta100.com/post/600571131/mcolorpicker
  *
- * @package CCTM_FormElement
  */
 namespace CCTM\Fields; 
-use CCTM as CCTM;
 class colorselector extends FormElement
 {
 	public $props = array(
@@ -166,13 +163,13 @@ class colorselector extends FormElement
 		
 		// Multi-version of the field
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
 				)
 			);
 			
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
 				)
@@ -184,21 +181,21 @@ class colorselector extends FormElement
 			$this->content = '';
 			foreach($values as $v) {
 				$this->value	= htmlspecialchars( html_entity_decode($v) );
-				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->content .= \CCTM::parse($fieldtpl, $this->get_props());
 				$this->i 		= $this->i + 1;
 			}
 		
 		}
 		// Singular
 		else {				
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 			
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -206,11 +203,11 @@ class colorselector extends FormElement
 			);
 
 			$this->value				= htmlspecialchars(html_entity_decode($this->get_value($current_value,'to_string')) );			
-			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			$this->content = \CCTM::parse($fieldtpl, $this->get_props());
 		}
 		
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM::parse($wrappertpl, $this->get_props());
 
 	}
 

@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Converts a numerical post-id to a full link href
  */
-
-class CCTM_to_link_href extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class to_link_href extends OutputFilter {
 
 	/**
 	 * Apply the filter.

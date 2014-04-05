@@ -1,17 +1,12 @@
 <?php
 /**
- * CCTM_wysiwyg
  *
  * Implements an WYSIWYG textarea input (a textarea with formatting controls).
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
-
-class wysiwyg extends FormElement
-{
+class wysiwyg extends FormElement {
 	public $props = array(
 		'label' => '',
 		'name' => '',
@@ -92,7 +87,7 @@ class wysiwyg extends FormElement
 
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
 
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 

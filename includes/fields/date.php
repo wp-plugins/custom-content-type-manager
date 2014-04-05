@@ -1,6 +1,5 @@
 <?php
 /**
- * CCTM_date
  *
  * This handles all types of time-based input, including dates, date-times, and times.
  * 3 javascript files will be loaded up to support all possible Date Formats
@@ -9,11 +8,9 @@
  * Datetime: based on http://razum.si/jQuery-calendar/TimeCalendar.html 
  * Time: based on https://github.com/perifer/timePicker
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
 class date extends FormElement
 {
 	public $props = array(
@@ -155,7 +152,7 @@ class date extends FormElement
 			$this->content = '';
 			foreach ($values as $v) {
 				$this->value = htmlspecialchars( html_entity_decode($v) );
-				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->content .= \CCTM\CCTM::parse($fieldtpl, $this->get_props());
 				$this->i   = $this->i + 1;
 			}
 
@@ -163,14 +160,14 @@ class date extends FormElement
 		// Singular
 		else {
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->datetype.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->datetype.'.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -178,12 +175,12 @@ class date extends FormElement
 			);
 
 			$this->value = htmlspecialchars(html_entity_decode($this->get_value($current_value,'to_string')));
-			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
 		}
 
 
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 
@@ -352,6 +349,6 @@ class date extends FormElement
     }
 
 }
-
+//class_alias('CCTM\CCTM','CCTM');
 
 /*EOF*/

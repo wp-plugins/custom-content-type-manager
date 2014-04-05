@@ -4,7 +4,6 @@ This plugin standardizes the custom fields for specified content types, e.g.
 post, page, and any other custom post-type you register via a plugin.
 ------------------------------------------------------------------------------*/
 namespace CCTM;
-use CCTM as CCTM;
 class StandardizedCustomFields {
 	//------------------------------------------------------------------------------
 	//! Private Functions
@@ -243,7 +242,7 @@ class StandardizedCustomFields {
 		if ( in_array($file, array('post.php'))) {
 			global $post;
 		
-			$Q = new \GetPostsQuery();
+			$Q = new GetPostsQuery();
 			$full_post = $Q->get_post($post->ID);
 			
 			if(!self::validate_fields($post_type, $full_post)) {

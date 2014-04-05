@@ -3,13 +3,10 @@
  *
  * Implements an HTML textarea input.
  *
- * @package FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
-class textarea extends FormElement
-{
+class textarea extends FormElement {
 
 	public $props = array(
 		'label' => '',
@@ -79,13 +76,13 @@ class textarea extends FormElement
 
 		// Multi-versions
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
 				)
@@ -97,20 +94,20 @@ class textarea extends FormElement
 
 			foreach ($values as $v) {
 				$this->value = htmlspecialchars( html_entity_decode($v), ENT_QUOTES);
-				$this->content .= CCTM::parse($fieldtpl, $this->get_props());
+				$this->content .= \CCTM\CCTM::parse($fieldtpl, $this->get_props());
 				$this->i   = $this->i + 1;
 			}
 		}
 		// Simple stuff
 		else {
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -118,12 +115,12 @@ class textarea extends FormElement
 			);
 			
 			$this->value = htmlspecialchars($this->get_value($current_value,'to_string'), ENT_QUOTES);
-			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
 		}
 
 		// wrap it.
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 

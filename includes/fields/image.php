@@ -1,14 +1,11 @@
 <?php
 /**
- * CCTM_image
  *
  * Implements an field that stores a reference to an image (i.e. an attachment post that is an image)
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
 class image extends FormElement
 {
 	public $props = array(
@@ -172,9 +169,7 @@ class image extends FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-
-		$Q = new GetPostsQuery();
+		$Q = new \CCTM\GetPostsQuery();
 
 		// Populate the values (i.e. properties) of this field
 		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
@@ -187,14 +182,14 @@ class image extends FormElement
 		// Multi field?
 		if ($this->is_repeatable) {
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_image_multi.tpl'
 					, 'fields/elements/_relation_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_image_multi.tpl'
 					, 'fields/wrappers/_relation_multi.tpl'
@@ -205,7 +200,7 @@ class image extends FormElement
 			foreach ($values as $v) {
 				$hash 					= $this->get_props();
 				$hash['post_id']    	= (int) $v;
-				$hash['thumbnail_url']	= CCTM::get_thumbnail($hash['post_id']);
+				$hash['thumbnail_url']	= \CCTM\CCTM::get_thumbnail($hash['post_id']);
 
 				// Look up all the data on that foriegn key
 				// We gotta watch out: what if the related post has custom fields like "description" or 
@@ -222,7 +217,7 @@ class image extends FormElement
 						}
 					}
 					
-					$this->content .= CCTM::parse($fieldtpl, $hash);					
+					$this->content .= \CCTM\CCTM::parse($fieldtpl, $hash);					
 				}
 			}
 
@@ -231,14 +226,14 @@ class image extends FormElement
 		else {
 			$this->post_id    = $this->get_value($current_value,'to_string'); 
 			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_image.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_image.tpl'
 					, 'fields/wrappers/_relation.tpl'
@@ -262,7 +257,7 @@ class image extends FormElement
 							$this->$k = $v;
 						}
 					}
-					$this->content = CCTM::parse($fieldtpl, $this->get_props());				
+					$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());				
 				}
 			}
 		}
@@ -271,7 +266,7 @@ class image extends FormElement
 			$this->button_label = __('Choose Image', CCTM_TXTDOMAIN);
 		}
 
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 
@@ -288,14 +283,11 @@ class image extends FormElement
 	 */
 	public function get_edit_field_definition($def) {
 
-		// Used to fetch the default value.
-		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-
 		// Standard
 		$out = $this->format_standard_fields($def);
 
 		// Options
-		$Q = new GetPostsQuery();
+		$Q = new \CCTM\GetPostsQuery();
 		
 		$out .= '
 			<div class="postbox">
@@ -316,15 +308,15 @@ class image extends FormElement
 		// Handle the display of the default value
 		if ( !empty($def['default_value']) ) {
 
-			$hash = CCTM::get_thumbnail($def['default_value']);
+			$hash = \CCTM\CCTM::get_thumbnail($def['default_value']);
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
-			$preview_html = CCTM::parse($fieldtpl, $hash);
+			$preview_html = \CCTM\CCTM::parse($fieldtpl, $hash);
 		}
 
 		// Button Label
@@ -336,9 +328,9 @@ class image extends FormElement
 			 	</div>';
 
 		// Set Search Parameters
-		$search_parameters_str = CCTM::get_value($def, 'search_parameters');
+		$search_parameters_str = \CCTM\CCTM::get_value($def, 'search_parameters');
 		parse_str($search_parameters_str, $args);
-		$Q = new GetPostsQuery($args);
+		$Q = new \CCTM\GetPostsQuery($args);
 		$search_parameters_visible = $Q->get_args();
 
 		$out .= '

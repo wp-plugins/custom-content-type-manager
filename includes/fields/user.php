@@ -1,6 +1,5 @@
 <?php
 /**
- * CCTM_user
  *
  * Allows users to select a user
  *
@@ -16,7 +15,6 @@
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
 class user extends FormElement {
 
 	public $props = array(
@@ -84,19 +82,19 @@ class user extends FormElement {
 		// Format for multi-select
 		if ($this->is_repeatable) {
 			$current_value = $this->get_value($current_value, 'to_array');
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user_multi.tpl'
 					, 'fields/options/_user.tpl'
 				)
 			);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_user_multi.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_user_multi.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -107,18 +105,18 @@ class user extends FormElement {
 		else {
 			$current_value = $this->get_value($current_value, 'to_string');
 
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_user.tpl'
 				)
 			);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_user.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_user.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -133,7 +131,7 @@ class user extends FormElement {
 		if (!isset($this->required) || !$this->required) {
 			$hash['value'] = '';
 			$hash['option'] = '';
-			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
+			$this->all_options .= \CCTM\CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
 		}
 
 		$this->options = get_users(); // WP: http://codex.wordpress.org/Function_Reference/get_users
@@ -170,7 +168,7 @@ class user extends FormElement {
 			$hash['i'] = $i;
 			$hash['id'] = $this->name;
 
-			$this->all_options .= CCTM::parse($optiontpl, $hash);
+			$this->all_options .= \CCTM\CCTM::parse($optiontpl, $hash);
 		}
 
 
@@ -180,8 +178,8 @@ class user extends FormElement {
 
 		// wrap
         $this->set_prop('value', $current_value);
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
-		return CCTM::parse($wrappertpl, $this->get_props());
+		$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 

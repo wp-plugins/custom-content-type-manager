@@ -1,13 +1,10 @@
 <?php
 /**
- * CCTM_directory
  *
  * Lists the contents of a directory (an optionally all sub-dirs) for selection in a dropdown.
  *
- * @package CCTM_FormElement
  */
 namespace CCTM\Fields; 
-use CCTM as CCTM;
 class directory extends FormElement
 {
 	public $props = array(
@@ -77,18 +74,18 @@ class directory extends FormElement
 		// Format for multi-select
 		if ($this->is_repeatable) {
 			$current_value = $this->get_value($current_value, 'to_array');
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_option.tpl'
 				)
 			);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_multiselect.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_multiselect.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -99,18 +96,18 @@ class directory extends FormElement
 		else {
 			$current_value = $this->get_value($current_value, 'to_string');
 
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_option.tpl'
 				)
 			);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_dropdown.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
@@ -124,7 +121,7 @@ class directory extends FormElement
 		if (!isset($this->required) || !$this->required) {
 			$hash['value'] = '';
 			$hash['option'] = '';
-			$this->all_options .= CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
+			$this->all_options .= \CCTM\CCTM::parse($optiontpl, $hash); // '<option value="">'.__('Pick One').'</option>';
 		}
 
 		// Substitutions
@@ -174,7 +171,7 @@ class directory extends FormElement
 			$hash['i'] = $i;
 			$hash['id'] = $this->name;
 
-			$this->all_options .= CCTM::parse($optiontpl, $hash);
+			$this->all_options .= \CCTM\CCTM::parse($optiontpl, $hash);
 		}
 
 
@@ -183,8 +180,8 @@ class directory extends FormElement
 		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		// wrap
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
-		return CCTM::parse($wrappertpl, $this->get_props());
+		$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 
 	}
 

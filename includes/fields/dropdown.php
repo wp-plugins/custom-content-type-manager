@@ -1,13 +1,10 @@
 <?php
 /**
- * CCTM_dropdown
  *
  * Implements an HTML select element with options (single select).
  *
- * @package CCTM_FormElement
  */
 namespace CCTM\Fields; 
-use CCTM as CCTM;
 class dropdown extends FormElement
 {
 	public $props = array(
@@ -89,18 +86,18 @@ class dropdown extends FormElement
 		// Format for Radio buttons
 		if ( $this->display_type == 'radio' ) {
 
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_radio.tpl'
 				)
 			);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_radio.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_radio.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -109,18 +106,18 @@ class dropdown extends FormElement
 		}
 		// For regular selects / dropdowns
 		else {
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_option.tpl'
 				)
 			);
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_dropdown.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -146,7 +143,7 @@ class dropdown extends FormElement
 		if ($this->display_type != 'radio' && (!$this->required)) {
 			$hash['value'] = '';
 			$hash['option'] = '';
-			$this->all_options .= CCTM::parse($optiontpl, $hash);
+			$this->all_options .= \CCTM\CCTM::parse($optiontpl, $hash);
 		}
 		
 		// Handle SQL queries
@@ -158,7 +155,7 @@ class dropdown extends FormElement
 				global $wpdb;
 				global $table_prefix;
 				$wpdb->hide_errors();
-				$query = CCTM::parse($this->alternate_input, array('table_prefix'=>$table_prefix));
+				$query = \CCTM\CCTM::parse($this->alternate_input, array('table_prefix'=>$table_prefix));
 				//return $query;
 				$results = $wpdb->get_results($query, ARRAY_N);
 				if ($wpdb->last_error) {
@@ -231,7 +228,7 @@ class dropdown extends FormElement
 			$hash['i'] = $i;
 			$hash['id'] = $this->name;
 
-			$this->all_options .= CCTM::parse($optiontpl, $hash);
+			$this->all_options .= \CCTM\CCTM::parse($optiontpl, $hash);
 		}
 
 
@@ -242,8 +239,8 @@ class dropdown extends FormElement
 
 		// wrap
         $this->set_prop('value', $current_value);
-		$this->content = CCTM::parse($fieldtpl, $this->get_props());
-		return CCTM::parse($wrappertpl, $this->get_props());
+		$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 
 	}
 

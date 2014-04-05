@@ -16,7 +16,6 @@
  */
 
 namespace CCTM;
-use CCTM as CCTM;
 class Columns {
 
 	/**

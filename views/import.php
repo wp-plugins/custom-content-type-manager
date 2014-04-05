@@ -27,7 +27,7 @@ if (isset($upload_dir['basedir'])) {
 
 printf( __('You can import an existing %s definition file from your computer or choose one from your uploads directory: %s. You probably will only use this when you are first setting up your site.', CCTM_TXTDOMAIN)
 	, '<code>.cctm.json</code>'
-	, '<code>'.$upload_dir_str.'/'.self::base_storage_dir .'/'.self::def_dir.'</code>'
+	, '<code>'.$upload_dir_str.'/'.\CCTM\CCTM::base_storage_dir .'/'.\CCTM\CCTM::def_dir.'</code>'
 	); ?></p>
 
 <h3><?php _e('Definitions on File', CCTM_TXTDOMAIN); ?></h3>
@@ -93,7 +93,7 @@ printf( __('You can import an existing %s definition file from your computer or 
 
 <form id="cctm_import_form"  method="post" enctype="multipart/form-data">
 	<!-- MAX_FILE_SIZE must precede the file input field -->
-    <input type="hidden" name="MAX_FILE_SIZE" value="<?php print CCTM::max_def_file_size; ?>" />
+    <input type="hidden" name="MAX_FILE_SIZE" value="<?php print \CCTM\CCTM::max_def_file_size; ?>" />
     
 	<?php wp_nonce_field('cctm_upload_def', 'cctm_nonce'); ?>
 

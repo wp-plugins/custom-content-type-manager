@@ -10,6 +10,6 @@ $data['page_title']	= __('Report a Bug', CCTM_TXTDOMAIN);
 $data['menu'] 		= sprintf('<a href="http://code.google.com/p/wordpress-custom-content-type-manager/issues/list" class="button" target="_blank">%s</a>'
 	, __('Launch Bug Tracker', CCTM_TXTDOMAIN) );
 $data['msg']		= '';
-$data['content'] = CCTM\Load::view('bug_report.php');
-print CCTM\Load::view('templates/default.php', $data);
+$data['content'] = \CCTM\Load::view('bug_report.php');
+print \CCTM\Load::view('templates/default.php', $data);
 /*EOF*/

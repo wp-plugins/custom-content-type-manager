@@ -1,13 +1,12 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Takes an integer representing a user id and returns user data gleaned from the wp_users
  * and wp_usermeta table.  The password hash is intentionally omitted for security.
  * Note that get_user_by('id',$input) does NOT return all user metadata!!!
  */
-
-class CCTM_userinfo extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class userinfo extends OutputFilter {
 
 	/**
 	 * Apply the filter.

@@ -5,7 +5,6 @@
  * used in these certain situations.
  */
 namespace CCTM;
-use CCTM as CCTM; 
 class PostTypeDef {
 
 	/**

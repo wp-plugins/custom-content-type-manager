@@ -24,7 +24,7 @@
  * @package SummarizePosts
  */
 
-
+namespace CCTM;
 class GetPostsForm {
 
 	// Stores instance of GetPostsQuery

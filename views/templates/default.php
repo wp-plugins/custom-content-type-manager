@@ -18,11 +18,11 @@ $active['cctm_themes'] = '';
 $active['cctm_tools'] = '';
 $active['cctm_info'] = '';
 
-$page = CCTM::get_value($_GET, 'page');
+$page = \CCTM\CCTM::get_value($_GET, 'page');
 $active[$page] = ' cctm_active'; // active tab class
 
 // for custom menu items, not registered via WP
-$a = CCTM::get_value($_GET, 'a');
+$a = \CCTM\CCTM::get_value($_GET, 'a');
 if ( $a == 'info') {
 	$active['cctm_info'] = ' cctm_active';
 	$active['cctm'] = '';
@@ -47,7 +47,7 @@ if (!isset($data['help']) || empty($data['help'])) {
 	<?php /*---------------- HEADER and TABS --------------------------- */ ?>
 	<div id="cctm_header">
 		<img src="<?php print CCTM_URL; ?>/images/cctm-logo.png" alt="custom-content-type-manager-logo"  style="float:left; margin-right:5px;"/>
-		<p class="cctm_header_text">Custom Content Type Manager <span class="cctm_version">[<?php print CCTM::get_current_version(); ?>]</span>
+		<p class="cctm_header_text">Custom Content Type Manager <span class="cctm_version">[<?php print \CCTM\CCTM::get_current_version(); ?>]</span>
 			<a href="<?php print $data['help']; ?>" target="_new" title="Contextual Help" style="text-decoration: none;">
 				<img src="<?php print CCTM_URL; ?>/images/question-mark.gif" width="16" height="16" />
 			</a>

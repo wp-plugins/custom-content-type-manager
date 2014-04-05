@@ -14,6 +14,7 @@
  * 
  * @package cctm
  */
+namespace CCTM;
 class CCTM {
 	// Name of this plugin and version data.
 	// See http://php.net/manual/en/function.version-compare.php:
@@ -541,7 +542,7 @@ class CCTM {
 			'_label_content' => __('Content'),
 			'_label_excerpt' => __('Excerpt'),			
 			'_callback_pre' => null,
-			'_callback' => 'CCTM::post_form_handler',
+			'_callback' => 'CCTM\CCTM::post_form_handler',
 			'_action' => get_permalink(), // of current page
 			'_tpl' => '_default',
 			'_id_prefix' => 'cctm_',
@@ -589,7 +590,7 @@ class CCTM {
         //------------------------------
 		// Process the form on submit
         //------------------------------		
-		$nonce = CCTM::get_value($_POST, '_cctm_nonce');
+		$nonce = self::get_value($_POST, '_cctm_nonce');
 		if ( !empty($_POST)) {
 
 			// Bogus submission
@@ -619,21 +620,21 @@ class CCTM {
     		}			
 			
 			// Save data if it was properly submitted	
-			if (empty(CCTM::$post_validation_errors)) {
+			if (empty(self::$post_validation_errors)) {
 				return call_user_func($args['_callback'], $vals);
 			}
 			// Populate the main error block
 			else {
-				$error_item_tpl = CCTM\Load::tpl(array('forms/_error_item.tpl'));
+				$error_item_tpl = Load::tpl(array('forms/_error_item.tpl'));
 				$hash = array();
 				$hash['errors'] = '';
 				$hash['error_msg'] = __('This form has validation errors.', CCTM_TXTDOMAIN);
 				$hash['cctm_url'] = CCTM_URL;
-				foreach (CCTM::$post_validation_errors as $k => $v) {
+				foreach (self::$post_validation_errors as $k => $v) {
 					$hash['errors'] .= CCTM::parse($error_item_tpl, array('error'=>$v));				
 				}
-				$error_wrapper_tpl = CCTM\Load::tpl(array('forms/_error_wrapper.tpl'));
-				$output['errors'] = CCTM::parse($error_wrapper_tpl, $hash);
+				$error_wrapper_tpl = Load::tpl(array('forms/_error_wrapper.tpl'));
+				$output['errors'] = self::parse($error_wrapper_tpl, $hash);
 			}
         }
         
@@ -653,8 +654,8 @@ class CCTM {
             }
             $args['_fields'] = $custom_fields;
 		}
-		elseif (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
-		  $custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
+		elseif (isset(self::$data['post_type_defs'][$post_type]['custom_fields'])) {
+		  $custom_fields = self::$data['post_type_defs'][$post_type]['custom_fields'];
 		}
 
 
@@ -669,7 +670,7 @@ class CCTM {
 				'label' => $args['_label_title'],
 				'name' => 'post_title',
 				'default_value' => wp_kses(
-					CCTM::get_value($_POST,$args['_name_prefix'].'post_title'),array()),
+					self::get_value($_POST,$args['_name_prefix'].'post_title'),array()),
 				'extra' => '',
 				'class' => '',
 				'description' => '',
@@ -693,7 +694,7 @@ class CCTM {
 				'label' => $args['_label_content'],
 				'name' => 'post_content',
 				'default_value' => wp_kses(
-					CCTM::get_value($_POST,$args['_name_prefix'].'post_content'),array()),
+					self::get_value($_POST,$args['_name_prefix'].'post_content'),array()),
 				'extra' => 'cols="80" rows="10"',
 				'class' => '',
 				'description' => '',
@@ -716,7 +717,7 @@ class CCTM {
 				'label' => $args['_label_excerpt'],
 				'name' => 'post_excerpt',
 				'default_value' => wp_kses(
-					CCTM::get_value($_POST,$args['_name_prefix'].'post_excerpt'),array()),
+					self::get_value($_POST,$args['_name_prefix'].'post_excerpt'),array()),
 				'extra' => 'cols="80" rows="10"',
 				'class' => '',
 				'description' => '',
@@ -732,10 +733,10 @@ class CCTM {
 		
 		foreach ( $custom_fields as $cf ) {
 			// skip the field if its value is hard-coded
-			if (!isset(CCTM::$data['custom_field_defs'][$cf]) || isset($args[$cf])) {
+			if (!isset(self::$data['custom_field_defs'][$cf]) || isset($args[$cf])) {
 				continue;
 			}
-			$def = CCTM::$data['custom_field_defs'][$cf];
+			$def = self::$data['custom_field_defs'][$cf];
 
 			if (isset($def['required']) && $def['required'] == 1) {
 				$def['label'] = $def['label'] . '*'; // Add asterisk
@@ -759,15 +760,15 @@ class CCTM {
 					$_POST[ $args['_name_prefix'].$def['name'] ],array());
 			}
 					
-			if (empty(CCTM::$post_validation_errors)) {	
+			if (empty(self::$post_validation_errors)) {	
 				$FieldObj->set_props($def);
 				$output_this_field = $FieldObj->get_create_field_instance();
 			}
 			else {
-				$current_value = wp_kses(CCTM::get_value($_POST,$args['_name_prefix'].$def['name']),array());
+				$current_value = wp_kses(self::get_value($_POST,$args['_name_prefix'].$def['name']),array());
 				
-				if (isset(CCTM::$post_validation_errors[ $def['name'] ])) {
-					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', CCTM::$post_validation_errors[ $def['name'] ]);
+				if (isset(self::$post_validation_errors[ $def['name'] ])) {
+					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', self::$post_validation_errors[ $def['name'] ]);
 					if (isset($def['class'])) {
 						$def['class'] .= 'cctm_validation_error';
 					}
@@ -803,7 +804,7 @@ class CCTM {
 		      .'</div>'
 		      .$formtpl;
 		}
-		return CCTM::parse($formtpl, $output);
+		return self::parse($formtpl, $output);
 		
 	}
 
@@ -825,11 +826,10 @@ class CCTM {
 		
 		
 		// Insert into Database
-		$email_only = CCTM::get_value($args, '_email_only');
+		$email_only = self::get_value($args, '_email_only');
 		if (!$email_only) {
-			require_once(CCTM_PATH.'/includes/SP_Post.php');
 			$P = new SP_Post();
-			CCTM::$post_id = $P->insert($vals);
+			self::$post_id = $P->insert($vals);
 		}
 		
 		// Email stuff
@@ -843,28 +843,28 @@ class CCTM {
 			$message_tpl = wpautop($P['post_content']);
 			// If the 'My User' <myuser@email.com> format is used, we have to manipulate the string
 			// to keep WP from tripping over itself
-			$from = CCTM::get_value($args, '_email_from', get_bloginfo('admin_email'));
+			$from = self::get_value($args, '_email_from', get_bloginfo('admin_email'));
 			$from = str_replace(array('&#039','&#034;','&quot;','&lt;','&gt;'), array("'",'"','"','<','>'), $from);
 			// die(print_r($args,true));
-			$subject = CCTM::get_value($args, '_email_subject', $subject);
+			$subject = self::get_value($args, '_email_subject', $subject);
 			$headers = 'From: '.$from . "\r\n";
 			$headers .= 'content-type: text/html' . "\r\n";
 			
-			$message = CCTM::parse($message_tpl, $vals);
+			$message = self::parse($message_tpl, $vals);
 			if(!wp_mail($args['_email_to'], $subject, $message, $headers)) {
 				return "There was a problem sending the email.";
 			}
 		}
 		
 		// Redirect or show a simple message.
-		$redirect = CCTM::get_value($args, '_redirect');
+		$redirect = self::get_value($args, '_redirect');
 		if ($redirect) {
 			$url = get_permalink($redirect);
-			CCTM::redirect($url, true);
+			self::redirect($url, true);
 		}
 		
 		// Else, return message:
-		return CCTM::get_value($args, '_msg', "Thanks for submitting the form!");
+		return self::get_value($args, '_msg', "Thanks for submitting the form!");
 
 	}
 
@@ -949,8 +949,8 @@ class CCTM {
 			}
 
 			// Clear the cache and such
-			unset(CCTM::$data['cache']);
-			unset(CCTM::$data['warnings']);
+			unset(self::$data['cache']);
+			unset(self::$data['warnings']);
 			// Mark the update
 			self::$data['cctm_version'] = self::get_current_version();
 			update_option(self::db_key, self::$data);
@@ -958,17 +958,17 @@ class CCTM {
 
 		// If this is empty, then it is a first install, so we timestamp it
 		// and prep the data structure
-		if (empty(CCTM::$data)) {
+		if (empty(self::$data)) {
 			// TODO: run tests
-			CCTM::$data['cctm_installation_timestamp'] = time();
-			CCTM::$data['cctm_version'] = CCTM::get_current_version();
-			CCTM::$data['export_info'] = array(
+			self::$data['cctm_installation_timestamp'] = time();
+			self::$data['cctm_version'] = CCTM::get_current_version();
+			self::$data['export_info'] = array(
 				'title'   => 'CCTM Site',
 				'author'   => get_option('admin_email', ''),
 				'url'    => get_option('siteurl', 'http://wpcctm.com/'),
 				'description' => __('This site was created in part using the Custom Content Type Manager', CCTM_TXTDOMAIN),
 			);
-			update_option(CCTM::db_key, CCTM::$data);
+			update_option(CCTM::db_key, self::$data);
 		}
 	}
 
@@ -982,7 +982,7 @@ class CCTM {
 	 * http://wordpress.org/support/topic/plugin-custom-content-type-manager-multisite?replies=18#post-2501711
 	 */
 	public static function create_admin_menu() {
-		CCTM\Load::file('/config/menus/admin_menu.php');
+		Load::file('/config/menus/admin_menu.php');
 	}
 
 
@@ -1121,7 +1121,7 @@ class CCTM {
 			// Don't mess with foreign post-types.
 			// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=425
 			if (!is_scalar($post_type)
-				|| !isset(CCTM::$data['post_type_defs'][$post_type]['cctm_hierarchical_custom'])) {
+				|| !isset(self::$data['post_type_defs'][$post_type]['cctm_hierarchical_custom'])) {
 				return $title;
 			}
 			// To avoid problems when this filter is called unexpectedly... e.g. category pages has an array of post_types
@@ -1130,7 +1130,7 @@ class CCTM {
 			}
 			//checking cctm_hierarchical_custom is not necessary because BOTH boxes must be checked.
 			// Get the last URL segment.  E.g. given house/room/chair, this would return 'chair'
-			if (isset(CCTM::$data['post_type_defs'][$post_type]) && CCTM::$data['post_type_defs'][$post_type]['hierarchical'] ) {
+			if (isset(self::$data['post_type_defs'][$post_type]) && self::$data['post_type_defs'][$post_type]['hierarchical'] ) {
 				$segments = explode('/',$title);
 				$title = array_pop($segments);
 			}
@@ -1451,8 +1451,8 @@ class CCTM {
 		$cctm_types = array();
 
 		// this has the side-effect of sorting the post-types
-		if ( isset(CCTM::$data['post_type_defs']) && !empty(CCTM::$data['post_type_defs']) ) {
-			$cctm_types =  array_keys(CCTM::$data['post_type_defs']);
+		if ( isset(self::$data['post_type_defs']) && !empty(self::$data['post_type_defs']) ) {
+			$cctm_types =  array_keys(self::$data['post_type_defs']);
 		}
 		$all_types = array_merge($registered , $cctm_types);
 		$all_types = array_unique($all_types); // make unique
@@ -1464,12 +1464,12 @@ class CCTM {
 				continue;
 			}
 			// Abandonded foreign
-			if (!isset(CCTM::$data['post_type_defs'][$pt]['post_type']) 
+			if (!isset(self::$data['post_type_defs'][$pt]['post_type']) 
 			&& !in_array($pt, $registered)) {
 				continue;
 			}
 			// Optionall skip foreigns altogether
-			//if (!isset(CCTM::$data['post_type_defs'][$pt]['post_type'])
+			//if (!isset(self::$data['post_type_defs'][$pt]['post_type'])
 			//	&& !self::get_setting('show_foreign_post_types')) {
 			//	continue;
 			//}
@@ -1578,9 +1578,9 @@ class CCTM {
 			list($src, $w, $h) = wp_get_attachment_image_src( $thumbnail_id, 'thumbnail', true, array('alt'=>__('Preview', CCTM_TXTDOMAIN)));
 			$thumbnail_url = $src;            
         }
-		elseif (isset(CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
-				&& CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
-			$baseimg = basename(CCTM::$data['post_type_defs'][$post_type]['menu_icon']);
+		elseif (isset(self::$data['post_type_defs'][$post_type]['use_default_menu_icon']) 
+				&& self::$data['post_type_defs'][$post_type]['use_default_menu_icon'] == 0) {
+			$baseimg = basename(self::$data['post_type_defs'][$post_type]['menu_icon']);
 			$thumbnail_url = CCTM_URL . '/images/icons/32x32/'. $baseimg;	
 		}
 		elseif ($post_type == 'post') {
@@ -2118,8 +2118,8 @@ class CCTM {
 		if (empty($post_type)) {
 			return $join;
 		}
-		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(CCTM::$data['post_type_defs'][$post_type]['custom_orderby'])) {
-			$column = CCTM::$data['post_type_defs'][$post_type]['custom_orderby'];
+		if (isset(self::$data['post_type_defs'][$post_type]['custom_orderby']) && !empty(self::$data['post_type_defs'][$post_type]['custom_orderby'])) {
+			$column = self::$data['post_type_defs'][$post_type]['custom_orderby'];
 			// Req'd to sort on custom column
 			if (!in_array($column, CCTM::$reserved_field_names)) {
 				$join .= $wpdb->prepare(" LEFT JOIN {$wpdb->postmeta} ON  {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = %s", $column);

@@ -13,11 +13,11 @@ Post-types come in 3 flavors w 3 formatting variations:
 $data 				= array();
 $data['page_title']	= __('List Content Types', CCTM_TXTDOMAIN);
 $data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm&a=create_post_type" class="button">%s</a>', __('Create Content Type', CCTM_TXTDOMAIN) );
-$data['msg']		= CCTM::get_flash();
+$data['msg']		= \CCTM\CCTM::get_flash();
 $data['row_data'] = '';
 
 
-$all_types = CCTM::get_post_types();
+$all_types = \CCTM\CCTM::get_post_types();
 
 foreach ( $all_types as $post_type ) {	
 
@@ -62,7 +62,7 @@ foreach ( $all_types as $post_type ) {
 	//------------------------------------------------------------------------------
 	// post,page: Built-in post types
 	//------------------------------------------------------------------------------
-	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
+	if ( in_array($post_type, \CCTM\CCTM::$built_in_post_types) ) {
 		$deactivate    = sprintf(
 			'<a href="?page=cctm&a=deactivate_post_type&pt=%s" title="%s">%s</a>'
 			, $post_type
@@ -72,7 +72,7 @@ foreach ( $all_types as $post_type ) {
 		$hash['description']  = __('Built-in post type.', CCTM_TXTDOMAIN);
 		$hash['edit_manage_view_links'] = '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp"/> ' . $manage_custom_fields . ' | ' . $view_templates;
 		// Not active
-		if (!isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
+		if (!isset(\CCTM\CCTM::$data['post_type_defs'][$post_type]['is_active']) || !CCTM::$data['post_type_defs'][$post_type]['is_active']) {
 			$hash['class'] = 'inactive';
 			$hash['activate_deactivate_delete_links'] = '<span class="activate">'
 				. sprintf(
@@ -106,11 +106,11 @@ foreach ( $all_types as $post_type ) {
 	//------------------------------------------------------------------------------
 	// Full fledged CCTM post-types
 	//------------------------------------------------------------------------------
-	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
-		$hash['description']  = CCTM::get_value(CCTM::$data['post_type_defs'][$post_type], 'description');
+	elseif (isset(\CCTM\CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
+		$hash['description']  = \CCTM\CCTM::get_value(\CCTM\CCTM::$data['post_type_defs'][$post_type], 'description');
 		$hash['edit_manage_view_links'] = $edit_link . ' | '. $manage_custom_fields . ' | ' . $view_templates . ' | ' . $duplicate_link;
 
-		if ( isset(CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
+		if ( isset(\CCTM\CCTM::$data['post_type_defs'][$post_type]['is_active']) && !empty(\CCTM\CCTM::$data['post_type_defs'][$post_type]['is_active']) ) {
 	
 			$hash['class'] = 'active';
 			$hash['activate_deactivate_delete_links'] = '<span class="deactivate">'.$deactivate.'</span>';
@@ -133,16 +133,16 @@ foreach ( $all_types as $post_type ) {
 				).'</span>';
 			$is_active = false;
 		}
-		if ( !empty(CCTM::$data['post_type_defs'][$post_type]['menu_icon']) && !CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] ) {
-			$hash['icon'] = '<img src="'. CCTM::$data['post_type_defs'][$post_type]['menu_icon'] . '" />';
+		if ( !empty(\CCTM\CCTM::$data['post_type_defs'][$post_type]['menu_icon']) && !\CCTM\CCTM::$data['post_type_defs'][$post_type]['use_default_menu_icon'] ) {
+			$hash['icon'] = '<img src="'. \CCTM\CCTM::$data['post_type_defs'][$post_type]['menu_icon'] . '" />';
 		}
 		
-		$data['row_data'] .= CCTM\Load::view('tr_post_type.php', $hash);	
+		$data['row_data'] .= \CCTM\Load::view('tr_post_type.php', $hash);	
 	}
 	//------------------------------------------------------------------------------
 	// Foreign post-types
 	//------------------------------------------------------------------------------
-	elseif(self::get_setting('show_foreign_post_types')) {
+	elseif(\CCTM\CCTM::get_setting('show_foreign_post_types')) {
 		$hash['description']  = __('Foreign post-type.  This post type has been registered by another plugin.', CCTM_TXTDOMAIN);
 		$hash['edit_manage_view_links'] = '<img src="'. CCTM_URL .'/images/spy.png" height="16" width="16" alt="wp"/> ' . $manage_custom_fields . ' | ' . $view_templates;
 		// Not active
@@ -168,10 +168,10 @@ foreach ( $all_types as $post_type ) {
 		}
 		$hash['icon'] = '<img src="'. CCTM_URL . '/images/forbidden.png' . '" width="16" height="16"/>';
 		
-		$data['row_data'] .= CCTM\Load::view('tr_post_type.php', $hash);
+		$data['row_data'] .= \CCTM\Load::view('tr_post_type.php', $hash);
 	}
 }
 
 
-$data['content'] = CCTM\Load::view('list_post_types.php', $data);
-print CCTM\Load::view('templates/default.php', $data);
+$data['content'] = \CCTM\Load::view('list_post_types.php', $data);
+print \CCTM\Load::view('templates/default.php', $data);

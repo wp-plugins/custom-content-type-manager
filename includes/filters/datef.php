@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Formats a string into a date
  */
-
-class CCTM_datef extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class datef extends OutputFilter {
 
 	/**
 	 * Apply the filter.

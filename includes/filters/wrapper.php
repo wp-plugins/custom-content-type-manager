@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_wrapper
  * 
  * Wraps an input string when it isn't empty.
  */
-
-class CCTM_wrapper extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class wrapper extends OutputFilter {
 
 	/**
 	 * Apply the filter.

@@ -7,7 +7,7 @@ Lets users configure global options.
 ------------------------------------------------------------------------------*/
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
-require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
+
 
 $data 				= array();
 $data['page_title']	= __('Settings', CCTM_TXTDOMAIN);
@@ -53,7 +53,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 }
 
 // Use Defaults by default...
-$data['settings'] = CCTM::$default_settings;
+$data['settings'] = \CCTM\CCTM::$default_settings;
 
 // list all checkboxes here
 $checkboxes = array(
@@ -84,28 +84,27 @@ foreach ( $checkboxes as $k) {
 }
 
 // Load up any settings pages for custom fields
-$element_files = CCTM::get_available_helper_classes('fields');
+$element_files = \CCTM\CCTM::get_available_helper_classes('fields');
 $flag = false;
 foreach ( $element_files as $shortname => $file ) {
-	require_once($file);
 
-	if ( class_exists(CCTM::filter_prefix.$shortname) ) {
-		$d = array();
-		$field_type_name = CCTM::filter_prefix.$shortname;
-		$FieldObj = new $field_type_name();
+
+	$d = array();
+	$field_type_name = '\\CCTM\\Fields\\'.$shortname;
+	$FieldObj = new $field_type_name();
+	
+	if ($FieldObj->get_settings_page() ) {
+		$flag = true;
+		$data['custom_fields_settings_links'] .= sprintf(
+			'<li><strong>%s</strong>: %s (<a href="?page=cctm_settings&a=settings_cf&type=%s">%s</a>)'
+			, $FieldObj->get_name()
+			, $FieldObj->get_description()
+			, $shortname
+			, __('Edit Settings', CCTM_TXTDOMAIN)
+		);
 		
-		if ($FieldObj->get_settings_page() ) {
-			$flag = true;
-			$data['custom_fields_settings_links'] .= sprintf(
-				'<li><strong>%s</strong>: %s (<a href="?page=cctm_settings&a=settings_cf&type=%s">%s</a>)'
-				, $FieldObj->get_name()
-				, $FieldObj->get_description()
-				, $shortname
-				, __('Edit Settings', CCTM_TXTDOMAIN)
-			);
-			
-		}
 	}
+
 }
 // We gots some custom settings for custom fields!
 if ($flag) {

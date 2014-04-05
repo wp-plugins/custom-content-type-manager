@@ -3,8 +3,6 @@
  * Activate And Check License key
  */
 namespace CCTM;
-use CCTM as CCTM;
-
 class License {
 
 	public static $store_url = 'http://craftsmancoding.com/products/'; // store_url

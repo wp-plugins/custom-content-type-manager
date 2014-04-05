@@ -18,7 +18,7 @@ if (defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE == true && is_super_admi
 	$capability = 'manage_options';
 }
 
-$active_post_types = CCTM::get_active_post_types();
+$active_post_types = \CCTM\CCTM::get_active_post_types();
 
 // Main menu item
 add_menu_page(
@@ -26,9 +26,9 @@ add_menu_page(
 	__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
 	$capability,						// capability
 	'cctm',								// menu-slug (should be unique)
-	'CCTM::page_main_controller',       // callback function
+	'\CCTM\CCTM::page_main_controller',       // callback function
 	CCTM_URL .'/images/gear.png',       // Icon
-	CCTM::menu_position					// menu position
+	\CCTM\CCTM::menu_position					// menu position
 );
 
 add_submenu_page(
@@ -37,7 +37,7 @@ add_submenu_page(
 	__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability
 	'cctm_fields',						// menu_slug: cf = custom fields
-	'CCTM::page_main_controller'		// callback function
+	'\CCTM\CCTM::page_main_controller'		// callback function
 );
 
 add_submenu_page(
@@ -46,7 +46,7 @@ add_submenu_page(
 	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
 	$capability,							// capability
 	'cctm_settings',						// menu_slug
-	'CCTM::page_main_controller'			// callback function
+	'\CCTM\CCTM::page_main_controller'			// callback function
 );
 
 add_submenu_page(
@@ -55,7 +55,7 @@ add_submenu_page(
 	__('Tools', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
 	'cctm_tools',					// menu_slug
-	'CCTM::page_main_controller'	// callback function
+	'\CCTM\CCTM::page_main_controller'	// callback function
 );
 
 add_submenu_page(
@@ -64,7 +64,7 @@ add_submenu_page(
 	__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
 	'cctm_cache',					// menu_slug
-	'CCTM::page_main_controller'	// callback function
+	'\CCTM\CCTM::page_main_controller'	// callback function
 );
 
 add_submenu_page(
@@ -73,11 +73,11 @@ add_submenu_page(
 	__('License', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability
 	'cctm_license',						// menu_slug: cf = custom fields
-	'CCTM\License::activate_license_page'		// callback function
+	'\CCTM\License::activate_license_page'		// callback function
 );
 
 // Add Custom Fields links to each post type
-if (CCTM::get_setting('show_custom_fields_menu')) {
+if (\CCTM\CCTM::get_setting('show_custom_fields_menu')) {
 	foreach ($active_post_types as $post_type) {
 		$parent_slug = 'edit.php?post_type='.$post_type;
 		if ($post_type == 'post') {
@@ -89,16 +89,16 @@ if (CCTM::get_setting('show_custom_fields_menu')) {
 			, __('Custom Fields', CCTM_TXTDOMAIN)
 			, $capability
 			, 'cctm&a=list_pt_associations&pt='.$post_type
-			, 'CCTM::page_main_controller'
+			, '\CCTM\CCTM::page_main_controller'
 		);
 	}
 }
 
 // Add Settings links to each post type
-if (CCTM::get_setting('show_settings_menu')) {
+if (\CCTM\CCTM::get_setting('show_settings_menu')) {
 	foreach ($active_post_types as $post_type) {
 		$parent_slug = 'edit.php?post_type='.$post_type;
-		if ( in_array($post_type, CCTM::$reserved_post_types) ) {
+		if ( in_array($post_type, \CCTM\CCTM::$reserved_post_types) ) {
 			continue;
 		}
 		add_submenu_page(
@@ -107,7 +107,7 @@ if (CCTM::get_setting('show_settings_menu')) {
 			, __('Settings', CCTM_TXTDOMAIN)
 			, $capability
 			, 'cctm&a=edit_post_type&pt='.$post_type
-			, 'CCTM::page_main_controller'
+			, '\CCTM\CCTM::page_main_controller'
 		);
 	}
 }
@@ -116,16 +116,16 @@ if (CCTM::get_setting('show_settings_menu')) {
 global $menu;
 
 $remove_me = array();
-if(CCTM::get_setting('hide_posts')) {
+if(\CCTM\CCTM::get_setting('hide_posts')) {
 	$remove_me[] = __('Posts');
 }
-if(CCTM::get_setting('hide_pages')) {
+if(\CCTM\CCTM::get_setting('hide_pages')) {
 	$remove_me[] = __('Pages');
 }
-if(CCTM::get_setting('hide_links')) {
+if(\CCTM\CCTM::get_setting('hide_links')) {
 	$remove_me[] = __('Links');
 }
-if(CCTM::get_setting('hide_comments')) {
+if(\CCTM\CCTM::get_setting('hide_comments')) {
 	$remove_me[] = __('Comments');
 }
 if (!empty($remove_me)) {

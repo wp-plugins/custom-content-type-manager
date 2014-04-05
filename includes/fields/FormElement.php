@@ -21,7 +21,6 @@
  * Usually the forms to create and edit a definition or element are the same, but if needed,
  * there are separate functions to create and edit a definition or value.
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
@@ -56,7 +55,10 @@ abstract class FormElement {
 	public $errors = array();
 
     public static $e = array(); //errors...
-    
+
+	const field_prefix = 'CCTM_';
+	const filter_prefix = 'CCTM_';
+	const validator_prefix = 'CCTM_Rule_';    
 	// tracks field instances
 	//public $i = 0;
 
@@ -155,7 +157,7 @@ abstract class FormElement {
 		$this->descriptions['default_value'] = __('The default value is presented to users when a new post is created.', CCTM_TXTDOMAIN);
 		$this->descriptions['description'] = __('The description is visible when you view all custom fields or when you use the <code>get_custom_field_meta()</code> function.');
 		$this->descriptions['description'] .= __('The following html tags are allowed:')
-			. '<code>'.htmlspecialchars(CCTM::$allowed_html_tags).'</code>';
+			. '<code>'.htmlspecialchars(CCTM\CCTM::$allowed_html_tags).'</code>';
 		$this->descriptions['evaluate_default_value'] = __('You can check this box if you want to enter a bit of PHP code into the default value field.');
 		
 		$this->descriptions['label'] = __('The label is displayed when users create or edit posts that use this custom field.', CCTM_TXTDOMAIN);
@@ -229,9 +231,9 @@ abstract class FormElement {
      */
     protected function _get_search_parameters_visible($search_parameters_str) {
         require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-		$Q = new GetPostsQuery();
+		$Q = new \CCTM\GetPostsQuery();
 		parse_str($search_parameters_str, $args);
-		$Q = new GetPostsQuery($args);
+		$Q = new \CCTM\GetPostsQuery($args);
 		return $Q->get_args();
     }
     
@@ -289,9 +291,7 @@ abstract class FormElement {
 	 * @return string	html dropdown
 	 */
 	public function format_available_output_filters($def) {
-		$available_output_filters = CCTM::get_available_helper_classes('filters');
-
-		require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
+		$available_output_filters = \CCTM\CCTM::get_available_helper_classes('filters');
 
 		$out = '
 		<div class="postbox">
@@ -310,9 +310,7 @@ abstract class FormElement {
 		
 		foreach ($available_output_filters as $filter => $filename) {
 		
-			require_once($filename);
-			
-			$classname = CCTM::filter_prefix . $filter;
+			$classname = '\\CCTM\\Filters\\'. $filter;
 		
 			$Obj = new $classname();
 
@@ -725,7 +723,7 @@ abstract class FormElement {
 	 */
 	public function get_icon() {
 		$field_type = str_replace(
-			CCTM::field_prefix,
+			self::field_prefix,
 			'',
 			get_class($this) );
 		// Default image
@@ -814,26 +812,26 @@ abstract class FormElement {
 	
 		global $wp_version;
 	
-		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+		if ( isset($posted_data[ self::post_name_prefix . $field_name ]) ) {
 
 			// is_array is equivalent to "is_repeatable"
-			if (is_array($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])) {
-				foreach($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ] as &$f) {
+			if (is_array($posted_data[ self::post_name_prefix . $field_name ])) {
+				foreach($posted_data[ self::post_name_prefix . $field_name ] as &$f) {
 					$f = stripslashes(trim($f));
 				}
 				// This is what preserves the foreign characters while they traverse the json and WP gauntlet
 				// (yes, seriously we have to doubleslash it when we create a new post in versions
 				// of WP prior to 3.3!!!)
 				if (isset($posted_data['_cctm_is_create']) && version_compare($wp_version,'3.3','<')) {
-					return addslashes(addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ])));
+					return addslashes(addslashes(json_encode($posted_data[ self::post_name_prefix . $field_name ])));
 				}
 				else {
-					return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+					return addslashes(json_encode($posted_data[ self::post_name_prefix . $field_name ]));
 				}				
 			}
 			// Normal single field
 			else{
-				return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+				return stripslashes(trim($posted_data[ self::post_name_prefix . $field_name ]));
 			}
 		}
 		else {
@@ -880,7 +878,7 @@ abstract class FormElement {
 				$this->errors['name'][] = __('The name is too long. Names must not exceed 255 characters.', CCTM_TXTDOMAIN);
 			}
 			// Run into any reserved words?
-			if ( in_array($posted_data['name'], CCTM::$reserved_field_names ) ) {
+			if ( in_array($posted_data['name'], \CCTM\CCTM::$reserved_field_names ) ) {
 				$this->errors['name'][] = sprintf(
 					__('%s is a reserved name.', CCTM_TXTDOMAIN)
 					, '<strong>'.$posted_data['name'].'</strong>');
@@ -890,8 +888,8 @@ abstract class FormElement {
 			// it's a CREATE operation
 			if ( empty($this->original_name) ) {
 
-				if ( isset(CCTM::$data['custom_field_defs']) && is_array(CCTM::$data['custom_field_defs'])) {
-					foreach (CCTM::$data['custom_field_defs'] as $cf =>$def) {
+				if ( isset(\CCTM\CCTM::$data['custom_field_defs']) && is_array(\CCTM\CCTM::$data['custom_field_defs'])) {
+					foreach (\CCTM\CCTM::$data['custom_field_defs'] as $cf =>$def) {
 						if (strtolower($posted_data['name']) == strtolower($cf)) {
 							$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');						
 						}					
@@ -900,7 +898,7 @@ abstract class FormElement {
 			}
 			// it's an EDIT operation and we're renaming the field
 			elseif ( $this->original_name != $posted_data['name'] ) {
-				if ( isset(CCTM::$data['custom_field_defs']) && is_array(CCTM::$data['custom_field_defs'])) {
+				if ( isset(\CCTM\CCTM::$data['custom_field_defs']) && is_array(\CCTM\CCTM::$data['custom_field_defs'])) {
 						if (strtolower($posted_data['name']) == strtolower($cf)) {
 							$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');						
 						}
@@ -916,10 +914,10 @@ abstract class FormElement {
 			$posted_data['description'] = strip_tags($posted_data['description'], CCTM::$allowed_html_tags);
 		}
 
-		$posted_data = CCTM::striptags_deep($posted_data);
+		$posted_data = \CCTM\CCTM::striptags_deep($posted_data);
 		// WP always quotes data (!!!), so we don't bother checking get_magic_quotes_gpc et al.
 		// See this: http://kovshenin.com/archives/wordpress-and-magic-quotes/
-		$posted_data = CCTM::stripslashes_deep($posted_data);
+		$posted_data = \CCTM\CCTM::stripslashes_deep($posted_data);
 
 		//return $posted_data; // simplifiying immutable
 		foreach ($this->immutable as $x) {

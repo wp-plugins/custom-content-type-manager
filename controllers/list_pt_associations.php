@@ -9,20 +9,18 @@
 
 if ( ! defined('CCTM_PATH')) exit('No direct script access allowed');
 if (!current_user_can('administrator')) exit('Admins only.');
-require_once(CCTM_PATH.'/includes/CCTM_PostTypeDef.php');
-require_once(CCTM_PATH.'/includes/CCTM_Metabox.php');
 
-$is_foreign = (int) CCTM::get_value($_GET, 'f');
+$is_foreign = (int) \CCTM\CCTM::get_value($_GET, 'f');
 
 $data     = array();
 $data['page_title'] = sprintf( __('Custom Fields for %s', CCTM_TXTDOMAIN), "<em>$post_type</em>");
 $data['help']   = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/FieldAssociations';
 $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm&a=create_metabox" class="button">%s</a>', __('Create Metabox', CCTM_TXTDOMAIN) );
-$data['msg']  = CCTM::get_flash();
+$data['msg']  = \CCTM\CCTM::get_flash();
 
 
 // Validate post type
-if (!CCTM_PostTypeDef::is_existing_post_type($post_type) ) {
+if (!\CCTM\PostTypeDef::is_existing_post_type($post_type) ) {
 	$msg_id = 'invalid_post_type';
 	include 'error.php';
 	return;
@@ -120,7 +118,7 @@ foreach ($active_custom_fields as $cf) {
 	}
 //print_r(self::$data['metabox_defs']); exit;
 	// Default metabox def
-	$m_def = CCTM::$metabox_def;
+	$m_def = \CCTM\CCTM::$metabox_def;
 	
 	if (isset(self::$data['metabox_defs'][$metabox])) {
 		$m_def = self::$data['metabox_defs'][$metabox];
@@ -128,7 +126,7 @@ foreach ($active_custom_fields as $cf) {
 	$context = $m_def['context'];
 	
 	$d['icon'] = $FieldObj->get_icon();
-	if ( !CCTM::is_valid_img($d['icon']) ) {
+	if ( !\CCTM\CCTM::is_valid_img($d['icon']) ) {
 		$d['icon'] = self::get_custom_icons_src_dir() . 'default.png';
 	}
 	$d['class'] = 'ui-state-highlight';
@@ -143,7 +141,7 @@ foreach ($active_custom_fields as $cf) {
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
 
-	$metaboxes[$context][$metabox][] = CCTM\Load::view('li_field.php', $d);
+	$metaboxes[$context][$metabox][] = \CCTM\Load::view('li_field.php', $d);
 
 }
 //print_r(self::$data['metabox_defs']); exit;
@@ -160,17 +158,17 @@ if (isset(self::$data['metabox_defs']) && is_array(self::$data['metabox_defs']))
 // Get things sorted into their spots
 if (isset($metaboxes['normal'])) {
 	foreach($metaboxes['normal'] as $m => $items) {
-		$data['normal_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
+		$data['normal_boxes'] .= \CCTM\Metabox::get_metabox_holder($m,$items);
 	}
 }
 if (isset($metaboxes['advanced'])) {
 	foreach($metaboxes['advanced'] as $m => $items) {
-		$data['advanced_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
+		$data['advanced_boxes'] .= \CCTM\Metabox::get_metabox_holder($m,$items);
 	}
 }
 if (isset($metaboxes['side'])) {
 	foreach($metaboxes['side'] as $m => $items) {
-		$data['side_boxes'] .= CCTM_Metabox::get_metabox_holder($m,$items);
+		$data['side_boxes'] .= \CCTM\Metabox::get_metabox_holder($m,$items);
 	}
 }
 //print_r($data); exit;
@@ -191,7 +189,7 @@ foreach ($remaining_custom_fields as $cf) {
 	
 	$d['icon'] = $FieldObj->get_icon();
 
-	if ( !CCTM::is_valid_img($d['icon']) ) {
+	if ( !\CCTM\CCTM::is_valid_img($d['icon']) ) {
 		$d['icon'] = self::get_custom_icons_src_dir() . 'default.png';
 	}
 
@@ -207,11 +205,11 @@ foreach ($remaining_custom_fields as $cf) {
 		, __('Edit', CCTM_TXTDOMAIN)
 	);
 
-	$data['unused'] .= CCTM\Load::view('li_field.php', $d);
+	$data['unused'] .= \CCTM\Load::view('li_field.php', $d);
 }
 
-$data['content'] = CCTM\Load::view('metaboxes.php', $data);
-print CCTM\Load::view('templates/default.php', $data);
+$data['content'] = \CCTM\Load::view('metaboxes.php', $data);
+print \CCTM\Load::view('templates/default.php', $data);
 
 
 /*EOF*/

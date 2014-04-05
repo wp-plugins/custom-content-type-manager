@@ -1,11 +1,9 @@
 <?php
 /**
- * CCTM_relationmeta
  *
  * Implements a special AJAX form element used to store a wp_posts.ID representing
  * another post of some kind
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
@@ -25,7 +23,7 @@ class relationmeta extends FormElement
 		'search_parameters' => '',
 		'output_filter' => '',
 		'metafields' => array()
-		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
+		// 'type' => '', // auto-populated: the shortname of the class
 	);
 
 
@@ -195,9 +193,7 @@ class relationmeta extends FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-
-		$Q = new GetPostsQuery();
+		$Q = new \CCTM\GetPostsQuery();
 
 		// Populate the values (i.e. properties) of this field
 		$this->id      = str_replace(array('[', ']', ' '), '_', $this->name);
@@ -211,7 +207,7 @@ class relationmeta extends FormElement
 
 		$fieldtpl = '';
 		$wrappertpl = '';
-        $relationmeta_tpl = CCTM\Load::tpl(
+        $relationmeta_tpl = \CCTM\Load::tpl(
             array('fields/options/'.$this->name.'.tpl'
                 , 'fields/options/_relationmeta.tpl'
             )
@@ -219,13 +215,13 @@ class relationmeta extends FormElement
 
 		// Multi field?
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relationmeta_multi.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_relationmeta_multi.tpl'
 					, 'fields/wrappers/_relation_multi.tpl' // yes, we can default to the relation_multi
@@ -235,13 +231,13 @@ class relationmeta extends FormElement
 		// Regular old Single-selection
 		else {
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_relationmeta.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_relation.tpl'
 				)
@@ -258,7 +254,7 @@ class relationmeta extends FormElement
 				// anything that would conflict with the definition?  
 				// I'm using $post as my hash for $fieldtpl... I think $wrappertpl is what I need to watch out for.
 				$post = $Q->get_post($post_id);
-				$post['thumbnail_url'] = CCTM::get_thumbnail($post_id);
+				$post['thumbnail_url'] = \CCTM\CCTM::get_thumbnail($post_id);
 				if (empty($post)) {
 					$this->content = '<div class="cctm_error"><p>'.sprintf(__('Post %s not found.', CCTM_TXTDOMAIN), $post_id).'</p></div>';
 				}
@@ -276,7 +272,7 @@ class relationmeta extends FormElement
 					}
 					// Look up data for each of the metafields
 					foreach ($metafields as $mf => $v) {
-						if (!isset(CCTM::$data['custom_field_defs'][$mf])) {
+						if (!isset(\CCTM\CCTM::$data['custom_field_defs'][$mf])) {
 							continue;
 						}
 						$d = CCTM::$data['custom_field_defs'][$mf];
@@ -294,11 +290,11 @@ class relationmeta extends FormElement
 						$d['is_repeatable'] = false; // override
 						$FieldObj->set_props($d);
 						$output_this_field = $FieldObj->get_edit_field_instance($v);
-						$content .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
+						$content .= \CCTM\CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
 					}
 
 					$post['metafields'] = $content;
-					$this->content .= CCTM::parse($fieldtpl, $post);
+					$this->content .= \CCTM\CCTM::parse($fieldtpl, $post);
 				}
 			}  // endforeach
 		} // end $data
@@ -307,7 +303,7 @@ class relationmeta extends FormElement
 			$this->button_label = __('Choose Relation', CCTM_TXTDOMAIN);
 		}
 
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 
@@ -324,9 +320,6 @@ class relationmeta extends FormElement
 	 */
 	public function get_edit_field_definition($def) {
 
-		// Used to fetch the default value.
-		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-
 		// So we can arrange the metafields
 		$out = '<script>
           jQuery(function() {
@@ -339,7 +332,7 @@ class relationmeta extends FormElement
 		$out .= $this->format_standard_fields($def);
 
 		// Options
-		$Q = new GetPostsQuery();
+		$Q = new \CCTM\GetPostsQuery();
 
 		$out .= '
 			<div class="postbox">
@@ -360,15 +353,15 @@ class relationmeta extends FormElement
 		// Handle the display of the default value
 		if ( !empty($def['default_value']) ) {
 
-			$hash = CCTM::get_thumbnail($def['default_value']);
+			$hash = \CCTM\CCTM::get_thumbnail($def['default_value']);
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
-			$preview_html = CCTM::parse($fieldtpl, $hash);
+			$preview_html = \CCTM\CCTM::parse($fieldtpl, $hash);
 		}
 
 		// Button Label
@@ -409,7 +402,7 @@ class relationmeta extends FormElement
 		// Validations / Required
 		$out .= $this->format_validators($def, false);
 
-		$defs = CCTM::get_custom_field_defs();
+		$defs = \CCTM\CCTM::get_custom_field_defs();
 		$li = '<li><input type="checkbox"
 			     name="metafields[]" class="cctm_checkbox" id="metafield_%s" value="%s"%s/>
 			 <label for="metafield_%s"><strong>%s</strong> (%s)</label>
@@ -487,8 +480,8 @@ class relationmeta extends FormElement
 	 * @return string whatever JSON to store in wp_postmeta where meta_key = $field_name
 	 */
 	public function save_post_filter($posted_data, $field_name) {
-		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
-			return addslashes(json_encode($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+		if ( isset($posted_data[ self::post_name_prefix . $field_name ]) ) {
+			return addslashes(json_encode($posted_data[ self::post_name_prefix . $field_name ]));
 		}
 		else {
 			return '';

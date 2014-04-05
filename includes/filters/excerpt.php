@@ -1,13 +1,12 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Retrieves an excerpt from the input string, separating either via a string separator 
  * (e.g. <!--more->) OR using an integer to denote the max number of words you'd like 
  * the excerpt to contain.
  */
-
-class CCTM_excerpt extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class excerpt extends OutputFilter {
 
 	/**
 	 * @param	string	$str long string 

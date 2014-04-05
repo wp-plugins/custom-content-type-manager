@@ -4,9 +4,8 @@
  * Functionality inspired by the Custom Post Widget plugin: 
  * 	http://wordpress.org/extend/plugins/custom-post-widget/
  */
-//namespace CCTM;
-//use CCTM as CCTM; 
-//use WP_Widget as WP_Widget;
+namespace CCTM;
+use WP_Widget as WP_Widget;
 class PostWidget extends WP_Widget {
 
 	public $name;

@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Given a post_id (or an array of them), return the src for the image(s).
  */
-
-class CCTM_to_image_src extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class to_image_src extends OutputFilter {
 
 	/**
 	 * Apply the filter.

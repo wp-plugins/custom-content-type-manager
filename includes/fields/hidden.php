@@ -1,16 +1,13 @@
 <?php
 /**
- * CCTM_hidden
  *
  * Implements a hidden field input.  This is useful when you want to programmatically 
  * edit a value on the form instead of relying on the user to edit it.
  * Hidden fields are not repeatable, and they do not use a wrapper tpl (no point, really)
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
 class hidden extends FormElement {
 
 	public $props = array(
@@ -93,14 +90,14 @@ class hidden extends FormElement {
 			$this->value  = $this->default_value;
 		}
 
-		$fieldtpl = CCTM\Load::tpl(
+		$fieldtpl = \CCTM\Load::tpl(
 			array('fields/elements/'.$this->name.'.tpl'
 				, 'fields/elements/_hidden.tpl'
 				, 'fields/elements/_default.tpl'
 			)
 		);
 
-		return CCTM::parse($fieldtpl, $this->get_props()) 
+		return \CCTM\CCTM::parse($fieldtpl, $this->get_props()) 
 			. '<input type="hidden" name="_cctm_is_create" value="1" />';
 	}
 
@@ -129,14 +126,14 @@ class hidden extends FormElement {
 		}
 		
 
-		$fieldtpl = CCTM\Load::tpl(
+		$fieldtpl = \CCTM\Load::tpl(
 			array('fields/elements/'.$this->name.'.tpl'
 				, 'fields/elements/_hidden.tpl'
 				, 'fields/elements/_default.tpl'
 			)
 		);
 
-		return CCTM::parse($fieldtpl, $this->get_props());
+		return \CCTM\CCTM::parse($fieldtpl, $this->get_props());
 	}
 
 
@@ -219,15 +216,14 @@ class hidden extends FormElement {
 	
 		global $wp_version;
 
-		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+		if ( isset($posted_data[ self::post_name_prefix . $field_name ]) ) {
 //                print_r($_POST);  print 'asdfasdfasdf'; exit;
 //                print_r($this->props); exit;
             if ($this->props['evaluate_onsave']) {
-
                 return eval($this->onsave_code);
             }
             else {
-                return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+                return stripslashes(trim($posted_data[ self::post_name_prefix . $field_name ]));
             }
 		}
 		else {

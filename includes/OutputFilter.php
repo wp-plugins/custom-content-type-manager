@@ -4,8 +4,7 @@
  *
  * Abstract class for standardizing output filters.
  */
-namespace CCTM;
-use CCTM as CCTM;  
+namespace CCTM;  
 abstract class OutputFilter {
 
 	/**

@@ -9,7 +9,7 @@
  * @package SummarizePosts
  */
 
-
+namespace CCTM;
 class SummarizePosts {
 	const name    = 'Summarize Posts';
 	const version   = '0.8';

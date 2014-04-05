@@ -3,10 +3,8 @@
  *
  * Implements an HTML multi-select element with options (multiple select).
  *
- * @package cctm
  */
 namespace CCTM\Fields;
-use CCTM as CCTM;
 class multiselect extends FormElement
 {
 	public $props = array(
@@ -98,13 +96,13 @@ class multiselect extends FormElement
 		// Multi-select
 		if (isset($this->display) && $this->display == 'multiselect') {
 
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_option.tpl'
 				)
 			);		
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_multiselect.tpl'
 				)
@@ -114,14 +112,14 @@ class multiselect extends FormElement
 		// Multi-checkboxes
 		else {
 		
-			$optiontpl = CCTM\Load::tpl(
+			$optiontpl = \CCTM\Load::tpl(
 				array('fields/options/'.$this->name.'.tpl'
 					, 'fields/options/_'.$this->type.'.tpl'
 					, 'fields/options/_checkbox.tpl'
 				)
 			);
 			
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_multi_checkboxes.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -138,7 +136,7 @@ class multiselect extends FormElement
 				global $wpdb;
 				global $table_prefix;
 				$wpdb->hide_errors();
-				$query = CCTM::parse($this->alternate_input, array('table_prefix'=>$table_prefix));
+				$query = \CCTM\CCTM::parse($this->alternate_input, array('table_prefix'=>$table_prefix));
 				//return $query;
 				$results = $wpdb->get_results($query, ARRAY_N);
 				if ($wpdb->last_error) {
@@ -187,7 +185,7 @@ class multiselect extends FormElement
 		// because we have to do exact comparisons to see if the options are selected or not.
 		if ( $current_values_arr and is_array($current_values_arr) ) {
 			foreach ( $current_values_arr as $i => $v ) {
-				$current_values_arr[$i] = trim(CCTM::charset_decode_utf_8($v));
+				$current_values_arr[$i] = trim(\CCTM\CCTM::charset_decode_utf_8($v));
 			}
 		}
 
@@ -216,11 +214,11 @@ class multiselect extends FormElement
 			$hash['i'] = $i;
 			
 			if (isset($this->options[$i])) {
-				$hash['option'] = CCTM::charset_decode_utf_8($this->options[$i]);
+				$hash['option'] = \CCTM\CCTM::charset_decode_utf_8($this->options[$i]);
 			}
 			
 			if (isset($this->values[$i])) {
-				$hash['value'] = CCTM::charset_decode_utf_8($this->values[$i]);
+				$hash['value'] = \CCTM\CCTM::charset_decode_utf_8($this->values[$i]);
 			}
 			// Simplistic behavior if we don't use key=>value pairs
 			if ( !$this->use_key_values ) {
@@ -236,7 +234,7 @@ class multiselect extends FormElement
 			$this->content .= CCTM::parse($optiontpl, $hash);
 		}
 		$this->set_prop('value', $current_value);
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 
 	}
 
@@ -318,7 +316,7 @@ class multiselect extends FormElement
 				</thead>
 				<tbody id="dropdown_options2">';
 				
-		$out .= CCTM::parse($tpl, $hash);
+		$out .= \CCTM\CCTM::parse($tpl, $hash);
 		
 		// this html should match up with the js html in manager.js
 		$option_html = '
@@ -339,11 +337,11 @@ class multiselect extends FormElement
 				// just in case the array isn't set
 				$option_txt = '';
 				if (isset($def['options'][$i])) {
-					$option_txt = CCTM::charset_decode_utf_8(trim($def['options'][$i]));
+					$option_txt = \CCTM\CCTM::charset_decode_utf_8(trim($def['options'][$i]));
 				}
 				$value_txt = '';
 				if (isset($def['values'][$i])) {
-					$value_txt = CCTM::charset_decode_utf_8(trim($def['values'][$i]));
+					$value_txt = \CCTM\CCTM::charset_decode_utf_8(trim($def['values'][$i]));
 				}
 				
 				$option_css_id = 'cctm_dropdown_option'.$opt_i;
@@ -395,7 +393,7 @@ class multiselect extends FormElement
 				to be stored on the right (if present).  You may also enter a valid MySQL query. This field overrides 
 				other inputs!', CCTM_TXTDOMAIN).'</span><br/>
 			<textarea name="alternate_input" id="alternate_input" cols="50" rows="10">'.
-			CCTM::get_value($def,'alternate_input')
+			\CCTM\CCTM::get_value($def,'alternate_input')
 			.'</textarea>';
 
 		// Execute as MySQL?

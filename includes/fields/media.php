@@ -1,14 +1,13 @@
 <?php
 /**
- * CCTM_media
  *
  * Implements an field that stores a reference to a media item (i.e. any attachment post)
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
+use CCTM\GetPostsQuery as GetPostsQuery;
+//use CCTM\CCTM as CCTM;
 class media extends FormElement
 {
 	public $props = array(
@@ -172,7 +171,7 @@ class media extends FormElement
 	public function get_edit_field_instance($current_value) {
 
 
-		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
+//		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 
 		$Q = new GetPostsQuery();
 
@@ -187,7 +186,7 @@ class media extends FormElement
 		// Multi field?
 		if ($this->is_repeatable) {
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_media_multi.tpl'
 					, 'fields/elements/_relation_multi.tpl'
@@ -233,16 +232,16 @@ class media extends FormElement
 		// Regular old Single-selection
 		else {
 			$this->post_id    = (int) $this->get_value($current_value,'to_string'); 
-			$this->thumbnail_url = CCTM::get_thumbnail($this->post_id);
+			$this->thumbnail_url = \CCTM\CCTM::get_thumbnail($this->post_id);
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_media.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
 
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_media.tpl'
 					, 'fields/wrappers/_relation.tpl'
@@ -274,7 +273,7 @@ class media extends FormElement
 			$this->button_label = __('Choose Media', CCTM_TXTDOMAIN);
 		}
 
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 
 	}
 
@@ -292,14 +291,11 @@ class media extends FormElement
 	 */
 	public function get_edit_field_definition($def) {
 
-		// Used to fetch the default value.
-		require_once CCTM_PATH.'/includes/GetPostsQuery.php';
-
 		// Standard
 		$out = $this->format_standard_fields($def);
 		
 		// Options
-		$Q = new GetPostsQuery();
+		$Q = new \CCTM\GetPostsQuery();
 		
 		$out .= '
 			<div class="postbox">
@@ -320,15 +316,15 @@ class media extends FormElement
 		// Handle the display of the default value
 		if ( !empty($def['default_value']) ) {
 
-			$hash = CCTM::get_thumbnail($def['default_value']);
+			$hash = \CCTM\CCTM::get_thumbnail($def['default_value']);
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_media.tpl'
 					, 'fields/elements/_relation.tpl'
 				)
 			);
-			$preview_html = CCTM::parse($fieldtpl, $hash);
+			$preview_html = \CCTM\CCTM::parse($fieldtpl, $hash);
 		}
 
 		// Button Label
@@ -342,7 +338,7 @@ class media extends FormElement
 		// Set Search Parameters
 		$search_parameters_str = CCTM::get_value($def, 'search_parameters');
 		parse_str($search_parameters_str, $args);
-		$Q = new GetPostsQuery($args);
+		$Q = new \CCTM\GetPostsQuery($args);
 		$search_parameters_visible = $Q->get_args();
 		
 		$out .= '

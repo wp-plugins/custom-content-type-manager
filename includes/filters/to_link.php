@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Take a numerical post id and converts it to a full anchor tag.
  */
-
-class CCTM_to_link extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class to_link extends OutputFilter {
 
 	/**
 	 * Apply the filter.

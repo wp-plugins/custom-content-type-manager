@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Formats a string into a number format 
  */
-
-class CCTM_number extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class number extends OutputFilter {
 
 	/**
 	 * Apply the filter.

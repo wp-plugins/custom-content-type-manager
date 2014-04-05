@@ -29,7 +29,6 @@
  * @package CCTM
  */
 namespace CCTM;
-use CCTM as CCTM;
 class Ajax {
 
 	/**

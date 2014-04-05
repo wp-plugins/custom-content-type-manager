@@ -4,8 +4,8 @@
  * 
  * Returns a default value if the input value is empty.
  */
-
-class CCTM_default extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class onempty extends OutputFilter {
 
 	/**
 	 * Replace any empty values with the $option.

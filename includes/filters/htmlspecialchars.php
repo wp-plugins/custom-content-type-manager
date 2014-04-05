@@ -1,11 +1,10 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * Implements PHPs htmspecialchars
  */
-
-class CCTM_htmlspecialchars extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class htmlspecialchars extends OutputFilter {
 
 	/**
 	 * Replace any empty values with the $option.

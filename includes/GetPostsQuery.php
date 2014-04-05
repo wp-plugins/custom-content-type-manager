@@ -23,7 +23,7 @@
  * @package SummarizePosts
  */
 
-
+namespace CCTM;
 class GetPostsQuery {
 
 	private $P; // stores the Pagination object.

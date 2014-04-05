@@ -1,10 +1,8 @@
 <?php
 /**
- * CCTM_text
  *
  * Implements a simple HTML text input.
  *
- * @package CCTM_FormElement
  */
 
 namespace CCTM\Fields;
@@ -81,13 +79,13 @@ class text extends FormElement
 		$wrappertpl = '';
 
 		if ($this->is_repeatable) {
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -107,24 +105,24 @@ class text extends FormElement
 		else {
 			$this->value  = htmlspecialchars( html_entity_decode($this->get_value($current_value,'to_string') ));
 
-			$fieldtpl = CCTM\Load::tpl(
+			$fieldtpl = \CCTM\Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = CCTM\Load::tpl(
+			$wrappertpl = \CCTM\Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
-			$this->content = CCTM::parse($fieldtpl, $this->get_props());
+			$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
 		}
 
 
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
-		return CCTM::parse($wrappertpl, $this->get_props());
+		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 
@@ -156,13 +154,13 @@ class text extends FormElement
     public function get_options_desc() {        
         $out = '';
         if (!empty($this->props['validator'])) {
-            $classname = 'CCTM\\Validatorss\\'.$this->props['validator'];
+            $classname = 'CCTM\\Validators\\'.$this->props['validator'];
             try {
                 $Vobj = new $classname();
                 $out .= $Vobj->get_name() .'<br/>';
             }
             catch (Exception $e) {
-            
+                // TODO: log error
             }
 
         }

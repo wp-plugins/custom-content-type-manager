@@ -1,4 +1,6 @@
 <?php
+namespace CCTM;
+use WP_Widget as WP_Widget;
 class SummarizePosts_Widget extends WP_Widget {
 
 	public $name;

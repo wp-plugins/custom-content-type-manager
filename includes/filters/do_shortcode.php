@@ -1,13 +1,12 @@
 <?php
 /**
- * @package CCTM_OutputFilter
  * 
  * The do_shortcode filter parses any shortcodes present in the input by using
  * WordPress' do_shortcode() function
  * See http://codex.wordpress.org/Function_Reference/do_shortcode.
  */
-
-class CCTM_do_shortcode extends CCTM_OutputFilter {
+namespace CCTM\Filters;
+class do_shortcode extends OutputFilter {
 
 	
 	/**

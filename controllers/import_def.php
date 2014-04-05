@@ -4,14 +4,13 @@ if (!current_user_can('administrator')) exit('Admins only.');
 /*------------------------------------------------------------------------------
 Export a content type definition to a .json file
 ------------------------------------------------------------------------------*/
-require_once(CCTM_PATH . '/includes/CCTM_ImportExport.php');
 
 $data 				= array();
 $data['page_title']	= __('Import Definition', CCTM_TXTDOMAIN);
 $data['help'] = 'http://code.google.com/p/wordpress-custom-content-type-manager/wiki/Import';
 $data['menu'] 		= sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_tools&a=tools" title="%s" class="button">%s</a>', __('Back'), __('Back')) . ' '.
 						sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm_tools&a=export_def" title="%s" class="button">%s</a>',__('Export'), __('Export'));
-$data['msg']		= CCTM::get_flash();
+$data['msg']		= \CCTM\CCTM::get_flash();
 $data['content'] = '';
 $data['defs_array'] = array();
 
@@ -23,7 +22,7 @@ $dir = $upload_dir['basedir'] .'/'.self::base_storage_dir . '/' . self::def_dir;
 if ( file_exists($dir) && is_dir($dir) ) {
 //	$data['msg'] = ''; // do nothing
 	// Read the files
-	$data['defs_array'] = CCTM_ImportExport::get_defs();
+	$data['defs_array'] = \CCTM\ImportExport::get_defs();
 	
 } 
 elseif (!@mkdir($dir, self::new_dir_perms, true)) {

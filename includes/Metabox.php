@@ -3,7 +3,6 @@
  * Contains functions particular to creating/editing/managing metaboxes.
  */
 namespace CCTM;
-use CCTM as CCTM;  
 class Metabox {
 
 	public static $errors = array();
@@ -24,7 +23,7 @@ class Metabox {
 		}
 		$d['metabox'] = $metabox_name;
 		$d['edit_metabox_link'] = get_site_url(). '/wp-admin/admin.php?page=cctm&a=edit_metabox&id='.$metabox_name;	
-		return CCTM\Load::view('metabox-holder.php', $d);
+		return \CCTM\Load::view('metabox-holder.php', $d);
 	}
 	
 	/**
