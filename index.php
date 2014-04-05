@@ -37,21 +37,17 @@ spl_autoload_register(function($class) {
     // So our namespaces correspond to our folder structure
     $file = dirname(__FILE__).'/src/'.str_replace('\\', '/', $class).'.php';
 
-    // First, check the user directory for overrides
+    // Allow the user directory to provide overrides
     if (false) {
-        // ... todo ...    
+        // ... TODO ...    
     }
     elseif (is_readable($file)) {
         require_once $file;
     }
-/*
-    elseif (strpos($class, 'CCTM') !== false) {
-        print 'Class: '.$class.'<br/>';
-        print 'File: '.$file.'<br/>';exit;
-
-    }
-*/
 },false);
+
+// Bootstrapping: Dependency injection
+// new \CCTM\Log(new \CCTM\File());
 
 // Run tests when the plugin is activated.
 register_activation_hook(__FILE__, '\CCTM\Selfcheck::run');
@@ -63,28 +59,28 @@ add_action('admin_init', function(){
 });
 
 require_once 'includes/constants.php';
-require_once 'includes/functions.php';
+include_once 'includes/functions.php';
 
 // Register Ajax Controllers (easier to hard-code than do scan dirs)
-// pattern is: 'wp_ajax_{filename}', CCTM\Ajax::{filename}
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::bulk_add');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::download_def');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::format_getpostsquery_args');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_posts');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_search_form');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_selected_posts');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_shortcode');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_tpl');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_validator_options');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::get_widget_post_tpl');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::list_custom_fields');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::post_content_widget');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::post_content_widget');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::preview_def');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::summarize_posts_form');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::summarize_posts_get_args');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::summarize_posts_widget');
-add_action('wp_ajax_bulk_add', '\CCTM\Ajax::upload_image');
+// pattern is: 'wp_ajax_{file-basename}', CCTM\Ajax::{file-basename}
+add_action('wp_ajax_bulk_add',                  '\CCTM\Ajax::bulk_add');
+add_action('wp_ajax_download_def',              '\CCTM\Ajax::download_def');
+add_action('wp_ajax_format_getpostsquery_args', '\CCTM\Ajax::format_getpostsquery_args');
+add_action('wp_ajax_get_posts',                 '\CCTM\Ajax::get_posts');
+add_action('wp_ajax_get_search_form',           '\CCTM\Ajax::get_search_form');
+add_action('wp_ajax_get_selected_posts',        '\CCTM\Ajax::get_selected_posts');
+add_action('wp_ajax_get_shortcode',             '\CCTM\Ajax::get_shortcode');
+add_action('wp_ajax_get_tpl',                   '\CCTM\Ajax::get_tpl');
+add_action('wp_ajax_get_validator_options',     '\CCTM\Ajax::get_validator_options');
+add_action('wp_ajax_get_widget_post_tpl',       '\CCTM\Ajax::get_widget_post_tpl');
+add_action('wp_ajax_list_custom_fields',        '\CCTM\Ajax::list_custom_fields');
+add_action('wp_ajax_post_content_widget',       '\CCTM\Ajax::post_content_widget');
+add_action('wp_ajax_post_content_widget',       '\CCTM\Ajax::post_content_widget');
+add_action('wp_ajax_preview_def',               '\CCTM\Ajax::preview_def');
+add_action('wp_ajax_summarize_posts_form',      '\CCTM\Ajax::summarize_posts_form');
+add_action('wp_ajax_summarize_posts_get_args',  '\CCTM\Ajax::summarize_posts_get_args');
+add_action('wp_ajax_summarize_posts_widget',    '\CCTM\Ajax::summarize_posts_widget');
+add_action('wp_ajax_upload_image',              '\CCTM\Ajax::upload_image');
 
 // Load up the textdomain(s) for translations
 CCTM\Load::file('/config/lang/dictionaries.php');

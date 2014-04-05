@@ -71,10 +71,6 @@ if (empty(CCTM\CCTM::$errors) && CCTM\CCTM::$license=='valid') {
 				&& isset(CCTM\CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns'])
 				&& !empty(CCTM\CCTM::$data['post_type_defs'][$post_type]['cctm_custom_columns']) ) {
 
-				//require_once 'includes/CCTM_Columns.php';
-				//CCTM::$Columns = new CCTM\Columns();
-				//CCTM::$Columns->post_type = $post_type;
-
 				// Draw the column headers
 				add_filter("manage_{$post_type}_posts_columns" , 'CCTM\Columns::'.$post_type);
 
