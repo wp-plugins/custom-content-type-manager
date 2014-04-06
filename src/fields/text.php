@@ -6,7 +6,7 @@
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
+use CCTM;
 class text extends FormElement
 {
 
@@ -79,13 +79,13 @@ class text extends FormElement
 		$wrappertpl = '';
 
 		if ($this->is_repeatable) {
-			$fieldtpl = \CCTM\Load::tpl(
+			$fieldtpl = Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'_multi.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = \CCTM\Load::tpl(
+			$wrappertpl = Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'_multi.tpl'
 					, 'fields/wrappers/_default.tpl'
@@ -105,24 +105,24 @@ class text extends FormElement
 		else {
 			$this->value  = htmlspecialchars( html_entity_decode($this->get_value($current_value,'to_string') ));
 
-			$fieldtpl = \CCTM\Load::tpl(
+			$fieldtpl = Load::tpl(
 				array('fields/elements/'.$this->name.'.tpl'
 					, 'fields/elements/_'.$this->type.'.tpl'
 					, 'fields/elements/_default.tpl'
 				)
 			);
-			$wrappertpl = \CCTM\Load::tpl(
+			$wrappertpl = Load::tpl(
 				array('fields/wrappers/'.$this->name.'.tpl'
 					, 'fields/wrappers/_'.$this->type.'.tpl'
 					, 'fields/wrappers/_default.tpl'
 				)
 			);
-			$this->content = \CCTM\CCTM::parse($fieldtpl, $this->get_props());
+			$this->content = CCTM::parse($fieldtpl, $this->get_props());
 		}
 
 
 		$this->add_label = __('Add', CCTM_TXTDOMAIN);
-		return \CCTM\CCTM::parse($wrappertpl, $this->get_props());
+		return CCTM::parse($wrappertpl, $this->get_props());
 	}
 
 

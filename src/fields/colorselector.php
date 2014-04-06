@@ -5,7 +5,8 @@
  * http://blog.meta100.com/post/600571131/mcolorpicker
  *
  */
-namespace CCTM\Fields; 
+namespace CCTM\Fields;
+use CCTM;
 class colorselector extends FormElement
 {
 	public $props = array(

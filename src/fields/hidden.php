@@ -8,6 +8,7 @@
  */
 
 namespace CCTM\Fields;
+use CCTM;
 class hidden extends FormElement {
 
 	public $props = array(

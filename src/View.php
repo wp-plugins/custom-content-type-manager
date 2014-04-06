@@ -9,14 +9,20 @@ namespace CCTM;
 class View {
     
     public static $Log;
+    public static $POST;
+    public static $GET;
     
     /**
-     * Dependency injection used here to make this more testable.
-     *
-     * @param object $Log for logging info
+     * @object Pimple dependency container
      */
-    public function __construct(object $Log) {
-        self::$Log = $Log;
+    public function __construct(\Pimple $dependencies) {
+        self::$Log = $dependencies['Log'];
+        self::$POST = $dependencies['POST'];
+        self::$GET = $dependencies['GET'];
     }
-        
+    
+    
+    public static function make() {
+    
+    }
 }

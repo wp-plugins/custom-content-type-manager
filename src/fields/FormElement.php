@@ -24,7 +24,7 @@
  */
 
 namespace CCTM\Fields;
-use CCTM as CCTM;
+use CCTM;
 abstract class FormElement {
 
 	/**
@@ -230,7 +230,6 @@ abstract class FormElement {
      * @return string
      */
     protected function _get_search_parameters_visible($search_parameters_str) {
-        require_once CCTM_PATH.'/includes/GetPostsQuery.php';
 		$Q = new \CCTM\GetPostsQuery();
 		parse_str($search_parameters_str, $args);
 		$Q = new \CCTM\GetPostsQuery($args);
@@ -441,7 +440,7 @@ abstract class FormElement {
 		$validation_select = ''; // containing select element
 		$validator_options = ''; // options for the active validator (if any)
 		if ($show_validators) {
-			$validators = CCTM::get_available_helper_classes('validators');
+			$validators = \CCTM\CCTM::get_available_helper_classes('validators');
 			foreach ($validators as $shortname => $path) {
                 $classname = 'CCTM\\Validators\\'.$shortname;
                 $Vobj = new $classname();

@@ -15,6 +15,7 @@
  */
 
 namespace CCTM\Fields;
+use CCTM;
 class user extends FormElement {
 
 	public $props = array(

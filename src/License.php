@@ -23,8 +23,8 @@ class License {
         $data['page_title']	= __('License Options', CCTM_TXTDOMAIN);
         $data['menu'] 		= '';
         $data['msg']		= '';
-        $data['content'] = CCTM\Load::view('license.php',$data);
-        print CCTM\Load::view('templates/default.php', $data);
+        $data['content'] = Load::view('license.php',$data);
+        print Load::view('templates/default.php', $data);
         return;
 	}
 

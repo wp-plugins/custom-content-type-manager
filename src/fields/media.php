@@ -7,6 +7,7 @@
 
 namespace CCTM\Fields;
 use CCTM\GetPostsQuery as GetPostsQuery;
+use CCTM;
 //use CCTM\CCTM as CCTM;
 class media extends FormElement
 {

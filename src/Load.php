@@ -1,12 +1,45 @@
 <?php
 /**
- * Load any file that allows for overrides. A user may override the given file
- * by placing a file of the same name in the same relative structure inside the 
+ * Load any file that allows for substitutions. E.g. A user may override the given 
+ * file by placing a file of the same name in the same relative structure inside the 
  * wp-content/uploads/cctm/ folder.
+ *
+ * Also handle any instantiations using the "new" keyword that cannot be handled via
+ * dependency injection.
  */
 namespace CCTM;
 class Load {
 
+    public static $Log;
+    public static $DIC;
+        
+    /**
+     * @object Pimple dependency container
+     */
+    public function __construct(\Pimple $dependencies) {
+        self::$Log = $dependencies['Log'];
+        self::$DIC = $dependencies;
+        self::$Log->debug('Construct.', __CLASS__, __LINE__);
+    }
+
+    /** 
+     * Instantiate a controller.
+     *
+     *
+     */
+    public function controller($name) {
+        $classname = '\\CCTM\\Controllers\\'.$name;
+        
+        if (!class_exists($classname)) {
+            self::$Log->error('Controller class not found: '.$name, __CLASS__,__LINE__);
+            return false;
+        }
+        
+        return new $classname(self::$DIC);
+
+
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * When given a PHP file name relative to the CCTM_PATH, e.g. '/config/image_search_parameters.php',

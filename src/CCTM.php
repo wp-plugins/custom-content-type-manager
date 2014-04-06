@@ -254,6 +254,12 @@ class CCTM {
 	 * Used by the image, media, relation post-selector.
 	 */
 	public static $post_selector = array();
+    public static $DIC;
+    public static $Log; // Log object
+    public function __construct(\Pimple $dependencies) {
+        self::$Log = $dependencies['Log'];        
+        self::$Log->debug('Construct.', __CLASS__, __LINE__);
+    }
 
 	//! Private Functions
 	//------------------------------------------------------------------------------
@@ -486,32 +492,6 @@ class CCTM {
 
 	}
 
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Adds a link to the settings directly from the plugins page.  This filter is
-	 * called for each plugin, so we need to make sure we only alter the links that
-	 * are displayed for THIS plugin.
-	 *
-	 * INPUTS (determined by WordPress):
-	 *   array('deactivate' => 'Deactivate')
-	 * relative to the plugins directory, e.g. 'custom-content-type-manager/index.php'
-	 *
-	 * @param array   $links is a hash of links to display in the format of name => translation e.g.
-	 * @param string  $file  is the path to plugin's main file (the one with the info header),
-	 * @return array $links
-	 */
-	public static function add_plugin_settings_link($links, $file) {
-		if ( $file == basename(dirname(dirname(__FILE__))) . '/index.php' ) {
-			$settings_link = sprintf('<a href="%s">%s</a>'
-				, admin_url( 'admin.php?page=cctm' )
-				, __('Settings')
-			);
-			array_unshift( $links, $settings_link );
-		}
-
-		return $links;
-	}
 
 	/**
 	 * Prints a form to the end user so that the users on the front-end can create 
@@ -970,19 +950,6 @@ class CCTM {
 			);
 			update_option(CCTM::db_key, self::$data);
 		}
-	}
-
-
-	//------------------------------------------------------------------------------
-	/**
-	 * Create custom post-type menu.  This should only be visible to
-	 * admin users (single-sites) or the super_admin users (multi-site).
-	 *
-	 * See http://codex.wordpress.org/Administration_Menus
-	 * http://wordpress.org/support/topic/plugin-custom-content-type-manager-multisite?replies=18#post-2501711
-	 */
-	public static function create_admin_menu() {
-		Load::file('/config/menus/admin_menu.php');
 	}
 
 
@@ -1950,7 +1917,7 @@ class CCTM {
 	 */
 	public static function page_main_controller() {
         if (CCTM::$license != 'valid') {
-            CCTM\License::activate_license_page();
+            License::activate_license_page();
             return;    
         }
         

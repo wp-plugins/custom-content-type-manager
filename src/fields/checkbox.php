@@ -6,6 +6,7 @@
  */
 
 namespace CCTM\Fields;
+use CCTM;
 class checkbox extends FormElement
 {
 	public $props = array(

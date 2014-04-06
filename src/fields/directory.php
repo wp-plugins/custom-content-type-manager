@@ -4,7 +4,8 @@
  * Lists the contents of a directory (an optionally all sub-dirs) for selection in a dropdown.
  *
  */
-namespace CCTM\Fields; 
+namespace CCTM\Fields;
+use CCTM;
 class directory extends FormElement
 {
 	public $props = array(

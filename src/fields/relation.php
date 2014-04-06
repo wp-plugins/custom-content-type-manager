@@ -7,6 +7,7 @@
  */
 
 namespace CCTM\Fields;
+use CCTM;
 class relation extends FormElement
 {
 	public $props = array(

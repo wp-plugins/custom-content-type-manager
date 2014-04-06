@@ -26,7 +26,15 @@ add_menu_page(
 	__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
 	$capability,						// capability
 	'cctm',								// menu-slug (should be unique)
-	'\CCTM\CCTM::page_main_controller',       // callback function
+	function () {  
+       global $container;
+	   //$Controller = $container['Controller'];
+	   //return $Controller->index();
+
+	   $Route = $container['Route'];
+	   return $Route->get('index');
+
+	},       
 	CCTM_URL .'/images/gear.png',       // Icon
 	\CCTM\CCTM::menu_position					// menu position
 );
@@ -37,7 +45,7 @@ add_submenu_page(
 	__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability
 	'cctm_fields',						// menu_slug: cf = custom fields
-	'\CCTM\CCTM::page_main_controller'		// callback function
+	'\CCTM\Controller::customfields'		// callback function
 );
 
 add_submenu_page(
@@ -46,7 +54,7 @@ add_submenu_page(
 	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
 	$capability,							// capability
 	'cctm_settings',						// menu_slug
-	'\CCTM\CCTM::page_main_controller'			// callback function
+	'\CCTM\Controller::settings'			// callback function
 );
 
 add_submenu_page(
@@ -64,7 +72,7 @@ add_submenu_page(
 	__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
 	'cctm_cache',					// menu_slug
-	'\CCTM\CCTM::page_main_controller'	// callback function
+	'\CCTM\Controller::cache'	// callback function
 );
 
 add_submenu_page(

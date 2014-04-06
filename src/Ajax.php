@@ -48,7 +48,7 @@ class Ajax {
 	 * @param string $name of the method being called
 	 * @param mixed $args sent to that method
 	 */
-	public function __callStatic($name, $args) {
+	public static function __callStatic($name, $args) {
 	
         $file = CCTM_PATH.'/ajax-controllers/'.$name.'.php';
 		if (preg_match('/[a-z_\-]/',$name) || !file_exists($file)) {

@@ -5,6 +5,7 @@
  *
  */
 namespace CCTM\Fields;
+use CCTM;
 class multiselect extends FormElement
 {
 	public $props = array(

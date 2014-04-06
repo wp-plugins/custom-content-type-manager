@@ -26,13 +26,13 @@ $data['submit'] = __('Save', CCTM_TXTDOMAIN);
 $data['action_name']  = 'custom_content_type_mgr_edit_custom_field';
 $data['nonce_name']  = 'custom_content_type_mgr_edit_custom_field_nonce';
 
-$nonce = CCTM::get_value($_GET, '_wpnonce');
+$nonce = \CCTM\CCTM::get_value($_GET, '_wpnonce');
 if (! wp_verify_nonce($nonce, 'cctm_edit_field') ) {
 	die( __('Invalid request.', CCTM_TXTDOMAIN ) );
 }
 
 // Get the post-types for listing associations.
-$displayable_types = CCTM::get_post_types();
+$displayable_types = \CCTM\CCTM::get_post_types();
 	
 $field_type = self::$data['custom_field_defs'][$field_name]['type'];
 $field_data = self::$data['custom_field_defs'][$field_name]; // Data object we will save
@@ -55,14 +55,14 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 
 	// Handle editing of the associations
 	// All associations were removed
-	$post_type_defs = CCTM::get_post_type_defs();
+	$post_type_defs = \CCTM\CCTM::get_post_type_defs();
 	
 	if ( !isset($_POST['post_types'])) {
 		// die('All associations removed...');
 		foreach($displayable_types as $pt) {
 			$def = array();
-			if ( isset(CCTM::$data['post_type_defs'][$pt])) {
-				$def = CCTM::$data['post_type_defs'][$pt];
+			if ( isset(\CCTM\CCTM::$data['post_type_defs'][$pt])) {
+				$def = \CCTM\CCTM::$data['post_type_defs'][$pt];
 			}
 			
 			if (is_array($def['custom_fields']) && in_array($field_name, $def['custom_fields'])) {
@@ -72,15 +72,15 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 						$revised_custom_fields[] = $cf;
 					}
 				}
-				CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;
+				\CCTM\CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;
 			}
 		}
 	}
 	else {
 		foreach($displayable_types as $pt) {
 			$def = array();
-			if ( isset(CCTM::$data['post_type_defs'][$pt])) {
-				$def = CCTM::$data['post_type_defs'][$pt];
+			if ( isset(\CCTM\CCTM::$data['post_type_defs'][$pt])) {
+				$def = \CCTM\CCTM::$data['post_type_defs'][$pt];
 			}
 			
 			// Add the association
@@ -89,7 +89,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 					|| !is_array($def['custom_fields'])
 					|| !in_array($field_name, $def['custom_fields'])) {
 					$def['custom_fields'][] = $field_name;
-					CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $def['custom_fields'];
+					\CCTM\CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $def['custom_fields'];
 				}
 			}
 			// Remove the association
@@ -102,7 +102,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 						}
 					}
 				}
-				CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;								
+				\CCTM\CCTM::$data['post_type_defs'][$pt]['custom_fields'] = $revised_custom_fields;								
 			}
 		}
 	}
@@ -129,7 +129,7 @@ if ( !empty($_POST) && check_admin_referer($data['action_name'], $data['nonce_na
 		}
 		self::$data['custom_field_defs'][ $field_data['name'] ] = $field_data;
 		update_option( self::db_key, self::$data );
-		$continue_editing = CCTM::get_value($_POST, 'continue_editing');
+		$continue_editing = \CCTM\CCTM::get_value($_POST, 'continue_editing');
 		unset($_POST);
 		
 		
@@ -187,7 +187,7 @@ foreach ($displayable_types as $post_type) {
 	//------------------------------------------------------------------------------
 	// post,page: Built-in post types
 	//------------------------------------------------------------------------------
-	if ( in_array($post_type, CCTM::$built_in_post_types) ) {
+	if ( in_array($post_type, \CCTM\CCTM::$built_in_post_types) ) {
 		$def['description']	= '<img src="'. CCTM_URL .'/images/wp.png" height="16" width="16" alt="wp" /> '. __('Built-in post-type.', CCTM_TXTDOMAIN);
 		if ('page' == $post_type) {
 			$icon = '<img src="'. CCTM_URL . '/images/icons/page.png' . '" width="14" height="16"/>';
@@ -199,7 +199,7 @@ foreach ($displayable_types as $post_type) {
 	//------------------------------------------------------------------------------
 	// Full fledged CCTM post-types
 	//------------------------------------------------------------------------------
-	elseif (isset(CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
+	elseif (isset(\CCTM\CCTM::$data['post_type_defs'][$post_type]['post_type'])) {
 		$def['description'] = self::$data['post_type_defs'][$post_type]['description'];
 		if ( !empty($def['menu_icon']) && !$def['use_default_menu_icon'] ) {
 			$icon = '<img src="'. $def['menu_icon'] . '" />';
@@ -261,6 +261,6 @@ $data['field_name'] = $field_name;
 $data['field_type'] = $FieldObj->get_name();
 
 
-$data['content'] = CCTM\Load::view('custom_field.php', $data);
-print CCTM\Load::view('templates/default.php', $data);
+$data['content'] = \CCTM\Load::view('custom_field.php', $data);
+print \CCTM\Load::view('templates/default.php', $data);
 /*EOF*/

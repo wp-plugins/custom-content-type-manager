@@ -26,19 +26,18 @@ class Log {
     
     public static $level = 1;
     public static $target = null;
-    public static $format = '[%s @ %s %s ] %s';
-    public static $Filesystem;
-    public static $log_function;
+    public static $log_function;    
+    public static $format = "[%s] (%s@%s:%s) %s\n";
 
     /**
-     * Dependency injection used here to make this more testable.
-     *
-     * @param object $Filesystem used to write files.
-     * @param string $log_function optional. Default: 'error_log'
+     * @param Pimple object referencing some configurations (not really dependencies)
+     *       'log_function' optional. Default: 'error_log'
+     *       'log_target' optional filename 
      */
-    public function __construct(object $Filesystem, $log_function='error_log') {
-        self::$Filesystem = (method_exists($Filesystem, 'append')) ? $Filesystem : false;
-        self::$log_function = (function_exists($log_function)) ? $log_function : false;
+    public function __construct(\Pimple $dependencies) {
+        self::$target = $dependencies['log_target'];
+        self::$level = (isset($dependencies['log_level'])) ? $dependencies['log_level'] : 1;
+        self::$log_function = (function_exists($dependencies['log_function'])) ? $dependencies['log_function'] : 'error_log';
     }
 
     /**
@@ -49,12 +48,16 @@ class Log {
      */
     private static function _send($msg, $level) {
         if ($level <= self::$level) {
-            if (self::$target == true && self::$log_function) {
+            if (self::$target === true && self::$log_function) {
                 return $log_function($msg);
             }
-            elseif ($Filesystem) {
-                return $Filesystem::append(self::$target, $msg);
-            }
+            if (!self::$target) return false;
+            if (!is_scalar(self::$target)) return false;        
+            if (!file_exists(dirname(self::$target))) return false;	
+            if (!$fh = fopen(self::$target, 'a')) return false;
+            fwrite($fh, $msg);
+            fclose($fh);
+            return true;
         }
     }
     
@@ -66,7 +69,7 @@ class Log {
      * @param integer $line number where the error originated (optional)
      */
 	public static function error($msg, $file='unknown', $line='?') {
-        return self::_send(sprintf(self::$format, strtoupper(__FUNCTION__), $file, $line, $msg), 1); 
+        return self::_send(sprintf(self::$format, date('Y-m-d H:i:s'), strtoupper(__FUNCTION__), $file, $line, $msg), 1); 
     }
     
     /**
@@ -77,7 +80,7 @@ class Log {
      * @param integer $line number where the error originated (optional)
      */
 	public static function debug($msg, $file='unknown', $line='?') {
-        return self::_send(sprintf(self::$format, strtoupper(__FUNCTION__), $file, $line, $msg), 4); 
+        return self::_send(sprintf(self::$format, date('Y-m-d H:i:s'), strtoupper(__FUNCTION__), $file, $line, $msg), 4); 
     }
 
     /**
@@ -88,7 +91,7 @@ class Log {
      * @param integer $line number where the error originated (optional)
      */    
 	public static function info($msg, $file='unknown', $line='?') {
-        return self::_send(sprintf(self::$format, strtoupper(__FUNCTION__), $file, $line, $msg), 3); 
+        return self::_send(sprintf(self::$format, date('Y-m-d H:i:s'), strtoupper(__FUNCTION__), $file, $line, $msg), 3); 
     }    
     
     /**
@@ -99,7 +102,7 @@ class Log {
      * @param integer $line number where the error originated (optional)
      */    
 	public static function warning($msg, $file='unknown', $line='?') {
-        return self::_send(sprintf(self::$format, strtoupper(__FUNCTION__), $file, $line, $msg), 2); 
+        return self::_send(sprintf(self::$format, date('Y-m-d H:i:s'), strtoupper(__FUNCTION__), $file, $line, $msg), 2); 
     }
         
 }

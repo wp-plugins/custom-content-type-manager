@@ -6,6 +6,7 @@
  */
 
 namespace CCTM\Fields;
+use CCTM;
 class wysiwyg extends FormElement {
 	public $props = array(
 		'label' => '',

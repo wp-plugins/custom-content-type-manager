@@ -6,6 +6,7 @@
  */
 
 namespace CCTM\Fields;
+use CCTM;
 class image extends FormElement
 {
 	public $props = array(

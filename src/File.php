@@ -1,7 +1,6 @@
 <?php
 /**
  * Handles reading and writing of files
- * Verbosity is controlled by 
  */
 namespace CCTM;
 
