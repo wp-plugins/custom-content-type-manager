@@ -1,9 +1,9 @@
 <?php
 namespace CCTM\Controllers;
 use CCTM;
-class Index extends Controller {
+class Posttypes extends Controller {
 
-    public function get() {
+    public function getIndex() {
         /*------------------------------------------------------------------------------
         Lists all defined post types:
         Post-types come in 3 flavors w 3 formatting variations:

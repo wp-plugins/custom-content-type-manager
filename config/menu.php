@@ -22,21 +22,16 @@ $active_post_types = \CCTM\CCTM::get_active_post_types();
 
 // Main menu item
 add_menu_page(
-	__('Manage Custom Content Types', CCTM_TXTDOMAIN),  // page title
-	__('Custom Content Types', CCTM_TXTDOMAIN),      // menu title
-	$capability,						// capability
-	'cctm',								// menu-slug (should be unique)
+	__('Manage Custom Content Types', CCTM_TXTDOMAIN), // page title
+	__('Custom Content Types', CCTM_TXTDOMAIN),        // menu title
+	$capability,						               // capability
+	'cctm_posttypes',					               // menu-slug: corresponds to controller class
 	function () {  
        global $container;
-	   //$Controller = $container['Controller'];
-	   //return $Controller->index();
-
-	   $Route = $container['Route'];
-	   return $Route->get('index');
-
+	   return $container['Route']->handle();
 	},       
 	CCTM_URL .'/images/gear.png',       // Icon
-	\CCTM\CCTM::menu_position					// menu position
+	\CCTM\CCTM::menu_position			// menu position
 );
 
 add_submenu_page(
