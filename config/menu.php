@@ -52,7 +52,10 @@ add_submenu_page(
 	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
 	$capability,							// capability
 	'cctm_settings',						// menu_slug
-	'\CCTM\Controller::settings'			// callback function
+    function () {  
+       global $container;
+	   return $container['Route']->handle();
+	}			// callback function
 );
 
 add_submenu_page(
@@ -61,7 +64,10 @@ add_submenu_page(
 	__('Tools', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
 	'cctm_tools',					// menu_slug
-	'\CCTM\CCTM::page_main_controller'	// callback function
+    function () {  
+       global $container;
+	   return $container['Route']->handle();
+	}	// callback function
 );
 
 add_submenu_page(
@@ -70,7 +76,10 @@ add_submenu_page(
 	__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
 	'cctm_cache',					// menu_slug
-	'\CCTM\Controller::cache'	// callback function
+    function () {  
+       global $container;
+	   return $container['Route']->handle();
+	}	// callback function
 );
 
 add_submenu_page(

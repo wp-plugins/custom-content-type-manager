@@ -29,15 +29,26 @@ class Load {
      */
     public function controller($name) {
         $classname = '\\CCTM\\Controllers\\'.$name;
-        
         if (!class_exists($classname)) {
             self::$Log->error('Controller class not found: '.$name, __CLASS__,__LINE__);
             return false;
         }
-        
         return new $classname(self::$DIC);
+    }
 
 
+    /** 
+     * Instantiate a model.
+     *
+     *
+     */
+    public function model($name) {
+        $classname = '\\CCTM\\Models\\'.$name;
+        if (!class_exists($classname)) {
+            self::$Log->error('Model class not found: '.$name, __CLASS__,__LINE__);
+            return false;
+        }
+        return new $classname(self::$DIC);
     }
     
 	//------------------------------------------------------------------------------

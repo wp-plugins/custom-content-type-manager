@@ -14,9 +14,8 @@ class View {
     public static $Data;
     public static $POST;
     public static $GET;
-    
-    public static $sub_dir = '/views/'; // defines where in the app the view files are.
-    
+
+    public static $path;    
     /**
      * @object Pimple dependency container
      */
@@ -44,19 +43,41 @@ class View {
         self::$Data->$key = $value;
     }
 
-	//------------------------------------------------------------------------------
+    /**
+     * Where are our view fields stored?
+     */
+    public static function getPath() {
+        return (self::$path) ? self::$path : CCTM_PATH.'/views/'; 
+    }
+    
+    /**
+     * You may override the path for testing or for third-party components.
+     */
+    public static function setPath($path) {
+        self::$path = $path;
+    }
+
+    public static function is_checked($val) {
+        return ($val) ? ' checked="checked"' : '';
+    }
 	/**
 	 * Load up a PHP file into a string via an include statement. MVC type usage here.
 	 *
 	 * @param string  $filename (relative to the "views/" directory)
-	 * @param string  $path (optional) pathname. Can be overridden for 3rd party fields
+	 * @param array  $args. Instead of setting attributes on the View object, you can 
+	 *     pass them here. Useful for simple views or for static invocation.
+	 * @param boolean $debug (optional) set this if you want to see what your views are doing
 	 * @return string the parsed contents of that file
 	 */    
-	public static function make($filename, $path=null, $debug=false) {
+	public static function make($filename, array $args=array(),$debug=false) {
+        // Last minute setting
+        foreach ($args as $k => $v) {
+            self::$Data->$k = $v;
+        }
+
+        $path = self::getPath();
         self::$Log->debug('View parameters -- filename: ' .print_r($filename,true). ' data: '.print_r((array)self::$Data,true). ' path: '.$path, __CLASS__,__LINE__);
-		if (empty($path)) {
-			$path = CCTM_PATH . self::$sub_dir;
-		}
+
 		$data =& self::$Data;
 		if (is_file($path.$filename)) {
 			ob_start();

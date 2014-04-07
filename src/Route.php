@@ -1,6 +1,7 @@
 <?php
 /**
- * Maps a manager URL to a controller. 
+ * Maps a manager URL to a controller (and a few other tasks related to URLs, requests
+ * and responses -- I'm bending the one-class one-purpose rule a bit)
  *
  * Wordpress uses only the "page" parameter to map a menu to a callback, and their
  * implementation is very simplified so that one menu item is bound to one action and 
@@ -33,7 +34,9 @@ class Route {
     public static $View;
     public static $POST;
     public static $GET;
-
+    public static $create_nonce_function;
+    public static $check_nonce_function;
+    
     // We could inject these, but it'd prob'ly be overkill
     public static $slug_pre = 'cctm_'; 
     public static $class_param = 'page';
@@ -42,7 +45,7 @@ class Route {
     public static $default_class = 'Posttypes';
     public static $default_function = 'index';
     public static $default_permission = 'cctm';
-    
+    public static $nonce_fieldname = '_cctmnonce';
     
     /**
      * Dependency injection used here to make this more testable.
@@ -55,28 +58,25 @@ class Route {
         self::$View = $dependencies['View'];
         self::$POST = $dependencies['POST'];
         self::$GET = $dependencies['GET'];
-        self::$Log->debug('Construct.', __CLASS__, __LINE__);        
+        self::$create_nonce_function = (isset($dependencies['create_nonce_function'])) ? $dependencies['create_nonce_function'] : function ($name) { return ''; };
+        self::$check_nonce_function = (isset($dependencies['check_nonce_function'])) ? $dependencies['check_nonce_function'] : function ($nonce,$name) { return true; };
+        self::$Log->debug('Construct.', __CLASS__, __LINE__);
+              
     }
 
     /**
-     * Translate a URL-ish string into 2 parts representing a controlloer and function.
-     * e.g. 'some/thing' becomes array('some','thing)
-     * whereas 'nada' becomes array('nada','index')
+     * Make a full anchor tag to a particular route
      *
-     * The classname corresponds to WP's "menu slugs" which get passed in the "page"
-     * parameter e.g. wp-admin/admin.php?page=cctm (see config/menu.php).
-     *
-     * @param string $str
-     * @return array
+     * @param string virtual $virtual_url
+     * @param string clickable $title in the anchor tag
+     * @param array optional $attributes to include in the link tag
+     * @return string     
      */
-    private static function split($str) {
-        $segments = explode('/',trim($str,'/'));
-        $classname = ($segments) ? array_shift($segments) : self::$default_class;
-        $function = ($segments) ? array_shift($segments) : self::$default_function;
-        $args = ($segments) ? $segments : array();        
-        return array($classname, $function, $args);
+    public static function a($virtual_url, $title='',$attributes=array()) {
+        $url = self::url($virtual_url);
+        return 'TEST';
     }
-    
+
     /**
      * parse the request into classname + function + args, by 
      * listening for URL parameters
@@ -102,71 +102,115 @@ class Route {
      */
     public static function handle() {
         list($class,$function,$args) = self::parse();
-        return self::send($class,$function,$args);
+        return self::fulfill($class,$function,$args);
     }
+    
+    /**
+     * Use reroute when you need to deflect one controller to another while
+     * preserving some data, e.g. after a form submission fails validation
+     * or use it to set "flash" messages without actually storing any data
+     * in a session. 
+     * 
+     * This is a convenience function: you can also pass 4 arguments directly
+     * to the "send" method.
+     *
+     * E.g. in a controller:
+     *
+     *  return self::$Route->reroute('customfields/types', array('msg' => 'Come here Instead'));
+     *
+     * @param $virtual_url, e.g. 'customfields/create'
+     * @param $viewdata array any data to be passed to the view
+     */
+    public static function reroute($virtual_url, $viewdata=array()) {
+        list($class,$function,$args) = self::split($virtual_url);
+        return self::fulfill($class,$function,$args,$viewdata);
+    }
+    
     /** 
      *
      */
     public static function sendError($msg) {
-        print View::make('error.php', array('msg'=>'Controller class not found: '.$routename));
-        self::$Log->debug('Controller class not found: '.$routename, __CLASS__, __LINE__);
+        print View::make('error.php', array('msg'=>$msg));
+        self::$Log->debug($msg, __CLASS__, __LINE__);
         return;    
     }
     
     /**
-     * Send the route to the controller and fulfill the request.
+     * Validate and fulfill the request by handing off to a controller function.
      *
      * @param string $classname stub (namespace of CCTM\Controllers is assumed)
      * @param string $function i.e. method name
-     * @param array $args any additional arguments
+     * @param array $args any arguments to be passed to the controller (optional)
+     * @param array $viewdata any data to be set on the view (optional)
      * @return string HTML web page usually
      */
-    public static function send($class,$function,$args=array()) {
+    public static function fulfill($class,$function,array $args=array(),array $viewdata=array()) {
         // Our 404
         if(!$Controller = self::$Load->controller($class)) {
-            return self::sendError('Controller class not found: '.$routename);
+            return self::sendError('Controller class not found: '.$class);
         }
+        foreach ($viewdata as $k => $v) {
+            $Controller::$View->$k = $v;
+        }
+        $signature = $class.'/'.$function.'/'.implode('/',$args);
+
         if (self::$POST) {
-            // test nonces
+            if (!isset(self::$POST[self::$nonce_fieldname])) {
+                self::$Log->error('Post data missing nonce.', __CLASS__, __LINE__);
+                return self::sendError('Post data missing nonce. ');
+            }
+            if (!call_user_func(self::$check_nonce_function, self::$POST[self::$nonce_fieldname], $signature)) {
+                self::$Log->error('Invalid nonce for signature '.$signature, __CLASS__, __LINE__);
+                return self::sendError('Invalid nonce.');
+            }
+            //unset(self::$POST[self::$nonce_fieldname]); //<-- fails because it's an overloaded object
             $function = 'post'.$function;
         }
         else {
+            $nonce = call_user_func(self::$create_nonce_function, $signature);
+            self::$Log->error('Generating nonce '.$nonce.' for signature '.$signature, __CLASS__, __LINE__);
+            $Controller::$View->noncefield = '<input type="hidden" name="'.self::$nonce_fieldname.'" value="'.$nonce.'" />';
             $function = 'get'.$function;
         }
-        self::$Log->debug('Sending request to '.$class .'::'.$function .' with args '.print_r($args,true), __CLASS__, __LINE__);        
+        self::$Log->debug('Sending request to '.$class .'::'.$function .' with args '.print_r($args,true).' viewdata: '.print_r($viewdata,true), __CLASS__, __LINE__);        
         return call_user_func_array(array($Controller, $function), $args);
-        //return $Controller->$function();
     }
-    
+
+    /**
+     * Translate a URL-ish string into 2 parts representing a controlloer and function.
+     * e.g. 'some/thing' becomes array('some','thing)
+     * whereas 'nada' becomes array('nada','index')
+     *
+     * The classname corresponds to WP's "menu slugs" which get passed in the "page"
+     * parameter e.g. wp-admin/admin.php?page=cctm (see config/menu.php).
+     *
+     * @param string $str
+     * @return array
+     */
+    private static function split($str) {
+        $segments = explode('/',trim($str,'/'));
+        $classname = ($segments) ? array_shift($segments) : self::$default_class;
+        $function = ($segments) ? array_shift($segments) : self::$default_function;
+        $args = ($segments) ? $segments : array();        
+        return array($classname, $function, $args);
+    }
+        
     /**
      * The URL to a particular route in the format of $classname/$function[/$arg1/$arg2/...etc...]
      * The classname need not include the "cctm_" prefix that WordPress requires.
      *
-     * @param string virtual $routename, e.g. 'customfields/edit/my-field'
+     * @param string $virtual_url, e.g. 'customfields/edit/my-field'
      * @return string url, e.g. http://craftsmancoding.com/wp-admin/admin.php?page=cctm_customfields&route=edit/my-field
      */
-    public static function url($routename) {
-        if (!is_scalar($routename)) {
-            self::$Log->error('$routename must be a scalar: '.print_r($routename,true), __CLASS__, __LINE__);
+    public static function url($virtual_url) {
+        if (!is_scalar($virtual_url)) {
+            self::$Log->error('$virtual_url must be a scalar: '.print_r($virtual_url,true), __CLASS__, __LINE__);
             return;
         }    
-        list($class,$function,$args) = self::split($routename);
+        list($class,$function,$args) = self::split($virtual_url);
         array_unshift($args,$function); // function is 1st argument
         $url = get_admin_url(false,'admin.php').'?page='.self::$slug_pre.$class.'&route='.implode('/',$args);
-        self::$Log->debug('URL made from route '.$routename. ' to '.$url, __CLASS__, __LINE__);
+        self::$Log->debug('URL made from route '.$virtual_url. ' to '.$url, __CLASS__, __LINE__);
         return $url;
-    }
-    
-    /**
-     * Make a full anchor tag to a particular route
-     *
-     * @param string virtual $routename
-     * @param string clickable $title in the anchor tag
-     * @param array optional $attributes to include in the link tag
-     * @return string     
-     */
-    public static function a($routename, $title='',$attributes=array()) {
-        $url = self::url($routename);
-        return 'TEST';
     }
 }

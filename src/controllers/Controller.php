@@ -10,8 +10,11 @@ class Controller {
 
     public static $Log;
     public static $View;
-
-    
+    public static $Load;
+    public static $Cache;
+    public static $Route;
+    public static $POST;
+    public static $GET;    
     /**
      * Dependency injection used here to make this more testable.
      *
@@ -20,6 +23,11 @@ class Controller {
     public function __construct(\Pimple $dependencies) {
         self::$Log = $dependencies['Log'];
         self::$View = $dependencies['View'];
+        self::$Load = $dependencies['Load'];
+        self::$Cache = $dependencies['Cache'];
+        self::$Route = $dependencies['Route'];
+        self::$POST = $dependencies['POST'];
+        self::$GET = $dependencies['GET'];        
     }  
     
     /**

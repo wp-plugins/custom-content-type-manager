@@ -40,30 +40,23 @@ $container['Log'] = function ($c) {
 };
 $container['File'] = function ($c) { return new \CCTM\File($c); };
 $container['Dir'] = function ($c) { return new \CCTM\Dir($c); };
-$container['Controller'] = $container->factory(function ($c) { return new \CCTM\Controller($c); });
-//$container['Controller'] = function ($c) { return new \CCTM\Controller($c); };
-$container['Route'] = function ($c) { 
+$container['Route'] = function ($c) {
+    $c['create_nonce_function'] = 'wp_create_nonce';
+    $c['check_nonce_function'] = 'wp_verify_nonce'; 
     $c['POST'] = $_POST;
     $c['GET'] = $_GET;
     return new \CCTM\Route($c); 
 };
-$container['Posttype'] = function ($c) { return new \CCTM\Posttype($c); };
-$container['Customfield'] = function ($c) { return new \CCTM\Customfield($c); };
+$container['get_option_function'] = 'get_option';
+$container['update_option_function'] = 'update_option';
 $container['GetPostsQuery'] = function ($c) { return new \CCTM\GetPostsQuery($c); };
-$container['Metabox'] = function ($c) { return new \CCTM\Metabox($c); };
 $container['Pagination'] = function ($c) { return new \CCTM\Pagination($c); };
 $container['Load'] = function ($c) { return new \CCTM\Load($c); };
+$container['Cache'] = function ($c) { return new \CCTM\Cache($c); };
+//$container['Model'] = $container->factory(function ($c) { return new \CCTM\Models\Model($c); });
 $container['View'] = function ($c) { return new \CCTM\View($c); };
+//$container['Controller'] = $container->factory(function ($c) { return new \CCTM\Controller($c); });
 $container['Data'] = function ($c) { return new \CCTM\Data($c); };
-
-
-/*
-// Normally Pimple returns the same ref upon multiple calls. 
-// Use factory to return different instances.
-$container['session'] = $container->factory(function ($c) {
-    return new Session($c['session_storage']);
-});
-*/
 
 // Run tests when the plugin is activated.
 register_activation_hook(__FILE__, '\CCTM\Selfcheck::run');
