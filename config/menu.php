@@ -35,16 +35,19 @@ add_menu_page(
 );
 
 add_submenu_page(
-	'cctm',          // parent slug (menu-slug from add_menu_page call)
+	'cctm_posttypes',          // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Custom Fields', CCTM_TXTDOMAIN),  // page title
 	__('Custom Fields', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability
-	'cctm_fields',						// menu_slug: cf = custom fields
-	'\CCTM\Controller::customfields'		// callback function
+	'cctm_customfields',					// menu_slug: cf = custom fields
+	function () {  
+       global $container;
+	   return $container['Route']->handle();
+	}		
 );
 
 add_submenu_page(
-	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	'cctm_posttypes',         // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Global Settings', CCTM_TXTDOMAIN),  // page title
 	__('Global Settings', CCTM_TXTDOMAIN),	// menu title
 	$capability,							// capability
@@ -53,7 +56,7 @@ add_submenu_page(
 );
 
 add_submenu_page(
-	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	'cctm_posttypes',         // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Tools', CCTM_TXTDOMAIN),   // page title
 	__('Tools', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
@@ -62,7 +65,7 @@ add_submenu_page(
 );
 
 add_submenu_page(
-	'cctm',         // parent slug (menu-slug from add_menu_page call)
+	'cctm_posttypes',         // parent slug (menu-slug from add_menu_page call)
 	__('CCTM Clear Cache', CCTM_TXTDOMAIN),   // page title
 	__('Clear Cache', CCTM_TXTDOMAIN),    // menu title
 	$capability,					// capability
@@ -71,7 +74,7 @@ add_submenu_page(
 );
 
 add_submenu_page(
-	'cctm',          // parent slug (menu-slug from add_menu_page call)
+	'cctm_posttypes',          // parent slug (menu-slug from add_menu_page call)
 	__('License', CCTM_TXTDOMAIN),  // page title
 	__('License', CCTM_TXTDOMAIN),   // menu title
 	$capability,						// capability

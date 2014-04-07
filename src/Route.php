@@ -2,11 +2,19 @@
 /**
  * Maps a manager URL to a controller. 
  *
- * Wordpress uses only the "page" parameter to map a menu to a callback, but we 
- * need to take this further so that:
+ * Wordpress uses only the "page" parameter to map a menu to a callback, and their
+ * implementation is very simplified so that one menu item is bound to one action and 
+ * to one permission.  So when we route URLs in the manager, we are actually mapping both
+ * a request to a classname::function, but we are also "gating" it with a WP permission.
+ * 
+ * So the app here uses "virtual" urls to loosen things up a bit, even though the permissions
+ * can only be locked down per controller class.  For convenience, the url() and a() functions
+ * expect a shorthand similar to CodeIgniter: {$classname}/{$function}[/$optional/$args]
  *
- *      &page=cctm_{$controller_class_name}
- *      &a={$controller_function_name}
+ * This translates to GET parameters like this:
+ * 
+ *      &page=cctm_{$classname}  <-- must be defined via add_menu_page or add_submenu_page
+ *      &route={$function[/$optional/$args]}
  *
  * Manager controllers are grouped into main classes.
  * URL segments can be used to map to the functions -- functions have "get" or "post" as
@@ -30,7 +38,11 @@ class Route {
     public static $slug_pre = 'cctm_'; 
     public static $class_param = 'page';
     public static $function_param = 'a';
+    public static $route_param = 'route';
+    public static $default_class = 'Posttypes';
     public static $default_function = 'index';
+    public static $default_permission = 'cctm';
+    
     
     /**
      * Dependency injection used here to make this more testable.
@@ -58,27 +70,30 @@ class Route {
      * @return array
      */
     private static function split($str) {
-        $pos = strpos($str, '/');
-        if ($pos === false) {
-            return array($str,'index');
-        }
-        else {
-            return array(substr($str,0,$pos), substr($str,$pos +1));
-        }
+        $segments = explode('/',$str);
+        $classname = ($segments) ? array_shift($segments) : self::$default_class;
+        $function = ($segments) ? array_shift($segments) : self::$default_function;
+        $args = ($segments) ? $segments : array();        
+        return array($classname, $function, $args);
     }
     
     /**
-     * parse the request, listening for URL parameters
+     * parse the request into classname + function + args, by 
+     * listening for URL parameters
      *
+     * @return array $class (str), $function (str), $args (array)
      */
     public static function parse() {
-        $class = (isset(self::$GET[self::$class_param])) ? self::$GET[self::$class_param] : '';
+        $class = (isset(self::$GET[self::$class_param])) ? self::$GET[self::$class_param] : self::$default_class;
+        // Strip prefix
         if (substr($class, 0, strlen(self::$slug_pre)) == self::$slug_pre) {
             $class = substr($class, strlen(self::$slug_pre));
         }
-        $function = (isset(self::$GET[self::$function_param])) ? self::$GET[self::$function_param] : self::$default_function;
-        self::$Log->debug('Parsing request: class: '.$class .' function: '.$function, __CLASS__, __LINE__);        
-        return array($class,$function);
+        $args = (isset(self::$GET[self::$route_param])) ? explode('/',self::$GET[self::$route_param]) : array();
+        $function = ($args) ? array_shift($args) : self::$default_function;
+        
+        self::$Log->debug('Parsing Request -- Class: '.$class .' Function: '.$function .' Args: '.print_r($args,true), __CLASS__, __LINE__);        
+        return array($class,$function,$args);
     }
     
     /**
@@ -86,8 +101,8 @@ class Route {
      * could be in a dedicated "Request" class.
      */
     public static function handle() {
-        list($class,$function) = self::parse();
-        return self::send($class,$function);
+        list($class,$function,$args) = self::parse();
+        return self::send($class,$function,$args);
     }
     /** 
      *
@@ -99,34 +114,47 @@ class Route {
     }
     
     /**
+     * Send the route to the controller and fulfill the request.
      *
-     * @param string $routename  Similar to codeigniter: {$controllerclass}/{$function}
-     *      if "/" is omitted, we assume the default function: index
+     * @param string $classname stub (namespace of CCTM\Controllers is assumed)
+     * @param string $function i.e. method name
+     * @param array $args any additional arguments
      * @return string HTML web page usually
      */
-    public static function send($class,$function) {
+    public static function send($class,$function,$args=array()) {
         // Our 404
         if(!$Controller = self::$Load->controller($class)) {
             return self::sendError('Controller class not found: '.$routename);
         }
-        $function = (self::$POST) ? 'post'.$function : 'get'.$function;
-        self::$Log->debug('Sending request to '.$class .'::'.$function, __CLASS__, __LINE__);        
-        return $Controller->$function();
+        if (self::$POST) {
+            // test nonces
+            $function = 'post'.$function;
+        }
+        else {
+            $function = 'get'.$function;
+        }
+        self::$Log->debug('Sending request to '.$class .'::'.$function .' with args '.print_r($args,true), __CLASS__, __LINE__);        
+        return call_user_func_array(array($Controller, $function), $args);
+        //return $Controller->$function();
     }
     
     /**
-     * The URL to a particular route.
+     * The URL to a particular route in the format of $classname/$function[/$arg1/$arg2/...etc...]
+     * The classname need not include the "cctm_" prefix that WordPress requires.
      *
-     * @param string virtual $routename
-     * @return string
+     * @param string virtual $routename, e.g. 'customfields/edit/my-field'
+     * @return string url, e.g. http://craftsmancoding.com/wp-admin/admin.php?page=cctm_customfields&route=edit/my-field
      */
     public function url($routename) {
         if (!is_scalar($routename)) {
             self::$Log->error('$routename must be a scalar: '.print_r($routename,true), __CLASS__, __LINE__);
             return;
         }    
-        list($class, $function) = self::split($routename);
-        return get_admin_url(false,'admin.php').'?page='.self::$slug_pre.$class.'&=a'.$function;
+        list($class,$function,$args) = self::split($routename);
+        array_unshift($args,$function); // function is 1st argument
+        $url = get_admin_url(false,'admin.php').'?page='.self::$slug_pre.$class.'&route='.implode('/',$args);
+        self::$Log->debug('URL made from route '.$routename. ' to '.$url, __CLASS__, __LINE__);
+        return $url;
     }
     
     /**
