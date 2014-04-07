@@ -7,8 +7,10 @@
 namespace CCTM\Controllers;
 
 class Controller {
-    
+
     public static $Log;
+    public static $View;
+
     
     /**
      * Dependency injection used here to make this more testable.
@@ -17,6 +19,7 @@ class Controller {
      */
     public function __construct(\Pimple $dependencies) {
         self::$Log = $dependencies['Log'];
+        self::$View = $dependencies['View'];
     }  
     
     /**

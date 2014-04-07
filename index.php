@@ -54,6 +54,9 @@ $container['Metabox'] = function ($c) { return new \CCTM\Metabox($c); };
 $container['Pagination'] = function ($c) { return new \CCTM\Pagination($c); };
 $container['Load'] = function ($c) { return new \CCTM\Load($c); };
 $container['View'] = function ($c) { return new \CCTM\View($c); };
+$container['Data'] = function ($c) { return new \CCTM\Data($c); };
+
+
 /*
 // Normally Pimple returns the same ref upon multiple calls. 
 // Use factory to return different instances.

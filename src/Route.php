@@ -70,7 +70,7 @@ class Route {
      * @return array
      */
     private static function split($str) {
-        $segments = explode('/',$str);
+        $segments = explode('/',trim($str,'/'));
         $classname = ($segments) ? array_shift($segments) : self::$default_class;
         $function = ($segments) ? array_shift($segments) : self::$default_function;
         $args = ($segments) ? $segments : array();        
@@ -145,7 +145,7 @@ class Route {
      * @param string virtual $routename, e.g. 'customfields/edit/my-field'
      * @return string url, e.g. http://craftsmancoding.com/wp-admin/admin.php?page=cctm_customfields&route=edit/my-field
      */
-    public function url($routename) {
+    public static function url($routename) {
         if (!is_scalar($routename)) {
             self::$Log->error('$routename must be a scalar: '.print_r($routename,true), __CLASS__, __LINE__);
             return;
@@ -165,7 +165,7 @@ class Route {
      * @param array optional $attributes to include in the link tag
      * @return string     
      */
-    public function a($routename, $title='',$attributes=array()) {
+    public static function a($routename, $title='',$attributes=array()) {
         $url = self::url($routename);
         return 'TEST';
     }

@@ -37,7 +37,7 @@ class Customfield {
     }
     
     public static function getAll($criteria=array()) {
-    
+        return array();
     }
     
     public static function rename($name,$newname) {
