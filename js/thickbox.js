@@ -9,11 +9,13 @@
  */
 
 function tb_remove() {
+	console.log('test');
  	jQuery("#TB_imageOff").unbind("click");
 	jQuery("#TB_closeWindowButton").unbind("click");
 //	jQuery("#TB_window").fadeOut("fast",function(){jQuery('#TB_window,#TB_overlay,#TB_HideSelect').trigger("unload").unbind().remove();});
 	jQuery("#TB_window").fadeOut("fast",function(){jQuery('#TB_window,#TB_overlay,#TB_HideSelect').unload("#TB_ajaxContent").unbind().remove();});
 	jQuery("#TB_load").remove();
+	jQuery("body").removeClass("modal-open"); 
 	if (typeof document.body.style.maxHeight == "undefined") {//if IE 6
 		jQuery("body","html").css({height: "auto", width: "auto"});
 		jQuery("html").css("overflow","");
@@ -21,3 +23,4 @@ function tb_remove() {
 	jQuery(document).unbind('.thickbox');
 	return false;
 }
+
