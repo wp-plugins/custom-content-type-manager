@@ -112,15 +112,15 @@ if (empty(CCTM::$errors)) {
 				// Forces custom post types to sort correctly
 				add_filter('posts_orderby', 'CCTM::order_posts');
 				add_filter('posts_join', 'CCTM::posts_join');
-				
+
 			}
 		}
-		
+
         add_filter('media_upload_tabs', 'CCTM::customize_upload_tabs');
 	}
 
 	// Enable archives for custom post types
-	add_filter('request', 'CCTM::request_filter');
+	//add_filter('request', 'CCTM::request_filter');
 
 
 	// Modifies the "Right Now" widget
@@ -134,6 +134,5 @@ if (empty(CCTM::$errors)) {
 
 
 }
-
 
 /*EOF*/

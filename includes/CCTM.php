@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.8.3';
+	const version = '0.9.8.4';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -431,8 +431,14 @@ class CCTM {
 				array_walk($tmp_capability_type,'trim');
 				$def['capability_type'] = $tmp_capability_type;
 			}
-		}		
+		}
 		unset($def['custom_orderby']);
+
+        // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=534
+        if (isset($def['query_var']) && empty($def['query_var']))
+        {
+            unset($def['query_var']);
+        }
 
 		return $def;
 	}
@@ -2512,6 +2518,14 @@ class CCTM {
 				&& !in_array($post_type, self::$built_in_post_types)
 				&& isset($def['post_type'])
 				) {
+//                if (!isset($def['hierarchical']))
+//                {
+//                    print 'NOT '; exit;
+//                }
+//                else {
+//                    print 'SET'; print '<pre>'.print_r($def, true); exit;
+//                }
+                //CCTM::log(print_r($def,true));
 				register_post_type( $post_type, $def );
 			}
 		}
