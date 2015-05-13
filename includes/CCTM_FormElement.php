@@ -669,8 +669,13 @@ abstract class CCTM_FormElement {
 			if (is_numeric($str)) {
 				return $str;
 			}
-			if (!is_array($str)) {			
-    			$out = (array) json_decode($str, true);
+            // Version of PHP matters, unfortunately.
+            // https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=557
+            if (!is_array($str)) {
+                $firstChar = mb_substr($str, 0, 1, 'utf-8');
+                if ($firstChar == '{' || $firstChar == '[') {
+                    $out = (array) json_decode($str, true);
+                }
             }
             else {
                 $out = $str;
@@ -890,7 +895,6 @@ abstract class CCTM_FormElement {
 
 			// it's a CREATE operation
 			if ( empty($this->original_name) ) {
-
 				if ( isset(CCTM::$data['custom_field_defs']) && is_array(CCTM::$data['custom_field_defs'])) {
 					foreach (CCTM::$data['custom_field_defs'] as $cf =>$def) {
 						if (strtolower($posted_data['name']) == strtolower($cf)) {
@@ -903,9 +907,10 @@ abstract class CCTM_FormElement {
 			elseif ( $this->original_name != $posted_data['name'] ) {
 				if ( isset(CCTM::$data['custom_field_defs']) && is_array(CCTM::$data['custom_field_defs'])) {
 						if (strtolower($posted_data['name']) == strtolower($cf)) {
-							$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');						
+							$this->errors['name'][] = sprintf( __('The name %s is already in use. Please choose another name.', CCTM_TXTDOMAIN), '<em>'.$posted_data['name'].'</em>');
+                            $posted_data['name'] = '';
 						}
-					$posted_data['name'] = '';
+
 				}
 			}
 		}
